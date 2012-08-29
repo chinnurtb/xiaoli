@@ -1,0 +1,75 @@
+#!/usr/bin/env python
+
+import os
+
+import sys
+
+import time
+
+import errdb
+
+import MySQLdb
+
+FATAP_AVAIL_SQL="select t1.ap_dn as dn, t2.ping_status, t2.snmp_status from mit_aps t1,avail_devices t2 where t1.ap_dn = t2.dn and t1.ap_fit = 2 and t1.ap_state in (0,1,3);"
+
+AC_AVAIL_SQL="select t1.ac_dn as dn, t2.ping_status, t2.snmp_status from mit_acs t1, avail_devices t2 where t1.ac_state in (0,1,3) and t1.ac_dn = t2.dn;"
+
+SW_AVAIL_SQL="select t1.sw_dn as dn, t2.ping_status, t2.snmp_status from mit_switchs t1,avail_devices t2 where t1.sw_state in (0,1,3) and t1.sw_dn = t2.dn;"
+
+FITAP_AVAIL_SQL="select ap_dn as dn, managed_state from mit_aps where ap_fit = 1 and ap_state in (0,1,3);"
+
+def dump(cursor, sql, rrdb):
+  ts = int(time.time())
+  cursor.execute(sql) 
+  for row in cursor.fetchall():
+    colnum = len(row)
+    rdn = row[0].split(",")[0]
+    metrics = {"pingok": 0, 
+               "pingtimeout": 0,
+               "snmpok": 0,
+               "snmptimeout": 0}
+    if colnum == 2: #fitap
+      if row[1] == 1:
+        metrics["pingok"] = 1
+        metrics["snmpok"] = 1
+      else:
+        metrics["pingtimeout"] = 1
+        metrics["snmptimeout"] = 1
+    elif colnum == 3: #ac, sw, fatap
+      if row[1] == "OK":
+        metrics["pingok"] = 1
+      else: #CRITICAL
+        metrics["pingtimeout"] = 1
+      if row[2] == "OK":
+        metrics["snmpok"] = 1
+      else: #CRITICAL
+        metrics["snmptimeout"] = 1
+    rrdb.insert(rdn+':avail', ts, metrics)
+
+if __name__ == '__main__':
+  #connect to errdb
+  rrdb = errdb.Client(os.environ['ERRDB_HOST'], int(os.environ['ERRDB_PORT']))
+  #connect to mysql
+  conn = MySQLdb.connect(host = os.environ['MYSQL_HOST'], 
+						 port = int(os.environ['MYSQL_PORT']),
+                         user = os.environ['MYSQL_USER'], 
+                         passwd = os.environ['MYSQL_PASSWD'], 
+                         db = os.environ['MYSQL_DB'])
+  cursor = conn.cursor()
+  #fatap
+  dump(cursor, FATAP_AVAIL_SQL, rrdb)
+  print "dump fatap avail successfully."
+  #ac
+  dump(cursor, AC_AVAIL_SQL, rrdb)
+  print "dump ac avail successfully."
+  #sw
+  dump(cursor, SW_AVAIL_SQL, rrdb)
+  print "dump sw avail successfully."
+  #fitap
+  dump(cursor, FITAP_AVAIL_SQL, rrdb)
+  print "dump fitap avail successfully."
+  #close
+  cursor.close()
+  conn.close()
+  rrdb.close()
+

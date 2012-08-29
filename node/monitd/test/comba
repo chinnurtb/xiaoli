@@ -1,0 +1,4 @@
+mon_comba_ac2400:run([{dn, <<"c=cn">>}, {ip, <<"120.207.252.162">>}, {snmpCommunity, <<"Sxlfmccro">>}]).
+
+coll_comba_fitaps:run([{dn, <<"c=cn">>}, {ip, <<"120.207.252.162">>}, {snmpCommunity, <<"Sxlfmccro">>}]).
+

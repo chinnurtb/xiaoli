@@ -1,0 +1,53 @@
+#!/bin/bash
+#: Title       : setting
+#: Date        : 2012-04-24
+#: Author      : "Ery Lee" <ery.lee@gmail.com> from opengoss.com
+#: Version     : 1.0 
+#: Description : mysql, amqp, errdb settings
+
+# Identify the script name
+SCRIPT=`basename $0`
+ROOTDIR=$(cd ${0%/*} && pwd)
+VERSION=1.0
+DATE_OF_CREATION=2012-04-26
+AUTHOR="Ery Lee <ery.lee@gmail.com>"
+
+#NOTICE: amqp
+AMQP_HOST=localhost
+AMQP_VHOST=mobile
+AMQP_USER=mobile
+AMQP_PASS=public
+
+#NOTICE: errdb
+ERRDB_HOST=localhost
+ERRDB_PORT=7272
+
+OS_TYPE=`uname`
+if [ "$OS_TYPE" == "Darwin" ]; then
+	SED_OPTS="-i ''"
+else
+	SED_OPTS="-i"
+fi
+
+#configure node
+cd $ROOTDIR/etc/
+echo "configuring node/etc/node.config..."
+cp node.config.origin node.config
+sed -e "s/AMQP_HOST/$AMQP_HOST/g" \
+	-e "s/AMQP_VHOST/$AMQP_VHOST/g" \
+	-e "s/AMQP_USER/$AMQP_USER/g" \
+	-e "s/AMQP_PASS/$AMQP_PASS/g" \
+	-e "s/ERRDB_HOST/$ERRDB_HOST/g" \
+	-e "s/ERRDB_PORT/$ERRDB_PORT/g" \
+	$SED_OPTS node.config
+
+echo "configuring node/etc/worker.config..."
+cp worker.config.origin worker.config
+sed -e "s/AMQP_HOST/$AMQP_HOST/g" \
+	-e "s/AMQP_VHOST/$AMQP_VHOST/g" \
+	-e "s/AMQP_USER/$AMQP_USER/g" \
+	-e "s/AMQP_PASS/$AMQP_PASS/g" \
+	-e "s/ERRDB_HOST/$ERRDB_HOST/g" \
+	-e "s/ERRDB_PORT/$ERRDB_PORT/g" \
+	$SED_OPTS worker.config
+

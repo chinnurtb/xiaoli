@@ -1,0 +1,41 @@
+#!/usr/bin/env python
+
+import os
+
+import sys
+
+import time
+
+import errdb
+
+import MySQLdb
+
+if __name__ == '__main__':
+  timestamp = int(time.time())
+  #connect to errdb
+  rrdb = errdb.Client(os.environ['ERRDB_HOST'], int(os.environ['ERRDB_PORT']))
+  #connect to mysql
+  conn = MySQLdb.connect(host = os.environ['MYSQL_HOST'], 
+						 port = int(os.environ['MYSQL_PORT']),
+                         user = os.environ['MYSQL_USER'], 
+                         passwd = os.environ['MYSQL_PASSWD'], 
+                         db = os.environ['MYSQL_DB'])
+  cursor = conn.cursor()
+  cursor.execute("select ap_dn from wifi_mobile_units;") 
+
+  result = {}
+  for row in cursor.fetchall():
+    tokens = row[0].strip().split(',')
+    for rdn in tokens:
+        result[rdn] = result.get(rdn, 0) + 1    
+
+  for (rdn, count) in result.iteritems():
+    metric = {'stausers': count}
+    rrdb.insert(rdn+":stausers", timestamp, metric)
+  
+  print "dump %d stausers to errdb successfully" % len(result)
+
+  cursor.close()
+  conn.close()
+  rrdb.close()
+

@@ -1,0 +1,17 @@
+{application, monitd,
+ [{description, "monitor daemon"},
+  {vsn, "7.0"},
+  {modules, [monitd, 
+			monitd_app,
+			monitd_sup,
+			monitd_ctl,
+			disco_server,
+			monitd_oscmd,
+			monitd_sched,
+			monitd_hub,
+			monitor_task]},
+  {registered, [monitd]},
+  {applications, [kernel, stdlib]},
+  {env, []},
+  {mod, {monitd_app, []}}]}.
+

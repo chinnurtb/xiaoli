@@ -1,0 +1,4 @@
+
+export PATH=/usr/local/bin:$PATH
+
+cd /opt/mobile/tasks && source ./setting && ./errdb_cleaner.task 

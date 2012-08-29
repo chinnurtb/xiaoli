@@ -1,0 +1,6 @@
+disco_bell_ac:disco(<<"c=cn">>, "218.202.46.90", [{community, "Yndhmccro"}], [{vendor, bell}]).
+disco_bell_ac:disco(<<"c=cn">>, "211.141.40.50", [{community, "Lx21C%"}])., [{vendor, bell}]).
+
+mon_bell_ac20kmc_sta:run([{dn, <<"c=cn">>}, {ip, <<"211.141.76.218">>}, {snmpCommunity, <<"Lx21C%">>}]).
+mon_bell_ac20kmc:run([{dn, <<"c=cn">>}, {ip, <<"211.141.76.218">>}, {snmpCommunity, <<"Lx21C%">>}]).
+

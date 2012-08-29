@@ -1,0 +1,67 @@
+#!/bin/bash
+# -*- tab-width:4;indent-tabs-mode:nil -*-
+# ex: ts=4 sw=4 et
+
+#RUNNER_SCRIPT_DIR=$(cd ${0%/*} && pwd)
+
+RUNNER_BASE_DIR=/opt/mobile/node
+RUNNER_ETC_DIR=$RUNNER_BASE_DIR/etc
+RUNNER_LOG_DIR=$RUNNER_BASE_DIR/log
+# Note the trailing slash on $PIPE_DIR/
+PIPE_DIR=/tmp/$RUNNER_BASE_DIR/
+RUNNER_USER=
+
+# Make sure this script is running as the appropriate user
+if [ ! -z "$RUNNER_USER" ] && [ `whoami` != "$RUNNER_USER" ]; then
+    exec sudo -u $RUNNER_USER -i $0 $@
+fi
+
+# Make sure CWD is set to runner base dir
+cd $RUNNER_BASE_DIR
+
+# Make sure log directory exists
+mkdir -p $RUNNER_LOG_DIR
+# Identify the script name
+SCRIPT=`basename $0`
+
+# Parse out release and erts info
+ERLANG_BASE_DIR=/usr/local/lib/erlang
+START_ERL=`cat $ERLANG_BASE_DIR/releases/start_erl.data`
+ERTS_VSN=${START_ERL% *}
+APP_VSN=${START_ERL#* }
+
+VMARGS_PATH="$RUNNER_ETC_DIR/node.args"
+
+CONFIG_PATH="$RUNNER_ETC_DIR/node.config"
+
+# Extract the target node name from node.args
+NAME_ARG=`egrep '^-s?name' $VMARGS_PATH`
+if [ -z "$NAME_ARG" ]; then
+    echo "vm.args needs to have either -name or -sname parameter."
+    exit 1
+fi
+
+# Extract the target cookie
+COOKIE_ARG=`grep '^-setcookie' $VMARGS_PATH`
+if [ -z "$COOKIE_ARG" ]; then
+    echo "node.args needs to have a -setcookie parameter."
+    exit 1
+fi
+
+# Add ERTS bin dir to our path
+ERTS_PATH=$ERLANG_BASE_DIR/erts-$ERTS_VSN/bin
+
+ERL_LIBS=$RUNNER_BASE_DIR/lib
+ROOTDIR=$RUNNER_BASE_DIR        
+BINDIR=$ERTS_PATH
+EMU=beam
+
+export ERL_LIBS
+export EMU
+export ROOTDIR
+export BINDIR
+
+MNESIA_DIR=$RUNNER_BASE_DIR/var/mnesia/node
+
+erl -detached -node_home $RUNNER_BASE_DIR -pa $RUNNER_BASE_DIR/ebin -config $CONFIG_PATH -args_file $VMARGS_PATH -mnesia dir "\"$MNESIA_DIR\"" 
+

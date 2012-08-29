@@ -1,0 +1,2 @@
+mon_zte_w908_fitap:run([{dn, <<"c=cn">>}, {ip, <<"120.207.132.254">>}, {extra, "28"}, {snmpCommunity, <<"Sxtymccro">>}]).
+

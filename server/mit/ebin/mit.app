@@ -1,0 +1,10 @@
+{application,mit,
+             [{description,"mit"},
+              {vsn,"7.0"},
+              {modules,[mit,mit_ac,mit_ap,mit_app,mit_ctl,mit_dict,mit_dn,
+                        mit_event,mit_intf,mit_journal,mit_omc,mit_radio,
+                        mit_server,mit_site,mit_ssid,mit_sup,mit_sw]},
+              {registered,[mit,mit_dict,mit_journal,mit_server]},
+              {applications,[kernel,stdlib]},
+              {env,[]},
+              {mod,{mit_app,[]}}]}.

@@ -1,0 +1,4 @@
+mon_moto_rfs7000:run([{dn, <<"c=cn">>}, {ip, <<"218.201.203.202">>}, {extra, "1"}, {snmpCommunity, <<"Gzgymccro">>}]).
+mon_moto_fitap:run([{dn, <<"c=cn">>}, {ip, <<"218.201.203.202">>}, {extra, "3,1"}, {snmpCommunity, <<"Gzgymccro">>}]).
+
+disco_moto_rfs7000:disco(<<"c=cn">>, "218.201.203.202",[{community, <<"Gzgymccro">>}]).

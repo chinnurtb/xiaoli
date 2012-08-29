@@ -1,0 +1,6 @@
+#!/bin/bash
+
+export PATH=/usr/local/bin:$PATH
+
+cd /opt/mobile/tasks && source ./setting && ./avail.task
+

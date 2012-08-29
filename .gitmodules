@@ -1,0 +1,6 @@
+[submodule "node/trapd"]
+	path = node/trapd
+	url = git://github.com/erylee/trapd.git
+[submodule "errdb"]
+	path = errdb
+	url = git@github.com:erylee/errdb.git

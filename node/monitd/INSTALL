@@ -1,0 +1,23 @@
+# Configure
+
+vim setting and modify:
+
+AMQP_HOST=localhost
+AMQP_VHOST=wifioss
+AMQP_USER=wifioss
+AMQP_PASS=public
+
+./setting
+
+# Start
+
+./start
+
+# Stop
+
+./stop
+
+# Status
+
+./bin/node_ctl status
+

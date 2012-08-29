@@ -1,0 +1,12 @@
+#!/bin/bash
+#: Title       : errdb_cleaner.task
+#: Date        : 2012-07-24
+#: Author      : "Ery Lee" <ery.lee@gmail.com> from opengoss.com
+#: Version     : 1.0 
+#: Description : errdb cleaner
+
+DATE_TO_CLEAN=`date +%Y%m%d -d "-3day"`
+
+[ -z "$ERRDB_HOME" ] && ERRDB_HOME=/opt/errdb
+
+cd $ERRDB_HOME/var/journal/ && rm -rf $DATE_TO_CLEAN && echo "$ERRDB_HOME/var/journal/$DATE_TO_CLEAN removed"

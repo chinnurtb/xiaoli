@@ -1,0 +1,30 @@
+#!/bin/bash
+#: Title       : start
+#: Date        : 2012-04-24
+#: Author      : "Ery Lee" <ery.lee@gmail.com> from opengoss.com
+#: Version     : 1.0 
+#: Description : start the whole server.
+
+ROOTDIR=$(cd ${0%/*} && pwd)
+
+APPS="mit coord evabus statd metrix"
+
+for APP in $APPS
+do
+if [ -d $ROOTDIR/$APP ]; then
+	echo "starting $APP..."
+	cd $ROOTDIR/$APP && ./bin/$APP start -cluster mit@`hostname`
+	sleep 5
+	CRASHER=`grep crasher log/*`
+	if [ ! -z "$CRASHER" ]; then
+		echo "crash when starting $APP..."
+		echo "$CRASHER"
+		exit 1
+	fi
+	echo "ok"
+fi
+done
+
+#sleep 20
+
+#cd $ROOTDIR && ./run

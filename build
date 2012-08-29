@@ -1,0 +1,224 @@
+#!/bin/bash
+# -*- tab-width:4;indent-tabs-mode:nil -*-
+# ex: ts=4 sw=4 et
+
+#: Title       : build
+#: Date        : 2012-04-24
+#: Author      : "Ery Lee" <ery.lee@gmail.com> from opengoss.com
+#: Version     : 1.0 
+#: Description : build server, node, tasks packets
+
+ROOT_DIR=$(cd ${0%/*} && pwd)
+
+REL_DIR=$ROOT_DIR/rel
+
+DATE=`date +%Y%m%d`
+
+VSN="6.4.2"
+
+# Identify the script name
+SCRIPT=`basename $0`
+
+SERVER_LIBS="server/lib/agent/ebin \
+	 server/lib/amqp_client/ebin \
+	 server/lib/elog/ebin \
+	 server/lib/extlib/ebin \
+	 server/lib/evmon/ebin \
+	 server/lib/lager/ebin \
+	 server/lib/rabbit_common/ebin \
+	 server/lib/sesnmp/ebin \
+	 server/lib/errdb/ebin \
+	 server/lib/emysql/ebin \
+	 server/lib/worker_pool/ebin \
+	 server/lib/mochiweb/ebin"
+
+NODE_LIBS="node/lib/agent/ebin \
+		node/lib/amqp_client/ebin \
+		node/lib/elog/ebin \
+	 	node/lib/evmon/ebin \
+		node/lib/extlib/ebin \
+		node/lib/errdb/ebin \
+		node/lib/lager/ebin \
+		node/lib/mochiweb/ebin \
+		node/lib/worker_pool/ebin \
+		node/lib/rabbit_common/ebin \
+		node/lib/sesnmp/ebin"
+
+TRAPD_LIBS="trapd/lib/agent/ebin \
+		trapd/lib/amqp_client/ebin \
+		trapd/lib/elog/ebin \
+		trapd/lib/extlib/ebin \
+		trapd/lib/lager/ebin \
+		trapd/lib/worker_pool/ebin \
+		trapd/lib/mochiweb/ebin \
+		trapd/lib/rabbit_common/ebin \
+		trapd/lib/sesnmp/ebin"
+
+# Check the first argument for instructions
+case "$1" in
+    server)
+        if [ $# -lt 2 ]; then
+            echo "Usage: $SCRIPT server ipkg | upkg"
+            exit 1
+        fi
+		PKG=$REL_DIR/mobile-server-$VSN-$2-$DATE.tgz
+		SERVER_DIR=$REL_DIR/server
+		mkdir -p $SERVER_DIR
+		rsync -r --exclude=.git $ROOT_DIR/lib $SERVER_DIR
+		rsync -r $ROOT_DIR/mit --exclude=var --exclude=log --exclude=src $SERVER_DIR
+		rsync -r $ROOT_DIR/evabus --exclude=var --exclude=log  --exclude=src $SERVER_DIR
+		rsync -r $ROOT_DIR/statd --exclude=var --exclude=log  --exclude=src $SERVER_DIR
+		rsync -r $ROOT_DIR/metrix --exclude=var --exclude=log --exclude=src $SERVER_DIR
+		rsync -r $ROOT_DIR/wifioss --exclude=var --exclude=log --exclude=src $SERVER_DIR
+		rsync -r $ROOT_DIR/wifista --exclude=var --exclude=log --exclude=src $SERVER_DIR
+		cp $ROOT_DIR/run $SERVER_DIR
+		cp $ROOT_DIR/setting $SERVER_DIR
+		cp $ROOT_DIR/check $SERVER_DIR
+		cp $ROOT_DIR/start $SERVER_DIR
+		cp $ROOT_DIR/stop $SERVER_DIR
+		cp $ROOT_DIR/README $SERVER_DIR/README
+		cp $ROOT_DIR/INSTALL $SERVER_DIR/INSTALL
+		cd $REL_DIR
+		MIT_DIR=server/mit
+		mkdir -p $MIT_DIR/var/mnesia
+		EVABUS_DIR=server/evabus
+		mkdir -p $EVABUS_DIR/var/mnesia
+		STATD_DIR=server/statd
+		mkdir -p $STATD_DIR/var/mnesia
+		METRIX_DIR=server/metrix
+		mkdir -p $METRIX_DIR/var/mnesia
+		WIFIOSS_DIR=server/wifioss
+		mkdir -p $WIFIOSS_DIR/var/mnesia
+		WIFISTA_DIR=server/wifista
+		mkdir -p $WIFISTA_DIR/var/mnesia
+		if [ $2 == 'ipkg' ]; then
+			tar czf $PKG $SERVER_LIBS \
+				server/README server/INSTALL server/setting \
+				server/start server/stop server/run server/check \
+				$MIT_DIR/bin $MIT_DIR/ebin $MIT_DIR/etc $MIT_DIR/var \
+				$EVABUS_DIR/bin $EVABUS_DIR/ebin $EVABUS_DIR/etc $EVABUS_DIR/var \
+				$METRIX_DIR/bin $METRIX_DIR/ebin $METRIX_DIR/etc $METRIX_DIR/var \
+				$STATD_DIR/bin $STATD_DIR/ebin $STATD_DIR/etc $STATD_DIR/var \
+				$WIFIOSS_DIR/bin $WIFIOSS_DIR/ebin $WIFIOSS_DIR/etc $WIFIOSS_DIR/var \
+				$WIFISTA_DIR/bin $WIFISTA_DIR/ebin $WIFISTA_DIR/etc $WIFISTA_DIR/var
+		fi
+		if [ $2 == 'upkg' ]; then
+			tar czf $PKG \
+				$SERVER_LIBS \
+				$MIT_DIR/ebin $MIT_DIR/bin \
+				$EVABUS_DIR/ebin \
+				$METRIX_DIR/ebin \
+				$STATD_DIR/ebin \
+				$WIFIOSS_DIR/ebin \
+				$WIFISTA_DIR/ebin
+		fi
+		echo "success: $PKG"
+		;;
+    node)
+        if [ $# -lt 2 ]; then
+            echo "Usage: $SCRIPT node ipkg | upkg"
+            exit 1
+        fi
+		PKG=$REL_DIR/mobile-node-$VSN-$2-$DATE.tgz
+		NODE_DIR=$REL_DIR/node
+		mkdir -p $NODE_DIR
+		rsync -r --exclude=.git $ROOT_DIR/lib $NODE_DIR
+		rsync -r --exclude=lib --exclude=log --exclude=var --exclude=src $ROOT_DIR/node/* $NODE_DIR
+		cd $REL_DIR
+		if [ $2 == 'ipkg' ]; then
+			mkdir -p node/log
+			mkdir -p node/var/mnesia
+			tar czf $PKG \
+				$NODE_LIBS node/README node/INSTALL \
+				node/start node/stop node/setting \
+				node/hpstart \
+				node/bin node/ebin \
+				node/etc node/var \
+				node/log 
+		fi
+		if [ $2 == 'upkg' ]; then
+			tar czf $PKG $NODE_LIBS \
+				node/etc/*.origin \
+				node/ebin
+		fi
+		echo "success: rel/$PKG"
+		;;
+    tasks)
+        if [ $# -lt 2 ]; then
+            echo "Usage: $SCRIPT tasks ipkg | upkg"
+            exit 1
+        fi
+		PKG=$REL_DIR/mobile-tasks-$VSN-$2-$DATE.tgz
+		rsync -r --exclude=.git $ROOT_DIR/lib $ROOT_DIR/tasks/report/
+
+		if [ $2 == 'ipkg' ]; then
+			tar czf $PKG tasks/setting \
+				tasks/INSTALL tasks/README \
+				tasks/*.cron tasks/*.task \
+				tasks/report/README \
+				tasks/report/oraload.sh \
+				tasks/report/process.erl \
+				tasks/report/rrdbexp.py \
+				tasks/report/ebin \
+				tasks/report/etc \
+				tasks/report/log \
+				tasks/report/tmp \
+				tasks/report/lib/elog/ebin \
+				tasks/report/lib/extlib/ebin \
+				tasks/report/lib/lager/ebin \
+				tasks/report/lib/emysql/ebin
+		fi
+		if [ $2 == 'upkg' ]; then
+			tar czf $PKG tasks/README \
+				tasks/*.task \
+				tasks/report/README \
+				tasks/report/oraload.sh \
+				tasks/report/process.erl \
+				tasks/report/rrdbexp.py \
+				tasks/report/ebin \
+				tasks/report/lib/elog/ebin \
+				tasks/report/lib/extlib/ebin \
+				tasks/report/lib/lager/ebin \
+				tasks/report/lib/emysql/ebin
+		fi
+		rm -rf $ROOT_DIR/tasks/report/lib
+		echo "success: rel/$PKG"
+		;;
+	trapd)
+		PKG=$REL_DIR/mobile-trapd-$VSN-$2-$DATE.tgz
+		TRAP_DIR=$REL_DIR/trapd
+		mkdir -p $TRAP_DIR
+		rsync -r --exclude=.git $ROOT_DIR/lib $TRAP_DIR
+		rsync -r --exclude=lib --exclude=log $ROOT_DIR/trapd/* $TRAP_DIR
+		cd $REL_DIR
+		if [ $2 == 'ipkg' ]; then
+			mkdir -p trapd/log
+			tar czf $PKG trapd/README trapd/INSTALL \
+				trapd/start trapd/stop trapd/setting \
+				trapd/bin trapd/ebin \
+				trapd/etc trapd/log \
+				$TRAPD_LIBS 
+
+			echo "success: $PKG"
+		fi
+		if [ $2 == 'upkg' ]; then
+			tar czf $PKG $TRAPD_LIBS trapd/ebin
+			echo "success: $PKG"
+		fi
+		;;
+    clean)
+		if [ -d $REL_DIR ]; then
+			cd $REL_DIR && rm -rf *
+		fi
+		;;
+    *)
+        echo "Usage: $SCRIPT {server | tasks | node | trapd | clean}"
+		echo "	server ipkg | upkg	#build server package"
+		echo "	tasks ipkg | upkg	#build tasks package"
+		echo "	node ipkg | upkg	#build node package"
+		echo "	trapd ipkg | upkg	#build node package"
+        exit 1
+        ;;
+esac
+
+exit 0

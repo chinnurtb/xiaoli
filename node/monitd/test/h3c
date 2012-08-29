@@ -1,0 +1,7 @@
+
+disco_h3c_wx6100ewpx:disco(<<"c=cn">>, "211.137.217.165"", [{community, <<"Lx21C%"">>}]).
+
+mon_h3c_wx6100ewpx:run([{dn, <<"c=cn">>}, {ip, <<"211.137.217.165">>}, {snmpCommunity, <<"Lx21C%">>}]).
+mon_htec_fitap:run([{dn, <<"c=cn">>}, {ip, <<"218.201.240.173">>}, {extra, "1"}, {snmpCommunity, <<"Gzgymccro">>}]).
+mon_htec_hmani3000:run([{dn, <<"c=cn">>}, {ip, <<"218.201.240.173">>}, {extra, "1"}, {community, <<"Gzgymccro">>}]).
+

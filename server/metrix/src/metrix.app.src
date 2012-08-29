@@ -1,0 +1,12 @@
+{application, metrix,
+ [{description, "metrix"},
+  {vsn, "7.0"},
+  {modules, [metrix,
+	metrix_app,
+	metrix_sup,
+	metrix_ctl,
+	metrix_store]},
+  {registered, [metrix]},
+  {applications, [kernel, stdlib]},
+  {env, []},
+  {mod, {metrix_app, []}}]}.

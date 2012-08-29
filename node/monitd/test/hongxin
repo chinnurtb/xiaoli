@@ -1,0 +1,5 @@
+mon_hongxin_fitap:run([{dn, <<"c=cn">>}, {ip, <<"120.202.5.18">>}, {cn, "00:26:7A:12:01:CC"}, {snmpCommunity, <<"sbzg4321">>}]).
+mon_hongxin_fhac2400:run([{dn, <<"c=cn">>}, {ip, <<"120.202.5.18">>}, {cn, "00:26:7A:12:01:CC"}, {snmpCommunity, <<"sbzg4321">>}]).
+
+disco_hongxin_ac2400:disco(<<"c=cn">>, "218.202.26.26", [{community, <<"Yndlmccro">>}]).
+

@@ -1,0 +1,104 @@
+2010/12/28
+1. release the first version for mobile
+
+2010/12/13
+1. rewrite the whole architectur for mobile market
+
+2010/01/11:
+1. mysql driver: refactor to fix the timeout crash
+2. mysql driver: mysql process cluster
+
+2009/12/22:
+1. add core.app, core_sup.erl, chash.erl, chash_pg.erl, sha1.erl
+2. support consistent hash in monet_agent, disco_agent
+
+2009/11/22:
+1. fixed fitap offline bugs.
+
+2009/11/22:
+1. big change of mysql driver: first, remove the field with "undefined" value from returned record; seconde, keep the binary value.
+2. replace the erlang snmp lib with sesnmp(Simplified Erlang Snmp).
+3. modify all the code that use snmp.
+
+2009/11/12:
+1. support zte fitaps
+2. fixed mit_avail cache bugs.
+
+2009/10/31:
+1. support moto fitap
+
+2009/10/22
+1. src/monet/gen_monitor.erl: fix {badrecord, state} bug,
+
+2009/10/14
+1. monet_datalog group
+2. fitap discovery and monitor
+
+2009/09/22
+1. opengoss_node_sup.erl: use uuid:new() as xmpp endpoint resource.
+
+2009/09/08
+1. resolve rrdtool counter reset
+
+2009/08/28
+1. mit_mgr:sync will syncronize mit
+2. src/xmpp/xmpp_service: exmpp_component session cluster support
+TODO: Fit ap data collection
+TODO: evabus/evabus_server: mit:lookup({ip, Ip}) is not supported
+TODO: evabus trap collection
+TODO: how to sync new site????
+
+2009/08/25
+1. fitap dicovery support
+2. mit.erl -> mit_intf.erl, mit_site.erl, mit.erl to 
+3. refactor all modules that call mit:lookup
+
+
+2009/08/24
+1. src/disco/mods/
+disco_h3c_wx6100ewpx.erl
+disco_h3c_wx6100lsq.erl
+
+2009/08/22
+1. src/monet/monet_util.erl
+
+2009/08/21
+1. etc/monet/monitors.conf: big change according to requirements
+2. etc/disco/disco.conf: big change
+3. src/disco/**: modified many files
+4. src/monet/monitors/*: modified all the files
+
+2009/08/13
+1. etc/monet/monitors.config: mon_h3c_wa1208_intf
+2. etc/disco/disco.config: disco_mod_ewp_1208e
+3. src/monet/monitors/mon_h3c_wa1208_intf.erl
+
+2009/08/12:
+1. etc/diso/disco.conf to support hw
+2. etc/monet/monet.conf to support hw
+
+2009/08/11:
+1. etc/monet/monitors.conf suppor to monitor w100a, w200a sta
+2. include/snmp/zte.hrl
+3. include/snmp/h3c.hrl
+4. src/monet/monitors/ add mon_w100a_sta, mon_w200a_sta
+
+2009/08/09:
+1. etc/disco/disco.conf upgrade to support sgr-w500
+2. src/disco/mods/disco_mod_sgr.erl
+3. etc/monet/monet.conf upgrad to support sgr-w500
+4. src/monet/monitors/mon_sgr_w500.erl, mon_sgrw500_intf.erl
+5. etc/diso/disco.conf upgrate to support njzdk za-5000
+6. src/disco/mods/disco_mod_zdkw5000.erl
+7. etc/monet/monet.conf upgrad to support njzdk za-5000
+8. src/monet/monitors/mon_zdk_wa5000.erl 
+
+2009/09/16:
+1.src/disco/mods/disco_h3c_wx6100ewpx    add ap_cn
+2.src/disco/mods/disco_h3c_wx6100lsq     add ap_cn
+3.include/snmp/h3c.hrl
+
+2009/09/21:
+1.src/disco/mods/disco_h3c_wx6100ewpx    add ap_cn
+2.src/disco/mods/disco_h3c_wx6100lsq     add ap_cn
+3.include/snmp/h3c.hrl

@@ -1,0 +1,5 @@
+%name, period, mod, fun, args
+
+% five minutes
+{alarm_cleaner, 300, alarm_cleaner, clean, [10]}.
+

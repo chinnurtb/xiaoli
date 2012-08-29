@@ -1,0 +1,4 @@
+mon_htec_fitap:run([{dn, <<"c=cn">>}, {ip, <<"218.201.240.173">>}, {extra, "1"}, {snmpCommunity, <<"Gzgymccro">>}]).
+mon_htec_fitap:run([{dn, <<"c=cn">>}, {ip, <<"218.201.240.173">>}, {extra, "1"}, {snmpCommunity, <<"Gzgymccro">>}]).
+mon_htec_hmani3000:run([{dn, <<"c=cn">>}, {ip, <<"218.201.240.173">>}, {extra, "1"}, {community, <<"Gzgymccro">>}]).
+

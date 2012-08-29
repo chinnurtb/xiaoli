@@ -1,0 +1,18 @@
+Web
+========
+
+WebUI for XiaoLi.
+
+
+Build
+========
+virtualenv venv
+
+source venv/bin/activate
+
+pip install -r deps.txt
+
+
+Run
+========
+python server.py

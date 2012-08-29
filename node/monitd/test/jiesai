@@ -1,0 +1,2 @@
+mon_jiesai_at7605:run([{dn, <<"c=cn">>}, {ip, <<"218.207.4.50">>}, {extra, "1"}, {snmpCommunity, <<"cqdnm2q">>}]).
+disco_jiesai_at7605:disco(<<"c=cn">>, "218.207.4.50", [{community, <<"cqdnm2q">>}]).

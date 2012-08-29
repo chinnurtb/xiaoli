@@ -1,0 +1,5 @@
+mon_zoomtech_aw7000:run([{dn, <<"c=cn">>}, {ip, <<"211.142.16.76">>}, {snmpCommunity, <<"Sxtymccro">>}]).
+
+disco_zoomtech_aw7000:disco(<<"c=cn">>, "211.142.16.76", [{community, "Sxtymccro"}]). 
+set2_discoAc:disco(<<"c=cn">>, "211.142.16.76", [{community, "Sxtymccro"}, {prev, [1,3,6,1,4,1,8458]}, {vendor, "zoomtech"}]). 
+

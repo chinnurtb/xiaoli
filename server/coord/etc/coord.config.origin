@@ -1,0 +1,51 @@
+%% -*- mode: erlang;erlang-indent-level: 4;indent-tabs-mode: nil -*-
+%% ex: ft=erlang ts=4 sw=4 et
+[{kernel, 
+	[{start_timer, true}]},
+ {sasl, [
+	{sasl_error_logger, {file, "log/coord_sasl.log"}}
+ ]},
+ {mnesia, [
+	{dir, "var/mnesia"}
+ ]},
+ {emysql, [
+	{pool_size, 4},
+    {host, "MYSQL_HOST"}, 
+    {port, MYSQL_PORT}, 
+    {username, "MYSQL_USER"}, 
+    {password, "MYSQL_PASS"}, 
+    {database, "MYSQL_DB"},
+    {encoding, utf8}
+ ]},
+ {amqp_client, [
+    {broker, [
+		{host, "AMQP_HOST"}, 
+        {vhost, <<"/AMQP_VHOST">>}, 
+        {user, <<"AMQP_USER">>}, 
+        {password, <<"AMQP_PASS">>}
+    ]},
+	{reconn_policy, [
+		{interval, 30}
+    ]}
+ ]},
+ {lager, [
+	{error_logger_redirect, false},
+	{crash_log, "log/coord_crash.log"},
+	{handlers, [
+		%{lager_console_backend, info},
+		{lager_file_backend, [
+			{"log/coord_info.log", info, 20485760, "$D0", 5},
+			{"log/coord_error.log", error, 20485760, "$D0", 5}
+		]}
+	]}
+ ]},
+ {mit, [
+	{mode, master},
+	{is_fitap_cn_discovered, false},
+    {is_ap_cn_discovered, false},
+    {is_sw_cn_discovered, false},
+    {fitap_filter, undefined}
+ ]},
+
+ {coord, [{is_sharded, false}]}
+].

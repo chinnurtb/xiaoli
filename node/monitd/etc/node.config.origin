@@ -1,0 +1,54 @@
+[{kernel,
+    [{start_timer, true},
+	 {start_pg2, true}]},
+ {sasl, [
+	{sasl_error_logger, {file, "log/node_sasl.log"}}
+ ]},
+ {os_mon, [
+	{start_cpu_sup, true},
+	{start_memsup, true},
+	{start_disksup, true}
+ ]},
+ {evmon, [
+	{vm_memory_high_watermark, 0.2},
+	{proc, [{long_gc, 500}, {large_heap, 10000000}, busy_port]}
+ ]},
+ {amqp_client, [
+	{broker,[{host, "AMQP_HOST"}, 
+			{vhost, <<"/AMQP_VHOST">>}, 
+			{user, <<"AMQP_USER">>}, 
+			{password, <<"AMQP_PASS">>}]}
+ ]},
+ {sesnmp,
+    [{pool_size, 8},
+    {versions, [v1, v2c]},
+    {net_if, [{sndbuf, 614400}, 
+            {recbuf, 614400}, 
+            {no_reuse, false}, 
+            {bind_to, any}]}]},
+ {lager, [
+	{error_logger_redirect, false},
+	{crash_log, "log/node_crash.log"},
+	{handlers, [
+	  {lager_console_backend, info},
+	  {lager_file_backend, [
+		{"log/node_error.log", error, 10485760, "$D0", 5},
+		{"log/node_info.log", info, 10485760, "$D0", 5}
+	  ]}
+	]}
+ ]},
+ {monitd, [
+	{shard, {endwith, "c=cn"}},
+    {buffer, 10},
+	{aging, 12}, %hour
+	{journal, [
+		{dir, "var/journal"}, 
+		{buffer, 100}
+	]},
+	{errdb, [
+		{host, "ERRDB_HOST"}, 
+		{port, ERRDB_PORT}
+	]},
+    {oscmd_pool, 100}]}
+].
+

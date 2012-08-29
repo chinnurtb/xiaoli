@@ -1,0 +1,25 @@
+#!/bin/bash
+#: Title       : check crasher
+#: Date        : 2012-06-04
+#: Author      : "Ery Lee" <ery.lee@gmail.com> from opengoss.com
+#: Version     : 1.0 
+#: Description : check crasher of the whole wifioss.
+
+ROOTDIR=$(cd ${0%/*} && pwd)
+
+APPS="mit evabus statd wifioss wifista node trapd"
+
+for APP in $APPS
+do
+if [ -d $ROOTDIR/$APP ]; then
+	echo "checking $APP..."
+	cd $ROOTDIR/$APP/
+	CRASHER=`grep crasher log/*`
+	if [ ! -z "$CRASHER" ]; then
+		echo "crasher in $APP..."
+		echo "$CRASHER"
+		exit 1
+	fi
+	echo "ok"
+fi
+done

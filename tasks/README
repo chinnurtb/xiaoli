@@ -1,0 +1,35 @@
+# 任务
+
+1. avail.task: 设备可用率聚合任务, 5分钟周期执行.
+
+2. sta.task: 热点关联用户统计聚合任务, 5分钟周期执行.
+
+3. report.task: 性能报表数据导入oracle任务，1小时周期执行
+
+4. authdata.task: C+W、固网话单导入任务, 1天周期执行
+
+5. errdb_cleaner.task: 删除ERRDB的历史Journal文件
+
+# 配置
+
+1. 修改setting中的mysql, oracle, errdb配置
+
+2. 执行./setting配置
+
+3. 添加cron任务
+
+# Cron
+
+1. avail.cron: /etc/cron.fiveminly/
+
+2. sta.cron: /etc/cron.fiveminly/
+
+3. report.cron: /etc/cron.hourly/
+
+4. authdata.cron: /etc/cron.daily/
+
+5. errdb_cleaner.cron /etc/cron.daily/
+
+# Crontab
+
+

@@ -1,0 +1,20 @@
+#!/bin/bash
+#: Title       : stop
+#: Date        : 2012-04-24
+#: Author      : "Ery Lee" <ery.lee@gmail.com> from opengoss.com
+#: Version     : 1.0 
+#: Description : stop the whole wifioss.
+
+ROOTDIR=$(cd ${0%/*} && pwd)
+
+APPS="metrix wifista wifioss statd evabus mit"
+
+for APP in $APPS
+do
+if [ -d $ROOTDIR/$APP ]; then
+	echo "stopping $APP..."
+	cd $ROOTDIR/$APP && ./bin/$APP stop
+	rm -rf ./log/*
+	rm -rf ./var/mnesia/*
+fi
+done

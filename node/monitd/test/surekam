@@ -1,0 +1,2 @@
+mon_surekam_x7605:run([{dn, <<"c=cn">>}, {ip, <<"211.142.91.202">>}, {community, <<"Sxycmccro">>}]).
+

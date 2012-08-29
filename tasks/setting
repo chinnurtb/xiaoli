@@ -1,0 +1,43 @@
+#!/bin/bash
+#: Title       : setting
+#: Date        : 2012-04-24
+#: Author      : "Ery Lee" <ery.lee@gmail.com> from opengoss.com
+#: Version     : 1.0 
+#: Description : mysql, amqp, errdb settings
+
+# Identify the script name
+#ROOTDIR=$(cd ${0%/*} && pwd)
+#export TASKS_HOME=$ROOTDIR
+
+#mysql
+export MYSQL_HOST=192.168.100.134
+export MYSQL_PORT=3306
+export MYSQL_USER=root
+export MYSQL_PASSWD=public
+export MYSQL_DB=mobile_devel
+
+#oracle
+export ORACLE_HOME=/oracle/11g
+export ORACLE_CLIENT_LIB=/usr/lib/oracle/11.1/client
+export ORACLE_SID=orcl
+export ORACLE_USER=rms
+export ORACLE_PASSWD=rms
+export ORACLE_SERVICE=orcl
+export LD_LIBRARY_PATH=$ORACLE_HOME/lib/:$ORACLE_CLIENT_LIB/lib/
+export PATH=$ORACLE_HOME/bin:$PATH
+
+#amqp
+export AMQP_HOST=localhost
+export AMQP_VHOST=mobile
+export AMQP_USER=mobile
+export AMQP_PASS=public
+
+#errdb
+export ERRDB_HOST=localhost
+export ERRDB_PORT=7272
+#export ERRDB_HOME=/opt/errdb
+
+#for report task
+export ERRDB_URLS="file:///opt/errdb/var/journal|8" # http://RemoteHost:Port/journal|8
+
+
