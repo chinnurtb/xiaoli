@@ -35,23 +35,23 @@ def load_user(id):
 
 login_mgr.init_app(app)
 
-#from home.views import homepage
-#from topo.views import topoview
+from tangoss.home.views import homeview
+from tangoss.topo.views import topoview
 from tangoss.nodes.views import nodeview
 from tangoss.fault.views import faultview
-#from perf.views import perfview
-#from report.views import reportview
+from tangoss.perf.views import perfview
+from tangoss.report.views import reportview
 from tangoss.users.views import userview
-#from system.views import sysview
+from tangoss.system.views import sysview
 
-blueprints = [#homepage,
-              #topoview,
-              #nodeview,
-              #faultview,
-              #perfview,
-              #reportview,
-              userview]
-              #sysview]
+blueprints = [homeview,
+              topoview,
+              nodeview,
+              faultview,
+              perfview,
+              reportview,
+              userview,
+              sysview]
  
 for bp in blueprints: 
     app.register_blueprint(bp)

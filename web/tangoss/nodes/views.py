@@ -4,9 +4,13 @@
 from flask import Blueprint, request, session, url_for, \
     redirect, render_template, g, flash
 
+from tango import db
+
 from tango import menus, Menu
 
 from tango.login import current_user, login_required
+
+from .models import Node
 
 nodeview = Blueprint('nodes', __name__)
 
@@ -17,6 +21,6 @@ def nodes():
     return render_template('nodes/index.html', nodes = nodes)
 
 def get_nodes(user):
-    return user.nodes
+    return Node.query.all()
 
 menus.append(Menu('nodes', u'资源', '/nodes'))

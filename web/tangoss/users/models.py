@@ -3,8 +3,6 @@
 
 from tango import db
 
-from tangoss.nodes import Node
-
 from hashlib import md5
 
 from tango.models import Profile
@@ -20,7 +18,6 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(120), unique=True)
     password = db.Column(db.String(60))
     signup_on = db.Column(db.DateTime)
-    nodes = db.relation('Node', backref='user', lazy='dynamic')
     #profiles = db.relation('Profile', backref='user', lazy='dynamic')
 
     def __init__(self, username, email, password):
