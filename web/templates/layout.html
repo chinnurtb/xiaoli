@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" >
+<head>
+	<meta charset="utf-8"/>
+	<meta name="description" content="OPENGOSS">
+	<meta name="author" content="ery.lee@gmail.com">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>OPENGOSS - {% block title %}{% endblock %}</title>
+	<link rel="stylesheet" href="/static/css/bootstrap.css"/>
+	<link rel="stylesheet" href="/static/css/base.css"/>
+    <style type="text/css">
+      body {
+        padding-top: 60px;
+        padding-bottom: 40px;
+      }
+    </style>
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+	<script src="/static/js/jquery.js"></script>
+	<script src="/static/js/bootstrap-transition.js"></script>
+	<script src="/static/js/bootstrap-alert.js"></script>
+	<script src="/static/js/bootstrap-modal.js"></script>
+	<script src="/static/js/bootstrap-dropdown.js"></script>
+	<script src="/static/js/bootstrap-scrollspy.js"></script>
+	<script src="/static/js/bootstrap-tab.js"></script>
+	<script src="/static/js/bootstrap-tooltip.js"></script>
+	<script src="/static/js/bootstrap-popover.js"></script>
+	<script src="/static/js/bootstrap-button.js"></script>
+	<script src="/static/js/bootstrap-collapse.js"></script>
+	<script src="/static/js/bootstrap-carousel.js"></script>
+	<script src="/static/js/bootstrap-typeahead.js"></script>
+	<script type="text/javascript" src="/static/js/base.js"></script>
+	<script>$(function(){ $(".alert").alert() }); </script>
+	{% block head %} {% endblock %}
+</head>
+
+<body>
+
+<div class="navbar navbar-fixed-top">
+	<div class="navbar-inner">
+		<div class="container">
+			<a class="brand" href="{% if session.user_id %} /timeline {% else %} / {% endif %}">OPENGOSS</a>
+			<div class="nav-collapse">
+				<ul class="nav">
+                    {% if session.user_id %}
+                        {% for menu in g.menus %}
+                            {{ menu.render(menuid)|safe }}
+                        {% endfor %}
+                    {% endif %}
+				</ul>
+				<ul class="nav pull-right">
+                    {% if not session.user_id %}
+                        <li><a href="/tour">Tour</a></li>
+                    {% endif %}
+					<li class="divider-vertical"></li>
+                    {% if current_user %} 
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{ current_user.username }}<b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            <li> <a href="/settings">设置</a></li>
+                            <li><a href="/logout">登出</a></li>
+                        </ul>
+                    </li>
+                    {% else %}
+                        <li><a href="/login">登录</a></li>
+                    {% endif %}
+			    </ul>
+            </div>
+		</div>
+	</div>
+</div>
+
+<div class="container">
+	{% block body %} {% endblock %}
+    {% include "_footer.html" %}
+</div> <!-- /container -->
+
+<!-- Le javascript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+
+</body>
+
+</html>
+

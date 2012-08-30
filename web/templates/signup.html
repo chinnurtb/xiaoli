@@ -1,0 +1,23 @@
+{% extends 'layout.html' %}
+
+{% block title %} 注册 {% endblock %}
+
+{% block body %}
+
+<h1>注册</h1>
+
+{% if error %}
+<div class="alert alert-error">
+	{{ error }}
+</div>
+{% endif %}
+
+{% from "_form_h.html" import render_text, render_submit %}
+<form method="POST" action="/signup" class="form-horizontal">
+    {{ render_text(form.username, help = '用来登录，只能是3到12位的小写字母和数字') }}
+    {{ render_text(form.email, help = '接收通知邮件') }}
+    {{ render_text(form.password, help = '6到12位任意组合') }}
+    {{ render_text(form.confirm)  }}
+    {{ render_submit('注册') }}
+</form>
+{% endblock %}

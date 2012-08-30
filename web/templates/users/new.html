@@ -1,0 +1,37 @@
+
+{% set menuid = 'users' %}
+
+{% set submenuid = 'users_new' %}
+
+{% extends 'layout.html' %}
+
+{% block title %} 添加用户 {% endblock %}
+
+{% block body %}
+
+<div class="row">
+
+    <div class="span3">
+        {% include "users/_sidebar.html" %}
+    </div>
+
+    <div class="span9">
+
+    <h1>添加用户</h1>
+    
+    {% include "_alert.html" %}
+
+    {% from "_form_h.html" import render_text, render_submit %}
+    <form method="POST" action="/users/new" class="form-horizontal">
+        {{ render_text(form.username, help = '用来登录，只能是3到12位的小写字母和数字') }}
+        {{ render_text(form.email, help = '接收通知邮件') }}
+        {{ render_text(form.password, help = '6到12位任意组合') }}
+        {{ render_text(form.confirm)  }}
+        {{ render_submit('提交') }}
+    </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

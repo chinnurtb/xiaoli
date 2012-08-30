@@ -1,0 +1,4 @@
+<  [90mrendered [36m/root/views/nodes/edit.html[0m
+
+}"
+<div class="alert-message error"><p>{{ errors.join("<br />") }}</p></div><rm method="POST" action="/{{ node.user }}/{{ node.name }}/update"></rm><div class="clearfix"><label for="node_name">节点名称</label><div class="input"><input id="node_name" type="text" name="label" value="{{ node.label }}"/></div></div><div class="actions"><input type="submit" value="确定" class="btn primary"/></div>

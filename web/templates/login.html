@@ -1,0 +1,22 @@
+{% extends 'layout.html' %}
+
+{% block title %} 登录 {% endblock %}
+
+{% block body %}
+
+<h1>登录</h1>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">{{ message }}</div> 
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+
+{% from "_form_h.html" import render_fields %}
+<form method="POST" action="/login" class="form-horizontal">
+    {{ render_fields(form, 'Login') }}
+</form>
+{% endblock %}
+

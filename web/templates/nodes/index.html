@@ -1,0 +1,39 @@
+{% set menuid = 'nodes' %}
+
+{% extends 'layout.html' %}
+
+{% block title %}Nodes{% endblock %}
+
+{% block head %}
+
+{% endblock %}
+
+{% block body %}
+
+<div class="row">
+    <div class="span3">
+        {% include 'nodes/_sidebar.html' %}
+    </div>
+
+    <div class="span9">
+        <div class="content">
+            <div class="page-header"><h1>所有设备</h1></div>
+            <ul id="nodes" class="list">
+                {% if nodes %}
+                {% for node in nodes %}
+                    <li>
+                    <h5>
+                        <em title="在线" class="status-icon status-icon-mini-available"></em>
+                        <a href="/nodes/{{node.name}}" class="title">{{ node.label }}</a>
+                    </h5>
+                    </li>
+                {% endfor %}
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+
+</div>
+
+
+{% endblock %}

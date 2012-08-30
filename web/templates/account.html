@@ -1,0 +1,21 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+<div class="wrap">
+<h3>信息</h3>
+<form method="POST" action="/account">
+	<div><input type="hidden" name="_method" value="put"/></div>
+	<p><label for="name">名字</label> <br/> <input id="name" type="text" name="name" value="{{ user.name }}"/></p>
+	<p><input type="submit" value="修改" class="button"/></p>
+</form>
+
+<h3>密码</h3>
+<form method="POST" action="/account">
+	<div><input type="hidden" name="_method" value="put"/></div>
+	<p><label for="old_password">当前密码</label><br/><input id="old_password" type="password" name="old_password" value=""/></p>
+	<p><label for="password">新密码</label><br/><input id="password" type="password" name="password" value=""/></p>
+	<p><label for="password_confirmation">确认新密码</label><br/><input id="password_confirmation" type="password" name="password_confirmation" value=""/></p>
+	<p><input type="submit" value="修改" class="button"/></p>
+</form>
+</div>
+{% endblock %}

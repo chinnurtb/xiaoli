@@ -1,0 +1,29 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+<div class="hero-unit" style="padding: 0px;">
+	<div class="row">
+		<div class="span9" style="width: 520px;">
+			<div id="intro">
+				<h1>社交化系统监控</h1>
+				<br><br>
+				<p style="width:420px;">NodeHub是社交化系统监控平台，以微博和即时通信的社交方式实现对业务、应用、系统、主机、设备的监控管理。</p>
+				<br>
+				<p><a href="/signup" class="btn btn-primary btn-large">注册账号»</a></p>
+				<ul class="unstyled">
+					<li>06月25日: 前台界面从NodeJS迁移到Python</li>
+					<li>01月09日: Smarta0.7.1发布，解决域名解析失败问题</li>
+					<li>12月27日: Smarta0.7发布，支持Cron风格的探针</li>
+					<li>12月20日: Smarta 0.6发布，支持告警事件重试和压缩</li>
+					<li>12月12日: Smarta兼容Nagios插件</li>
+					<li>12月02日: 支持iChat等XMPP客户端管理主机</li>
+				</ul>
+			</div>
+		</div>
+		<div class="span7 screenshots" style="width: 400px;">
+			<center><img id="screenshot-1" src="/static/img/screenshot_3.png"></center>
+		</div>
+	</div>
+</div>
+
+{% endblock %}

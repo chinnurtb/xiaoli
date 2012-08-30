@@ -8,3 +8,4 @@ Flask-Auth
 Flask-Login
 #redis
 MySQL_python
+psycopg2

@@ -1,0 +1,44 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+
+<h1 style="margin-top: 30px;">欢迎使用NodeHub</h1>
+	<h3>主机监控</h3>
+		<p>NodeHub使用节点来管理主机，首先您需要为一个主机创建一个节点，获得一个apikey。</p>
+		<p>
+		<br/>
+		<a href="/nodes/new" class="btn primary">创建节点&raquo;</a>
+		<br/><br/><br/>
+		</p>
+
+	<h3>和主机即时通信</h3>
+		<p>NodeHub使用XMPP协议和服务器即时通信，使用任何一个Jabber客户端登录NodeHub后，您将能即时收到由主机发送过来消息。您还能发送命令到主机查看一些主机信息。</p>
+		<p>NodeHub的jabber账号为<code>用户名@nodebus.com</code>，密码即NodeHub网站登录密码。
+		jabber服务器配置：服务器
+			<code>nodebus.com</code>，端口
+			<code>5222</code>
+		</p>
+		<p>jabber客户端 <a href="http://xmpp.org/xmpp-software/clients/">更多&raquo;</a></p>
+		<ul>
+			<li>Windows&nbsp;
+			<a href="http://www.pidgin.im/download/windows/" target="_blank">Pidgin</a>
+			</li>
+			<li>Mac OS&nbsp;
+				<a href="http://www.apple.com.cn/macosx/apps/all.html#ichat" target="_blank">iChat</a>&nbsp;
+			<a href="http://adium.im" target="_blank">Adium</a>
+			</li>
+			<li>Linux&nbsp;
+			<a href="http://www.pidgin.im/download/ubuntu/" target="_blank">Pidgin</a>
+			</li>
+		</ul>
+	<h3>手机使用NodeHub</h3>
+		<p>使用NodeHub手机版本，可以即时收到主机发送的通知。</p>
+		<p>敬请期待......</p>
+	<h3>关注NodeHub</h3>
+		<p>QQ群号：12222225</p>
+		<p>新浪微博：<a href="http://weibo.com/nodebus" target="_blank">@NodeHub</a></p>
+		<p>在线支持：QQ 2673552801 或者使用右下角的即时聊天工具</p><p>NodeHub暂时使用GitHub的任务单来管理网站的Bug和新需求。
+		<a href="https://github.com/nodebus/nodebus.github.com/issues" target="_blank">任务单地址 &raquo;</a>
+		</p>
+		<p><a href="/" class="btn">&laquo;回首页</a></p>
+{% endblock %}

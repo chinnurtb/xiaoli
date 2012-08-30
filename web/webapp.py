@@ -1,10 +1,10 @@
 #!/usr/bin/env python  
 # -*- coding: utf-8 -*-
 """
-   Tango
+   XiaoLi
    ~~~~~~~ 
 
-   Host and Service Monitoring, The Social Way
+   Integrated Access Network Monitoring.
    :copyright: (c) 2012 by Ery Lee(ery.lee@gmail.com)
 """
 
@@ -15,19 +15,19 @@ from tango import db, menus, login_mgr
 
 from tango.login import current_user
 
-from users.models import User
+from tangoss.users.models import User
 
 app = Flask(__name__)
 
-app.config.from_pyfile('app.cfg')
+app.config.from_pyfile('webapp.cfg')
 
 db.init_app(app)
 
-login_mgr.login_view = "users.views.login"
+login_mgr.login_view = "tangoss.users.views.login"
 
 login_mgr.login_message = u"Please log in to access this page."
 
-login_mgr.refresh_view = "users.views.reauth"
+login_mgr.refresh_view = "tangoss.users.views.reauth"
 
 @login_mgr.user_loader
 def load_user(id):
@@ -35,23 +35,23 @@ def load_user(id):
 
 login_mgr.init_app(app)
 
-from home.views import homepage
-from topo.views import topoview
-from nodes.views import nodeview
-from fault.views import faultview
-from perf.views import perfview
-from report.views import reportview
-from users.views import userview
-from system.views import sysview
+#from home.views import homepage
+#from topo.views import topoview
+from tangoss.nodes.views import nodeview
+from tangoss.fault.views import faultview
+#from perf.views import perfview
+#from report.views import reportview
+from tangoss.users.views import userview
+#from system.views import sysview
 
-blueprints = [homepage,
-              topoview,
-              nodeview,
-              faultview,
-              perfview,
-              reportview,
-              userview,
-              sysview]
+blueprints = [#homepage,
+              #topoview,
+              #nodeview,
+              #faultview,
+              #perfview,
+              #reportview,
+              userview]
+              #sysview]
  
 for bp in blueprints: 
     app.register_blueprint(bp)

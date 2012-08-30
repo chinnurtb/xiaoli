@@ -1,0 +1,65 @@
+{% set menuid = 'users' %}
+
+{% set submenuid = 'users' %}
+
+{% extends "layout.html" %} 
+
+{% block title %} 用户管理 {% endblock %}
+
+{% block head %} 
+
+<style>
+    .zebraStriped tbody tr:nth-child(even) td {
+      background-color: #EEE;
+    }
+    .zebraStriped tbody tr:hover td {
+      background: Azure; /*#FFFEEA*/
+    }
+</style>
+
+{% endblock %}
+
+{% block body %}
+
+<div class="row">
+
+    <div class="span3">
+        {% include "users/_sidebar.html" %}
+    </div>
+
+    <div class="span9">
+
+
+        {% include "_alert.html" %}
+
+        <form method="POST" action="/users/search" class="form-search" >
+          <input type="text" name = "search" value ="" class="input-medium search-query">
+          <button type="submit" class="btn">Search</button>
+        </form>
+
+        <table class="table table-striped zebraStriped">
+          <thead>
+            <tr>
+              <th> # </th>
+              <th>帐号</th>
+              <th>用户名</th>
+              <th>邮箱</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for user in users %}
+            <tr class="{{ loop.cycle('odd', 'even') }}" >
+              <td> <i class="icon-remove"></i> </td>
+              <td>{{ user.username|e }} </td>
+              <td>{{ user.name|e }}</td>
+              <td>{{ user.email }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+    </div>
+
+</div>
+
+{% endblock %}

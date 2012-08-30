@@ -1,0 +1,60 @@
+{% macro render_errors(field) %}
+{% if field.errors %}
+<ul class="errors">
+    {% for error in field.errors %}
+    <li>{{ error }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+{% endmacro %}
+
+{% macro render_text(field, help = None) -%} 
+<div class="control-group {% if field.errors %}error{% endif %}">
+    <label class="control-label" for="{{ field.id }}"><span>{{ field.label.text }}{%- if field.flags.required -%}*{%- endif %} :</span></label>
+    <div class="controls">
+    {{ field(**kwargs)|safe }} <!-- {{ render_errors(field) }} -->
+    {% if help %}
+		<p class="help-inline">{{ help }}</p>
+    {% endif %}
+    </div>
+</div>        
+{%- endmacro %}
+
+{%- macro render_textarea(field, value='', rows=7, cols=40) -%}
+<div class="control-group {% if field.errors %}error{% endif %}">
+    <label class="control-label" for="{{ field.id }}"><span>{{ field.label.text }}{%- if field.flags.required -%}*{%- endif %} :</span></label>
+    <div class="controls">
+    {{ field(**kwargs)|safe }} <!-- {{ render_errors(field) }} -->
+    </div>
+</div>   
+{%- endmacro %}
+
+{%- macro render_submit(submit_title, cancel_title="", class="btn-primary") -%}
+<div class="form-actions">
+    <button class="btn {{ class }}" type="submit">{{ submit_title }}</button>                    
+</div>
+{%- endmacro -%}
+
+{%- macro render_fields(fields, submit_title, class=None, legend=None) -%}
+    <fieldset {% if class %}class="{{class}}"{% endif %}>
+    {% if legend %}
+        <legend>{{legend}}</legend>
+    {% endif %}
+
+    {% for field in fields %}
+        {% if field.type == 'HiddenField' %}
+        {{ field() }}
+        {% else %}
+        {% if field.type == 'TextField' 
+           or field.type == 'PasswordField' %}
+            {{ render_text(field) }}
+        {% elif field.type == 'TextAreaField' %}
+            {{ render_textarea(field) }}
+        {% endif %}
+        {% endif %}
+    {% endfor %}
+    
+    {{ render_submit(submit_title) }}
+  </fieldset>
+{%- endmacro -%}
+

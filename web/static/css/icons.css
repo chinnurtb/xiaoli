@@ -1,0 +1,199 @@
+.icon{
+  background: url(../images/icons.png) no-repeat;
+}
+
+.icon-business{
+  width: 20px;
+  height: 20px;
+  background-position: 0 -420px;
+}
+.icon-sites{
+  width: 20px;
+  height: 20px;
+  background-position: -150px -420px;
+}
+.icon-networks, .icon-devices{
+  width: 20px;
+  height: 20px;
+  background-position: -180px -420px;
+}
+.icon-hosts{
+  width: 20px;
+  height: 20px;
+  background-position: -30px -420px;
+}
+.icon-applications, .icon-apps{
+  width: 20px;
+  height: 20px;
+  background-position: -60px -420px;
+}
+.icon-services{
+  width: 20px;
+  height: 20px;
+  background-position: -90px -420px;
+}
+
+.menu .icon-business{
+  background-position: 0 -30px;
+}
+.menu .icon-sites{
+  background-position: -150px -30px;
+}
+.menu .icon-networks, .menu .icon-devices{
+  background-position: -180px -30px;
+}
+.menu .icon-hosts{
+  background-position: -30px -30px;
+}
+.menu .icon-applications, .menu .icon-apps{
+  background-position: -60px -30px;
+}
+.menu .icon-services{
+  background-position: -90px -30px;
+}
+.menu .current .icon-business{
+  background-position: 0 0;
+}
+.menu .current .icon-sites{
+  background-position: -150px 0;
+}
+.menu .current .icon-networks{
+  background-position: -180px 0;
+}
+.menu .current .icon-hosts{
+  background-position: -30px 0;
+}
+.menu .current .icon-applications{
+  background-position: -60px 0;
+}
+.menu .current .icon-services{
+  background-position: -90px 0;
+}
+
+
+.icon-alerts{
+  background-position: -1px -91px;
+}
+.icon-reports{
+  background-position: -31px -91px;
+}
+.icon-settings{
+  background-position: -61px -91px;
+}
+
+.icon-accounts{
+  background-position: -91px -92px;
+}
+
+.menu .current .icon-alerts{
+  background-position: -1px -61px;
+}
+.menu .current .icon-reports{
+  background-position: -31px -61px;
+}
+.menu .current .icon-settings{
+  background-position: -61px -61px;
+}
+.menu .current .icon-accounts{
+  background-position: -91px -62px;
+}
+
+.icon-submenu{
+  background-position: -30px -121px;
+}
+
+.sub-current .icon-submenu{
+  background-position: 0 -121px;
+}
+
+#dashboard .icon-submenu{
+  background-position: -30px -272px;
+}
+
+#dashboard .sub-current .icon-submenu{
+  background-position: 0 -272px;
+}
+
+.icon-desc{
+  background-position: -6px -157px;
+}
+.icon-asc{
+  background-position: -36px -157px;
+}
+.icon-prev{
+  background-position: -6px -187px;
+}
+.disabled .icon-prev{
+  background-position: -66px -187px;
+}
+.icon-next{
+  background-position: -36px -187px;
+}
+.disabled .icon-next{
+  background-position: -96px -187px;
+}
+.icon-list{
+  background-position: -60px -121px;
+}
+.icon-icon{
+  background-position: -90px -121px;
+}
+.icon-list-current{
+  background-position: -120px -121px;
+}
+.icon-icon-current{
+  background-position: -150px -121px;
+}
+.icon-home{
+  background-position: -38px -218px;
+}
+.icon-carat{
+  background-position: -8px -217px;
+}
+
+.icon-edit{
+  background-position: -1px -242px;
+}
+
+.icon-delete{
+  background-position: -31px -242px;
+}
+.icon-carat2{
+  background-position: -61px -361px;
+}
+
+.icon-edit2{
+  background-position: -1px -362px;
+}
+
+.icon-delete2{
+  background-position: -31px -362px;
+}
+
+
+/*status */
+.icon-host-up, .icon-device-up, .icon-service-ok, .icon-app-up, .icon-alert-clear, .icon-site-up{
+  background-position: -7px -397px;
+}
+
+.icon-host-unreachable, .icon-device-unreachable, .icon-service-warning, .icon-alert-warning{
+  background-position: -37px -397px;
+}
+
+.icon-host-down, .icon-device-down, .icon-service-critical, .icon-app-down, .icon-alert-critical, .icon-site-down{
+  background-position: -67px -397px;
+}
+.icon-host-unknown, .icon-service-unknown, .icon-app-unknown, .icon-alert-information, .icon-site-unknown{
+  background-position: -97px -397px;
+}
+.icon-host-pending, .icon-device-pending, .icon-service-pending, .icon-app-pending, .icon-site-pending{
+  background-position: -127px -397px;
+}
+
+.icon-signup, .icon-login{
+  background-position: -5px -334px;
+}
+
+.icon-login{
+  background-position: -35px -334px;
+}

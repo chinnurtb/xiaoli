@@ -1,0 +1,9 @@
+<  [90mrendered [36m/root/views/nodes/admin.html[0m
+
+"><div class="page-header"><h1>管理节点<a href="node/ID" class="btn">&laquo;返回节点</a></h1></div>"{{ if (errors && errors.length) }}"
+<div class="alert-message error"><p>{{ errors.join("<br />") }}</p></div><form id="rename" method="POST"><fieldset><legend>设置</legend><div class="clearfix"><label for="node_name"></label><div class="input"><input id="node_name" type="text" name="label" value="{{ node.label }}"/>&nbsp;
+<input type="submit" value="改名" class="btn"/></div></div></fieldset></form><form id="share" method="POST" action="admin/share"><fieldset><legend>共享</legend>"{{ each user in node.users }}"
+<div class="clearfix"><label></label><div class="input">{{ user.login }}"{{ if(node.user == currentUser.login ? (user.login != node.user) : (user.login == currentUser.login)) }}"
+&nbsp;
+<a href="admin/unfollow" class="del">, title="取消共享") &times;</a></div></div><div class="clearfix"><label for="user_login">用户名</label><div class="input"><input id="user_login" type="text" name="login" value=""/>&nbsp;
+<input type="submit" value="添加" class="btn"/></div></div><div class="clearfix"></div></fieldset></form></div></div></div>
