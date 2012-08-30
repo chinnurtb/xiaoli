@@ -13,7 +13,7 @@ from flask import Flask, session, url_for, redirect, \
 
 from tango import db, menus, login_mgr
 
-from tango.login import current_user
+from tango.login import login_required, current_user
 
 from tangoss.users.models import User
 
@@ -23,11 +23,11 @@ app.config.from_pyfile('webapp.cfg')
 
 db.init_app(app)
 
-login_mgr.login_view = "tangoss.users.views.login"
+login_mgr.login_view = "/login"
 
 login_mgr.login_message = u"Please log in to access this page."
 
-login_mgr.refresh_view = "tangoss.users.views.reauth"
+login_mgr.refresh_view = "/reauth"
 
 @login_mgr.user_loader
 def load_user(id):
@@ -57,6 +57,7 @@ for bp in blueprints:
     app.register_blueprint(bp)
 
 @app.route('/')
+@login_required
 def index():
     return render_template('index.html')
 

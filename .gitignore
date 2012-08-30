@@ -1,5 +1,6 @@
 errdb/
 web/venv
+web/tangoss/*.pyc
 web/tangoss/fault/*.pyc
 web/tangoss/nodes/*.pyc
 web/tangoss/users/*.pyc

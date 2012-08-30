@@ -1,0 +1,31 @@
+categories -> models
+
+nodes.category_id -> nodes.model_id
+
+nodes.sysuptime int(11)
+
+nodes.nodetype -> nodes.category
+
+1:olt 2:onu 3:dslam 4:eoc 5:switch 6.router
+
+nodes.ip -> nodes.addr
+
+collect_rule_id -> 
+timeperiod_id
+
+collect_rules -> timeperiods
+
+CREATE TABLE `timeperiods` (
+  `timeperiodid` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `timeperiod_type` int(11) NOT NULL DEFAULT '0',
+  `every` int(11) NOT NULL DEFAULT '0',
+  `month` int(11) NOT NULL DEFAULT '0',
+  `dayofweek` int(11) NOT NULL DEFAULT '0',
+  `day` int(11) NOT NULL DEFAULT '0',
+  `start_time` int(11) NOT NULL DEFAULT '0',
+  `period` int(11) NOT NULL DEFAULT '0',
+  `start_date` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`timeperiodid`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+

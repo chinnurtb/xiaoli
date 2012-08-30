@@ -6,7 +6,9 @@ from flask import Blueprint, request, session, url_for, \
 
 from tango import db
 
-from tango import menus, Menu
+from tango.ui import menus, Menu
+
+from tango.ui import add_widget, Widget
 
 from tango.login import current_user, login_required
 
@@ -24,3 +26,10 @@ def get_nodes(user):
     return Node.query.all()
 
 menus.append(Menu('nodes', u'资源', '/nodes'))
+
+#col2
+add_widget(Widget('dashboard3', 'Dashboard3', content='<div style="height:100px">Dashboard3</div>', column = 'side'))
+add_widget(Widget('dashboard4', 'Dashboard4', content='<div style="height:100px">Dashboard4</div>', column = 'side'))
+add_widget(Widget('dashboard5', 'Dashboard5', content='<div style="height:100px">Dashboard5</div>', column = 'side'))
+
+

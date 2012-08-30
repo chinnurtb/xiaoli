@@ -3,10 +3,6 @@
 
 menus = []
 
-widgets = []
-
-dashboards = []
-
 class Menu(object):
     
     def __init__(self, name, title, href):
@@ -20,22 +16,3 @@ class Menu(object):
 
     def __repr__(self):
         return "Menu(name = %s, title = %s, href = %s)" % (self.name, self.title, self.href)
-
-class Widget(object):
-
-    def __init__(self, name, html):
-        self.name = name
-        self.html = html
-
-    def __repr__(self):
-        return "Widget(name = %s)" % self.name
-    
-    def render(self):
-        return self.html
-
-class Dashboard(object):
-    
-    def __init__(self, id, name, callback):
-        self.id = id
-        self.name = name
-        self.callback = callback
