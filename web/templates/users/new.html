@@ -1,37 +1,95 @@
 
 {% set menuid = 'users' %}
 
-{% set submenuid = 'users_new' %}
+{% set submenuid = 'users/new' %}
 
 {% extends 'layout.html' %}
 
 {% block title %} 添加用户 {% endblock %}
 
-{% block body %}
 
-<div class="row">
 
-    <div class="span3">
+{% from "_form_h.html" import render_field %}
+
+{% block screen_meta %}
+
+<div id="screen-meta" class="metabox-prefs" style="display: none; ">
+    <div id="contextual-help-wrap" class="hidden">
+	<div id="contextual-help-columns">
+            <div class="contextual-help-tabs-wrap">
+                <div id="tab-panel-overview" class="help-tab-content active">
+                    <p>This screen lists all the existing users for your site. Each user has one of five defined roles as set by the site admin: Site Administrator, Editor, Author, Contributor, or Subscriber. Users with roles other than Administrator will see fewer options in the dashboard navigation when they are logged in, based on their role.</p><p>To add a new user for your site, click the Add New button at the top of the screen or Add New in the Users menu section.</p>                          
+                </div>
+            </div>
+	</div>
+    </div>
+    
+    <div id="screen-options-wrap" class="hidden" style="display: none; ">
+	<form id="adv-settings" action="" method="post">
+	    <h5>Show on screen</h5>
+	    <div class="metabox-prefs">
+		<label for="email-hide"><input class="hide-column-tog" name="email-hide" type="checkbox" id="email-hide" value="email" checked="checked">E-mail</label>
+		<label for="role-hide"><input class="hide-column-tog" name="role-hide" type="checkbox" id="role-hide" value="role" checked="checked">Role</label>
+		<label for="posts-hide"><input class="hide-column-tog" name="posts-hide" type="checkbox" id="posts-hide" value="posts" checked="checked">Posts</label>
+		<br class="clear">
+	    </div>
+	    
+	    <div class="screen-options">
+		<input type="number" step="1" min="1" max="999" class="screen-per-page" name="wp_screen_options[value]" id="users_per_page" maxlength="3" value="2">
+		<label for="users_per_page">Users</label>
+		<input type="submit" name="screen-options-apply" id="screen-options-apply" class="button" value="Apply">
+		<input type="hidden" name="wp_screen_options[option]" value="users_per_page">
+	    </div>
+	    <div><input type="hidden" id="screenoptionnonce" name="screenoptionnonce" value="24b7ebf309"></div>
+	</form>
+    </div>
+</div>
+
+<div id="screen-meta-links">
+    <div id="contextual-help-link-wrap" class="hide-if-no-js screen-meta-toggle">
+        <a href="#contextual-help-wrap" id="contextual-help-link" class="show-settings">Help</a>
+    </div>
+    <div id="screen-options-link-wrap" class="hide-if-no-js screen-meta-toggle">
+        <a href="#screen-options-wrap" id="show-settings-link" class="show-settings">Screen Options</a>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="row-fluid" style="margin-top:20px">
+    <div class="span2">
         {% include "users/_sidebar.html" %}
     </div>
-
-    <div class="span9">
-
-    <h1>添加用户</h1>
     
-    {% include "_alert.html" %}
-
-    {% from "_form_h.html" import render_text, render_submit %}
-    <form method="POST" action="/users/new" class="form-horizontal">
-        {{ render_text(form.username, help = '用来登录，只能是3到12位的小写字母和数字') }}
-        {{ render_text(form.email, help = '接收通知邮件') }}
-        {{ render_text(form.password, help = '6到12位任意组合') }}
-        {{ render_text(form.confirm)  }}
-        {{ render_submit('提交') }}
-    </form>
-
+    <div class="span10">
+	<div class="row-fluid">
+	    <div class="">
+		<form class="form-horizontal" method="POST" id="test-wtf" action="{{url_for('user_new')}}">
+		    <fieldset>
+			{{ form.hidden_tag() }}
+			{{ render_field(form.username, id="user-username", class="input-medium") }}
+			{{ render_field(form.name, class="input-medium") }}
+			{{ render_field(form.password) }}
+			{{ render_field(form.password_confirm) }}
+			{{ render_field(form.role_id) }}
+			{{ render_field(form.domain_id) }}
+			{{ render_field(form.department) }}
+			{{ render_field(form.email) }}
+			{{ render_field(form.telephone, class="input-xlarge") }}
+			{{ render_field(form.mobile, class="input-xlarge") }}
+			{{ render_field(form.memo, rows=4, class="input-xlarge") }}
+			<div class="control-group">
+			    <div class="controls">
+				<button type="submit" class="btn btn-primary">确定</button>
+				<a href="#" class="btn">取消</a>
+			    </div>
+			</div>
+		    </fieldset>		    
+		</form>
+	    </div>
+	</div>
+        <br class="clear">
     </div>
-
 </div>
 
 {% endblock %}
