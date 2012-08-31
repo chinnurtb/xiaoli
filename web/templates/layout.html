@@ -1,47 +1,45 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en" >
+<!--[if IE 8]>
+<html xmlns="http://www.w3.org/1999/xhtml" class="ie8 wp-toolbar"  dir="ltr" lang="en-US">
+<![endif]-->
+<!--[if !(IE 8) ]><!-->
+<html xmlns="http://www.w3.org/1999/xhtml" class="wp-toolbar" dir="ltr" lang="en-US"><!--<![endif]-->
 <head>
-	<meta charset="utf-8"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<meta name="description" content="OPENGOSS">
 	<meta name="author" content="ery.lee@gmail.com">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>OPENGOSS - {% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="static/css/wp-admin.css" type="text/css" media="all">
+    <link rel="stylesheet" href="static/css/thickbox.css" type="text/css" media="all">
+    <link rel="stylesheet" href="static/css/colors-fresh.css" type="text/css" media="all">
 	<link rel="stylesheet" href="/static/css/bootstrap.css"/>
 	<link rel="stylesheet" href="/static/css/base.css"/>
-    <style type="text/css">
-      body {
-        padding-top: 60px;
-        padding-bottom: 40px;
-      }
-    </style>
 
     <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-	<script src="/static/js/jquery.js"></script>
-	<script src="/static/js/bootstrap-transition.js"></script>
-	<script src="/static/js/bootstrap-alert.js"></script>
-	<script src="/static/js/bootstrap-modal.js"></script>
-	<script src="/static/js/bootstrap-dropdown.js"></script>
-	<script src="/static/js/bootstrap-scrollspy.js"></script>
-	<script src="/static/js/bootstrap-tab.js"></script>
-	<script src="/static/js/bootstrap-tooltip.js"></script>
-	<script src="/static/js/bootstrap-popover.js"></script>
-	<script src="/static/js/bootstrap-button.js"></script>
-	<script src="/static/js/bootstrap-collapse.js"></script>
-	<script src="/static/js/bootstrap-carousel.js"></script>
-	<script src="/static/js/bootstrap-typeahead.js"></script>
-	<script type="text/javascript" src="/static/js/base.js"></script>
+    <script type="text/javascript" src="static/js/jquery.js"></script>
+    <script type="text/javascript" src="static/js/jquery-color.js"></script>
+    <script type="text/javascript" src="static/js/jquery-ui.js"></script>
+    <script type="text/javascript" src="static/js/common.js"></script>
+    <script type="text/javascript" src="static/js/hoverIntent.js"></script>
+    <script type="text/javascript" src="static/js/utils.js"></script>
+    <script type="text/javascript" src="static/js/bootstrap.js"></script>
+    <script type="text/javascript" src="static/js/base.js"></script>
 	<script>$(function(){ $(".alert").alert() }); </script>
 	{% block head %} {% endblock %}
 </head>
 
-<body>
+<body class="wp-admin js admin-color-fresh">
+<script type="text/javascript">
+	document.body.className = document.body.className.replace('no-js','js');
+</script>
 
 <div class="navbar navbar-inverse navbar-fixed-top">
 	<div class="navbar-inner">
-		<div class="container">
+		<div class="container-fluid">
 			<a class="brand" href="/">OPENGOSS</a>
 			<div class="nav-collapse">
 				<ul class="nav">
@@ -73,16 +71,78 @@
 	</div>
 </div>
 
-<div class="container">
-	{% block body %} {% endblock %}
+<div class="container-fluid" style="margin-top:12px">
+
+    {% block screen_meta %} {% endblock %}
+
+    {% block welcome %} {% endblock %}
+
+    {% block content %} {% endblock %}
+
+<script type="text/javascript">
+/* <![CDATA[ */
+var commonL10n = {"warnDelete":"You are about to permanently delete the selected items.\n  'Cancel' to stop, 'OK' to delete."};var wpAjax = {"noPerm":"You do not have permission to do that.","broken":"An unidentified error has occurred."};var quicktagsL10n = {"wordLookup":"Enter a word to look up:","dictionaryLookup":"Dictionary lookup","lookup":"lookup","closeAllOpenTags":"Close all open tags","closeTags":"close tags","enterURL":"Enter the URL","enterImageURL":"Enter the URL of the image","enterImageDescription":"Enter a description of the image","fullscreen":"fullscreen","toggleFullscreen":"Toggle fullscreen mode","textdirection":"text direction","toggleTextdirection":"Toggle Editor Text Direction"};var adminCommentsL10n = {"hotkeys_highlight_first":"","hotkeys_highlight_last":"","replyApprove":"Approve and Reply","reply":"Reply"};var thickboxL10n = {"next":"Next >","prev":"< Prev","image":"Image","of":"of","close":"Close","noiframes":"This feature requires inline frames. You have iframes disabled or your browser does not support them.","loadingAnimation":"http:\/\/wp34.webim20.cn\/wp-includes\/js\/thickbox\/loadingAnimation.gif","closeImage":"http:\/\/wp34.webim20.cn\/wp-includes\/js\/thickbox\/tb-close.png"};var plugininstallL10n = {"plugin_information":"Plugin Information:","ays":"Are you sure you want to install this plugin?"};var wordCountL10n = {"type":"w"};var wpLinkL10n = {"title":"Insert\/edit link","update":"Update","save":"Add Link","noTitle":"(no title)","noMatchesFound":"No matches found."};/* ]]> */
+</script>
+	<div style="display:none;">
+	<form id="wp-link" tabindex="-1">
+	<input id="_ajax_linking_nonce" name="_ajax_linking_nonce" value="d5c39d0f97" type="hidden">	<div id="link-selector">
+		<div id="link-options">
+			<p class="howto">Enter the destination URL</p>
+			<div>
+				<label><span>URL</span><input id="url-field" tabindex="10" name="href" type="text"></label>
+			</div>
+			<div>
+				<label><span>Title</span><input id="link-title-field" tabindex="20" name="linktitle" type="text"></label>
+			</div>
+			<div class="link-target">
+				<label><input id="link-target-checkbox" tabindex="30" type="checkbox"> Open link in a new window/tab</label>
+			</div>
+		</div>
+				<p class="howto toggle-arrow " id="internal-toggle">Or link to existing content</p>
+		<div id="search-panel" style="display:none">
+			<div class="link-search-wrapper">
+				<label>
+					<span>Search</span>
+					<input id="search-field" class="link-search-field" tabindex="60" autocomplete="off" type="search">
+					<img class="waiting" src="static/img/wpspin_light.gif" alt="">
+				</label>
+			</div>
+			<div id="search-results" class="query-results">
+				<ul></ul>
+				<div class="river-waiting">
+					<img class="waiting" src="static/img/wpspin_light.gif" alt="">
+				</div>
+			</div>
+			<div id="most-recent-results" class="query-results">
+				<div class="query-notice"><em>No search term specified. Showing recent items.</em></div>
+				<ul></ul>
+				<div class="river-waiting">
+					<img class="waiting" src="static/img/wpspin_light.gif" alt="">
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="submitbox">
+		<div id="wp-link-cancel">
+			<a class="submitdelete deletion" href="#">Cancel</a>
+		</div>
+		<div id="wp-link-update">
+			<input tabindex="100" value="Add Link" class="button-primary" id="wp-link-submit" name="wp-link-submit" type="submit">
+		</div>
+	</div>
+	</form>
+	</div>
+	
+<div class="clear"></div>
+
     {% include "_footer.html" %}
 </div> <!-- /container -->
 
 <!-- Le javascript
 ================================================== -->
+<script type="text/javascript">if(typeof wpOnload=='function')wpOnload();</script>
 <!-- Placed at the end of the document so the pages load faster -->
 
 </body>
 
 </html>
-

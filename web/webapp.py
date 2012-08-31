@@ -11,7 +11,9 @@
 from flask import Flask, session, url_for, redirect, \
     render_template, g
 
-from tango import db, menus, login_mgr
+from tango.ui import menus
+
+from tango import db, login_mgr
 
 from tango.login import login_required, current_user
 
@@ -45,11 +47,11 @@ from tangoss.users.views import userview
 from tangoss.system.views import sysview
 
 blueprints = [homeview,
-              topoview,
+              #topoview,
               nodeview,
               faultview,
-              perfview,
-              reportview,
+              #perfview,
+              #reportview,
               userview,
               sysview]
  

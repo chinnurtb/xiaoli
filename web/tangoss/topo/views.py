@@ -4,7 +4,7 @@
 from flask import Blueprint, request, session, url_for, \
     redirect, render_template, g, flash
 
-from tango import menus, Menu
+from tango.ui import menus, Menu
 
 topoview = Blueprint('topo', __name__, url_prefix='/topo')
 

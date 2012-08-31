@@ -5,9 +5,9 @@ from tango import db
 
 from hashlib import md5
 
-from tango.models import Profile
-
 from tango.login import UserMixin
+
+from tangoss.models import Profile
 
 from datetime import datetime
 

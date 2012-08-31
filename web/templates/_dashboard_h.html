@@ -1,0 +1,58 @@
+{% macro render_metabox(dashboard) -%}
+    {% for widget in dashboard.widgets %}
+    <label for="dashboard_{{ widget.id }}-hide">
+        <input type="checkbox" class="hide-postbox-tog" name="dashboard_{{ widget.id }}-hide" id="dashboard_{{ widget.id }}-hide" value="dashboard_{{ widget.id }}" {% if 'dashboard_'+widget.id not in dashboard.hidden %} checked="checked" {% endif %}>
+        {{ widget.title }}
+    </label>
+    {% endfor %}
+{%- endmacro %}
+
+
+{% macro render_widget(dashboard, widget) -%}
+
+<div id="dashboard_{{ widget.id }}" class="postbox {% if 'dashboard_'+widget.id in dashboard.closed %} closed {% endif %}" 
+    {% if 'dashboard_'+widget.id in dashboard.hidden %} style="display: none" {% endif %}>
+    <div class="handlediv"><br></div>
+    <h3 class="hndle"><span>{{ widget.title }}</span></h3>
+    <div id="widget_{{ widget.id }}" class="inside"> 
+        {% if widget.content %}
+            {{ widget.content|safe }}
+        {% endif %}
+        {% if widget.url %}
+            <script> $('#widget_{{ widget.id }}').load('{{ widget.url }}'); </script>
+        {% endif %}
+    </div>
+</div>
+
+{%- endmacro %}
+
+{% macro render_dashboard(dashboard) -%}
+
+<div id="dashboard-widgets-wrap">
+
+    <div id="dashboard-widgets" class="metabox-holder columns-{{ dashboard.layout }}">
+        {% for idx, column in [(1, 'normal'), (2, 'side'), (3, 'column3')] %}
+            <div id="postbox-container-{{ idx }}" class="postbox-container">
+            <div id="{{ column }}-sortables" class="meta-box-sortables ui-sortable">
+                {% for wid in dashboard.order.get(column, []) %}
+                    {% set widget = dashboard.get_widget(wid[10:]) %}
+                    {% if widget %}
+                        {{ render_widget(dashboard, widget) }}
+                    {% endif %}
+                {% endfor %}
+                {% for widget in dashboard.column_widgets(column) %}
+                    {% if not dashboard.in_order('dashboard_'+widget.id) %}
+                        {{ render_widget(dashboard, widget) }}
+                    {% endif %}
+                {% endfor %}
+            </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <input id="closedpostboxesnonce" name="closedpostboxesnonce" value="27e612ee4a" type="hidden"><input id="meta-box-order-nonce" name="meta-box-order-nonce" value="7bf4f51ffb" type="hidden">
+    <div class="clear"></div>
+
+</div><!-- dashboard-widgets-wrap -->
+
+{%- endmacro %}

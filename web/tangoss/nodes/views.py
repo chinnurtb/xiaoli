@@ -16,14 +16,18 @@ from .models import Node
 
 nodeview = Blueprint('nodes', __name__)
 
+class NodeTable(Table):
+    name = Column(display_name=u'name')
+    addr = Column(display_name=u'addr')
+    mac = Column(display_name=u'mac')    
+    status = Column(display_name=u'status')
+
 @nodeview.route('/nodes')
 @login_required
 def nodes():
-    nodes = get_nodes(current_user)
-    return render_template('nodes/index.html', nodes = nodes)
-
-def get_nodes(user):
-    return Node.query.all()
+    nodes = Node.query.all()
+    table = NodeTable(nodes)
+    return render_template('nodes/index.html', table = table)
 
 menus.append(Menu('nodes', u'资源', '/nodes'))
 

@@ -1,9 +1,113 @@
-{% set menuid = 'dashboard' %}
-
+<!DOCTYPE html>
+<!--[if IE 8]>
+<html xmlns="http://www.w3.org/1999/xhtml" class="ie8 wp-toolbar"  dir="ltr" lang="en-US">
+<![endif]-->
+<!--[if !(IE 8) ]><!-->
 {% extends 'layout.html' %}
 
-{% block title %} Dashboard {% endblock %}
+{% set menuid = 'dashboard' %}
 
-{% block head %} {% endblock %}
+{% block head %} 
 
-{% block body %} {% endblock %}
+<script type="text/javascript">
+    addLoadEvent = function(func){if(typeof jQuery!="undefined")jQuery(document).ready(func);else if(typeof wpOnload!='function'){wpOnload=func;}else{var oldonload=wpOnload;wpOnload=function(){oldonload();func();}}};
+/*
+var userSettings = {
+        'url': '/',
+        'uid': '1',
+        'time':'1341805648'
+    },
+*/
+    var
+    ajaxurl = '/dashboard/settings',
+    pagenow = 'dashboard',
+    typenow = '',
+    adminpage = 'index-php',
+    thousandsSeparator = ',',
+    decimalPoint = '.',
+    isRtl = 0;
+</script>
+
+<script type="text/javascript" src="static/js/wp-lists.js"></script>
+<script type="text/javascript" src="static/js/postbox.js"></script>
+<script type="text/javascript" src="static/js/dashboard.dev.js"></script>
+
+{% endblock %}
+
+{% block screen_meta %} 
+
+<!--
+<div class="offset4 alignleft btn-group" data-toggle="buttons-radio" style="margin-top:3px">
+    <a class="btn" href="#">Screen1</a>
+    <a class="btn" href="#">Screen2</a>
+    <a class="btn" href="#">Screen3</a>
+</div>
+-->
+
+<div id="screen-meta" class="metabox-prefs">
+    <div id="contextual-help-wrap" class="hidden">
+    <div id="contextual-help-columns">
+        <div class="contextual-help-tabs-wrap">
+            <div id="tab-panel-overview" class="help-tab-content active">
+                <p>This screen lists all dashboards...</p> 
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <div id="screen-options-wrap" class="hidden">
+    <form id="adv-settings" action="" method="post">
+        <h5>Show on screen</h5>
+        <div class="metabox-prefs">
+            {% from '_dashboard_h.html' import render_metabox %}
+            {{ render_metabox(dashboard) }}
+            <label for="wp_welcome_panel-hide">
+                <input id="wp_welcome_panel-hide" type="checkbox" {% if dashboard.welcome %} checked="checked" {% endif %}>
+                Welcome
+            </label>
+            <br class="clear">
+        </div>
+
+        <h5 class="screen-layout">Screen Layout</h5>
+        <div class="columns-prefs">Number of Columns:
+            {% for col in [1,2,3] %}
+                <label class="columns-prefs-{{ col }}"><input name="screen_columns" value="{{ col }}" {% if dashboard.layout == col %} checked="checked" {% endif %} type="radio">{{ col }}</label>
+            {% endfor %}
+        </div>
+        <div><input id="screenoptionnonce" name="screenoptionnonce" value="9fe52bb3f0" type="hidden"></div>
+    </form>
+    </div>
+</div>
+
+<div id="screen-meta-links">
+    <div id="contextual-help-link-wrap" class="screen-meta-toggle">
+    <a href="#contextual-help-wrap" id="contextual-help-link" class="show-settings">帮助</a>
+    </div>
+
+    <div id="screen-options-link-wrap" class="screen-meta-toggle">
+    <a href="#screen-options-wrap" id="show-settings-link" class="show-settings">显示选项</a>
+    </div>
+</div>
+
+{% endblock %}
+		
+{% block welcome %}
+
+<div id="welcome-panel" class="welcome-panel {% if not dashboard.welcome == '1' %} hidden {% endif %}">
+    <input id="welcomepanelnonce" name="welcomepanelnonce" value="b125a460c3" type="hidden">	<a class="welcome-panel-close" href="http://wp34.webim20.cn/wp-admin/?welcome=0">Close</a>
+
+    <div class="welcome-panel-content">
+        <div class="welcome-panel-column-container"> 欢迎使用新Dashboard... </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block content %}
+
+{% from '_dashboard_h.html' import render_dashboard %}
+
+{{ render_dashboard(dashboard) }}
+
+{% endblock %}
+

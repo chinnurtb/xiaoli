@@ -8,6 +8,20 @@
 {% endif %}
 {% endmacro %}
 
+{% macro render_field(field) %}
+<div class="control-group {% if field.errors %}{{'error'}}{% endif %}">
+    {{ field.label(class="control-label") }}
+    <div class="controls">
+	{{ field(**kwargs) }}
+	{% if field.errors %}
+	<span class="help-inline">
+	    {{ field.errors[0]|e }}
+	</span>
+	{% endif %}
+    </div>
+</div>
+{% endmacro %}
+
 {% macro render_text(field, help = None) -%} 
 <div class="control-group {% if field.errors %}error{% endif %}">
     <label class="control-label" for="{{ field.id }}"><span>{{ field.label.text }}{%- if field.flags.required -%}*{%- endif %} :</span></label>

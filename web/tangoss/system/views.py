@@ -6,7 +6,7 @@ from flask import Blueprint, request, session, url_for, \
 
 from tango.login import login_required
 
-from tango import menus, Menu
+from tango.ui import menus, Menu
 
 sysview = Blueprint('system', __name__)
 

@@ -1,7 +1,17 @@
 errdb/
 web/venv
+web/tango/*.pyc
+web/tango/ui/*.pyc
 web/tangoss/*.pyc
 web/tangoss/fault/*.pyc
 web/tangoss/nodes/*.pyc
 web/tangoss/users/*.pyc
+web/tangoss/home/*.pyc
+web/tangoss/nodes/*.pyc
+web/tangoss/perf/*.pyc
+web/tangoss/report/*.pyc
+web/tangoss/system/*.pyc
+web/tangoss/topo/*.py
 web/*.pyc
+
+

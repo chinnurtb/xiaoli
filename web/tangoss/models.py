@@ -1,5 +1,6 @@
 from tango import db
 
+from datetime import datetime
 
 class Setting(db.Model):
     __tablename__ = 'settings'
@@ -15,6 +16,27 @@ class Setting(db.Model):
         created_at = datetime.now()
         updated_at = datetime.now()
 
+def lookup_profile(uid):
+    data = {}
+    profiles = Profile.query.filter_by(uid = uid).all()
+    for p in profiles:
+        data[p.key] = p.value
+    return data
+
+def update_profile(uid, key, value):
+    profile = Profile.query.filter_by(uid=uid, key=key).first()
+    if profile:
+        profile.value = value
+    else:
+        profile = Profile(uid, key, value)
+        db.session.add(profile)
+
+def find_value(key, profiles):
+    for p in profiles:
+        if key == p.key:
+            return p.value
+    return None 
+
 class Profile(db.Model):
     __tablename__ = 'profiles'
     id = db.Column(db.Integer, primary_key=True)
@@ -24,33 +46,13 @@ class Profile(db.Model):
     created_at = db.Column(db.DateTime)
     updated_at = db.Column(db.DateTime)
 
-    def __init__(self, key, value):
+    def __init__(self, uid, key, value):
+        self.uid = uid
         self.key = key
         self.value = value
+        self.created_at = datetime.now()
+        self.updated_at = datetime.now()
 
-    @classmethod
-    def get(uid):
-        data = {}
-        profiles = Profile.query.filter_by(uid = uid).all()
-        for p in profiles:
-            data[p.key] = p.value
-        return data
-
-    @classmethod
-    def update(uid, key, value):
-        profile = Profile.query.filter_by(uid=uid, key=key).first()
-        if profile:
-            profile.value = value
-        else:
-            profile = Profile(uid, key, value)
-            db.session.add(profile)
-
-    @classmethod
-    def find(key, profiles):
-        for p in profiles:
-            if key == p.key:
-                return p.value
-        return None 
 
 class Query(db.Model):
     __tablename__ = 'queries'

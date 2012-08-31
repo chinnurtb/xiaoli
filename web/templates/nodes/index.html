@@ -2,38 +2,54 @@
 
 {% extends 'layout.html' %}
 
+{% set menuid = 'nodes' %}
+
 {% block title %}Nodes{% endblock %}
 
 {% block head %}
 
 {% endblock %}
 
-{% block body %}
+{% block screen_meta %} 
 
-<div class="row">
-    <div class="span3">
-        {% include 'nodes/_sidebar.html' %}
-    </div>
-
-    <div class="span9">
-        <div class="content">
-            <div class="page-header"><h1>所有设备</h1></div>
-            <ul id="nodes" class="list">
-                {% if nodes %}
-                {% for node in nodes %}
-                    <li>
-                    <h5>
-                        <em title="在线" class="status-icon status-icon-mini-available"></em>
-                        <a href="/nodes/{{node.name}}" class="title">{{ node.label }}</a>
-                    </h5>
-                    </li>
-                {% endfor %}
-                {% endif %}
-            </ul>
+<div id="screen-meta" class="metabox-prefs" style="display: none; ">
+<div id="contextual-help-wrap" class="hidden">
+    <div id="contextual-help-columns">
+        <div class="contextual-help-tabs-wrap">
+                <div id="tab-panel-overview" class="help-tab-content active">
+                    <p> Help Content </p>
+                </div>
         </div>
     </div>
-
+</div>
 </div>
 
+<div id="screen-meta-links">
+    <div id="contextual-help-link-wrap" class="hide-if-no-js screen-meta-toggle">
+        <a href="#contextual-help-wrap" id="contextual-help-link" class="show-settings">Help</a>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block content %}
+
+    <div class="row-fluid"  style="margin-top:30px">
+        <div class="span2">
+            <div class="well sidebar-nav">
+                <ul class="nav nav-list">
+                    <li class="nav-header">设备管理</li>
+                    <li class="active"><a href="/nodes">所有设备</a></li>
+                    <li><a href="/nodes/new">添加设备</a></li>
+                </ul>
+            </div>            
+        </div>
+
+        <div class="span10">
+
+            {% include '_nodes_table.html' %}
+
+        </div>
+    </div>
 
 {% endblock %}

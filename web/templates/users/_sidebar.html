@@ -1,9 +1,10 @@
+{% set submenuid = 'table' %}
 
 <div class="well sidebar-nav">
     <ul class="nav nav-list">
       <li class="nav-header">用户管理</li>
-      {% for id, label, href  in [('users_new', '添加用户', '/users/new'),
-                                  ('users', '所有用户', '/users')] %}
+      {% for id, label, href  in [ ('table', '所有用户', '/table'),
+                                   ('form', '新建用户', '/form') ] %}
       <li {% if submenuid and submenuid == id %} class="active" {% endif %}>
         <a href="{{ href }}">{{ label }}</a>
       </li>
@@ -14,15 +15,15 @@
 <div class="well sidebar-nav">
     <ul class="nav nav-list">
       <li class="nav-header">角色管理</li>
-      <li><a href="#">添加角色</a></li>
       <li><a href="#">所有角色</a></li>
+      <li><a href="#">新建角色</a></li>
     </ul>
 </div>
 
 <div class="well sidebar-nav">
     <ul class="nav nav-list">
       <li class="nav-header">管理域设置</li>
-      <li><a href="#">添加管理域</a></li>
       <li><a href="#">所有管理域</a></li>
+      <li><a href="#">新建管理域</a></li>
     </ul>
 </div>

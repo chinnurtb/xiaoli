@@ -1,0 +1,65 @@
+<form action="" method="get">
+
+    <input type="hidden" name="orderby" value="login">
+    <input type="hidden" name="order" value="asc">
+
+    <div class="tablenav top">
+        <div class="alignleft btn-group">
+            <a class="btn" href="/form">添加节点</a>
+        </div>
+        <br class="clear">
+    </div>
+
+    <table class="wp-list-table widefat fixed users" cellspacing="0">
+    <thead>
+    <tr>
+        <th scope="col" id="cb" class="manage-column column-cb check-column" style=""><input type="checkbox"></th>
+        {% for col in table.columns %}
+        <th scope="col" class="manage-column sorted asc"><a href="/users?orderby={{col.display_name}}&amp;order=desc"><span>{{ col }}</span><span class="sorting-indicator"></span></a></th>
+        {% endfor %}
+    </tr>
+    </thead>
+
+    <tfoot>
+    <tr>
+        <th scope="col" class="manage-column column-cb check-column" style=""><input type="checkbox"></th>
+        {% for col in table.columns %}
+        <th scope="col" class="manage-column sorted asc"><a href="/users?orderby={{col.display_name}}&amp;order=desc"><span>{{ col }}</span><span class="sorting-indicator"></span></a></th>
+        {% endfor %}
+    </tr>
+    </tfoot>
+
+    <tbody id="the-list" class="list:user">
+    
+    {% for row in table.data %}    
+        <tr class="alternate">
+        <th scope="row" class="check-column">
+            <input type="checkbox" name="users[]" id="user_1" class="administrator" value="1">
+        </th>
+        {% for col in table.columns %}
+            <td class="username column-username">
+                <p> {{ col }}
+            </td>
+        {% endfor %}
+        </tr>
+    {% endfor %}
+
+    </tbody>
+    </table>
+
+    <div class="tablenav bottom">
+        <div class="tablenav-pages"><span class="displaying-num">3 items</span>
+        <span class="pagination-links"><a class="first-page disabled" title="Go to the first page" href="/users?orderby=login&amp;order=asc">«</a>
+        <a class="prev-page disabled score-1265.625" title="Go to the previous page" href="/users?orderby=login&amp;order=asc&amp;paged=1">‹</a>
+        <span class="paging-input">1 of <span class="total-pages">2</span></span>
+        <a class="next-page" title="Go to the next page" href="/users?orderby=login&amp;order=asc&amp;paged=2">›</a>
+        <a class="last-page" title="Go to the last page" href="/users?orderby=login&amp;order=asc&amp;paged=2">»</a></span>
+        </div>
+        <br class="clear">
+    </div>
+
+</form>
+
+<br class="clear">
+
+

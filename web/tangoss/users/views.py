@@ -4,7 +4,9 @@
 from flask import Blueprint, request, session, url_for, \
     redirect, render_template, g, flash
 
-from tango import menus, Menu, login_mgr
+from tango import login_mgr
+
+from tango.ui import menus, Menu
 
 from tango.login import logout_user, login_user, current_user, \
     login_required
