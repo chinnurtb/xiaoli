@@ -14,19 +14,25 @@ from tango.login import current_user, login_required
 
 from .models import Node
 
+from tango.ui import tables
+
 nodeview = Blueprint('nodes', __name__)
 
-class NodeTable(Table):
-    name = Column(display_name=u'name')
-    addr = Column(display_name=u'addr')
-    mac = Column(display_name=u'mac')    
-    status = Column(display_name=u'status')
+class NodeTable(tables.Table):
+    check       = tables.CheckBoxColumn()
+    status      = tables.Column(verbose_name=u'状态')
+    alias       = tables.Column(verbose_name=u'名称', orderable=True)
+    addr        = tables.Column(verbose_name=u'地址')
+
+    class Meta():
+        model = Node 
+        per_page = 30
+        order_by = '-alias'
 
 @nodeview.route('/nodes')
 @login_required
 def nodes():
-    nodes = Node.query.all()
-    table = NodeTable(nodes)
+    table = NodeTable(Node.query, request)
     return render_template('nodes/index.html', table = table)
 
 menus.append(Menu('nodes', u'资源', '/nodes'))

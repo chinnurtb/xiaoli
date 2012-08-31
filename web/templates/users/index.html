@@ -8,15 +8,6 @@
 
 {% block head %} 
 
-<style>
-    .zebraStriped tbody tr:nth-child(even) td {
-      background-color: #EEE;
-    }
-    .zebraStriped tbody tr:hover td {
-      background: Azure; /*#FFFEEA*/
-    }
-</style>
-
 {% endblock %}
 
 {% from "_table_h.html" import render_table, render_screen_meta %}
@@ -47,14 +38,13 @@
 
     <div class="span9">
         {% include "_alert.html" %}
-        <div class="row-fluid">
 	    <div class="tablenav top">
             <div class="alignleft actions">
                 <form action="" method="get">
                 <input type="hidden" name="orderby" value="login">
                 <input type="hidden" name="order" value="asc">
                 <div class="alignleft btn-group">
-                    <a class="btn" href="{{url_for('user_new')}}">新建用户</a>
+                    <a class="btn" href="/users/new">新建用户</a>
                     <button class="btn">重置密码</button>
                     <button class="btn">删除用户</button>
                     <br class="clear">
@@ -74,7 +64,6 @@
                 href="#"><i class="icon-download-alt"></i></a>
             </div>
 	    </div>
-        </div>
         {{ render_table(table) }}
         <br class="clear">
     </div>

@@ -7,6 +7,8 @@ from random import Random
 from flask import Blueprint, request, session, url_for, \
     redirect, render_template, g, flash
 
+from tango import db
+
 from tango import login_mgr
 
 from tango.ui import menus, Menu
@@ -16,16 +18,15 @@ from tango.login import logout_user, login_user, current_user, \
 
 from .models import User, Role
 
-from .forms import SignupForm, LoginForm, PasswordForm 
-
 from hashlib import md5
 
-from tango import db
+from .tables import UserTable
 
 userview = Blueprint('users', __name__)
 
 @userview.route('/login', methods=['GET', 'POST'])
 def login():
+    from .forms import LoginForm
     form = LoginForm(request.form)
     if request.method == 'POST':
         username = form.username.data
@@ -44,6 +45,7 @@ def login():
 @userview.route('/settings')
 @login_required
 def profile():
+    from .forms import PasswordForm 
     form = PasswordForm(request.form)
     if request.method == 'POST' and form.validate():
         passwd = md5(form.newpasswd.data).hexdigest()
@@ -72,7 +74,8 @@ def users():
     return render_template('users/index.html', table=table, keyword=keyword)
 
 @userview.route('/users/new/', methods=['POST', 'GET'])
-def create():
+def user_new():
+    from .models import UserNewForm
     form = UserNewForm()
     if request.method == 'POST' and form.validate_on_submit():
         username = form.username.data
@@ -89,7 +92,9 @@ def create():
     return render_template('users/new.html', form=form)
 
 @userview.route('/users/edit/<int:id>/', methods=['POST', 'GET'])
-def edit(id):
+def user_edit(id):
+    #TODO:
+    from .models import UserEditForm
     #TODO: 判断当前用户权限
     form = UserEditForm()
     user = User.query.get_or_404(id)

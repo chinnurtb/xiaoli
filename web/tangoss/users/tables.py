@@ -3,11 +3,13 @@
 
 from tango.ui import tables
 
+from .models import User
+
 #### Tables
 class UserTable(tables.Table):
     check      = tables.CheckBoxColumn()
-    edit_btn   = tables.EditBtnColumn(endpoint='user_edit')
-    delete_btn = tables.DeleteBtnColumn(endpoint='user_delete')
+    #edit_btn   = tables.EditBtnColumn(endpoint='user_edit')
+    #delete_btn = tables.DeleteBtnColumn(endpoint='user_delete')
 
     username       = tables.Column(verbose_name=u'用户名', orderable=True)
     name           = tables.Column(verbose_name=u'真实姓名')

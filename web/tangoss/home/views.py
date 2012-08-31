@@ -28,7 +28,7 @@ def nested_dict(name, form):
             dict[m.group(1)] = form[key]
     return dict
 
-@homeview.route('/dashboard')
+@homeview.route('/')
 @login_required
 def dashboard():
     uid = current_user.id

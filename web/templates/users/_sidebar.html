@@ -4,7 +4,7 @@
     <ul class="nav nav-list">
       <li class="nav-header">用户管理</li>
       {% for id, label, href  in [ ('users', '所有用户', '/users'),
-                                   ('users/new', '新建用户', '/user/new') ] %}
+                                   ('users/new', '新建用户', '/users/new') ] %}
       <li {% if submenuid and submenuid == id %} class="active" {% endif %}>
         <a href="{{ href }}">{{ label }}</a>
       </li>

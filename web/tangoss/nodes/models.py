@@ -181,3 +181,20 @@ class TimePeriod(db.Model):
     end_time = db.Column(db.DateTime)
     curr_status = db.Column(db.Integer)
 
+class Maintains(db.Model):
+    __tablename__ = 'maintains'
+    id          = db.Column(db.Integer, primary_key=True)
+    cityid      = db.Column(db.Integer)
+    name        = db.Column(db.String(40)) 
+    alias       = db.Column(db.String(100))
+    department  = db.Column(db.String(40))   
+    phone       = db.Column(db.String(40))
+    mobile      = db.Column(db.String(40))
+    email       = db.Column(db.String(50))
+    post_addr   = db.Column(db.String(50))   
+    post_code   = db.Column(db.String(50))
+    admin       = db.Column(db.String(50))
+    remark      = db.Column(db.String(100))  
+    created_at  = db.Column(db.DateTime)
+    updated_at  = db.Column(db.DateTime) 
+

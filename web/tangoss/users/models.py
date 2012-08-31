@@ -76,7 +76,7 @@ class Domain(db.Model):
 
     id          = db.Column(db.Integer, primary_key=True)
     name        = db.Column(db.String(255), nullable=False, unique=True)  
-    base        = db.Column(db.String(255), nullable=False)
+    #base        = db.Column(db.String(255), nullable=False)
     description = db.Column(db.String(255))
 
 roles_permissions = db.Table('roles_permissions', db.Model.metadata,

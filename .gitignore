@@ -13,5 +13,6 @@ web/tangoss/report/*.pyc
 web/tangoss/system/*.pyc
 web/tangoss/topo/*.py
 web/*.pyc
-
-
+web/tango/ui/tables/*.pyc
+web/tango/ui/tables/*.pyc
+web/tangoss/topo/*.pyc

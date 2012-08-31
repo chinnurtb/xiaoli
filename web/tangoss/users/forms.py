@@ -1,14 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-#from wtforms import Form, TextField, PasswordField, BooleanField 
+from wtforms import BooleanField 
 
-#from wtforms import validators as v
+from wtforms import validators as v
 
 from flask_wtf import (Form, TextField, SubmitField, PasswordField, RadioField,
                           SelectMultipleField, SelectField, HiddenField, DateField,
                           IntegerField, TextAreaField, SubmitField, RecaptchaField,
                           ValidationError, validators, required, equal_to, email)
+
+from .models import Domain, Role
 
 def validate_mobile(message=None):
     def _validate_mobile(form, field):
