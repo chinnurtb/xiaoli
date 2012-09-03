@@ -35,6 +35,16 @@ def index():
     table = AlarmTable(Alarm.query, request)
     return render_template("/fault/index.html", table = table)
 
+@faultview.route('/console')
+@login_required
+def histories():
+    return render_template("/fault/console.html")
+
+@faultview.route('/histories')
+@login_required
+def histories():
+    return render_template("/fault/histories.html")
+
 menus.append(Menu('fault', u'故障', '/fault'))
 
 add_widget(Widget('event_summary', u'告警统计', url = '/widgets/alarm/summary'))
