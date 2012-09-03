@@ -17,7 +17,7 @@ from tango import db, login_mgr
 
 from tango.login import login_required, current_user
 
-from tangoss.users.models import User
+from users.models import User
 
 app = Flask(__name__)
 
@@ -37,14 +37,14 @@ def load_user(id):
 
 login_mgr.init_app(app)
 
-from tangoss.home.views import homeview
-from tangoss.topo.views import topoview
-from tangoss.nodes.views import nodeview
-from tangoss.fault.views import faultview
-from tangoss.perf.views import perfview
-from tangoss.report.views import reportview
-from tangoss.users.views import userview
-from tangoss.system.views import sysview
+from dashboard.views import homeview
+from topo.views import topoview
+from nodes.views import nodeview
+from fault.views import faultview
+from perf.views import perfview
+from report.views import reportview
+from users.views import userview
+from system.views import sysview
 
 blueprints = [homeview,
               #topoview,
