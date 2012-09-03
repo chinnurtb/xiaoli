@@ -10,7 +10,7 @@ from tango.ui import menus, Menu
 
 from tango.ui import Widget, add_widget
 
-from .models import Event
+from .models import Alarm
 
 faultview = Blueprint("fault", __name__, url_prefix='/fault')
 

@@ -3,5 +3,36 @@
 
 {% set menuid = 'fault' %}
 
-{% block body %} {% endblock %}
+{% block title %}故障管理{% endblock %}
+
+{% block head %} {% endblock %}
+
+{% block screen_meta %} 
+
+<div id="screen-meta-links">
+    <div id="contextual-help-link-wrap" class="hide-if-no-js screen-meta-toggle">
+        <a href="#contextual-help-wrap" id="contextual-help-link"
+        class="show-settings">Help</a>
+    </div>
+    <div id="screen-options-link-wrap" class="hide-if-no-js screen-meta-toggle">
+        <a href="#screen-options-wrap" id="show-settings-link"
+        class="show-settings">Screen Options</a>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block content %}
+
+<div class="row-fluid" style="margin-top:30px;">
+    <div class="span2">
+        {% set submenuid = '/fault/alarms' %}
+        {% include 'fault/_sidebar.html' %}
+    </div>
+
+    <div class="span10">
+    </div>
+</div>
+
+{% endblock %}
 
