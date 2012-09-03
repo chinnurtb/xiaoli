@@ -29,3 +29,4 @@ CREATE TABLE `timeperiods` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 
+alarms.nodetype -> alarms->node_class
