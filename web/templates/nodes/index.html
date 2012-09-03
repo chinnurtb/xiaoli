@@ -1,18 +1,14 @@
-{% set menuid = 'nodes' %}
-
 {% extends 'layout.html' %}
 
 {% set menuid = 'nodes' %}
 
-{% block title %}Nodes{% endblock %}
+{% block title %}所有节点{% endblock %}
 
-{% block head %}
-
-{% endblock %}
+{% block head %} {% endblock %}
 
 {% from "_table_h.html" import render_table, render_screen_meta %}
 
-{% block screen_meta %} 
+{% block screen_meta %}
 
 {{ render_screen_meta(table) }}
 
@@ -33,25 +29,18 @@
 
 <div class="row-fluid"  style="margin-top:30px">
     <div class="span2">
-        <div class="well sidebar-nav">
-            <ul class="nav nav-list">
-                <li class="nav-header">设备管理</li>
-                <li class="active"><a href="/nodes">所有设备</a></li>
-                <li><a href="/nodes/new">添加设备</a></li>
-            </ul>
-        </div>            
+        {% set submenuid = '/nodes' %}
+        {% include 'nodes/_sidebar.html' %}
     </div>
 
     <div class="span10">
-
 	    <div class="tablenav top">
             <div class="alignleft actions">
                 <form action="" method="get">
                 <input type="hidden" name="orderby" value="login">
                 <input type="hidden" name="order" value="asc">
                 <div class="alignleft btn-group">
-                    <a class="btn" href="/nodes/new">新建用户</a>
-                    <br class="clear">
+                    <a class="btn btn-small" href="/nodes/new">添加节点</a>
                 </div>
                 </form>
             </div>

@@ -1,4 +1,47 @@
-<  [90mrendered [36m/root/views/nodes/new.html[0m
+{% extends "layout.html" %}
 
-nt"><div class="page-header"><h1>新增节点<a href="/" class="btn">&laquo;取消</a></h1></div>"{{ if (errors && errors.length) }}"
-<div class="alert-message error"><p>{{ errors }}</p></div><form method="POST" action="/nodes/create"><div class="clearfix"><label for="node_name">节点账号</label><div class="input"><div class="input-prepend"><span class="add-on">{{ currentUser.login }}.</span><input id="node_name" type="text" name="name" value="{{ node.name }}" class="medium"/></div><span class="help-block">只能是3到12位的小写字母和数字，例: web</span></div></div><div class="clearfix"><label for="node_label">节点名称</label><div class="input"><input id="node_label" type="text" name="label" value="{{ node.label }}"/><span class="help-block">例: Web服务器</span></div></div><div class="actions"><input type="submit" value="确定" class="btn primary"/></div></form></div></div></div>
+{% set menuid = 'nodes' %}
+
+{% block title %}添加节点{% endblock %}
+
+{% block head %} {% endblock %}
+
+{% block screen_meta %}
+
+<div id="screen-meta-links">
+    <div id="contextual-help-link-wrap" class="hide-if-no-js screen-meta-toggle">
+        <a href="#contextual-help-wrap" id="contextual-help-link"
+        class="show-settings">Help</a>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block content %}
+
+<div class="row-fluid"  style="margin-top:30px">
+    <div class="span2">
+        {% set submenuid = '/nodes/new' %}
+        {% include 'nodes/_sidebar.html' %}
+    </div>
+
+    <div class="span10">
+        <h1>添加节点</h1>
+        {% from "_form_h.html" import render_field %}
+		<form class="form-horizontal" method="POST" id="nodes-new-form" action="/nodes/new">
+		    <fieldset>
+			{{ form.hidden_tag() }}
+			{{ render_field(form.alias, id="node-alias", class="input-medium") }}
+			{{ render_field(form.addr, class="input-medium") }}
+			<div class="control-group">
+			    <div class="controls">
+				<button type="submit" class="btn btn-primary">提交</button>
+			    </div>
+			</div>
+		    </fieldset>		    
+		</form>
+    </div>
+</div>
+
+{% endblock %}
+

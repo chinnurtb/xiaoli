@@ -13,9 +13,9 @@ from tango.ui import Dashboard, Widget, add_widget, widgets
 
 from tango.login import login_required, current_user
 
-from tangoss.fault import Event
+from fault import Event
 
-from tangoss.models import lookup_profile, update_profile
+from tango.models import lookup_profile, update_profile
 
 homeview = Blueprint('home', __name__)
 
@@ -28,7 +28,7 @@ def nested_dict(name, form):
             dict[m.group(1)] = form[key]
     return dict
 
-@homeview.route('/')
+@homeview.route('/dashboard')
 @login_required
 def dashboard():
     uid = current_user.id

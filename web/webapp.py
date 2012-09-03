@@ -61,7 +61,7 @@ for bp in blueprints:
 @app.route('/')
 @login_required
 def index():
-    return render_template('index.html')
+    return redirect('/dashboard')
 
 #FIXME
 @app.before_request
