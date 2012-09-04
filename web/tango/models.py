@@ -9,14 +9,12 @@ class Setting(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100))
     value = db.Column(db.Text())
-    created_at = db.Column(db.DateTime)
-    updated_at = db.Column(db.DateTime)
+    created_at = db.Column(db.DateTime, default=datetime.now)
+    updated_at = db.Column(db.DateTime, default=datetime.now)
 
     def __init__(self, name, value):
         self.name = name
         self.value = value
-        created_at = datetime.now()
-        updated_at = datetime.now()
 
 def lookup_profile(uid):
     data = {}
@@ -45,15 +43,31 @@ class Profile(db.Model):
     uid = db.Column(db.Integer, db.ForeignKey('users.id'))
     key = db.Column(db.String(100))
     value = db.Column(db.Text())
-    created_at = db.Column(db.DateTime)
-    updated_at = db.Column(db.DateTime)
+    created_at = db.Column(db.DateTime, default=datetime.now)
+    updated_at = db.Column(db.DateTime, default=datetime.now)
 
     def __init__(self, uid, key, value):
         self.uid = uid
         self.key = key
         self.value = value
-        self.created_at = datetime.now()
-        self.updated_at = datetime.now()
+
+    @staticmethod
+    def load(uid):
+        profile = {}
+        profiles = Profile.query.filter_by(uid = uid).all()
+        for p in profiles:
+            profile[p.key] = p.value
+        return profile
+
+        
+    def update(self):
+        profile = Profile.query.filter_by(user_id=self.user_id, key=self.key).first()
+        if profile:
+            profile.value = self.value
+        else:
+            profile = Profile(self.user_id, self.key, self.value)
+            db.session.add(profile)
+        db.session.commit()
 
 
 class Query(db.Model):
@@ -65,6 +79,6 @@ class Query(db.Model):
     name = db.Column(db.String(200))
     filters = db.Column(db.String)
     is_public = db.Column(db.Boolean)
-    created_at = db.Column(db.DateTime)
-    updated_at = db.Column(db.DateTime) 
+    created_at = db.Column(db.DateTime, default=datetime.now)
+    updated_at = db.Column(db.DateTime, default=datetime.now) 
 

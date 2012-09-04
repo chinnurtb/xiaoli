@@ -3,7 +3,6 @@
 from __future__ import absolute_import, unicode_literals
 
 from flask import Flask, render_template, url_for, request
-from flask_sqlalchemy import SQLAlchemy
 
 from .columns import *
 from .rows import *
@@ -155,6 +154,7 @@ class Table(object):
 
 
 if __name__ == '__main__':
+    from flask_sqlalchemy import SQLAlchemy
     app = Flask(__name__)
     app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:yawen00@localhost/test_table'
     app.config['DEBUG'] = True

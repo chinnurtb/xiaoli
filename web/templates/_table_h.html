@@ -68,7 +68,7 @@
 	{% endfor %}
     </tbody>
 </table>
-{{ render_paginate(table.page_obj, table.page_url) }}
+{% if table.page_obj.total  %}{{ render_paginate(table.page_obj, table.page_url) }}{% endif %}
 {%- endmacro %}
 
 
@@ -90,11 +90,13 @@
 	<form id="adv-settings" action="" method="post">
 	    <h5>Show on screen</h5>
 	    <div class="metabox-prefs">
+              <input id="hidden-columns" type="hidden" name="hidden-columns" value="" />
 		{% for column in table.columns %}
 		{% if not column.is_checkbox and not column.is_button %}
 		<label for="{{ column.name }}-hide">
 		    <input class="hide-column-tog" name="{{ column.name }}-hide" type="checkbox"
-			   id="{{ column.name }}-hide" value="{{ column.name }}" checked="checked">{{ column.header }}</label>
+			   id="{{ column.name }}-hide" value="{{ column.name }}"
+                           {% if column.name not in table.hidden_columns %} checked="checked" {% endif %} >{{ column.header }}</label>
 		{% endif %}
 		{% endfor %}
 		<br class="clear">

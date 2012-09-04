@@ -24,6 +24,7 @@ app = Flask(__name__)
 app.config.from_pyfile('webapp.cfg')
 
 db.init_app(app)
+db.app = app
 
 login_mgr.login_view = "/login"
 
