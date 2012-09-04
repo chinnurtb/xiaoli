@@ -13,7 +13,7 @@ from tango.ui import Dashboard, Widget, add_widget, widgets
 
 from tango.login import login_required, current_user
 
-from fault import Event
+from fault import Alarm
 
 from tango.models import lookup_profile, update_profile
 
@@ -64,7 +64,7 @@ def timeline():
 
 def get_events(user):
     nids = [node.id for node in user.nodes]
-    q = Event.query.filter(Event.node_id.in_(nids))
+    q = Alarm.query.filter(Alarm.node_id.in_(nids))
     return q.order_by("raised_at desc").limit(50).all()
 
 menus.append(Menu('dashboard', u'首页', '/dashboard'))
