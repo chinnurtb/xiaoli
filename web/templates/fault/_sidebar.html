@@ -1,8 +1,9 @@
 {% from "_sidebar_h.html" import render_sidebar %}
 
 {{ render_sidebar('告警管理', submenuid, [
-        ('告警监视板', '/fault/console'),
         ('当前告警', '/fault'),
+        ('检索条件', '/fault/queries'),
+        ('创建检索', '/fault/queries/new'),
         ('历史告警', '/fault/histories')])
 }}
 
@@ -16,5 +17,3 @@
         ('告警过滤', '/fault/queries'),
         ('告警知识库', '/fault/knowledges')])
 }}
-
-<p> {{ submenuid }} </p>

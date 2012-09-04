@@ -2,6 +2,8 @@
 html, .wp-dialog {
     background-color: #FFFFFF;
 }
+
+/*FIXME: comment by ery
 textarea, input[type="text"], input[type="password"], input[type="file"], input[type="button"], input[type="submit"], input[type="reset"], input[type="email"], input[type="number"], input[type="search"], input[type="tel"], input[type="url"], select {
     background-color: #FFFFFF;
     border-color: #DFDFDF;
@@ -13,6 +15,7 @@ select {
 textarea:focus, input[type="text"]:focus, input[type="password"]:focus, input[type="file"]:focus, input[type="button"]:focus, input[type="submit"]:focus, input[type="reset"]:focus, input[type="email"]:focus, input[type="number"]:focus, input[type="search"]:focus, input[type="tel"]:focus, input[type="url"]:focus, select:focus {
     border-color: #BBBBBB;
 }
+*/
 kbd, code {
     background: none repeat scroll 0 0 #EAEAEA;
 }

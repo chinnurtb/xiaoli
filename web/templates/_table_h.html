@@ -87,7 +87,7 @@
     </div>
 
     <div id="screen-options-wrap" class="hidden" style="display: none; ">
-	<form id="adv-settings" action="" method="post">
+	<form id="adv-settings" class="form-inline" action="" method="post">
 	    <h5>Show on screen</h5>
 	    <div class="metabox-prefs">
 		{% for column in table.columns %}
@@ -103,8 +103,8 @@
 	    <div class="screen-options">
 		<input type="number" step="1" min="1" max="999" class="screen-per-page"
 		       name="wp_screen_options[value]" id="users_per_page" maxlength="3" value="{{ table.page_obj.per_page }}">
-		<label for="users_per_page">Users</label>
-		<input type="submit" name="screen-options-apply" id="screen-options-apply" class="button" value="Apply">
+		<label for="users_per_page">行</label>
+		<input type="submit" name="screen-options-apply" id="screen-options-apply" class="btn btn-small" value="Apply">
 		<input type="hidden" name="wp_screen_options[option]" value="users_per_page">
 	    </div>
 	    <!-- <div><input type="hidden" id="screenoptionnonce" name="screenoptionnonce" value="24b7ebf309"></div> -->

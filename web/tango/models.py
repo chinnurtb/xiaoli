@@ -57,7 +57,9 @@ class Profile(db.Model):
 
 
 class Query(db.Model):
+
     __tablename__ = 'queries'
+
     id = db.Column(db.Integer, primary_key=True)
     uid = db.Column(db.Integer, db.ForeignKey('users.id'))
     tab = db.Column(db.String(100))

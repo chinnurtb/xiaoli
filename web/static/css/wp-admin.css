@@ -648,7 +648,7 @@ kbd, code {
     float: left;
     font-size: 12px;
     list-style: none outside none;
-    margin: 8px 0 5px;
+    margin: 0px 0 6px; /*margin: 8px 0 5px;*/
     padding: 0;
     white-space: nowrap;
 }
@@ -825,6 +825,7 @@ p.install-help {
 .no-break {
     white-space: nowrap;
 }
+/*FIXME: comment by ery
 .wp-admin select {
     height: 2em;
     padding: 2px;
@@ -892,6 +893,7 @@ input.small-text[type="number"] {
 #timezone_string option {
     margin-left: 1em;
 }
+*/
 label, #your-profile label + a {
     vertical-align: middle;
 }
@@ -2086,7 +2088,7 @@ th.sorted.desc .sorting-indicator, th.asc:hover span.sorting-indicator {
 .tablenav {
     clear: both;
     height: 30px;
-    margin: 0px 0 4px; /* ORIGIN: margin: 6px 0 4px; */
+    margin: 0px 0 6px; /* ORIGIN: margin: 6px 0 4px; */
     vertical-align: middle;
 }
 .tablenav.themes {
