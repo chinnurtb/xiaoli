@@ -1,0 +1,37 @@
+{% extends 'layout.html' %}
+
+{% set menuid = 'fault' %}
+
+{% block title %}检索条件{% endblock %}
+
+{% block head %} {% endblock %}
+
+{% block content %}  
+
+{% from "_table_h.html" import render_table %}
+
+<div class="row-fluid content">
+    <div class="span2">
+        {% set submenuid = '/fault/queries' %}
+        {% include '/fault/_sidebar.html' %}
+    </div>
+    <div class="span10">
+        <form id="alarm-query-form" class="form-inline" action="/fault/queries" method="POST">
+        <div class="tablenav top">
+            <div class="alignleft actions">
+                <div class="alignleft btn-group">
+                    <a class="btn btn-small" href="/fault/queries/new">创建检索条件</a>
+                </div>
+            </div>
+            <div class="alignleft filters">
+                <input name='keyword' class="input-large" type="text">     
+                <input type="submit" name="search" class="btn btn-small" value="过滤">
+            </div>
+        </div>
+        {{ render_table(table) }}
+        <br class="clear">
+        </form>
+    </div>
+</div>
+
+{% endblock %}

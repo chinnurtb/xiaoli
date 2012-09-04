@@ -4,7 +4,9 @@
 
 {% block title %} 故障管理 {% endblock %}
 
-{% block head %} {% endblock %}
+{% block head %} 
+    <link rel="stylesheet" href="/static/css/alarm.css" type="text/css" media="all">
+{% endblock %}
 
 {% from "_table_h.html" import render_table, render_screen_meta %}
 
@@ -15,11 +17,11 @@
 <div id="screen-meta-links">
     <div id="contextual-help-link-wrap" class="hide-if-no-js screen-meta-toggle">
         <a href="#contextual-help-wrap" id="contextual-help-link"
-        class="show-settings">Help</a>
+        class="show-settings">帮助</a>
     </div>
     <div id="screen-options-link-wrap" class="hide-if-no-js screen-meta-toggle">
         <a href="#screen-options-wrap" id="show-settings-link"
-        class="show-settings">Screen Options</a>
+        class="show-settings">显示选项</a>
     </div>
 </div>
 
@@ -34,8 +36,43 @@
     </div>
 
     <div class="span10">
+        <form id="alarms-form" class="form-inline" action="/fault/alarms" method="POST">
+
+        <ul class="subsubsub">
+            {% for severity in severities %}
+            <li class="alarm-{{ severity.name }}"><a href="/fault/?severity={{ severity.id }}">{{ severity.alias }}<span class="count">({{ severity.count }})</span></a> {% if not loop.last %} | {% endif %} </li>
+            {% endfor %}
+        </ul>
+        <div class="tablenav top">
+            <div class="alignleft actions">
+                <div class="alignleft btn-group">
+                    <a class="btn btn-small" href="/fault/alarms/ack">确认</a>
+                    <a class="btn btn-small" href="/fault/alarms/clear">清除</a>
+                </div>
+            </div>
+            <div class="alignleft filters">
+                <select name="severity" class="input-medium">
+                    <option selected="selected" value="-1">告警级别</option>
+                    <option value="5">紧急</option>
+                    <option value="4">重要</option>
+                    <option value="3">次要</option>
+                    <option value="2">警告</option>
+                    <option value="1">事件</option>
+                </select>
+
+                <select name="category" class="input-medium">
+                    <option value="0">View all categories</option>
+                    <option class="level-0" value="1">Uncategorized</option>
+                </select>
+                <input type="submit" name="" id="post-query-submit" class="btn btn-small" value="过滤">
+            </div>
+        </div>
+
         {{ render_table(table) }}
+
         <br class="clear">
+
+        </form>
     </div>
 </div>
 

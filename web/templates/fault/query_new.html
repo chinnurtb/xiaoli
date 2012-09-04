@@ -1,0 +1,22 @@
+{% extends 'layout.html' %}
+
+{% set menuid = 'fault' %}
+
+{% block title %} 创建检索 {% endblock %}
+
+{% block head %} {% endblock %}
+
+{% block content %}  
+
+<div class="row-fluid content">
+    <div class="span2">
+        {% set submenuid = '/fault/queries/new' %}
+        {% include '/fault/_sidebar.html' %}
+    </div>
+    <div class="span10">
+        <h1>创建检索条件</h1>
+    </div>
+</div>
+
+{% endblock %}
+

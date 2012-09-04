@@ -1,0 +1,19 @@
+li.alarm-clear a { 
+    color: #00FF00; 
+}
+li.alarm-indeterminate a {
+    color: #773EF7; 
+}
+li.alarm-warning  a {
+    color: #43d5fa; 
+}
+li.alarm-minor a {
+    color: #E6F940;
+}
+li.alarm-major a {
+    color: #F6983E;
+}
+li.alarm-critical a {
+    color: #ED4D5A;
+}
+ 

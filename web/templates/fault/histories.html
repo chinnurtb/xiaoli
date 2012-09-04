@@ -4,7 +4,28 @@
 
 {% block title %}历史告警{% endblock %}
 
-{% block head %} {% endblock %}
+{% block head %} 
+    <link rel="stylesheet" href="/static/css/alarm.css" type="text/css" media="all">
+{% endblock %}
+
+{% from "_table_h.html" import render_table, render_screen_meta %}
+
+{% block screen_meta %} 
+
+{{ render_screen_meta(table) }}
+
+<div id="screen-meta-links">
+    <div id="contextual-help-link-wrap" class="hide-if-no-js screen-meta-toggle">
+        <a href="#contextual-help-wrap" id="contextual-help-link"
+        class="show-settings">帮助</a>
+    </div>
+    <div id="screen-options-link-wrap" class="hide-if-no-js screen-meta-toggle">
+        <a href="#screen-options-wrap" id="show-settings-link"
+        class="show-settings">显示选项</a>
+    </div>
+</div>
+
+{% endblock %}
 
 {% block content %}
     
@@ -15,9 +36,24 @@
         </div>
 
         <div class="span10">
-            <h1>历史告警</h1>
+            <form id="history-query-form" class="form-inline" action="/fault/histories" method="GET">
+            <div class="tablenav top">
+                <div class="alignleft filters">
+                        <select name="last-days" class="input-medium">
+                            <option value="1">最近一天</option>
+                            <option value="2">最近两天</option>
+                            <option value="3">最近一周</option>
+                            <option value="4">最近一月</option>
+                            <option value="4">全部时间</option>
+                        </select>
+                        <input type="submit" name="" id="history-query-submit" class="btn btn-small" value="过滤">
+                </div>
+            </div>
+            {{ render_table(table) }}
             <br class="clear">
+            </form>
         </div>
     </div>
 
 {% endblock %}
+
