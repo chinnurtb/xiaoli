@@ -2,9 +2,6 @@
 
 from __future__ import absolute_import, unicode_literals
 
-import copy
-
-from jinja2.filters import escape
 from flask import Flask, render_template, url_for, request
 from flask_sqlalchemy import SQLAlchemy
 
@@ -19,22 +16,24 @@ class TableData(object):
         self.queryset = data
         self.table = table
 
-        self.ordering()
-        self.page_obj = self.queryset.paginate(page=self.table.page,
-                                               per_page=self.table.per_page)
-        self.page_obj.total_items = self.queryset.count()
-        self.list = self.page_obj.items
-        
-    def ordering(self):
+
+    def ordering(self, order_by):
         model = self.table._meta.model
-        
-        order_by = self.table.order_by
         order = 'asc'
+        
         if order_by[0] == '-':
             order = 'desc'
             order_by = order_by[1:]
         a = A("%s.%s" % (order_by, order)) # i.e. "name.desc"
         self.queryset = self.queryset.order_by(a.resolve(model))
+
+        
+    def paginate(self, page, per_page):
+        self.page_obj = self.queryset.paginate(page=self.table.page,
+                                               per_page=self.table.per_page)
+        self.page_obj.total_items = self.queryset.count()
+        self.list = self.page_obj.items
+        
 
     def __iter__(self):
         return iter(self.list)
@@ -53,7 +52,7 @@ class TableData(object):
 class TableMeta(type):
     def __new__(cls, name, bases, attrs):
 
-        attrs["_meta"] = opts = TableOptions(attrs.get("Meta", None))
+        attrs["_meta"] = TableOptions(attrs.get("Meta", None))
         columns = [(name_, attrs.pop(name_)) for name_, column in attrs.items()
                                              if isinstance(column, Column)]
         columns.sort(lambda x, y: cmp(x[1].creation_counter, y[1].creation_counter))
@@ -77,18 +76,18 @@ class TableOptions(object):
         self.model = getattr(options, 'model', None)
         if self.order_by and self.model is None:
             raise ValueError("if you give *order_by* you should give *model* too!")
-        self.per_page = getattr(options, 'per_page', None)
+        self.per_page_key = getattr(options, 'per_page_key', None)
+        self.hidden_columns_key = getattr(options, 'hidden_columns_key', None)
         self.url_makers = getattr(options, 'url_makers', None)
         # print '(TableOptions)self.per_page::', self.per_page
-        
+
 
 class Table(object):
     __metaclass__ = TableMeta
     TableDataClass = TableData
 
-    def __init__(self, data, request, page=None, per_page=None, order_by=None,
-                 sequence=None, template=None,):
-        
+    def __init__(self, data, sequence=None, template=None,):
+
         # Sequence
         self.sequence = sequence
         if sequence is not None:
@@ -99,12 +98,7 @@ class Table(object):
             self._sequence.expand(self.base_columns.keys())
         self.columns = BoundColumns(self)
 
-        self.request = request
         # Order By
-        self.order_by = order_by or request.args.get('order_by', None) or self._meta.order_by
-        self.page = page or request.args.get('page', 1, type=int)
-        self.per_page = (per_page or request.args.get('per_page', None, type=int)
-                         or self._meta.per_page or 20)
 
         self.data = self.TableDataClass(data=data, table=self)
         self.rows = BoundRows(self.data)
@@ -113,6 +107,18 @@ class Table(object):
         # print 'self._sequence', self._sequence
 
 
+    def configure(self, profile, page=1, order_by=None):
+        self.hidden_columns = profile.get(self._meta.hidden_columns_key, '').split(',')
+        for name in self.hidden_columns:
+            if name: self.columns[name].hidden = True
+
+        self.per_page = int(profile.get(self._meta.per_page_key, '20'))
+        self.page = page
+        if order_by:
+            self.data.ordering(order_by)
+        self.data.paginate(self.page, self.per_page)
+        return self
+    
     @property
     def sequence(self):
         return self._sequence
@@ -130,7 +136,6 @@ class Table(object):
 
     @property
     def page_url(self):
-        request = self.request
         req_args = request.args.to_dict()
         uri = request.url_root + request.path[1:]
         def func(page, order_by=None):
@@ -186,7 +191,7 @@ if __name__ == '__main__':
 
         class Meta():
             per_page = 3
-            order_by = '-age' 
+            order_by = '-age'
             model = User                # just for order by
             url_makers = {'parent': lambda record: url_for('user', id=getattr(record, 'id', 1),
                                                            mk='QUERY_STRING')}
@@ -204,5 +209,5 @@ if __name__ == '__main__':
         page = request.args.get('page', 1, type=int)
         table = UserTable(User.query, page=page, request=request)
         return render_template('test_table.html', table=table)
-    
+
     app.run(host="0.0.0.0", port=5001)

@@ -1,20 +1,17 @@
 #coding=utf-8
 from __future__ import absolute_import, unicode_literals
 
-import copy
-from types import GeneratorType
-from itertools import chain, ifilter, islice
-import inspect
+from itertools import  islice
 import datetime
 
 from jinja2 import Markup
 from jinja2.filters import escape
-from flask import Flask, render_template, url_for, request
+from flask import url_for
 
 from .utils import *
 
 __dict__ = ['Column', 'ManageColumn', 'CheckBoxColumn', 'BaseLinkColumn', 'LinkColumn',
-            'EmailColumn', 'DateTimeColumn', 
+            'EmailColumn', 'DateTimeColumn',
             'BoundColumn', 'BoundColumns']
 
 ## Column
@@ -30,7 +27,7 @@ class Column(object):
         if callable(accessor) and default is not None:
             raise TypeError('accessor must be string when default is used, not callable')
         self.accessor = A(accessor) if accessor else None
-        
+
         self.verbose_name = verbose_name
         self.orderable = orderable
 
@@ -136,7 +133,7 @@ class LinkColumn(BaseLinkColumn):
 
         if self._external:
             params[b'_external'] = self._external
-            
+
         uri = None
         if bound_column.url_maker:
             uri = bound_column.url_maker(record)
@@ -174,12 +171,12 @@ class ButtonColumn(BaseLinkColumn):
             self.icon_class += ' icon-white'
 
         super(ButtonColumn, self).__init__(attrs, **extra)
-        
+
 
     @property
     def header(self):
         return u''
-    
+
     def render(self, value, record, bound_column):
         uri = url_for(self.endpoint, id=getattr(record, 'id', None))
         attrs = AttributeDict({'class': self.btn_class})
@@ -198,7 +195,7 @@ class DeleteBtnColumn(ButtonColumn):
         self.btn_class += ' btn-danger'
         self.icon_class += ' icon-white'
 
-    
+
 class DateTimeColumn(Column):
     def __init__(self, format=None, **extra):
         super(DateTimeColumn, self).__init__(**extra)
@@ -221,6 +218,7 @@ class BoundColumn(object):
         url_makers = getattr(table._meta, 'url_makers', None)
         self.url_maker = url_makers.get(name, None) if url_makers else None
 
+        
 
     @property
     def header(self):
@@ -260,6 +258,9 @@ class BoundColumn(object):
         th_class = set((c for c in th.get("class", "").split(" ") if c))
         td_class = set((c for c in td.get("class", "").split(" ") if c))
         # add classes for ordering
+        if getattr(self, 'hidden', None):
+            th["style"] = "display: none;"
+            td["style"] = "display: none;"
         if self.orderable:
             th_class.add("orderable")
             th_class.add("sortable")
