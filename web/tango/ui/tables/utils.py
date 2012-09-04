@@ -1,9 +1,10 @@
 #coding=utf-8
 
 import re
+import copy
 import inspect
 from types import GeneratorType
-from itertools import chain, ifilter, islice
+from itertools import chain, ifilter
 
 from jinja2 import Markup
 from jinja2.filters import escape
@@ -95,7 +96,7 @@ class Attrs(dict):
 
     @staticmethod
     def merge(default, extra):
-        all_class = default.pop('class', '') + ' ' + extra.pop('class', '') 
+        all_class = default.pop('class', '') + ' ' + extra.pop('class', '')
         default['class'] = all_class
         default.update(extra)
         return default

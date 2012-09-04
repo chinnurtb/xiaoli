@@ -2,14 +2,6 @@
 
 from __future__ import absolute_import, unicode_literals
 
-import copy
-from types import GeneratorType
-from itertools import chain, ifilter, islice
-import inspect
-
-from jinja2 import Markup
-from jinja2.filters import escape
-from flask import Flask, render_template, url_for, request
 
 from .utils import *
 
@@ -45,7 +37,7 @@ class BoundRow(object):
         value = None
         try:
             value = bound_column.accessor.resolve(self.record)
-        except ValueError,e:
+        except ValueError:
             pass
 
         kwargs = {
