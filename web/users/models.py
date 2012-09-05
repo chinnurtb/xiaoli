@@ -21,9 +21,9 @@ class User(db.Model, UserMixin):
     email      = db.Column(db.String(60), unique=True)
     password   = db.Column(db.String(60))
     signup_on  = db.Column(db.DateTime)
-    role_id    = db.Column(db.Integer, db.ForeignKey('roles.id'))
-    domain_id  = db.Column(db.Integer, db.ForeignKey('domains.id'))
-    group_id   = db.Column(db.Integer, db.ForeignKey('user_groups.id'))
+    role_id    = db.Column(db.Integer)#, db.ForeignKey('roles.id'))
+    domain_id  = db.Column(db.Integer)#, db.ForeignKey('domains.id'))
+    group_id   = db.Column(db.Integer)#, db.ForeignKey('user_groups.id'))
     department = db.Column(db.String(100))
     telephone  = db.Column(db.String(20))
     mobile     = db.Column(db.String(20))
@@ -33,16 +33,13 @@ class User(db.Model, UserMixin):
     updated_at = db.Column(db.DateTime, default=datetime.now)
     expired_at = db.Column(db.DateTime, default=datetime.now)
 
-    role   = db.relation('Role')
-    domain = db.relation('Domain')
-    group  = db.relation('UserGroup')
+    # role   = db.relation('Role')
+    # domain = db.relation('Domain')
+    # group  = db.relation('UserGroup')
 
 
-    def __init__(self, username, email, password):
-        self.username = username
-        self.email = email
-        self.password = password
-        self.signup_on = datetime.now()
+    def __init__(self):
+        pass
 
     def gravatar_url(self, size=80):
         """Return the gravatar image for the given email address."""

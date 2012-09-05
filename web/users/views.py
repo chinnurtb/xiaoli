@@ -45,7 +45,7 @@ def login():
 
     
 @userview.route('/logout', methods=['GET'])
-@login_required
+# @login_required
 def logout():
     logout_user()
     return redirect('/')
@@ -54,7 +54,7 @@ def logout():
     
 #### Setting [BEGIN]
 @userview.route('/settings')
-@login_required
+# @login_required
 def profile():
     form = PasswordForm(request.form)
     if request.method == 'POST' and form.validate():
@@ -92,10 +92,13 @@ def user_new():
             #TODO: How to set password hash?
             user = User()
             form.populate_obj(user)
+            user.role_id = 0
+            user.domain_id = 0
+            user.group_id = 0
             db.session.add(user)
             db.session.commit()
             flash(u'添加用户成功', 'info')
-            return redirect(url_for('users'))
+            return redirect(url_for('users.users'))
     return render_template('users/new.html', form=form)
 
     

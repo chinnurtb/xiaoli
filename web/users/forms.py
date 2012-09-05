@@ -24,9 +24,9 @@ class UserNewForm(Form):
     name             = TextField(u'真实姓名', validators=[required(message=u'必填')])
     password         = PasswordField(u'密码', validators=[required(message=u'必填')])
     password_confirm = PasswordField(u'重复密码', validators=[required(message=u'必填'), equal_to('password', message=u'两次输入的密码不同')])
-    role_id          = SelectFieldPro(u'角色', validators=[required(message=u'必填')],
+    role_id          = SelectFieldPro(u'角色',
                                    choices=lambda: [('', u'请选择角色')] + [(unicode(r.id), r.name) for r in Role.query])
-    domain_id        = SelectFieldPro(u'管理域', validators=[required(message=u'必填')],
+    domain_id        = SelectFieldPro(u'管理域',
                                    choices=lambda: [('', u'请选择管理域')] + [(unicode(d.id), d.name) for d in Domain.query])
     department       = TextField(u'部门')
     email            = TextField(u'邮箱', validators=[required(message=u'必填'), email(message=u'不是合法的邮箱地址')])
@@ -69,6 +69,7 @@ class DomainNewForm(Form):
 class DomainEditForm(Form):
     pass
 
+    
     
 class SignupForm(Form):
     username = TextField(u'用户名', [
