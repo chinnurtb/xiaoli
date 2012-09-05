@@ -15,7 +15,7 @@ from tango.login import login_required, current_user
 
 from fault import Alarm
 
-from tango.models import lookup_profile, update_profile
+from tango.models import Profile
 
 homeview = Blueprint('home', __name__)
 
@@ -33,25 +33,26 @@ def nested_dict(name, form):
 def dashboard():
     uid = current_user.id
     board = Dashboard(widgets)
-    board.configure(lookup_profile(uid))
+    board.configure(Profile.load(uid, 'dashboard'))
     return render_template('/dashboard.html', dashboard = board)
 
 @homeview.route('/dashboard/settings', methods = ['POST'])
 @login_required
 def setting():
     form = request.form
+    uid = current_user.id
     if form['action'] == 'meta-box-order' and form['page'] == 'dashboard':
         order = nested_dict('order', form)
         layout = form['page_columns']
-        update_profile(current_user.id, 'dashboard.box.order', str(order))
-        update_profile(current_user.id, 'dashboard.screen.layout', layout)
+        Profile(uid, 'dashboard', 'dashboard.box.order', str(order)).update()
+        Profile(uid, 'dashboard', 'dashboard.screen.layout', layout).update()
         db.session.commit()
     elif form['action'] == 'closed-postboxes' and form['page'] == 'dashboard':
-        update_profile(current_user.id, 'dashboard.closedbox', form['closed'])
-        update_profile(current_user.id, 'dashboard.metaboxhidden', form['hidden'])
+        Profile(uid, 'dashboard', 'dashboard.closedbox', form['closed']).update()
+        Profile(uid, 'dashboard', 'dashboard.metaboxhidden', form['hidden']).update()
         db.session.commit()
     elif form['action'] == 'update-welcome-panel':
-        update_profile(current_user.id, 'dashboard.welcome.panel', form['visible'])
+        Profile(uid, 'dashboard', 'dashboard.welcome.panel', form['visible']).update()
         db.session.commit()
 
     return '0'

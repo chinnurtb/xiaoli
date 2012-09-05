@@ -2,12 +2,12 @@
 <div class="well sidebar-nav">
     <ul class="nav nav-list">
         <li class="nav-header">{{ title }}</li>
-        {% for label, href in items %}
-            {% if href == '#divider' %}
+        {% for id, text, href in items %}
+            {% if id == '#divider' %}
                 <li class="divider"></li>
             {% else %}
-                <li {% if submenuid and submenuid == href %} class="active" {% endif %}>
-                <a href="{{ href }}">{{ label }}</a>
+                <li {% if submenuid and submenuid == id %} class="active" {% endif %}>
+                <a href="{{ href }}">{{ text }}</a>
                 </li>
             {% endif %}
         {% endfor %}

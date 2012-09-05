@@ -31,12 +31,12 @@
 
 <div class="row-fluid" style="margin-top:30px;">
     <div class="span2">
-        {% set submenuid = '/fault' %}
+        {% set submenuid = 'alarms' %}
         {% include 'fault/_sidebar.html' %}
     </div>
 
     <div class="span10">
-        <form id="alarms-form" class="form-inline" action="/fault/alarms" method="POST">
+        <form id="alarms-form" class="form-inline" action="/fault/alarms" method="GET">
 
         <ul class="subsubsub">
             {% for severity in severities %}
@@ -46,25 +46,25 @@
         <div class="tablenav top">
             <div class="alignleft actions">
                 <div class="alignleft btn-group">
-                    <a class="btn btn-small" href="/fault/alarms/ack">确认</a>
-                    <a class="btn btn-small" href="/fault/alarms/clear">清除</a>
+                    <input type="submit" name="ack" id="alarm-ack-submit" class="btn" value="确认">
+                    <input type="submit" name="clear" id="alarm-clear-submit" class="btn" value="清除">
                 </div>
             </div>
             <div class="alignleft filters">
                 <select name="severity" class="input-medium">
                     <option selected="selected" value="-1">告警级别</option>
-                    <option value="5">紧急</option>
-                    <option value="4">重要</option>
-                    <option value="3">次要</option>
-                    <option value="2">警告</option>
-                    <option value="1">事件</option>
+                    {% for severity in severities %}
+                        <option value="{{ severity.id }}">{{ severity.alias }}</option>
+                    {% endfor %}
                 </select>
 
-                <select name="category" class="input-medium">
-                    <option value="0">View all categories</option>
-                    <option class="level-0" value="1">Uncategorized</option>
+                <select name="query_id" class="input-medium">
+                    <option value="-1">自定义检索条件</option>
+                    {% for q in queries %}
+                        <option value="{{q.id}}">{{q.name}}</option>
+                    {% endfor %}
                 </select>
-                <input type="submit" name="" id="post-query-submit" class="btn btn-small" value="过滤">
+                <input type="submit" name="filter" id="alarm-query-submit" class="btn btn-small" value="过滤">
             </div>
         </div>
 

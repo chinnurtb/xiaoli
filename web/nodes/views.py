@@ -19,9 +19,8 @@ nodeview = Blueprint('nodes', __name__)
 @nodeview.route('/nodes')
 @login_required
 def nodes():
-    profile = Profile.load(1)
-    query = Node.query
-    table = NodeTable(query).configure(profile)
+    profile = Profile.load(current_user.id, 'table-nodes')
+    table = NodeTable(Node.query).configure(profile)
     return render_template('nodes/index.html', table = table)
 
 @nodeview.route('/nodes/new')
@@ -33,17 +32,15 @@ def node_new():
 @nodeview.route("/boards")
 @login_required
 def boards():
-    profile = Profile.load(1)
-    query = Board.query
-    table = BoardTable(query).configure(profile)
+    profile = Profile.load(current_user.id, 'table-boards')
+    table = BoardTable(Board.query).configure(profile)
     return render_template('boards/index.html', table = table)
 
 @nodeview.route("/ports")
 @login_required
 def ports():
-    profile = Profile.load(1)
-    query = Port.query
-    table = PortTable(query).configure(profile)
+    profile = Profile.load(current_user.id, 'table-ports')
+    table = PortTable(Port.query).configure(profile)
     return render_template('ports/index.html', table = table)
 
 menus.append(Menu('nodes', u'资源', '/nodes'))

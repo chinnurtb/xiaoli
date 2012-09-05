@@ -4,7 +4,7 @@
 from flask import Blueprint, request, session, url_for, \
     redirect, render_template, g, flash
 
-from tango.login import login_required
+from tango.login import login_required, current_user
 
 from tango.ui import menus, Menu
 
@@ -12,7 +12,7 @@ from tango.ui import tables
 
 from tango.ui import Widget, add_widget
 
-from tango.models import Query
+from tango.models import Query, Profile
 
 from .models import Alarm, AlarmSeverity, History
 
@@ -64,19 +64,23 @@ class HistoryTable(tables.Table):
         per_page = 30
         order_by = '-created_at'
 
-@faultview.route('/')
+@faultview.route('/alarms', methods = ['GET'])
 @login_required
-def index():
+def alarms():
     severities = AlarmSeverity.query.order_by(desc(AlarmSeverity.id)).all()
-    table = AlarmTable(Alarm.query, request)
-    return render_template("/fault/index.html",
-        table = table, severities = severities)
+    queries = Query.query.filter_by(uid=current_user.id, tab='alarms').all()
+    profile = Profile.load(current_user.id, 'table-alarms')
+    table = AlarmTable(Alarm.query).configure(profile)
+
+    return render_template("/fault/index.html", table = table,
+        severities = severities, queries = queries)
 
 @faultview.route('/queries')
 @login_required
 def alarm_queries():
     q = Query.query.filter_by(tab='alarms')
-    t = QueryTable(q, request)
+    profile = Profile.load(current_user.id, 'table-alarm-queries')
+    t = QueryTable(q).configure(profile)
     return render_template("/fault/queries.html", table = t)
 
 @faultview.route('/queries/new')
@@ -93,7 +97,8 @@ def alarm_console():
 @faultview.route('/histories')
 @login_required
 def alarm_histories():
-    t = HistoryTable(History.query, request)
+    profile = Profile.load(current_user.id, 'table-histories')
+    t = HistoryTable(History.query).configure(Profile)
     return render_template("/fault/histories.html", table=t)
 
 @faultview.route('/alarms/ack')
@@ -109,7 +114,7 @@ def alarms_clear():
     return redirect(url_for('index'))
 
 
-menus.append(Menu('fault', u'故障', '/fault'))
+menus.append(Menu('fault', u'故障', '/fault/alarms'))
 
 add_widget(Widget('event_summary', u'告警统计', url = '/widgets/alarm/summary'))
 add_widget(Widget('event_statistics', u'告警概要', content='<div style="height:100px">......</div>'))
