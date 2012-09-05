@@ -4,53 +4,17 @@
 from flask import Blueprint, request, session, url_for, \
     redirect, render_template, g, flash
 
-from flask_wtf import Form, TextField, required
-
 from tango import db
-
 from tango.ui import menus, Menu
-
 from tango.ui import add_widget, Widget
-
 from tango.login import current_user, login_required
+from tango.models import Profile
 
 from .models import Node, Board, Port
-
-from tango.ui import tables
+from .forms import NodeNewForm
+from .tables import NodeTable,PortTable,BoardTable
 
 nodeview = Blueprint('nodes', __name__)
-
-class NodeTable(tables.Table):
-    check       = tables.CheckBoxColumn()
-    status      = tables.Column(verbose_name=u'状态')
-    alias       = tables.Column(verbose_name=u'名称', orderable=True)
-    addr        = tables.Column(verbose_name=u'地址')
-
-    class Meta():
-        model = Node 
-        per_page = 30
-        order_by = '-alias'
-
-class BoardTable(tables.Table):
-    check       = tables.CheckBoxColumn()
-    status      = tables.Column(verbose_name=u'状态')
-    alias       = tables.Column(verbose_name=u'名称', orderable=True)
-    class Meta():
-        model = Board
-        per_page = 30
-        order_by = '-alias'
-
-class PortTable(tables.Table):
-    check       = tables.CheckBoxColumn()
-    alias       = tables.Column(verbose_name=u'名称', orderable=True)
-    class Meta():
-        model = Port
-        per_page = 30
-        order_by = '-alias'
-
-class NodeNewForm(Form):
-    alias            = TextField(u'名称', validators=[required(message=u'必填')])
-    addr             = TextField(u'地址', validators=[required(message=u'必填')])
 
 @nodeview.route('/nodes')
 @login_required
