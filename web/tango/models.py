@@ -16,59 +16,45 @@ class Setting(db.Model):
         self.name = name
         self.value = value
 
-def lookup_profile(uid):
-    data = {}
-    profiles = Profile.query.filter_by(uid = uid).all()
-    for p in profiles:
-        data[p.key] = p.value
-    return data
-
-def update_profile(uid, key, value):
-    profile = Profile.query.filter_by(uid=uid, key=key).first()
-    if profile:
-        profile.value = value
-    else:
-        profile = Profile(uid, key, value)
-        db.session.add(profile)
-
-def find_value(key, profiles):
-    for p in profiles:
-        if key == p.key:
-            return p.value
-    return None 
-
 class Profile(db.Model):
     __tablename__ = 'profiles'
     id = db.Column(db.Integer, primary_key=True)
     uid = db.Column(db.Integer, db.ForeignKey('users.id'))
+    grp = db.Column(db.String(40))
     key = db.Column(db.String(100))
     value = db.Column(db.Text())
     created_at = db.Column(db.DateTime, default=datetime.now)
     updated_at = db.Column(db.DateTime, default=datetime.now)
 
-    def __init__(self, uid, key, value):
+    def __init__(self, uid, grp, key, value):
         self.uid = uid
+        self.grp = grp
         self.key = key
         self.value = value
+        created_at = datetime.now()
+        updated_at = datetime.now()
 
     @staticmethod
-    def load(uid):
+    def load(uid, grp):
         profile = {}
-        profiles = Profile.query.filter_by(uid = uid).all()
+        profiles = Profile.query.filter_by(uid = uid, grp = grp).all()
         for p in profiles:
             profile[p.key] = p.value
         return profile
 
-        
+    @staticmethod
+    def find(key, profiles):
+        for p in profiles:
+            if key == p.key:
+                return p
+        return None
+
     def update(self):
-        profile = Profile.query.filter_by(user_id=self.user_id, key=self.key).first()
+        profile = Profile.query.filter_by(uid=self.uid, grp=self.grp, key=self.key).first()
         if profile:
             profile.value = self.value
         else:
-            profile = Profile(self.user_id, self.key, self.value)
-            db.session.add(profile)
-        db.session.commit()
-
+            db.session.add(self)
 
 class Query(db.Model):
 

@@ -55,7 +55,8 @@ class NodeNewForm(Form):
 @nodeview.route('/nodes')
 @login_required
 def nodes():
-    table = NodeTable(Node.query, request)
+    profile = Profile.load(current_user.id, 'table-nodes')
+    table = NodeTable(Node.query).configure(profile)
     return render_template('nodes/index.html', table = table)
 
 @nodeview.route('/nodes/new')
@@ -67,13 +68,15 @@ def node_new():
 @nodeview.route("/boards")
 @login_required
 def boards():
-    table = BoardTable(Board.query, request)
+    profile = Profile.load(current_user.id, 'table-boards')
+    table = BoardTable(Board.query).configure(profile)
     return render_template('boards/index.html', table = table)
 
 @nodeview.route("/ports")
 @login_required
-def boards():
-    table = PortTable(Port.query, request)
+def ports():
+    profile = Profile.load(current_user.id, 'table-ports')
+    table = PortTable(Port.query).configure(profile)
     return render_template('ports/index.html', table = table)
 
 menus.append(Menu('nodes', u'资源', '/nodes'))

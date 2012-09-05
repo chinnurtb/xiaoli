@@ -20,9 +20,6 @@ from .models import User, Role, Permission, Domain
 from .forms import UserEditForm, UserNewForm, LoginForm, PasswordForm
 from .tables import UserTable
 
-
-
-
 userview = Blueprint('users', __name__)
 
 #### Authenticating [BEGIN]
@@ -68,8 +65,9 @@ def profile():
 
 #####  User [BEGIN]
 @userview.route('/users/')
+@login_required
 def users():
-    profile = Profile.load(1)
+    profile = Profile.load(current_user.id, "table-users")
     keyword = request.args.get('keyword', '')
     query = User.query
     if keyword:
@@ -118,7 +116,6 @@ def user_edit(id):
 def user_delete(id):
     return 'Delete::' + User.query.get_or_404(id).name
 #### User [END]
-
 
     
 #### Role [BEGIN]
