@@ -88,7 +88,6 @@ def user_new():
         username = form.username.data
         user = User.query.filter_by(username=username).first()
         if user is None:
-            hash_passwd = md5(form.password.data).hexdigest()
             #TODO: How to set password hash?
             user = User()
             form.populate_obj(user)
