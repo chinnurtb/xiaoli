@@ -64,14 +64,16 @@ class HistoryTable(tables.Table):
         per_page = 30
         order_by = '-created_at'
 
-@faultview.route('/')
+@faultview.route('/alarms', methods = ['GET'])
 @login_required
-def index():
+def alarms():
     severities = AlarmSeverity.query.order_by(desc(AlarmSeverity.id)).all()
+    queries = Query.query.filter_by(uid=current_user.id, tab='alarms').all()
     profile = Profile.load(current_user.id, 'table-alarms')
     table = AlarmTable(Alarm.query).configure(profile)
-    return render_template("/fault/index.html",
-        table = table, severities = severities)
+
+    return render_template("/fault/index.html", table = table,
+        severities = severities, queries = queries)
 
 @faultview.route('/queries')
 @login_required
@@ -112,7 +114,7 @@ def alarms_clear():
     return redirect(url_for('index'))
 
 
-menus.append(Menu('fault', u'故障', '/fault'))
+menus.append(Menu('fault', u'故障', '/fault/alarms'))
 
 add_widget(Widget('event_summary', u'告警统计', url = '/widgets/alarm/summary'))
 add_widget(Widget('event_statistics', u'告警概要', content='<div style="height:100px">......</div>'))

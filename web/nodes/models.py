@@ -111,7 +111,7 @@ class Node(db.Model):
     rdn = db.Column(db.String)
     name = db.Column(db.String(40))
     alias = db.Column(db.String(200))
-    ip = db.Column(db.String(20))
+    addr = db.Column(db.String(20))
     mask = db.Column(db.String(60))
     mac = db.Column(db.String(20))
     #-- 0:不可用 1:可用

@@ -33,7 +33,7 @@ def nested_dict(name, form):
 def dashboard():
     uid = current_user.id
     board = Dashboard(widgets)
-    board.configure(Profile.load(uid))
+    board.configure(Profile.load(uid, 'dashboard'))
     return render_template('/dashboard.html', dashboard = board)
 
 @homeview.route('/dashboard/settings', methods = ['POST'])

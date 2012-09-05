@@ -1,19 +1,19 @@
-{% from "_sidebar_h.html" import render_sidebar %}
+{% from "tango/_sidebar_h.html" import render_sidebar %}
 
 {{ render_sidebar('告警管理', submenuid, [
-        ('当前告警', '/fault'),
-        ('检索条件', '/fault/queries'),
-        ('创建检索', '/fault/queries/new'),
-        ('历史告警', '/fault/histories')])
+        ('alarms',          '当前告警',     '/fault/alarms'),
+        ('alarm-queries',   '检索条件',     '/fault/queries'),
+        ('alarm-query-new', '创建检索',     '/fault/queries/new'),
+        ('histories',       '历史告警',     '/fault/histories')])
 }}
 
 {{ render_sidebar('告警统计', submenuid, [
-        ('实时统计', '/fault/stats/active'),
-        ('历史统计', '/fault/stats/history')])
+        ('alarm-stats-active',  '实时统计', '/fault/stats/active'),
+        ('alarm-stats-history', '历史统计', '/fault/stats/history')])
 }}
 
 {{ render_sidebar('告警设置', submenuid, [
-        ('基本设置', '/fault/settings'),
-        ('告警过滤', '/fault/queries'),
-        ('告警知识库', '/fault/knowledges')])
+        ('alarm-setting',   '基本设置',     '/fault/settings'),
+        ('alarm-filter',    '告警过滤',     '/fault/queries'),
+        ('alarm-knowledges', '告警知识库',   '/fault/knowledges')])
 }}
