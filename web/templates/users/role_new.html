@@ -79,7 +79,7 @@
                     <td>
                       {% for p in permissions %}
                       <label class="checkbox inline">
-                        <input type="checkbox" name="permissions[{{p.id}}]"/>{{p.description}}</label>
+                        <input type="checkbox" name="permissions[{{p.id}}]"/>{{p.operation}}</label>
                       {% endfor %}
                     </td>
                   </tr>
@@ -87,7 +87,7 @@
                 </table>
               </div>
             </div>
-	    {{ render_field(form.description) }}
+	    {{ render_field(form.operation) }}
 	    <div class="control-group">
 	      <div class="controls">
 		<button type="submit" class="btn btn-primary">确定</button>
