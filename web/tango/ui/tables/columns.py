@@ -44,6 +44,9 @@ class Column(object):
         Column.creation_counter += 1
         # print 'Column.creation_counter', Column.creation_counter
 
+    
+    def cellattrs(self, bound_column, record):
+        return {}
 
     def render(self, value):
         return value
@@ -56,8 +59,8 @@ class EnumColumn(Column):
         self.name = name
         self.enums = enums
 
-    #def cellattrs(value, record):
-    #    return Attrs(td={'class': '%s-%s' % (self.name, str(value))})
+    def cellattrs(self, bound_column, record):
+        return {'class': '%s-%s' % (self.name, bound_column.accessor.resolve(record))}
 
     def render(self, value, record, bound_column):
         if value in self.enums:
