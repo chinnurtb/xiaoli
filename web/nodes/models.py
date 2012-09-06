@@ -60,15 +60,6 @@ class Manager(db.Model):
     created_at = db.Column(db.DateTime)
     updated_at = db.Column(db.DateTime)
 
-class Model(db.Model):
-    """Device Model"""
-    __tablename__ = 'models'
-    id = db.Column(db.Integer, primary_key=True)
-    class_id = db.Column(db.Integer)
-    name = db.Column(db.String(60), unique = True)
-    alias = db.Column(db.String(40))
-    remark = db.Column(db.String(100))
-
 class Vendor(db.Model):
     """Device Vendor"""
     __tablename__ = 'vendors'
@@ -80,6 +71,36 @@ class Vendor(db.Model):
     url = db.Column(db.String(100))
     is_valid = db.Column(db.Integer)
 
+class CollectRule(db.Model):
+    """采集规则"""
+    __tablename__ = 'collect_rules'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100))
+    alias = db.Column(db.String(100))
+    rule_format = db.Column(db.String(100))
+    match_status = db.Column(db.Integer)
+    other_status = db.Column(db.Integer)
+    start_time = db.Column(db.DateTime)
+    end_time = db.Column(db.DateTime)
+    curr_status = db.Column(db.Integer)
+
+class Category(db.Model):
+    """节点类型"""
+    __tablename__ = 'categories'
+    id = db.Column(db.Integer, primary_key=True)
+    cityid = db.Column(db.Integer)
+    type_id = db.Column(db.Integer, db.ForeignKey("dict_types.id"))
+    object = db.Column(db.String(100))
+    name = db.Column(db.String(100))
+    alias = db.Column(db.String(100))
+    sysoid = db.Column(db.String(100))
+    vendor_id = db.Column(db.Integer, db.ForeignKey("vendors.id"))
+    fttx = db.Column(db.Integer)
+    control_slot_num = db.Column(db.Integer)
+    business_slot_num = db.Column(db.Integer)
+    is_valid = db.Column(db.Integer)
+    remark = db.Column(db.String(100))
+
 NODE_STATUS_ONLINE=1
 
 NODE_STATUS_OFFLINE=0
@@ -90,7 +111,7 @@ class Node(db.Model):
     rdn = db.Column(db.String)
     name = db.Column(db.String(40))
     alias = db.Column(db.String(200))
-    addr = db.Column(db.String(40))
+    addr = db.Column(db.String(20))
     mask = db.Column(db.String(60))
     mac = db.Column(db.String(20))
     #-- 0:不可用 1:可用
@@ -99,17 +120,18 @@ class Node(db.Model):
     managed_state = db.Column(db.Integer)
     #-- 0:Production 1:Pre-Production 2:Test 3:Maintenance 4:Decommissioned
     prod_state = db.Column(db.Integer)
+    remark = db.Column(db.String(200))
     #-- 1:olt 2:onu 3:dslam 4:eoc 5:switch
-    category = db.Column(db.Integer) 
+    category = db.Column(db.Integer)
     #-- 1:PON 2:WLAN 3:DATA 4:SERVER 5:CPE 6:ACCESS
     business = db.Column(db.Integer)
     area_id = db.Column(db.Integer, db.ForeignKey('areas.id'))
-    timeperiod_id = db.Column(db.Integer, db.ForeignKey('timeperiods.id'))
+    collect_rule_id = db.Column(db.Integer, db.ForeignKey('collect_rules.id'))
     vendor_id = db.Column(db.Integer, db.ForeignKey("vendors.id"))
     model_id = db.Column(db.Integer, db.ForeignKey("models.id"))
+    group_id = db.Column(db.Integer)
     summary = db.Column(db.String(255))
     location = db.Column(db.String(200))
-    remark = db.Column(db.String(200))
     owner = db.Column(db.String(40))
     snmp_port = db.Column(db.Integer)
     snmp_ver = db.Column(db.String(20))
@@ -137,6 +159,7 @@ class Node(db.Model):
         return '<Node %r>' % self.name
 
 class Board(db.Model):
+    """板卡"""
     __tablename__ = 'boards'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(60), unique = True)
@@ -144,6 +167,7 @@ class Board(db.Model):
     created_at = db.Column(db.DateTime)
 
 class Port(db.Model):
+    """端口"""
     __tablename__ = 'ports'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(60), unique = True)
@@ -168,20 +192,9 @@ class Server(db.Model):
     descr = db.Column(db.String(200))
     created_at = db.Column(db.DateTime)
     updated_at = db.Column(db.DateTime)
-    
-class TimePeriod(db.Model):
-    __tablename__ = 'timeperiods'
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100))
-    alias = db.Column(db.String(100))
-    rule_format = db.Column(db.String(255))
-    match_status = db.Column(db.Integer)
-    other_status = db.Column(db.Integer)
-    start_time = db.Column(db.DateTime)
-    end_time = db.Column(db.DateTime)
-    curr_status = db.Column(db.Integer)
 
 class Maintains(db.Model):
+    """维护人信息"""
     __tablename__ = 'maintains'
     id          = db.Column(db.Integer, primary_key=True)
     cityid      = db.Column(db.Integer)

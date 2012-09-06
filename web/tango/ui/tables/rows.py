@@ -30,8 +30,8 @@ class BoundRow(object):
     def items(self):
         for column in self.table.columns:
             yield (column, self[column.name])
-            
-            
+
+
     def __getitem__(self, name):
         bound_column = self.table.columns[name]
         #value = getattr(self.record, name, '')

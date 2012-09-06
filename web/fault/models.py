@@ -15,7 +15,7 @@ class Alarm(db.Model):
     alarm_state             = db.Column(db.Integer)
     manager                 = db.Column(db.String(60))   
     agent                   = db.Column(db.String(60))  
-    node_id                 = db.Column(db.Integer, db.ForeignKey('nodes.id')) 
+    #node_id                 = db.Column(db.Integer, db.ForeignKey('nodes.id')) 
     node_class              = db.Column(db.Integer) 
     node_alias              = db.Column(db.String(200))  
     node_addr               = db.Column(db.String(100))  
@@ -55,7 +55,7 @@ class Alarm(db.Model):
     created_at              = db.Column(db.DateTime) 
     updated_at              = db.Column(db.DateTime) 
 
-    node                    = db.relation('Node', backref=db.backref("alarms"))
+    #node                    = db.relation('Node', backref=db.backref("alarms"))
 
     def __repr__(self):
         return '<Alarm%r>' % self.alarm_alias
@@ -122,6 +122,16 @@ class AlarmSeverity(db.Model):
     updated_at  = db.Column(db.DateTime)
     
     count       = 0
+
+    @staticmethod
+    def name2id(name):
+        if name == 'clear': return 0
+        if name == 'indeterminate': return 1
+        if name == 'warning': return 2
+        if name == 'minor': return 3
+        if name == 'major': return 4
+        if name == 'critical': return 5
+        return -1
 
     def __repr__(self):
         return '<Severity%r>' % self.name

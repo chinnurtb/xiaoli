@@ -4,58 +4,23 @@
 from flask import Blueprint, request, session, url_for, \
     redirect, render_template, g, flash
 
-from flask_wtf import Form, TextField, required
-
 from tango import db
-
 from tango.ui import menus, Menu
-
 from tango.ui import add_widget, Widget
-
 from tango.login import current_user, login_required
+from tango.models import Profile
 
 from .models import Node, Board, Port
-
-from tango.ui import tables
+from .forms import NodeNewForm
+from .tables import NodeTable,PortTable,BoardTable
 
 nodeview = Blueprint('nodes', __name__)
-
-class NodeTable(tables.Table):
-    check       = tables.CheckBoxColumn()
-    status      = tables.Column(verbose_name=u'状态')
-    alias       = tables.Column(verbose_name=u'名称', orderable=True)
-    addr        = tables.Column(verbose_name=u'地址')
-
-    class Meta():
-        model = Node 
-        per_page = 30
-        order_by = '-alias'
-
-class BoardTable(tables.Table):
-    check       = tables.CheckBoxColumn()
-    status      = tables.Column(verbose_name=u'状态')
-    alias       = tables.Column(verbose_name=u'名称', orderable=True)
-    class Meta():
-        model = Board
-        per_page = 30
-        order_by = '-alias'
-
-class PortTable(tables.Table):
-    check       = tables.CheckBoxColumn()
-    alias       = tables.Column(verbose_name=u'名称', orderable=True)
-    class Meta():
-        model = Port
-        per_page = 30
-        order_by = '-alias'
-
-class NodeNewForm(Form):
-    alias            = TextField(u'名称', validators=[required(message=u'必填')])
-    addr             = TextField(u'地址', validators=[required(message=u'必填')])
 
 @nodeview.route('/nodes')
 @login_required
 def nodes():
-    table = NodeTable(Node.query, request)
+    profile = Profile.load(current_user.id, 'table-nodes')
+    table = NodeTable(Node.query).configure(profile)
     return render_template('nodes/index.html', table = table)
 
 @nodeview.route('/nodes/new')
@@ -67,13 +32,15 @@ def node_new():
 @nodeview.route("/boards")
 @login_required
 def boards():
-    table = BoardTable(Board.query, request)
+    profile = Profile.load(current_user.id, 'table-boards')
+    table = BoardTable(Board.query).configure(profile)
     return render_template('boards/index.html', table = table)
 
 @nodeview.route("/ports")
 @login_required
-def boards():
-    table = PortTable(Port.query, request)
+def ports():
+    profile = Profile.load(current_user.id, 'table-ports')
+    table = PortTable(Port.query).configure(profile)
     return render_template('ports/index.html', table = table)
 
 menus.append(Menu('nodes', u'资源', '/nodes'))

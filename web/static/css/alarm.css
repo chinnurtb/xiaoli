@@ -17,3 +17,7 @@ li.alarm-critical a {
     color: #ED4D5A;
 }
  
+
+td.severity-column{
+    background-color: #ED4D5A;
+}

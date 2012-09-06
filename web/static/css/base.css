@@ -244,6 +244,8 @@ div.tablenav .filters {
 }
 
 div.tablenav .filters select,
+div.tablenav .actions select,
+div.tablenav .actions input[type="submit"],
 div.tablenav .filters input[type="text"] {
     height: 26px;
     line-height: 26px;

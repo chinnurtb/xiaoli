@@ -30,3 +30,8 @@ CREATE TABLE `timeperiods` (
 
 
 alarms.nodetype -> alarms->node_class
+
+ALTER TABLE profiles ADD COLUMN grp character varying(40);
+
+ALTER TABLE users ADD COLUMN group_id integer;
+
