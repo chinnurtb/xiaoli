@@ -22,7 +22,7 @@ from .tables import AlarmTable, HistoryTable, QueryTable
 
 from .forms import QueryNewForm
 
-faultview = Blueprint("fault", __name__, url_prefix='/fault')
+faultview = Blueprint("fault", __name__, static_folder="static", url_prefix='/fault')
 
 def alarm_filter(request):
     filter = []
@@ -83,7 +83,6 @@ def alarms_ack():
 def alarms_clear():
     #TODO: clear
     return redirect(url_for('index'))
-
 
 menus.append(Menu('fault', u'故障', '/fault/alarms'))
 

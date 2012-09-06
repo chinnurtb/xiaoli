@@ -65,7 +65,7 @@ class EnumColumn(Column):
     def render(self, value, record, bound_column):
         if value in self.enums:
             return self.enums[value]
-        return (value, attrs)
+        return value
 
 class CheckBoxColumn(Column):
 
