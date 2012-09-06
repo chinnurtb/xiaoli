@@ -8,8 +8,11 @@ from .models import Node,Board,Port
 class NodeTable(tables.Table):
     check       = tables.CheckBoxColumn()
     status      = tables.Column(verbose_name=u'状态')
-    alias       = tables.Column(verbose_name=u'名称', orderable=True)
-    addr        = tables.Column(verbose_name=u'地址')
+    name        = tables.Column(verbose_name=u'名称', orderable=True)
+    addr        = tables.Column(verbose_name=u'IP', orderable=True)
+    area_name   = tables.Column(verbose_name=u'位置', orderable=True, accessor='area.name')
+    vendor_name = tables.Column(verbose_name=u'厂家', orderable=True, accessor='vendor.name')
+    model_name  = tables.Column(verbose_name=u'型号', orderable=True, accessor='model.name')
 
     class Meta():
         model = Node

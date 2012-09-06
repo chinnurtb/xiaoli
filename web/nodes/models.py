@@ -34,7 +34,6 @@ class Area(db.Model):
     sub_type = db.Column(db.Integer)
     entrance_level = db.Column(db.Integer)
     check_state = db.Column(db.Integer)
-    project_status = db.Column(db.Integer)
     entrance  = db.Column(db.Integer)
     entrance_name = db.Column(db.String(50))
     branch = db.Column(db.Integer)
@@ -71,9 +70,9 @@ class Vendor(db.Model):
     url = db.Column(db.String(100))
     is_valid = db.Column(db.Integer)
 
-class CollectRule(db.Model):
+class TimePeriod(db.Model):
     """采集规则"""
-    __tablename__ = 'collect_rules'
+    __tablename__ = 'timeperiods'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100))
     alias = db.Column(db.String(100))
@@ -84,9 +83,9 @@ class CollectRule(db.Model):
     end_time = db.Column(db.DateTime)
     curr_status = db.Column(db.Integer)
 
-class Category(db.Model):
-    """节点类型"""
-    __tablename__ = 'categories'
+class Model(db.Model):
+    """设备型号"""
+    __tablename__ = 'models'
     id = db.Column(db.Integer, primary_key=True)
     cityid = db.Column(db.Integer)
     type_id = db.Column(db.Integer, db.ForeignKey("dict_types.id"))
@@ -108,7 +107,6 @@ NODE_STATUS_OFFLINE=0
 class Node(db.Model):
     __tablename__ = 'nodes'
     id = db.Column(db.Integer, primary_key=True)
-    rdn = db.Column(db.String)
     name = db.Column(db.String(40))
     alias = db.Column(db.String(200))
     addr = db.Column(db.String(20))
@@ -122,13 +120,13 @@ class Node(db.Model):
     prod_state = db.Column(db.Integer)
     remark = db.Column(db.String(200))
     #-- 1:olt 2:onu 3:dslam 4:eoc 5:switch
-    nodetype = db.Column(db.Integer)
+    category = db.Column(db.Integer)
     #-- 1:PON 2:WLAN 3:DATA 4:SERVER 5:CPE 6:ACCESS
     business = db.Column(db.Integer)
     area_id = db.Column(db.Integer, db.ForeignKey('areas.id'))
-    collect_rule_id = db.Column(db.Integer, db.ForeignKey('collect_rules.id'))
+    timeperiod_id = db.Column(db.Integer, db.ForeignKey('timeperiods.id'))
     vendor_id = db.Column(db.Integer, db.ForeignKey("vendors.id"))
-    category_id = db.Column(db.Integer, db.ForeignKey("categories.id"))
+    model_id = db.Column(db.Integer, db.ForeignKey("models.id"))
     group_id = db.Column(db.Integer)
     summary = db.Column(db.String(255))
     location = db.Column(db.String(200))
@@ -140,7 +138,7 @@ class Node(db.Model):
     sysoid = db.Column(db.String(100))
     sysname = db.Column(db.String(40))
     sysdescr = db.Column(db.String(200))
-    sysuptime = db.Column(db.Integer)
+    sysuptime = db.Column(db.DateTime)
     oid_idx = db.Column(db.String(100))
     sysmodel = db.Column(db.String(100))
     os_version = db.Column(db.String(40))
@@ -152,8 +150,11 @@ class Node(db.Model):
     last_check = db.Column(db.DateTime)
     next_check = db.Column(db.DateTime)
     duration = db.Column(db.Integer)
-    created_at = db.Column(db.DateTime)
     updated_at = db.Column(db.DateTime)
+
+    area   = db.relation('Area')
+    vendor = db.relation('Vendor')
+    model  = db.relation('Model')
 
     def __repr__(self):
         return '<Node %r>' % self.name

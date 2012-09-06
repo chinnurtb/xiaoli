@@ -4,7 +4,22 @@
 
 {% block title %}所有节点{% endblock %}
 
-{% block head %}{% endblock %}
+{% block head %}
+<script type="text/javascript">
+    $(function(){
+        $(".advance_search").toggle(
+            function() {
+                $(".advance_search_form").show();
+                $(this).addClass("hidedetail");
+            },
+            function() {
+                $(".advance_search_form").hide();
+                $(this).removeClass("hidedetail");
+            }
+        )
+    })
+</script>
+{% endblock %}
 
 {% from "_table_h.html" import render_table, render_screen_meta %}
 
@@ -51,45 +66,14 @@
                 <form class="form-inline" action="" method="GET">
                     {% set keyword = 'IP' %}
                     <div class="input-append alignleft" style="margin-left: 20px;">
-                        <input type="text" class="" placeholder="{{keyword}}" style="-moz-box-sizing: border-box;-webkit-box-sizing: border-box;box-sizing: border-box;height: 26px;*height: 20px;">
+                        <input type="text" class="input-low" placeholder="{{keyword}}">
                         <button type="submit" class="btn btn-small">确定</button>
                     </div>
-                    <div class="alignleft" style="cursor:pointer;height:22px;width:22px;margin:3px;background-image: url('/static/img/showdetail.png');" title="高级检索"></div>
+                    <div class="alignleft advance_search" title="高级检索"></div>
                 </form>
             </div>
         </div>
-        <div style="margin: 0;" class="span12 well">
-        <form class="form-horizontal">
-            <div class="span4">
-            <div class="control-group">
-                <label class="control-label" for="inputPassword">Password</label>
-                <div class="controls">
-                    <input type="password" id="inputPassword" placeholder="Password" style="-moz-box-sizing: border-box;-webkit-box-sizing: border-box;box-sizing: border-box;height: 26px;*height: 20px;">
-                </div>
-            </div>
-            <div class="control-group">
-                <label class="control-label" for="inputEmail">Email</label>
-                <div class="controls">
-                    <input type="text" id="inputEmail" placeholder="Email">
-                </div>
-            </div>
-            </div>
-            <div class="span4">
-                <div class="control-group">
-                    <label class="control-label" for="inputPassword">Password</label>
-                    <div class="controls">
-                        <input type="password" id="inputPassword" placeholder="Password">
-                    </div>
-                </div>
-                <div class="control-group">
-                    <label class="control-label" for="inputEmail">Email</label>
-                    <div class="controls">
-                        <input type="text" id="inputEmail" placeholder="Email">
-                    </div>
-                </div>
-            </div>
-        </form>
-        </div>
+        {% include "nodes/_search_form.html" %}
         {{ render_table(table) }}
 
         <br class="clear">
