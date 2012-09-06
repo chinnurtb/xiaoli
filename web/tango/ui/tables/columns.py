@@ -49,6 +49,21 @@ class Column(object):
         return value
 
 
+class EnumColumn(Column):
+
+    def __init__(self, name, enums=None, attrs=None, **extra):
+        super(EnumColumn, self).__init__(attrs, **extra)
+        self.name = name
+        self.enums = enums
+
+    #def cellattrs(value, record):
+    #    return Attrs(td={'class': '%s-%s' % (self.name, str(value))})
+
+    def render(self, value, record, bound_column):
+        if value in self.enums:
+            return self.enums[value]
+        return (value, attrs)
+
 class CheckBoxColumn(Column):
 
     def __init__(self, attrs=None, **extra):

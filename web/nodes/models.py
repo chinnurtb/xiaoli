@@ -122,13 +122,13 @@ class Node(db.Model):
     prod_state = db.Column(db.Integer)
     remark = db.Column(db.String(200))
     #-- 1:olt 2:onu 3:dslam 4:eoc 5:switch
-    nodetype = db.Column(db.Integer)
+    category = db.Column(db.Integer)
     #-- 1:PON 2:WLAN 3:DATA 4:SERVER 5:CPE 6:ACCESS
     business = db.Column(db.Integer)
     area_id = db.Column(db.Integer, db.ForeignKey('areas.id'))
     collect_rule_id = db.Column(db.Integer, db.ForeignKey('collect_rules.id'))
     vendor_id = db.Column(db.Integer, db.ForeignKey("vendors.id"))
-    category_id = db.Column(db.Integer, db.ForeignKey("categories.id"))
+    model_id = db.Column(db.Integer, db.ForeignKey("models.id"))
     group_id = db.Column(db.Integer)
     summary = db.Column(db.String(255))
     location = db.Column(db.String(200))
