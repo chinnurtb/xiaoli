@@ -56,7 +56,7 @@ class UserGroupEditForm(Form):
 
 class RoleForm(Form):
     name = TextField(u'角色名', validators=[required(message=u'必填')])
-    description = TextField(u'描述')
+    operation = TextField(u'描述')
 
     
 class DomainNewForm(Form):

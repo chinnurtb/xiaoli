@@ -91,6 +91,7 @@ class AttributeDict(dict):
 
     @staticmethod
     def merge(default, extra):
+        """ 此方法对default参数有副作用 """
         all_class = default.pop('class', '') + ' ' + extra.pop('class', '')
         default['class'] = all_class
         default.update(extra)
