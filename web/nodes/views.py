@@ -23,6 +23,12 @@ def nodes():
     table = NodeTable(Node.query).configure(profile)
     return render_template('nodes/index.html', table = table)
 
+@nodeview.route('/nodes/<int:id>', methods=['GET'])
+@login_required
+def node_show(id):
+    Node = Node.query.get_or_404(id)
+    return render_template('nodes/show.html', node = node)
+
 @nodeview.route('/nodes/new')
 @login_required
 def node_new():

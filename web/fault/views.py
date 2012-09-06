@@ -31,13 +31,14 @@ def alarm_filter(request):
         if id != -1:
             filter.append("severity="+str(id))
     if 'query_id' in request.args:
-        if request.args['query_id'] != '-1':
+        if request.args['query_id'] != '':
             filter.append("query_id="+request.args['query_id'])
     return ' and '.join(filter)
 
 @faultview.route('/alarms', methods = ['GET'])
 @login_required
 def alarms():
+    print request.args
     severities = AlarmSeverity.query.order_by(desc(AlarmSeverity.id)).all()
     queries = Query.query.filter_by(uid=current_user.id, tab='alarms').all()
     profile = Profile.load(current_user.id, 'table-alarms')

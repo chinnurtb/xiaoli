@@ -39,6 +39,7 @@
         <form id="alarms-form" class="form-inline" action="/fault/alarms" method="GET">
 
         <ul class="subsubsub">
+            <li><a href="/fault/alarms">全部<span class="count">(0)</span></a>|</li>
             {% for severity in severities %}
             <li class="alarm-{{ severity.name }}"><a {% if request.args['severity'] == severity.name %} class="current" {% endif %} href="/fault/alarms?severity={{ severity.name }}">{{ severity.alias }}<span class="count">({{ severity.count }})</span></a> {% if not loop.last %} | {% endif %} </li>
             {% endfor %}
@@ -46,21 +47,21 @@
         <div class="tablenav top">
             <div class="alignleft actions">
                 <select name="action" class="input-medium">
-                    <option value="-1">操作</option>
+                    <option value="">操作</option>
                     <option value="ack">确认</option>
                     <option value="clear">清除</option>
                 </select>
-                <input type="submit"  id="alarm-action-submit" class="btn btn-small" value="应用">
+                <input type="submit" id="alarm-action-submit" class="btn btn-small" value="应用">
             </div>
             <div class="alignleft filters">
 
                 <select name="query_id" class="input-medium">
-                    <option value="-1">全部告警</option>
+                    <option value="">全部告警</option>
                     {% for q in queries %}
                         <option value="{{q.id}}">{{q.name}}</option>
                     {% endfor %}
                 </select>
-                <input type="submit" name="filter" id="alarm-query-submit" class="btn btn-small" value="过滤">
+                <input type="submit" id="alarm-query-submit" class="btn btn-small" value="过滤">
             </div>
         </div>
 

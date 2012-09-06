@@ -10,7 +10,7 @@ from .models import Alarm,History
 class AlarmTable(tables.Table):
     check       = tables.CheckBoxColumn()
     severity    = tables.EnumColumn(verbose_name=u'级别', name='severity', enums={0: u'清除', 1: u'事件', 2: u'警告', 3: u'次要', 4: u'重要', 5: u'紧急'}, orderable=True)
-    alarm_state = tables.Column(verbose_name=u'状态', orderable=True)
+    alarm_state = tables.EnumColumn(verbose_name=u'状态', name='alarm-state', enums={1: u'新产生', 2: u'已确认', 3: u'已清除'},  orderable=True)
     alarm_alias = tables.Column(verbose_name=u'名称', orderable=True)
     node_alias  = tables.Column(verbose_name=u'节点', orderable=True) #accessor='node.alias', 
     node_addr   = tables.Column(verbose_name=u'节点地址') #, accessor='node.addr'
