@@ -21,7 +21,7 @@ from users.models import User
 
 app = Flask(__name__)
 
-app.config.from_pyfile('webapp.cfg')
+app.config.from_pyfile('settings.py')
 
 db.init_app(app)
 db.app = app
