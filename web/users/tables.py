@@ -3,7 +3,7 @@
 
 from tango.ui import tables
 
-from .models import User
+from .models import User, Role
 
 #### Tables
 class UserTable(tables.Table):
@@ -28,3 +28,14 @@ class UserTable(tables.Table):
         model = User
         per_page = 3
         order_by = '-username'
+
+
+class RoleTable(tables.Table):
+    check      = tables.CheckBoxColumn()
+    delete_btn = tables.DeleteBtnColumn(endpoint='users.role_delete')
+    
+    name        = tables.Column(verbose_name=u'角色名称')
+    description = tables.Column(verbose_name=u'描述')
+
+    class Meta():
+        model = Role

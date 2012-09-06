@@ -8,7 +8,7 @@ from wtforms import validators as v
 from tango.forms import SelectFieldPro
 from .models import Domain, Role
 
-from flask_wtf import (Form, TextField, PasswordField,
+from flask_wtf import (Form, TextField, PasswordField, HiddenField,
                        TextAreaField, ValidationError, required, equal_to, email)
 
 def validate_mobile(message=None):
@@ -54,16 +54,11 @@ class UserGroupNewForm(Form):
 class UserGroupEditForm(Form):
     pass
 
-class RoleNewForm(Form):
-    pass
-class RoleEditForm(Form):
-    pass
+class RoleForm(Form):
+    name = TextField(u'角色名', validators=[required(message=u'必填')])
+    description = TextField(u'描述')
 
-class PermissionNewForm(Form):
-    pass
-class PermissionEditForm(Form):
-    pass
-
+    
 class DomainNewForm(Form):
     pass
 class DomainEditForm(Form):

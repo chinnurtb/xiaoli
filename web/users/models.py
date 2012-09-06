@@ -21,9 +21,9 @@ class User(db.Model, UserMixin):
     email      = db.Column(db.String(60), unique=True)
     password   = db.Column(db.String(60))
     signup_on  = db.Column(db.DateTime)
-    # role_id    = db.Column(db.Integer)#, db.ForeignKey('roles.id'))
+    role_id    = db.Column(db.Integer)#, db.ForeignKey('roles.id'))
     domain_id  = db.Column(db.Integer)#, db.ForeignKey('domains.id'))
-    group_id   = db.Column(db.Integer)#, db.ForeignKey('user_groups.id'))
+    # group_id   = db.Column(db.Integer)#, db.ForeignKey('user_groups.id'))
     department = db.Column(db.String(100))
     telephone  = db.Column(db.String(20))
     mobile     = db.Column(db.String(20))
@@ -120,23 +120,44 @@ class Role(db.Model):
     def __repr__(self):
         return '<Role%r>' % self.name
 
+        
 class Permission(db.Model):
     __tablename__ = 'permissions'
     
     id                 = db.Column(db.Integer, primary_key=True)
-    name               = db.Column(db.String(255), nullable=False)  
-    text               = db.Column(db.String(255), nullable=False)  
-    module_name        = db.Column(db.String(255))
-    controller_name    = db.Column(db.String(255))
-    action_name        = db.Column(db.String(255))
-    method             = db.Column(db.String(255), nullable=False, default='GET')
-    format             = db.Column(db.String(255))
+    name               = db.Column(db.String(255), nullable=False)
+    module             = db.Column(db.String(100)) # 模块的名字, 例如(users, nodes)
+    module_name        = db.Column(db.String(255)) # 模块的中文名字, 如(拓扑, 资源, 用户, 系统)
+    endpoint           = db.Column(db.String(100), nullable=False) # 一个flask的 endpoint 用来作为url_for的参数
     description        = db.Column(db.String(255))
-    module_text        = db.Column(db.String(255))
     default_permission = db.Column(db.Integer(1), default=0)
-    order_seq          = db.Column(db.Integer)
-    is_valid           = db.Column(db.Integer(1), default=1)
     created_at         = db.Column(db.DateTime, default=datetime.now)
     updated_at         = db.Column(db.DateTime, default=datetime.now)
+    
+    # text               = db.Column(db.String(255), nullable=False)  
+    # controller_name    = db.Column(db.String(255))
+    # action_name        = db.Column(db.String(255))
+    # method             = db.Column(db.String(255), nullable=False, default='GET')
+    # format             = db.Column(db.String(255))
+    # module_text        = db.Column(db.String(255))
+    # order_seq          = db.Column(db.Integer)
+    # is_valid           = db.Column(db.Integer(1), default=1)
+    
 
+# class Permission2(db.Model):
+#     __tablename__ = 'permissions2'
+    
+#     id                 = db.Column(db.Integer, primary_key=True)
+#     name               = db.Column(db.String(255), nullable=False)  
+#     text               = db.Column(db.String(255), nullable=False)
+#     module_name        = db.Column(db.String(100), nullable=False)
+#     endpoint           = db.Column(db.String(100), nullable=False)
+#     method             = db.Column(db.String(255), default='GET')
+#     format             = db.Column(db.String(255))
+#     description        = db.Column(db.String(255))
+#     default_permission = db.Column(db.Integer(1), default=0)
+#     order_seq          = db.Column(db.Integer)
+#     is_valid           = db.Column(db.Integer(1), default=1)
+#     created_at         = db.Column(db.DateTime, default=datetime.now)
+#     updated_at         = db.Column(db.DateTime, default=datetime.now)
 
