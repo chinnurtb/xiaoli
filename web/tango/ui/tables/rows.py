@@ -28,8 +28,9 @@ class BoundRow(object):
 
     @property
     def items(self):
-        for column in self.table.columns:
-            yield (column, self[column.name])
+        for bound_column in self.table.columns:
+            cellattrs = bound_column.column.cellattrs(bound_column, self.record)
+            yield (bound_column, self[bound_column.name], cellattrs)
 
 
     def __getitem__(self, name):
