@@ -30,6 +30,7 @@ class BoundRow(object):
     def items(self):
         for bound_column in self.table.columns:
             cellattrs = bound_column.column.cellattrs(bound_column, self.record)
+            # print 'cellattrs::', cellattrs
             yield (bound_column, self[bound_column.name], cellattrs)
 
 

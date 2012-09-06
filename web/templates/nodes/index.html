@@ -4,7 +4,22 @@
 
 {% block title %}所有节点{% endblock %}
 
-{% block head %} {% endblock %}
+{% block head %}
+<script type="text/javascript">
+    $(function(){
+        $(".advance_search").toggle(
+            function() {
+                $(".advance_search_form").show();
+                $(this).addClass("hidedetail");
+            },
+            function() {
+                $(".advance_search_form").hide();
+                $(this).removeClass("hidedetail");
+            }
+        )
+    })
+</script>
+{% endblock %}
 
 {% from "_table_h.html" import render_table, render_screen_meta %}
 
@@ -35,17 +50,30 @@
 
     <div class="span10">
 	    <div class="tablenav top">
-            <div class="alignleft actions">
+            <div class="alignleft">
                 <form action="" method="get">
                 <input type="hidden" name="orderby" value="login">
                 <input type="hidden" name="order" value="asc">
                 <div class="alignleft btn-group">
-                    <a class="btn btn-small" href="/nodes/new">添加节点</a>
+                    <a class="btn btn-small" href="/nodes/new">新建</a>
+                    <a class="btn btn-small" href="#">删除</a>
+                    <a class="btn btn-small" href="#">规划</a>
+                    <a class="btn btn-small" href="#">更新规则</a>
                 </div>
                 </form>
             </div>
+            <div class="alignleft form-search" style="height: 26px;">
+                <form class="form-inline" action="" method="GET">
+                    {% set keyword = 'IP' %}
+                    <div class="input-append alignleft" style="margin-left: 20px;">
+                        <input type="text" class="input-low" placeholder="{{keyword}}">
+                        <button type="submit" class="btn btn-small">确定</button>
+                    </div>
+                    <div class="alignleft advance_search" title="高级检索"></div>
+                </form>
+            </div>
         </div>
-
+        {% include "nodes/_search_form.html" %}
         {{ render_table(table) }}
 
         <br class="clear">

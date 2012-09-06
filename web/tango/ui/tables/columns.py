@@ -55,7 +55,7 @@ class Column(object):
 class EnumColumn(Column):
 
     def __init__(self, name, enums=None, attrs=None, **extra):
-        super(EnumColumn, self).__init__(attrs, **extra)
+        super(EnumColumn, self).__init__(attrs=attrs, **extra)
         self.name = name
         self.enums = enums
 
@@ -80,6 +80,7 @@ class CheckBoxColumn(Column):
         kwargs.update(extra)
         super(CheckBoxColumn, self).__init__(**kwargs)
 
+        
     @property
     def header(self):
         default = {'type': 'checkbox'}
@@ -290,8 +291,6 @@ class BoundColumn(object):
         # Always add the column name as a class
         th_class.add(self.name + '-column')
         td_class.add(self.name + '-column')
-        th_class.add('column-' + self.name)
-        td_class.add('column-' + self.name)
 
         if th_class:
             th['class'] = " ".join(sorted(th_class))
