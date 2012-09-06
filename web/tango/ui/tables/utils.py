@@ -81,17 +81,12 @@ A = Accessor  # alias
 
 class AttributeDict(dict):
     def as_html(self, **kwargs):
-        self.update(kwargs)             # 这里很可能有 bug
+        new_attrs = self
+        if kwargs:
+            new_attrs = copy.deepcopy(self)
+            AttributeDict.merge(new_attrs, kwargs)
         return Markup(' '.join(['%s="%s"' % (k, escape(v))
-                                for k, v in self.iteritems()]))
-
-
-class Attrs(dict):
-    """
-    """
-    def update(self, extra):
-        for key in ('th', 'td'):
-            self[key] = Attrs.merge(self.get(key, {}), extra.get(key, {}))
+                                for k, v in new_attrs.iteritems()]))
 
 
     @staticmethod
@@ -100,6 +95,16 @@ class Attrs(dict):
         default['class'] = all_class
         default.update(extra)
         return default
+
+        
+class Attrs(dict):
+    """
+    """
+    def update(self, extra):
+        for key in ('th', 'td'):
+            self[key] = AttributeDict.merge(self.get(key, {}), extra.get(key, {}))
+
+
 
 
 class Sequence(list):

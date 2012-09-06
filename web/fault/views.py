@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from sqlalchemy import desc
+
 from flask import Blueprint, request, session, url_for, \
     redirect, render_template, g, flash
 
@@ -16,62 +18,31 @@ from tango.models import Query, Profile
 
 from .models import Alarm, AlarmSeverity, History
 
-from sqlalchemy import desc
+from .tables import AlarmTable, HistoryTable, QueryTable
 
 from .forms import QueryNewForm
 
 faultview = Blueprint("fault", __name__, url_prefix='/fault')
 
-class AlarmTable(tables.Table):
-    check       = tables.CheckBoxColumn()
-    severity    = tables.Column(verbose_name=u'级别', orderable=True)
-    alarm_alias = tables.Column(verbose_name=u'名称', orderable=True)
-    node        = tables.Column(verbose_name=u'节点', accessor='node.alias', orderable=True)
-    node_addr   = tables.Column(verbose_name=u'节点地址', accessor='node.addr')
-    summary     = tables.Column(verbose_name=u'详细')
-    occur_count = tables.Column(verbose_name=u'发生次数')
-    last_occurrence = tables.Column(verbose_name=u'最后发生时间', orderable=True)
-
-    class Meta:
-        model = Alarm
-        per_page = 30
-        order_by = '-last_occurrence'
-
-class QueryTable(tables.Table):
-    check       = tables.CheckBoxColumn()
-    name        = tables.Column(verbose_name=u'名称', orderable=True)
-    is_public   = tables.Column(verbose_name=u'是否公开', orderable=True)
-    created_at  = tables.Column(verbose_name=u'创建时间', orderable=True)
-    updated_at  = tables.Column(verbose_name=u'最后更新时间')
-
-    class Meta:
-        model = Query
-        per_page = 30
-        order_by = '-created_at'
-
-class HistoryTable(tables.Table):
-    severity    = tables.Column(verbose_name=u'级别', orderable=True)
-    alarm_alias = tables.Column(verbose_name=u'名称', orderable=True)
-    node_alias  = tables.Column(verbose_name=u'节点', orderable=True)
-    node_addr   = tables.Column(verbose_name=u'节点地址')
-    summary     = tables.Column(verbose_name=u'详细')
-    occur_count = tables.Column(verbose_name=u'发生次数')
-    last_occurrence = tables.Column(verbose_name=u'最后发生时间', orderable=True)
-    created_at  = tables.Column(verbose_name=u'迁移历史时间')
-
-    class Meta:
-        model = History
-        per_page = 30
-        order_by = '-created_at'
+def alarm_filter(request):
+    filter = []
+    if 'severity' in request.args: 
+        id = AlarmSeverity.name2id(request.args['severity']) 
+        if id != -1:
+            filter.append("severity="+str(id))
+    if 'query_id' in request.args:
+        if request.args['query_id'] != '':
+            filter.append("query_id="+request.args['query_id'])
+    return ' and '.join(filter)
 
 @faultview.route('/alarms', methods = ['GET'])
 @login_required
 def alarms():
+    print request.args
     severities = AlarmSeverity.query.order_by(desc(AlarmSeverity.id)).all()
     queries = Query.query.filter_by(uid=current_user.id, tab='alarms').all()
     profile = Profile.load(current_user.id, 'table-alarms')
-    table = AlarmTable(Alarm.query).configure(profile)
-
+    table = AlarmTable(Alarm.query.filter(alarm_filter(request))).configure(profile)
     return render_template("/fault/index.html", table = table,
         severities = severities, queries = queries)
 

@@ -1,15 +1,15 @@
-#!/usr/bin/env python  
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
    XiaoLi
-   ~~~~~~~ 
+   ~~~~~~~
 
    Integrated Access Network Monitoring.
    :copyright: (c) 2012 by Ery Lee(ery.lee@gmail.com)
 """
 
 from flask import Flask, session, url_for, redirect, \
-    render_template, g
+    render_template, g, request
 
 from tango.ui import menus
 
@@ -55,8 +55,8 @@ blueprints = [homeview,
               #reportview,
               userview,
               sysview]
- 
-for bp in blueprints: 
+
+for bp in blueprints:
     app.register_blueprint(bp)
 
 @app.route('/')
@@ -64,11 +64,18 @@ for bp in blueprints:
 def index():
     return redirect('/dashboard')
 
+
+def auth_all():
+    pass
+
 #FIXME
 @app.before_request
 def before_request():
-    if current_user: 
+    auth_all()
+    if current_user:
         g.menus = menus
+
+
 
 @app.errorhandler(404)
 def page_not_found(e):

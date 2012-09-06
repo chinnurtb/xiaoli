@@ -7,18 +7,16 @@ from flask import (Blueprint, request, session, url_for,
                    redirect, render_template, g, flash)
 
 from tango import db
-
 from tango import login_mgr
-
 from tango.ui import menus, Menu
-
 from tango.login import logout_user, login_user, current_user, \
     login_required
-
 from tango.models import Profile
+
 from .models import User, Role, Permission, Domain
-from .forms import UserEditForm, UserNewForm, LoginForm, PasswordForm
-from .tables import UserTable
+from .forms import UserEditForm, UserNewForm, LoginForm, PasswordForm, RoleForm
+from .tables import UserTable, RoleTable
+
 
 userview = Blueprint('users', __name__)
 
@@ -96,7 +94,7 @@ def user_new():
             db.session.commit()
             flash(u'添加用户成功', 'info')
             return redirect(url_for('users.users'))
-    return render_template('users/new.html', form=form)
+    return render_template('users/user_new.html', form=form)
 
     
 @userview.route('/users/edit/<int:id>/', methods=['POST', 'GET'])
@@ -114,25 +112,83 @@ def user_edit(id):
 
 @userview.route('/users/delete/<int:id>/')
 def user_delete(id):
-    return 'Delete::' + User.query.get_or_404(id).name
+    pass
 #### User [END]
 
     
 #### Role [BEGIN]
 @userview.route('/roles')
 def roles():
-    roles = ', <hr /></br>'.join([' ---- '.join([role.name, '_'.join([p.name for p in role.permissions])])
-                       for role in Role.query])
-    return roles
+    profile = {}
+    table = RoleTable(Role.query).configure(profile, page=1)
+    return render_template('/users/roles.html', table=table)
+    
+
+def get_permissions(form):
+    perms = []
+    pattern = "^%s\[(.+)\]$" % 'permissions'
+    # print 'form.keys()::', form.keys()
+    # print 'form.values()::', form.values()
+    for key in form.keys():
+        if form[key] != 'on': continue
+        print 'key,form[key]::', key,form[key]
+        m = re.match(pattern, key)
+        if m:
+            try:
+                perm_id = int(m.group(1))
+                perm = Permission.query.get(perm_id)
+                print 'perm.name::', perm.name
+                perms.append(perm)
+            except Exception:
+                pass
+    return perms
+    
+    
+@userview.route('/roles/new', methods=['GET', 'POST'])
+def role_new():
+    perms = get_permissions(request.form)
+    form = RoleForm()
+    if request.method == 'POST' and form.validate_on_submit():
+        role = Role()
+        form.populate_obj(role)
+        for p in perms:
+            role.permissions.append(p)
+        db.session.add(role)
+        db.session.commit()
+        return redirect(url_for('users.roles'))
+
+    permissions = Permission.query.all()
+    modules = {}
+    name_map = {'users': u'系统',
+                'topo': u'拓扑',
+                'nodes':u'结点'}
+    for p in permissions:
+        if modules.get(p.name, None):
+            modules[p.name].append(p)
+        else:
+            modules[p.name] = [p]
+    
+    return render_template('users/role_new.html',
+                           form=form, modules=modules, name_map=name_map)
+    
+    
+
+@userview.route('/roles/edit/<int:id>')
+def role_edit(id):
+    form = RoleForm()
+    return u''
+
+@userview.route('/roles/delete/<int:id>')
+def role_delete(id):
+    role = Role.query.get(id)
+    db.session.delete(role)
+    db.session.commit()
+    return redirect(url_for('users.roles'))
 #### Role [END]    
 
     
 #### Permission [BEGIN]
-@userview.route('/permissions')
-def permissions():
-    permissions = ', <hr /></br>'.join([' ---- '.join([permission.name, '_'.join([r.name for r in permission.roles])])
-                       for permission in Permission.query])
-    return permissions
+    # [[PASS]]
 #### Permission [END]
     
     

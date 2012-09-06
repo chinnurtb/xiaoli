@@ -16,4 +16,21 @@ li.alarm-major a {
 li.alarm-critical a {
     color: #ED4D5A;
 }
- 
+td.severity-5 {
+    background-color: #ED4D5A;
+}
+td.severity-4 {
+    background-color: #F6983E;
+}
+td.severity-3 {
+    background-color: #E6F940;
+}
+td.severity-2 {
+    background-color: #43d5fa; 
+}
+td.severity-1 {
+    background-color: #773EF7; 
+}
+td.severity-0 {
+    background-color: #00FF00; 
+}

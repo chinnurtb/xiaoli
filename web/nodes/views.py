@@ -23,18 +23,16 @@ def nodes():
     table = NodeTable(Node.query).configure(profile)
     return render_template('nodes/index.html', table = table)
 
-@nodeview.route('/nodes/new', methods=['POST', 'GET'])
+@nodeview.route('/nodes/<int:id>', methods=['GET'])
+@login_required
+def node_show(id):
+    Node = Node.query.get_or_404(id)
+    return render_template('nodes/show.html', node = node)
+
+@nodeview.route('/nodes/new')
 @login_required
 def node_new():
     form = NodeNewForm()
-    if request.method == 'POST' and form.validate_on_submit():
-        node = Node()
-        form.populate_obj(node)
-        node.category = 1
-        db.session.add(node)
-        db.session.commit()
-        flash(u'新建节点成功', 'info')
-        return redirect(url_for('nodes.nodes'))
     return render_template('nodes/new.html', form = form)
 
 @nodeview.route("/boards")

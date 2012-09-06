@@ -44,10 +44,29 @@ class Column(object):
         Column.creation_counter += 1
         # print 'Column.creation_counter', Column.creation_counter
 
+    
+    def cellattrs(self, bound_column, record):
+        return {}
 
     def render(self, value):
         return value
 
+
+class EnumColumn(Column):
+
+    def __init__(self, name, enums=None, attrs=None, **extra):
+        super(EnumColumn, self).__init__(attrs=attrs, **extra)
+        self.name = name
+        self.enums = enums
+
+    def cellattrs(self, bound_column, record):
+        return {'class': '%s-%s' % (self.name, bound_column.accessor.resolve(record))}
+
+    def render(self, value, record, bound_column):
+        if value in self.enums:
+            return self.enums[value]
+        return value
+        
 
 class CheckBoxColumn(Column):
 
@@ -62,6 +81,7 @@ class CheckBoxColumn(Column):
         kwargs.update(extra)
         super(CheckBoxColumn, self).__init__(**kwargs)
 
+        
     @property
     def header(self):
         default = {'type': 'checkbox'}
@@ -71,11 +91,11 @@ class CheckBoxColumn(Column):
         return Markup(u'<input %s/>' % attrs.as_html())
 
 
-    def render(self, value, bound_column):  # pylint: disable=W0221
+    def render(self, record, bound_column):  # pylint: disable=W0221
         default = {
             'type': 'checkbox',
-            'name': bound_column.name,
-            'value': value
+            'name': 'ids',
+            'value': record.id
         }
         general = self.attrs.get('input')
         specific = self.attrs.get('td__input')
@@ -272,8 +292,6 @@ class BoundColumn(object):
         # Always add the column name as a class
         th_class.add(self.name + '-column')
         td_class.add(self.name + '-column')
-        th_class.add('column-' + self.name)
-        td_class.add('column-' + self.name)
 
         if th_class:
             th['class'] = " ".join(sorted(th_class))

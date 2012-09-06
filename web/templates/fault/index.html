@@ -39,32 +39,29 @@
         <form id="alarms-form" class="form-inline" action="/fault/alarms" method="GET">
 
         <ul class="subsubsub">
+            <li><a href="/fault/alarms">全部<span class="count">(0)</span></a>|</li>
             {% for severity in severities %}
-            <li class="alarm-{{ severity.name }}"><a href="/fault/?severity={{ severity.id }}">{{ severity.alias }}<span class="count">({{ severity.count }})</span></a> {% if not loop.last %} | {% endif %} </li>
+            <li class="alarm-{{ severity.name }}"><a {% if request.args['severity'] == severity.name %} class="current" {% endif %} href="/fault/alarms?severity={{ severity.name }}">{{ severity.alias }}<span class="count">({{ severity.count }})</span></a> {% if not loop.last %} | {% endif %} </li>
             {% endfor %}
         </ul>
         <div class="tablenav top">
             <div class="alignleft actions">
-                <div class="alignleft btn-group">
-                    <input type="submit" name="ack" id="alarm-ack-submit" class="btn" value="确认">
-                    <input type="submit" name="clear" id="alarm-clear-submit" class="btn" value="清除">
-                </div>
+                <select name="action" class="input-medium">
+                    <option value="">操作</option>
+                    <option value="ack">确认</option>
+                    <option value="clear">清除</option>
+                </select>
+                <input type="submit" id="alarm-action-submit" class="btn btn-small" value="应用">
             </div>
             <div class="alignleft filters">
-                <select name="severity" class="input-medium">
-                    <option selected="selected" value="-1">告警级别</option>
-                    {% for severity in severities %}
-                        <option value="{{ severity.id }}">{{ severity.alias }}</option>
-                    {% endfor %}
-                </select>
 
                 <select name="query_id" class="input-medium">
-                    <option value="-1">自定义检索条件</option>
+                    <option value="">全部告警</option>
                     {% for q in queries %}
                         <option value="{{q.id}}">{{q.name}}</option>
                     {% endfor %}
                 </select>
-                <input type="submit" name="filter" id="alarm-query-submit" class="btn btn-small" value="过滤">
+                <input type="submit" id="alarm-query-submit" class="btn btn-small" value="过滤">
             </div>
         </div>
 
