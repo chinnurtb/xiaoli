@@ -1,17 +1,14 @@
-{% from "_sidebar_h.html" import render_sidebar %}
+{% from "tango/_sidebar_h.html" import render_sidebar %}
 
 {{ render_sidebar('节点管理', submenuid, [
-        ('所有节点', '/nodes'),
-        ('添加节点', '/nodes/new'),
-        ('_', '#divider'),
-        ('所有板卡', '/boards'),
-        ('所有接口', '/ports')])
+        ('nodes','所有节点', '/nodes'),
+        ('nodes_new','添加节点', '/nodes/new'),
+        ('borads','所有板卡', '/boards'),
+        ('ports','所有接口', '/ports')])
 }}
 
 {{ render_sidebar('统计浏览', submenuid, [
-        ('分类统计', '/categories'),
-        ('厂商统计', '/vendors'),
-        ('区域统计', '/areas')])
+        ('categories','分类统计', '/categories'),
+        ('vendors','厂商统计', '/vendors'),
+        ('areas','区域统计', '/areas')])
 }}
-
-<p> {{ submenuid }} </p>
