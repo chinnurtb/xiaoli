@@ -7,7 +7,7 @@ from .models import Node,Board,Port
 
 class NodeTable(tables.Table):
     check       = tables.CheckBoxColumn()
-    status      = tables.Column(verbose_name=u'状态')
+    status      = tables.EnumColumn(verbose_name=u'状态', name='state', enums={0: u'不可用', 1: u'可用'},  orderable=True)
     name        = tables.Column(verbose_name=u'名称', orderable=True)
     addr        = tables.Column(verbose_name=u'IP', orderable=True)
     area_name   = tables.Column(verbose_name=u'位置', orderable=True, accessor='area.name')
