@@ -17,6 +17,7 @@ SQLALCHEMY_POOL_SIZE = 5
 SQLALCHEMY_POOL_TIMEOUT = 10
 
 try:
-    from .local_settings import *
+    from local_settings import *
 except Exception:
     pass
+
