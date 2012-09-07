@@ -59,7 +59,7 @@
         {% set submenuid = 'nodes' %}
         {% include 'nodes/_sidebar.html' %}
     </div>
-
+    {% include "_alert.html" %}
     <div class="span10">
         <form class="form-horizontal" method="GET" action="{{url_for('nodes.nodes')}}" id="search_form">
             <div class="tablenav top">

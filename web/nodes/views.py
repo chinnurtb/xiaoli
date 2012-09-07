@@ -53,6 +53,21 @@ def node_new():
         return redirect(url_for('nodes.nodes'))
     return render_template('nodes/new.html', form = form)
 
+@nodeview.route('/nodes/edit/<int:id>', methods=['POST', 'GET'])
+@login_required
+def node_edit(id):
+    form = NodeNewForm()
+    node = Node.query.get_or_404(id)
+    if request.method == 'POST' and form.validate_on_submit():
+        form.populate_obj(node)
+        db.session.add(node)
+        db.session.commit()
+        flash(u'修改节点成功','info')
+        return redirect(url_for('nodes.nodes'))
+
+    form.process(obj=node)
+    return render_template('/nodes/edit.html', node=node, form=form)
+
 @nodeview.route("/boards")
 @login_required
 def boards():
