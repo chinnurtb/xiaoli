@@ -22,11 +22,11 @@ from .tables import AlarmTable, HistoryTable, QueryTable
 
 from .forms import QueryNewForm
 
-faultview = Blueprint("fault", __name__, static_folder="static", url_prefix='/fault')
+faultview = Blueprint("fault", __name__)
 
 def alarm_filter(request):
     filter = []
-    if 'severity' in request.args: 
+    if 'severity' in request.args:
         id = AlarmSeverity.name2id(request.args['severity']) 
         if id != -1:
             filter.append("severity="+str(id))
@@ -43,10 +43,10 @@ def alarms():
     queries = Query.query.filter_by(uid=current_user.id, tab='alarms').all()
     profile = Profile.load(current_user.id, 'table-alarms')
     table = AlarmTable(Alarm.query.filter(alarm_filter(request))).configure(profile)
-    return render_template("/fault/index.html", table = table,
+    return render_template("/fault/alarms.html", table = table,
         severities = severities, queries = queries)
 
-@faultview.route('/queries')
+@faultview.route('/alarms/queries')
 @login_required
 def alarm_queries():
     q = Query.query.filter_by(tab='alarms')
@@ -54,13 +54,13 @@ def alarm_queries():
     t = QueryTable(q).configure(profile)
     return render_template("/fault/queries.html", table = t)
 
-@faultview.route('/queries/new')
+@faultview.route('/alarms/queries/new')
 @login_required
 def alarm_query_new():
     f = QueryNewForm()
-    return render_template("/fault/query_new.html", form = f)
+    return render_template("/fault/alarms/query_new.html", form = f)
 
-@faultview.route('/console')
+@faultview.route('/alarms/console')
 @login_required
 def alarm_console():
     return render_template("/fault/console.html")
