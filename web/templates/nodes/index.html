@@ -14,6 +14,9 @@
     }
 </style>
 <script type="text/javascript">
+    var getSelectBox = function(){
+        return $("#node_form").find("input[name^=ids]:checked");
+    }
     $(function(){
         $(".advance_search").toggle(
             function() {
@@ -26,8 +29,19 @@
             }
         )
         $("#advance_search").click(function() {
-            search_form = $("search_form");
+            search_form = $("#search_form");
             search_form.attr("action","{{url_for('nodes.nodes')}}").submit();
+        })
+        node_form = $("#node_form");
+        $("#delete_btn").click(function() {
+            var ids = getSelectBox();
+            if(ids.length > 0){
+                if(confirm("确认删除这些节点？")) {
+                    node_form.attr("action","{{url_for('nodes.node_delete')}}").submit();
+                }
+            }else{
+                alert("请选择节点");
+            }
         })
     })
 </script>
@@ -59,8 +73,8 @@
         {% set submenuid = 'nodes' %}
         {% include 'nodes/_sidebar.html' %}
     </div>
-    {% include "_alert.html" %}
     <div class="span10">
+        {% include "_alert.html" %}
         <form class="form-horizontal" method="GET" action="{{url_for('nodes.nodes')}}" id="search_form">
             <div class="tablenav top">
                 <div class="alignleft">
@@ -68,7 +82,7 @@
                     <input type="hidden" name="order" value="asc">
                     <div class="alignleft btn-group">
                         <a class="btn btn-small" href="/nodes/new">新建</a>
-                        <a class="btn btn-small" href="#">删除</a>
+                        <a class="btn btn-small" href="#" id="delete_btn">删除</a>
                         <a class="btn btn-small" href="#">规划</a>
                         <a class="btn btn-small" href="#">更新规则</a>
                     </div>
@@ -84,8 +98,9 @@
             </div>
             {% include "nodes/_search_form.html" %}
         </form>
+        <form action="" method="POST" id="node_form">
         {{ render_table(table) }}
-
+        </form>
         <br class="clear">
 
     </div>
