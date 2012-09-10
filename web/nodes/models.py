@@ -10,41 +10,44 @@ AREA_CITY=1
 #2: 县
 AREA_TOWN=2
 #3: 分局
-AREA_ENTRANCE=3
+AREA_BRANCH=3
 #4: 接入点
-AREA_SITE=4
+AREA_ENTRANCE=4
 
 class Area(db.Model):
     """
     Area Table
     """
     __tablename__ = 'areas'
-    id = db.Column(db.Integer, primary_key=True)
-    parent_id = db.Column(db.Integer, db.ForeignKey('areas.id'))
-    rdn = db.Column(db.String(100))
-    name = db.Column(db.String(50))
-    alias = db.Column(db.String(100))
-    area_type = db.Column(db.Integer)
-    longitude = db.Column(db.Float)
-    latitude = db.Column(db.Float)
-    address = db.Column(db.String(100))
-    order_seq = db.Column(db.Integer)
+    id             = db.Column(db.Integer, primary_key=True)
+    parent_id      = db.Column(db.Integer, db.ForeignKey('areas.id'))
+    rdn            = db.Column(db.String(100))
+    name           = db.Column(db.String(50))
+    alias          = db.Column(db.String(100))
+    area_type      = db.Column(db.Integer)
+    longitude      = db.Column(db.Float)
+    latitude       = db.Column(db.Float)
+    address        = db.Column(db.String(100))
+    order_seq      = db.Column(db.Integer)
     managed_status = db.Column(db.Integer)
-    entrance_type = db.Column(db.Integer)
-    sub_type = db.Column(db.Integer)
+    entrance_type  = db.Column(db.Integer)
+    sub_type       = db.Column(db.Integer)
     entrance_level = db.Column(db.Integer)
-    check_state = db.Column(db.Integer)
-    entrance  = db.Column(db.Integer)
-    entrance_name = db.Column(db.String(50))
-    branch = db.Column(db.Integer)
-    branch_name = db.Column(db.String(50))
-    town = db.Column(db.Integer)
-    town_name  = db.Column(db.String(50))
-    cityid = db.Column(db.Integer)
-    city_name  = db.Column(db.String(50))
-    remark = db.Column(db.String(50)) 
-    created_at = db.Column(db.DateTime) 
-    updated_at = db.Column(db.DateTime) 
+    check_state    = db.Column(db.Integer)
+    entrance       = db.Column(db.Integer)
+    entrance_name  = db.Column(db.String(50))
+    branch         = db.Column(db.Integer)
+    branch_name    = db.Column(db.String(50))
+    town           = db.Column(db.Integer)
+    town_name      = db.Column(db.String(50))
+    cityid         = db.Column(db.Integer)
+    city_name      = db.Column(db.String(50))
+    remark         = db.Column(db.String(50)) 
+    created_at     = db.Column(db.DateTime) 
+    updated_at     = db.Column(db.DateTime)
+
+    children = db.relation('Area')
+
 
 class Manager(db.Model):
     """EMS"""
@@ -142,7 +145,7 @@ class Node(db.Model):
     oid_idx = db.Column(db.String(100))
     sysmodel = db.Column(db.String(100))
     os_version = db.Column(db.String(40))
-    controller_id = db.Column(db.Integer, db.ForeignKey("nodes.id"))
+    controller_id = db.Column(db.Integer)
     agent = db.Column(db.String(100))
     manager = db.Column(db.String(100))
     maintainer_id = db.Column(db.Integer, db.ForeignKey("maintains.id"))

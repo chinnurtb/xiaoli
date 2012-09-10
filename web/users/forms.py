@@ -55,14 +55,14 @@ class UserGroupEditForm(Form):
     pass
 
 class RoleForm(Form):
-    name = TextField(u'角色名', validators=[required(message=u'必填')])
-    operation = TextField(u'描述')
+    name        = TextField(u'角色名', validators=[required(message=u'必填')])
+    description = TextField(u'描述')
 
     
-class DomainNewForm(Form):
-    pass
-class DomainEditForm(Form):
-    pass
+class DomainForm(Form):
+    name        = TextField(u'名称', validators=[required(message=u'必填')])
+    description = TextField(u'描述')
+    
 
     
     

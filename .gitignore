@@ -5,3 +5,4 @@ web/venv
 .idea/*
 */.idea
 */.idea/*
+web/local_settings.py
