@@ -14,7 +14,7 @@ from tango.login import logout_user, login_user, current_user, \
     login_required
 
 from tango.models import Profile
-from nodes.models import Area, AREA_CITY, AREA_TOWN, AREA_BRANCH, AREA_ENTRANCE
+from nodes.models import Area
 from .models import User, Role, Permission, Domain
 from .forms import UserEditForm, UserNewForm, LoginForm, PasswordForm, RoleForm, DomainForm
 from .tables import UserTable, RoleTable, DomainTable
@@ -56,9 +56,9 @@ def profile():
     form = PasswordForm(request.form)
     if request.method == 'POST' and form.validate():
         passwd = md5(form.newpasswd.data).hexdigest()
-        db.session.query(User).filter_by(id = current_user.id).update({password:passwd})
+        User.query.filter_by(id = current_user.id).update({'password':passwd})
         db.session.commit()
-        flash("密码修改成功", 'info')
+        flash(u"密码修改成功", 'info')
     return render_template("settings.html", passwdForm = form)
 #### Setting [END]    
 
@@ -89,9 +89,6 @@ def user_new():
             #TODO: How to set password hash?
             user = User()
             form.populate_obj(user)
-            user.role_id = 0
-            user.domain_id = 0
-            user.group_id = 0
             db.session.add(user)
             db.session.commit()
             flash(u'添加用户成功', 'info')
@@ -107,8 +104,8 @@ def user_edit(id):
         form.populate_obj(user)
         db.session.add(user)
         db.session.commit()
-        return redirect(url_for('users'))
-
+        flash(u'修改用户成功', 'info')
+        return redirect(url_for('users.users'))
     form.process(obj=user)
     return render_template('/users/user_edit.html', user=user, form=form)
 
@@ -117,7 +114,7 @@ def user_delete(id):
     pass
 #### User [END]
 
-    
+
 #### Role [BEGIN]
 def get_permissions(form):
     # print '-------BEGIN get_permissions--------'
@@ -138,35 +135,8 @@ def get_permissions(form):
             except Exception, e:
                 print 'Exception in get_permissions::', e
     return perms
+
     
-def make_permission_tree(all_perms, role_perms=None):
-    perm_tree = {}
-    for p in all_perms:
-        module_checked = ''
-        name_checked = ''
-        operation_checked = ''
-        if role_perms is not None:
-            for rp in role_perms:
-                if p.module == rp.module:
-                    module_checked = 'checked'
-                if p.name == rp.name:
-                    name_checked = 'checked'
-                if p.id == rp.id:
-                    operation_checked = 'checked'
-        module_key = (p.module_text, module_checked)
-        name_key = (p.name, name_checked)
-        operation_key = (p.operation, operation_checked)
-        
-        if not perm_tree.get(module_key, None):
-            perm_tree[module_key] = {}
-            perm_tree[module_key][name_key] = {}
-        if not perm_tree[module_key].get(name_key, None):
-            perm_tree[module_key][name_key] = {}
-        perm_tree[module_key][name_key][operation_key] = p.id
-        
-    return perm_tree
-
-
 @userview.route('/roles')
 def roles():
     profile = {}
@@ -186,10 +156,10 @@ def role_new():
         form.populate_obj(role)
         db.session.add(role)
         db.session.commit()
+        flash(u'新建角色成功', 'info')
         return redirect(url_for('users.roles'))
 
-    perm_all = Permission.query.all()
-    perm_tree = make_permission_tree(perm_all)
+    perm_tree = Permission.make_tree()
     
     return render_template('users/role_new_edit.html',
                            action=url_for('users.role_new'),
@@ -207,14 +177,14 @@ def role_edit(id):
             role.permissions.pop(0)
         for p in perms:
             role.permissions.append(p)
-            
+
         form.populate_obj(role)
         db.session.add(role)
         db.session.commit()
+        flash(u'修改角色成功', 'info')
         return redirect(url_for('users.roles'))
     
-    perm_all = Permission.query.all()
-    perm_tree = make_permission_tree(perm_all, role.permissions)
+    perm_tree = Permission.make_tree(role.permissions)
     form.process(obj=role)
     return render_template('users/role_new_edit.html',
                            action=url_for('users.role_edit', id=id),
@@ -227,6 +197,7 @@ def role_delete(id):
     role = Role.query.get(id)
     db.session.delete(role)
     db.session.commit()
+    flash(u'删除角色成功', 'info')
     return redirect(url_for('users.roles'))
     
 #### Role [END]    
@@ -298,28 +269,6 @@ def domains():
 
 
 
-def save_domain(domain, form, req):
-    form.populate_obj(domain)
-        
-    domain_areas = [int(area_id) for area_id in req.form['domain_areas'].split(',') if area_id]
-    areas = [Area.query.get(id) for id in domain_areas]
-    city_list = []
-    town_list = []
-    branch_list = []
-    entrance_list = []
-    area_list = { AREA_CITY: city_list,
-                  AREA_TOWN: town_list,
-                  AREA_BRANCH: branch_list,
-                  AREA_ENTRANCE: entrance_list}
-    for area in areas:
-        if area.area_type in (AREA_CITY, AREA_TOWN, AREA_BRANCH, AREA_ENTRANCE):
-            area_list[area.area_type].append(str(area.id))
-    domain.city_list = (',').join(city_list)
-    domain.town_list = (',').join(town_list)
-    domain.branch_list = (',').join(branch_list)
-    domain.entrance_list = (',').join(entrance_list)
-    db.session.add(domain)
-    db.session.commit()
 
     
 @userview.route('/domains/new', methods=['POST', 'GET'])
@@ -327,18 +276,25 @@ def domain_new():
     form = DomainForm()
     if request.method == 'POST' and form.validate_on_submit():
         domain = Domain()
-        save_domain(domain, form, request)
+        form.populate_obj(domain)
+        domain.dump_areas(request.form['domain_areas'])
+        db.session.add(domain)
+        db.session.commit()
         return redirect(url_for('users.domains'))
     return render_template('users/domain_new_edit.html',
                            action=url_for('users.domain_new'),
                            form=form)
 
+    
 @userview.route('/domains/edit/<int:id>', methods=['POST', 'GET'])
 def domain_edit(id):
     form = DomainForm()
     domain = Domain.query.get_or_404(id)
     if request.method == 'POST' and form.validate_on_submit():
-        save_domain(domain, form, request)
+        form.populate_obj(domain)
+        domain.dump_areas(request.form['domain_areas'])
+        db.session.add(domain)
+        db.session.commit()
         return redirect(url_for('users.domains'))
     domain_areas = ','.join([domain.city_list, domain.town_list,
                              domain.branch_list, domain.entrance_list])
