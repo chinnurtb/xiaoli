@@ -312,7 +312,8 @@ def save_domain(domain, form, req):
                   AREA_BRANCH: branch_list,
                   AREA_ENTRANCE: entrance_list}
     for area in areas:
-        area_list[area.area_type].append(str(area.id))
+        if area.area_type in (AREA_CITY, AREA_TOWN, AREA_BRANCH, AREA_ENTRANCE):
+            area_list[area.area_type].append(str(area.id))
     domain.city_list = (',').join(city_list)
     domain.town_list = (',').join(town_list)
     domain.branch_list = (',').join(branch_list)
@@ -328,7 +329,7 @@ def domain_new():
         domain = Domain()
         save_domain(domain, form, request)
         return redirect(url_for('users.domains'))
-    return render_template('users/domain_new.html',
+    return render_template('users/domain_new_edit.html',
                            action=url_for('users.domain_new'),
                            form=form)
 
@@ -342,7 +343,7 @@ def domain_edit(id):
     domain_areas = ','.join([domain.city_list, domain.town_list,
                              domain.branch_list, domain.entrance_list])
     form.process(obj=domain)
-    return render_template('users/domain_new.html',
+    return render_template('users/domain_new_edit.html',
                            action=url_for('users.domain_edit', id=id),
                            domain_areas=domain_areas, form=form)
     
