@@ -1,12 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from datetime import datetime
+
 from sqlalchemy import desc
 
 from jinja2 import Markup
 
 from flask import Blueprint, request, session, url_for, \
     redirect, render_template, g, flash
+
+from tango import db
 
 from tango.login import login_required, current_user
 
@@ -22,7 +26,7 @@ from .models import Alarm, AlarmSeverity, History
 
 from .tables import AlarmTable, HistoryTable, QueryTable
 
-from .forms import QueryNewForm
+from .forms import QueryNewForm, AlarmAckForm, AlarmClearForm
 
 import constants
 
@@ -56,16 +60,41 @@ def alarm_show(id):
     alarm = Alarm.query.get_or_404(id)
     return render_template("/alarms/detail.html", alarm=alarm)
 
-@alarmview.route('/alarms/ack/<ids>', )
+@alarmview.route('/alarms/ack/<int:id>', methods=['GET', 'POST'])
 @login_required
-def alarm_ack(ids):
-    return redirect(url_for('index'))
+def alarm_ack(id):
+    form = AlarmAckForm()
+    alarm = Alarm.query.get_or_404(id)
+    if request.method == 'POST' and form.validate_on_submit():
+        alarm.acked = 1
+        alarm.alarm_state = 2
+        alarm.acked_time = datetime.now()
+        alarm.acked_user = current_user.username
+        alarm.acked_note = form.acked_note.data
+        db.session.commit()
+        return redirect(url_for('.index'))
+    else: # request.method == 'GET':
+        form.process(obj=alarm)
+        return render_template('/alarms/ack.html', alarm=alarm, form=form)
 
-@alarmview.route('/alarms/clear/<ids>')
+@alarmview.route('/alarms/clear/<int:id>', methods=['GET', 'POST'])
 @login_required
-def alarm_clear():
+def alarm_clear(id):
     #TODO: clear
-    return redirect(url_for('index')) 
+    form = AlarmClearForm()
+    alarm = Alarm.query.get_or_404(id)
+    if request.method == 'POST' and form.validate_on_submit():
+        alarm.cleared = 1
+        alarm.severity = 0
+        alarm.alarm_state = 3
+        alarm.cleared_time = datetime.now()
+        alarm.cleared_user = current_user.username
+        alarm.cleared_note = form.cleared_note.data
+        db.session.commit()
+        return redirect(url_for('.index'))
+    else:
+        form.process(obj=alarm)
+        return render_template('/alarms/clear.html', alarm=alarm, form=form)
 
 @alarmview.route('/alarms/queries')
 @login_required

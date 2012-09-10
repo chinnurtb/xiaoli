@@ -33,7 +33,12 @@ class NodeLinkColumn(tables.BaseLinkColumn):
         return self.render_link("/nodes/%d" % record.node_id, value)
 
 class AlarmTable(tables.Table):
+    
+    ack         = tables.Action(name=u'确认', endpoint='alarms.alarm_ack')
+    clear       = tables.Action(name=u'清除', endpoint='alarms.alarm_clear')
+
     check       = tables.CheckBoxColumn()
+
     severity    = SeverityColumn()
     alarm_state = tables.EnumColumn(verbose_name=u'状态', name='alarm-state', enums=constants.STATES,  orderable=True)
     alarm_alias = tables.LinkColumn(verbose_name=u'名称', endpoint='alarms.alarm_show', orderable=True)
