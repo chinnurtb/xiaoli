@@ -1,0 +1,50 @@
+{% extends 'layout.html' %}
+
+{% set menuid = 'alarms' %}
+
+{% block title %}Alarm Detail{% endblock %}
+
+{% block head %} 
+    <link rel="stylesheet" href="/static/css/alarm.css" type="text/css" media="all">
+{% endblock %}
+
+{% block content %}
+
+    <div class="row-fluid content">
+        <div class="span2">
+            {% set submenuid = 'alarms' %}
+            {% include 'alarms/_sidebar.html' %}
+        </div>
+        <div class="span10">
+        <h3>{{alarm.node_alias}} / {{alarm.alarm_alias}}</h3>
+        <table class="table table-striped" style="border-collapse: collapse">
+          <tbody>
+          <tr>
+            <td>告警名称:</td><td>{{alarm.alarm_alias}}</td>
+            <td>告警类型:</td><td>{{alarm.alarm_class}}</td>
+          </tr>
+          <tr>
+            <td>告警级别:</td><td>{{alarm.severity|alarm_severity}}</td>
+            <td>告警状态:</td><td>{{alarm.alarm_state|alarm_state}}</td>
+          </tr>
+          <tr>
+            <td>告警设备:</td><td >{{alarm.node_alias}}</td>
+            <td>设备IP:</td><td >{{alarm.node_addr}}</td>
+          </tr>
+          <tr>
+            <td>产生时间:</td><td>{{alarm.first_occurrence}}</td>
+            <td>最后发生时间:</td><td>{{alarm.last_occurrence}}</td>
+          </tr>
+          <tr>
+            <td> 告警次数:</td><td colspan="3">{{alarm.occur_count}}</td>
+          </tr>
+          <tr>
+            <td> 告警详细:</td><td colspan="3">{{alarm.summary}}</td>
+          </tr>
+        </tbody>
+        </table>
+        </div>
+    </div>
+
+{% endblock %}
+

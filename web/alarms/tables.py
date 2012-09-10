@@ -9,21 +9,35 @@ from tango.models import Query
 
 from .models import Alarm,History
 
+import constants
+
 class SeverityColumn(tables.EnumColumn):
 
     def __init__(self, attrs=None, **extra):
-        super(SeverityColumn, self).__init__(name='severity', enums={0: u'清除', 1: u'事件', 2: u'警告', 3: u'次要', 4: u'重要', 5: u'紧急'}, verbose_name=u'级别')
+        super(SeverityColumn, self).__init__(name='severity', enums=constants.SEVERITIES, verbose_name=u'级别')
     
     def render(self, value, record, bound_column):
         text = super(SeverityColumn, self).render(value, record, bound_column)
         return Markup('<span class="label severity-%d">%s</span>' % (value, text))
 
+class AlarmAliasColumn(tables.Column):
+    
+    def __init(self, attrs=None,**extra):
+        super(AlarmAliasColumn, self).__init__(attrs, extra)
+
+    def render(self, value, record, bound_column):
+        return Markup('<a data-toggle="modal" data-remote="/alarms/%d" href="/alarms/%d" data-target="#alarm-show-model">%s</a>' % (record.id, record.id, value))
+
+class NodeLinkColumn(tables.BaseLinkColumn):
+    def render(self, value, record, bound_column):
+        return self.render_link("/nodes/%d" % record.node_id, value)
+
 class AlarmTable(tables.Table):
     check       = tables.CheckBoxColumn()
     severity    = SeverityColumn()
-    alarm_state = tables.EnumColumn(verbose_name=u'状态', name='alarm-state', enums={1: u'新产生', 2: u'已确认', 3: u'已清除'},  orderable=True)
-    alarm_alias = tables.LinkColumn(verbose_name=u'名称', endpoint='fault.alarms', orderable=True)
-    node_alias  = tables.Column(verbose_name=u'节点', orderable=True) #accessor='node.alias', 
+    alarm_state = tables.EnumColumn(verbose_name=u'状态', name='alarm-state', enums=constants.STATES,  orderable=True)
+    alarm_alias = tables.LinkColumn(verbose_name=u'名称', endpoint='alarms.alarm_show', orderable=True)
+    node_alias  = NodeLinkColumn(verbose_name=u'节点', orderable=True) #accessor='node.alias', 
     node_addr   = tables.Column(verbose_name=u'节点地址') #, accessor='node.addr'
     summary     = tables.Column(verbose_name=u'详细')
     occur_count = tables.Column(verbose_name=u'发生次数')

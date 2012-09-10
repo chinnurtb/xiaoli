@@ -160,7 +160,6 @@ class LinkColumn(BaseLinkColumn):
             uri = url_for(**params)
         return self.render_link(uri, value)
 
-
 class EmailColumn(BaseLinkColumn):
     def render(self, value):
         return self.render_link("mailto:%s" % value, value)
