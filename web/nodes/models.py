@@ -145,7 +145,7 @@ class Node(db.Model):
     oid_idx = db.Column(db.String(100))
     sysmodel = db.Column(db.String(100))
     os_version = db.Column(db.String(40))
-    controller_id = db.Column(db.Integer, db.ForeignKey("nodes.id"))
+    controller_id = db.Column(db.Integer)
     agent = db.Column(db.String(100))
     manager = db.Column(db.String(100))
     maintainer_id = db.Column(db.Integer, db.ForeignKey("maintains.id"))

@@ -19,7 +19,7 @@ class Column(object):
     creation_counter = 0
 
     def __init__(self, attrs=None, accessor=None,
-                 verbose_name=None, orderable=None):
+                 verbose_name=None, orderable=None, ifnull=None):
         if not (accessor is None or isinstance(accessor, basestring) or
                 callable(accessor)):
             raise TypeError('accessor must be a string or callable, not %s' %
@@ -30,6 +30,7 @@ class Column(object):
 
         self.verbose_name = verbose_name
         self.orderable = orderable
+        self.ifnull = ifnull
 
         default_attrs = Attrs(th={'class': 'manage-column', 'scope': 'col'})
         attrs = attrs or Attrs()
@@ -49,7 +50,10 @@ class Column(object):
         return {}
 
     def render(self, value):
-        return value
+        if value == None and self.ifnull != None:
+            return self.ifnull
+        else:
+            return value
 
 
 class EnumColumn(Column):
