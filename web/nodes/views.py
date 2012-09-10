@@ -11,7 +11,7 @@ from tango.login import current_user, login_required
 from tango.models import Profile
 
 from .models import Node, Board, Port
-from .forms import NodeNewForm
+from .forms import NodeNewForm, NodeSearchForm
 from .tables import NodeTable,PortTable,BoardTable
 
 nodeview = Blueprint('nodes', __name__)
@@ -19,9 +19,18 @@ nodeview = Blueprint('nodes', __name__)
 @nodeview.route('/nodes')
 @login_required
 def nodes():
+    form = NodeSearchForm()
+    query = Node.query
+    query_dict = dict([(key, request.args.get(key))for key,value in form.data.items()])
+    if query_dict.get("ip"): query=query.filter(Node.addr.like('%'+query_dict["ip"]+'%'))
+    if query_dict.get("name"): query=query.filter(Node.name.like('%'+query_dict["name"]+'%'))
+    if query_dict.get("area_id"): query=query.filter(Node.area_id == query_dict["area_id"])
+    if query_dict.get("vendor_id"): query=query.filter(Node.vendor_id == query_dict["vendor_id"])
+    if query_dict.get("model_id"): query=query.filter(Node.model_id == query_dict["model_id"])
+    form.process(**query_dict)
     profile = Profile.load(current_user.id, 'table-nodes')
-    table = NodeTable(Node.query).configure(profile)
-    return render_template('nodes/index.html', table = table)
+    table = NodeTable(query).configure(profile)
+    return render_template('nodes/index.html', table = table, form=form)
 
 @nodeview.route('/nodes/<int:id>', methods=['GET'])
 @login_required
@@ -29,11 +38,41 @@ def node_show(id):
     Node = Node.query.get_or_404(id)
     return render_template('nodes/show.html', node = node)
 
-@nodeview.route('/nodes/new')
+@nodeview.route('/nodes/new', methods=['GET','POST'])
 @login_required
 def node_new():
     form = NodeNewForm()
+    if request.method == 'POST' and form.validate_on_submit():
+        node = Node()
+        form.populate_obj(node)
+        node.category = 1
+        node.status = 0
+        db.session.add(node)
+        db.session.commit()
+        flash(u'新建节点成功', 'info')
+        return redirect(url_for('nodes.nodes'))
     return render_template('nodes/new.html', form = form)
+
+@nodeview.route('/nodes/edit/<int:id>', methods=['POST', 'GET'])
+@login_required
+def node_edit(id):
+    form = NodeNewForm()
+    node = Node.query.get_or_404(id)
+    if request.method == 'POST' and form.validate_on_submit():
+        form.populate_obj(node)
+        db.session.add(node)
+        db.session.commit()
+        flash(u'修改节点成功','info')
+        return redirect(url_for('nodes.nodes'))
+
+    form.process(obj=node)
+    return render_template('/nodes/edit.html', node=node, form=form)
+
+@nodeview.route('/users/delete/', methods=['POST'])
+def node_delete():
+    if request.method == 'POST':
+        ids = request.form.getlist('ids')
+        return redirect(url_for('nodes.nodes'))
 
 @nodeview.route("/boards")
 @login_required

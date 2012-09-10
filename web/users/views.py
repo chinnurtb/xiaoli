@@ -110,7 +110,7 @@ def user_edit(id):
         return redirect(url_for('users'))
 
     form.process(obj=user)
-    return render_template('/users/edit.html', user=user, form=form)
+    return render_template('/users/user_edit.html', user=user, form=form)
 
 @userview.route('/users/delete/<int:id>/')
 def user_delete(id):

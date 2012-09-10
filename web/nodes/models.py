@@ -91,7 +91,7 @@ class Model(db.Model):
     __tablename__ = 'models'
     id = db.Column(db.Integer, primary_key=True)
     cityid = db.Column(db.Integer)
-    type_id = db.Column(db.Integer, db.ForeignKey("dict_types.id"))
+    type_id = db.Column(db.Integer)
     object = db.Column(db.String(100))
     name = db.Column(db.String(100))
     alias = db.Column(db.String(100))

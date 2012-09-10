@@ -1,14 +1,14 @@
 #!/usr/bin/env python  
 # -*- coding: utf-8 -*-
-
+from flask import url_for
 from tango.ui import tables
 
 from .models import Node,Board,Port
 
 class NodeTable(tables.Table):
     check       = tables.CheckBoxColumn()
-    status      = tables.Column(verbose_name=u'状态')
-    name        = tables.Column(verbose_name=u'名称', orderable=True)
+    status      = tables.EnumColumn(verbose_name=u'状态', name='state', enums={0: u'不可用', 1: u'可用'},  orderable=True)
+    name        = tables.LinkColumn(verbose_name=u'名称',orderable=True)
     addr        = tables.Column(verbose_name=u'IP', orderable=True)
     area_name   = tables.Column(verbose_name=u'位置', orderable=True, accessor='area.name')
     vendor_name = tables.Column(verbose_name=u'厂家', orderable=True, accessor='vendor.name')
@@ -18,6 +18,7 @@ class NodeTable(tables.Table):
         model = Node
         per_page = 30
         order_by = '-alias'
+        url_makers = {'name': lambda record: url_for('nodes.node_edit', id=record.id)}
 
 class BoardTable(tables.Table):
     check       = tables.CheckBoxColumn()
