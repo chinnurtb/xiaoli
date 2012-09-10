@@ -237,7 +237,6 @@ class BoundColumn(object):
 
         url_makers = getattr(table._meta, 'url_makers', None)
         self.url_maker = url_makers.get(name, None) if url_makers else None
-
         
 
     @property

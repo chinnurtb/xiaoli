@@ -21,7 +21,7 @@ class User(db.Model, UserMixin):
     email      = db.Column(db.String(60), unique=True)
     password   = db.Column(db.String(60))
     signup_on  = db.Column(db.DateTime)
-    # role_id    = db.Column(db.Integer)#, db.ForeignKey('roles.id'))
+    role_id    = db.Column(db.Integer)#, db.ForeignKey('roles.id'))
     domain_id  = db.Column(db.Integer)#, db.ForeignKey('domains.id'))
     group_id   = db.Column(db.Integer)#, db.ForeignKey('user_groups.id'))
     department = db.Column(db.String(100))
@@ -95,7 +95,7 @@ class Domain(db.Model):
     entrance_list = db.Column(db.String(300))
     created_at	  = db.Column(db.DateTime, default=datetime.now)
     updated_at	  = db.Column(db.DateTime, default=datetime.now)
-    description   = db.Column(db.String(100))
+    description   = db.Column(db.String(255))
 
 roles_permissions = db.Table('roles_permissions', db.Model.metadata,
                              db.Column('role_id', db.Integer,

@@ -3,7 +3,7 @@
 
 from tango.ui import tables
 
-from .models import User, Role
+from .models import User, Role, Domain
 
 #### Tables
 class UserTable(tables.Table):
@@ -32,6 +32,7 @@ class UserTable(tables.Table):
 
 class RoleTable(tables.Table):
     check      = tables.CheckBoxColumn()
+    edit_btn   = tables.EditBtnColumn(endpoint='users.role_edit')
     delete_btn = tables.DeleteBtnColumn(endpoint='users.role_delete')
     
     name        = tables.Column(verbose_name=u'角色名称')
@@ -39,3 +40,13 @@ class RoleTable(tables.Table):
 
     class Meta():
         model = Role
+
+
+class DomainTable(tables.Table):
+    check = tables.CheckBoxColumn()
+
+    name        = tables.Column(verbose_name=u'名称')
+    description = tables.Column(verbose_name=u'描述')
+
+    class Meta():
+        model = Domain

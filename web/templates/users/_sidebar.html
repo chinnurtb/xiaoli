@@ -15,15 +15,15 @@
 <div class="well sidebar-nav">
     <ul class="nav nav-list">
       <li class="nav-header">角色管理</li>
-      <li><a href="#">所有角色</a></li>
-      <li><a href="#">新建角色</a></li>
+      <li><a href="{{url_for('users.roles')}}">所有角色</a></li>
+      <li><a href="{{url_for('users.role_new')}}">新建角色</a></li>
     </ul>
 </div>
 
 <div class="well sidebar-nav">
     <ul class="nav nav-list">
       <li class="nav-header">管理域设置</li>
-      <li><a href="#">所有管理域</a></li>
-      <li><a href="#">新建管理域</a></li>
+      <li><a href="{{url_for('users.domains')}}">所有管理域</a></li>
+      <li><a href="{{url_for('users.domain_new')}}">新建管理域</a></li>
     </ul>
 </div>

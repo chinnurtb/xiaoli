@@ -381,7 +381,7 @@ input.readonly, textarea.readonly {
 .imgedit-group, #media-items .media-item, .media-item .describe {
     border-color: #DFDFDF;
 }
-.checkbox, .side-info, .plugins tr, #your-profile #rich_editing {
+/* .checkbox, */ .side-info, .plugins tr, #your-profile #rich_editing {
     background-color: #FCFCFC;
 }
 .plugins .inactive, .plugins .inactive th, .plugins .inactive td, tr.inactive + tr.plugin-update-tr .plugin-update {
