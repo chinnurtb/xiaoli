@@ -94,7 +94,7 @@ class CheckBoxColumn(Column):
     def render(self, record, bound_column):  # pylint: disable=W0221
         default = {
             'type': 'checkbox',
-            'name': 'ids',
+            'name': 'id',
             'value': record.id
         }
         general = self.attrs.get('input')

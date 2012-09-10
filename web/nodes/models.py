@@ -10,9 +10,9 @@ AREA_CITY=1
 #2: 县
 AREA_TOWN=2
 #3: 分局
-AREA_ENTRANCE=3
+AREA_BRANCH=3
 #4: 接入点
-AREA_SITE=4
+AREA_ENTRANCE=4
 
 class Area(db.Model):
     """

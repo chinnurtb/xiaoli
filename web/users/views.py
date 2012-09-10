@@ -14,9 +14,9 @@ from tango.login import logout_user, login_user, current_user, \
     login_required
 
 from tango.models import Profile
-from nodes.models import Area
+from nodes.models import Area, AREA_CITY, AREA_TOWN, AREA_BRANCH, AREA_ENTRANCE
 from .models import User, Role, Permission, Domain
-from .forms import UserEditForm, UserNewForm, LoginForm, PasswordForm, RoleForm, DomainNewForm
+from .forms import UserEditForm, UserNewForm, LoginForm, PasswordForm, RoleForm, DomainForm
 from .tables import UserTable, RoleTable, DomainTable
 
 
@@ -242,7 +242,8 @@ def role_delete(id):
 def domain_load_nodes():
     key = request.args.get('key', '')
     domain_areas = request.args.get('domain_areas', '')
-    domain_areas = [int(area) for area in domain_areas.split(',')] if domain_areas else []
+    domain_areas = [int(area_id) for area_id in domain_areas.split(',') if area_id]\
+                   if domain_areas else []
 
     root = Area.query.filter(Area.area_type==0).first()
     areas = []
@@ -294,20 +295,65 @@ def domains():
     profile = {}
     table = DomainTable(Domain.query).configure(profile, page=1)
     return render_template('users/domains.html', table=table)
+
+
+
+def save_domain(domain, form, req):
+    form.populate_obj(domain)
+        
+    domain_areas = [int(area_id) for area_id in req.form['domain_areas'].split(',') if area_id]
+    areas = [Area.query.get(id) for id in domain_areas]
+    city_list = []
+    town_list = []
+    branch_list = []
+    entrance_list = []
+    area_list = { AREA_CITY: city_list,
+                  AREA_TOWN: town_list,
+                  AREA_BRANCH: branch_list,
+                  AREA_ENTRANCE: entrance_list}
+    for area in areas:
+        area_list[area.area_type].append(str(area.id))
+    domain.city_list = (',').join(city_list)
+    domain.town_list = (',').join(town_list)
+    domain.branch_list = (',').join(branch_list)
+    domain.entrance_list = (',').join(entrance_list)
+    db.session.add(domain)
+    db.session.commit()
+
+    
+@userview.route('/domains/new', methods=['POST', 'GET'])
+def domain_new():
+    form = DomainForm()
+    if request.method == 'POST' and form.validate_on_submit():
+        domain = Domain()
+        save_domain(domain, form, request)
+        return redirect(url_for('users.domains'))
+    return render_template('users/domain_new.html',
+                           action=url_for('users.domain_new'),
+                           form=form)
+
+@userview.route('/domains/edit/<int:id>', methods=['POST', 'GET'])
+def domain_edit(id):
+    form = DomainForm()
+    domain = Domain.query.get_or_404(id)
+    if request.method == 'POST' and form.validate_on_submit():
+        save_domain(domain, form, request)
+        return redirect(url_for('users.domains'))
+    domain_areas = ','.join([domain.city_list, domain.town_list,
+                             domain.branch_list, domain.entrance_list])
+    form.process(obj=domain)
+    return render_template('users/domain_new.html',
+                           action=url_for('users.domain_edit', id=id),
+                           domain_areas=domain_areas, form=form)
     
 
-@userview.route('/domains/new')
-def domain_new():
-    form = DomainNewForm()
-    return render_template('users/domain_new.html', form=form)
-
-@userview.route('/domains/edit')
-def domain_edit():
-    pass
-
-@userview.route('/domains/delete')
-def domain_delete():
-    pass
+@userview.route('/domains/delete/<int:id>')
+def domain_delete(id):
+    domain = Domain.query.get_or_404(id)
+    db.session.delete(domain)
+    db.session.commit()
+    return redirect(url_for('users.domains'))
+    
 
 #### Domain [END]
 

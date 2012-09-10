@@ -59,12 +59,10 @@ class RoleForm(Form):
     description = TextField(u'描述')
 
     
-class DomainNewForm(Form):
+class DomainForm(Form):
     name        = TextField(u'名称', validators=[required(message=u'必填')])
     description = TextField(u'描述')
     
-class DomainEditForm(Form):
-    pass
 
     
     
