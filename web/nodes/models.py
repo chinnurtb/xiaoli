@@ -10,9 +10,9 @@ AREA_CITY=1
 #2: 县
 AREA_TOWN=2
 #3: 分局
-AREA_ENTRANCE=3
+AREA_BRANCH=3
 #4: 接入点
-AREA_SITE=4
+AREA_ENTRANCE=4
 
 class Area(db.Model):
     """
@@ -142,7 +142,7 @@ class Node(db.Model):
     oid_idx = db.Column(db.String(100))
     sysmodel = db.Column(db.String(100))
     os_version = db.Column(db.String(40))
-    controller_id = db.Column(db.Integer, db.ForeignKey("nodes.id"))
+    controller_id = db.Column(db.Integer)
     agent = db.Column(db.String(100))
     manager = db.Column(db.String(100))
     maintainer_id = db.Column(db.Integer, db.ForeignKey("maintains.id"))
