@@ -3,19 +3,21 @@
 import re
 from hashlib import md5
 
+from flask import json
 from flask import (Blueprint, request, session, url_for,
-                   redirect, render_template, g, flash)
+                   redirect, render_template, g, flash, make_response)
 
 from tango import db
 from tango import login_mgr
 from tango.ui import menus, Menu
 from tango.login import logout_user, login_user, current_user, \
     login_required
-from tango.models import Profile
 
+from tango.models import Profile
+from nodes.models import Area
 from .models import User, Role, Permission, Domain
-from .forms import UserEditForm, UserNewForm, LoginForm, PasswordForm, RoleForm
-from .tables import UserTable, RoleTable
+from .forms import UserEditForm, UserNewForm, LoginForm, PasswordForm, RoleForm, DomainNewForm
+from .tables import UserTable, RoleTable, DomainTable
 
 
 userview = Blueprint('users', __name__)
@@ -117,66 +119,108 @@ def user_delete(id):
 
     
 #### Role [BEGIN]
-@userview.route('/roles')
-def roles():
-    profile = {}
-    table = RoleTable(Role.query).configure(profile, page=1)
-    return render_template('/users/roles.html', table=table)
-    
-
 def get_permissions(form):
+    # print '-------BEGIN get_permissions--------'
     perms = []
     pattern = "^%s\[(.+)\]$" % 'permissions'
     # print 'form.keys()::', form.keys()
     # print 'form.values()::', form.values()
     for key in form.keys():
         if form[key] != 'on': continue
-        print 'key,form[key]::', key,form[key]
+        # print 'key,form[key]::', key,form[key]
         m = re.match(pattern, key)
         if m:
             try:
                 perm_id = int(m.group(1))
                 perm = Permission.query.get(perm_id)
-                print 'perm.name::', perm.name
                 perms.append(perm)
-            except Exception:
-                pass
+                # print 'perm.id::', perm.id
+            except Exception, e:
+                print 'Exception in get_permissions::', e
     return perms
+    
+def make_permission_tree(all_perms, role_perms=None):
+    perm_tree = {}
+    for p in all_perms:
+        module_checked = ''
+        name_checked = ''
+        operation_checked = ''
+        if role_perms is not None:
+            for rp in role_perms:
+                if p.module == rp.module:
+                    module_checked = 'checked'
+                if p.name == rp.name:
+                    name_checked = 'checked'
+                if p.id == rp.id:
+                    operation_checked = 'checked'
+        module_key = (p.module_text, module_checked)
+        name_key = (p.name, name_checked)
+        operation_key = (p.operation, operation_checked)
+        
+        if not perm_tree.get(module_key, None):
+            perm_tree[module_key] = {}
+            perm_tree[module_key][name_key] = {}
+        if not perm_tree[module_key].get(name_key, None):
+            perm_tree[module_key][name_key] = {}
+        perm_tree[module_key][name_key][operation_key] = p.id
+        
+    return perm_tree
+
+
+@userview.route('/roles')
+def roles():
+    profile = {}
+    table = RoleTable(Role.query).configure(profile, page=1)
+    return render_template('users/roles.html', table=table)
     
     
 @userview.route('/roles/new', methods=['GET', 'POST'])
 def role_new():
     perms = get_permissions(request.form)
     form = RoleForm()
+    role = Role()
     if request.method == 'POST' and form.validate_on_submit():
-        role = Role()
-        form.populate_obj(role)
         for p in perms:
             role.permissions.append(p)
+            
+        form.populate_obj(role)
         db.session.add(role)
         db.session.commit()
         return redirect(url_for('users.roles'))
 
-    permissions = Permission.query.all()
-    modules = {}
-    name_map = {'users': u'系统',
-                'topo': u'拓扑',
-                'nodes':u'结点'}
-    for p in permissions:
-        if modules.get(p.name, None):
-            modules[p.name].append(p)
-        else:
-            modules[p.name] = [p]
+    perm_all = Permission.query.all()
+    perm_tree = make_permission_tree(perm_all)
     
-    return render_template('users/role_new.html',
-                           form=form, modules=modules, name_map=name_map)
-    
+    return render_template('users/role_new_edit.html',
+                           action=url_for('users.role_new'),
+                           form=form, perm_tree=perm_tree)
     
 
-@userview.route('/roles/edit/<int:id>')
+@userview.route('/roles/edit/<int:id>', methods=['POST', 'GET'])
 def role_edit(id):
+    perms = get_permissions(request.form)
     form = RoleForm()
-    return u''
+    role = Role.query.get_or_404(id)
+    
+    if request.method == 'POST' and form.validate_on_submit():
+        while len(role.permissions) > 0:
+            role.permissions.pop(0)
+        for p in perms:
+            role.permissions.append(p)
+            
+        form.populate_obj(role)
+        db.session.add(role)
+        db.session.commit()
+        return redirect(url_for('users.roles'))
+    
+    perm_all = Permission.query.all()
+    perm_tree = make_permission_tree(perm_all, role.permissions)
+    form.process(obj=role)
+    return render_template('users/role_new_edit.html',
+                           action=url_for('users.role_edit', id=id),
+                           form=form,
+                           perm_tree=perm_tree)
+    
 
 @userview.route('/roles/delete/<int:id>')
 def role_delete(id):
@@ -184,19 +228,87 @@ def role_delete(id):
     db.session.delete(role)
     db.session.commit()
     return redirect(url_for('users.roles'))
+    
 #### Role [END]    
 
     
 #### Permission [BEGIN]
-    # [[PASS]]
+## pass ##
 #### Permission [END]
     
     
 #### Domain [BEGIN]
+@userview.route('/domains/load/nodes')
+def domain_load_nodes():
+    key = request.args.get('key', '')
+    domain_areas = request.args.get('domain_areas', '')
+    domain_areas = [int(area) for area in domain_areas.split(',')] if domain_areas else []
+
+    root = Area.query.filter(Area.area_type==0).first()
+    areas = []
+    if key:
+        key = int(key)
+    if domain_areas:
+        areas = [Area.query.get(area_id) for area_id in domain_areas]
+        
+    path_nodes = set([root.id])
+    if not key:
+        for area in areas:
+            while area.parent_id != -1:
+                path_nodes.add(area.parent_id)
+                area = Area.query.get(area.parent_id)
+
+    # print 'domain_areas::', domain_areas
+    def make_node(area):
+        node = {}
+        node['title'] = area.name
+        node['key'] = str(area.id)
+        if area.id in domain_areas:
+            node['select'] = True
+        if len(area.children) > 0:
+            node['isLazy'] = True
+        return node
+
+    def make_nodes(area_id):
+        area = Area.query.get(area_id)
+        node = make_node(area)
+        if len(area.children) > 0:
+            node['expand'] = True
+            node['children'] = []
+            for child in area.children:
+                if child.id in path_nodes:
+                    node['children'].append(make_nodes(child.id))
+                else:
+                    child_node = make_node(child)
+                    node['children'].append(child_node)
+        return node
+    nodes = [make_node(area) for area in Area.query.filter(Area.parent_id==key)] \
+            if key else [make_nodes(root.id)]
+    # print 'key::', key
+    # print 'domain_areas::', domain_areas
+    # print 'nodes::', nodes
+    return json.dumps(nodes)    
+    
 @userview.route('/domains')
 def domains():
-    domains = ', '.join([domain.name for domain in Domain.query])
-    return domains
+    profile = {}
+    table = DomainTable(Domain.query).configure(profile, page=1)
+    return render_template('users/domains.html', table=table)
+    
+
+@userview.route('/domains/new')
+def domain_new():
+    form = DomainNewForm()
+    return render_template('users/domain_new.html', form=form)
+
+@userview.route('/domains/edit')
+def domain_edit():
+    pass
+
+@userview.route('/domains/delete')
+def domain_delete():
+    pass
+
 #### Domain [END]
 
 menus.append(Menu('users', u'用户', '/users'))
