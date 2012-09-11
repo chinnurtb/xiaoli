@@ -20,7 +20,7 @@ class User(db.Model, UserMixin):
     username   = db.Column(db.String(40), unique=True)
     name       = db.Column(db.String(40))
     email      = db.Column(db.String(60), unique=True)
-    password   = db.Column(db.String(60))
+    _password   = db.Column('password', db.String(60))
     signup_on  = db.Column(db.DateTime)
     role_id    = db.Column(db.Integer, db.ForeignKey('roles.id'))
     domain_id  = db.Column(db.Integer, db.ForeignKey('domains.id'))
@@ -42,6 +42,14 @@ class User(db.Model, UserMixin):
     def __init__(self):
         pass
 
+    @property
+    def password(self):
+        return self._password
+
+    @password.setter
+    def password(self, value):
+        self._password = md5(value).hexdigest()        
+    
     def gravatar_url(self, size=80):
         """Return the gravatar image for the given email address."""
         return 'http://www.gravatar.com/avatar/%s?d=identicon&s=%d' % \
@@ -50,10 +58,7 @@ class User(db.Model, UserMixin):
     def __repr__(self):
         return '<User %r>' % self.username
 
-    @staticmethod
-    def create_password(raw):
-        return md5(raw).hexdigest()
-    
+        
     def check_passwd(self, passwd):
         if not self.password:
             return False

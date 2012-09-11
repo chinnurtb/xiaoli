@@ -73,30 +73,33 @@ ip_checker = ip_from(allowed=allowed_ips)
     
 def check_ip():
     if ip_checker.is_met({'REMOTE_ADDR':request.remote_addr}) is False:
+        print 'IP check failed'
         abort(403)
 
-def auth_all():
-    pass
-    
 def check_permissions():
     permissions = current_user.role.permissions
     for p in permissions:
         if p.endpoint == request.endpoint:
             return
+    print 'Permission check failed'
     abort(403)
+
     
-#FIXME
 @app.before_request
 def before_request():
     check_ip()
-    auth_all()
+    SAFE_ENDPOINTS = (None, 'static', 'users.login', 'users.logout')
+    SUPER_USERS = ('root', 'admin')
+    # print '(user, endpoint)', (current_user, request.endpoint)
+    
+    if current_user.is_anonymous and request.endpoint in SAFE_ENDPOINTS:
+        return
+    
     if current_user:
         g.menus = menus
-        OUTER_ENDPOINTS = (None, 'static', 'login')
-        if request.endpoint not in OUTER_ENDPOINTS:
-            print request.endpoint, type(current_user), current_user.role.permissions
-            check_permissions()
-
+        if current_user.username in SUPER_USERS:
+            return
+        check_permissions()
 
 @app.errorhandler(404)
 def page_not_found(e):

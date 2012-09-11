@@ -97,7 +97,6 @@ def user_new():
         if user is None:
             user = User()
             form.populate_obj(user)
-            user.password = User.create_password(user.password)
             db.session.add(user)
             db.session.commit()
             flash(u'添加用户成功', 'info')
@@ -122,7 +121,11 @@ def user_edit(id):
 @userview.route('/users/delete/<int:id>/')
 @login_required
 def user_delete(id):
-    pass
+    user = User.query.get_or_404(id)
+    flash(u'用户(%s)删除成功' % user.username, 'info')
+    db.session.delete(user)
+    db.session.commit()
+    return redirect(url_for('users.users'))
 #### User [END]
 
 
