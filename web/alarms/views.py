@@ -139,8 +139,8 @@ def alarm_console():
 @login_required
 def histories():
     profile = Profile.load(current_user.id, 'table-histories')
-    t = HistoryTable(History.query).configure(Profile)
-    return render_template("/alarms/histories.html", table=t)
+    table = HistoryTable(History.query).configure(profile)
+    return render_template("/alarms/histories.html", table=table)
 
 @alarmview.app_template_filter("alarm_severity")
 def alarm_severity_filter(s):
