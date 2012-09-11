@@ -1,11 +1,12 @@
 #!/usr/bin/env python  
 # -*- coding: utf-8 -*-
 
-from tango import db
 
 from hashlib import md5
 
+from tango import db
 from tango.login import UserMixin
+from tango.ui.tables.utils import SortedDict
 from nodes.models import Area, AREA_CITY, AREA_TOWN, AREA_BRANCH, AREA_ENTRANCE
 
 from datetime import datetime
@@ -48,8 +49,8 @@ class User(db.Model, UserMixin):
 
     @password.setter
     def password(self, value):
-        self._password = md5(value).hexdigest()        
-    
+        self._password = User.create_passwd(value)
+        
     def gravatar_url(self, size=80):
         """Return the gravatar image for the given email address."""
         return 'http://www.gravatar.com/avatar/%s?d=identicon&s=%d' % \
@@ -58,12 +59,15 @@ class User(db.Model, UserMixin):
     def __repr__(self):
         return '<User %r>' % self.username
 
+    @staticmethod
+    def create_passwd(raw):
+        return md5(raw).hexdigest()        
         
     def check_passwd(self, passwd):
         if not self.password:
             return False
         # return self.password == passwd
-        return self.password == md5(passwd).hexdigest()
+        return self.password == User.create_passwd(passwd)
 
     @classmethod
     def authenticate(clazz, login, passwd):
@@ -180,7 +184,7 @@ class Permission(db.Model):
     @staticmethod
     def make_tree(role_perms=None):
         all_perms = Permission.query.all()
-        perm_tree = {}
+        perm_tree = SortedDict()
         for p in all_perms:
             module_checked = ''
             name_checked = ''
@@ -198,10 +202,10 @@ class Permission(db.Model):
             operation_key = (p.operation, operation_checked)
             
             if not perm_tree.get(module_key, None):
-                perm_tree[module_key] = {}
-                perm_tree[module_key][name_key] = {}
+                perm_tree[module_key] = SortedDict()
+                perm_tree[module_key][name_key] = SortedDict()
             if not perm_tree[module_key].get(name_key, None):
-                perm_tree[module_key][name_key] = {}
+                perm_tree[module_key][name_key] = SortedDict()
             perm_tree[module_key][name_key][operation_key] = p.id
             
         return perm_tree
