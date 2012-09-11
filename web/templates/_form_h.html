@@ -14,7 +14,7 @@
     {{field.label.text}}</label>
     <div class="controls">
 	{{ field(**kwargs) }}
-        {% if field.flags.required %}<em>*</em>{% endif %}
+        {% if field.flags.required %}<strong><em>*</em></strong>{% endif %}
 	{% if field.errors %}
 	<span class="help-inline">
 	    {{ field.errors[0]|e }}

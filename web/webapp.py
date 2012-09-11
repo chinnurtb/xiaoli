@@ -8,8 +8,10 @@
    :copyright: (c) 2012 by Ery Lee(ery.lee@gmail.com)
 """
 
+from repoze.what.plugins.ip import ip_from
+
 from flask import Flask, session, url_for, redirect, \
-    render_template, g, request
+    render_template, g, request, abort
 
 from tango.ui import menus
 
@@ -28,7 +30,7 @@ db.app = app
 
 login_mgr.login_view = "/login"
 
-login_mgr.login_message = u"Please log in to access this page."
+login_mgr.login_message = u"请先登录系统."
 
 login_mgr.refresh_view = "/reauth"
 
@@ -65,16 +67,35 @@ def index():
     return redirect('/dashboard')
 
 
+allowed_ips = ['192.168.1.1/24',
+               '127.0.0.1',]
+ip_checker = ip_from(allowed=allowed_ips)
+    
+def check_ip():
+    if ip_checker.is_met({'REMOTE_ADDR':request.remote_addr}) is False:
+        abort(403)
+
 def auth_all():
     pass
-
+    
+def check_permissions():
+    permissions = current_user.role.permissions
+    for p in permissions:
+        if p.endpoint == request.endpoint:
+            return
+    abort(403)
+    
 #FIXME
 @app.before_request
 def before_request():
+    check_ip()
     auth_all()
     if current_user:
         g.menus = menus
-
+        OUTER_ENDPOINTS = (None, 'static', 'login')
+        if request.endpoint not in OUTER_ENDPOINTS:
+            print request.endpoint, type(current_user), current_user.role.permissions
+            check_permissions()
 
 
 @app.errorhandler(404)

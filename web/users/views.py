@@ -4,11 +4,11 @@ import re
 from hashlib import md5
 
 from flask import json
-from flask import (Blueprint, request, session, url_for,
+from flask import (Blueprint, request, session, url_for, abort,
                    redirect, render_template, g, flash, make_response)
 
 from tango import db
-from tango import login_mgr
+# from tango import login_mgr
 from tango.ui import menus, Menu
 from tango.login import logout_user, login_user, current_user, \
     login_required
@@ -33,25 +33,34 @@ def login():
         if user and authenticated:
             remember = form.remember.data == 'y'
             if login_user(user, remember = remember):
+                flash(u'登录成功', 'info')
                 return redirect('/')
         elif not user:
             flash(u'用户不存在', 'error')
         else: 
             flash(u'密码错误', 'error')
+
+        # if session.get('login_time', None) is None:
+        #     session['login_time'] = 1
+        # else:
+        #     session['login_time'] += 1
+        # if session['login_time'] > 10:
+        #     abort(403)
+            
     return render_template('login.html', form = form)
 
     
 @userview.route('/logout', methods=['GET'])
-# @login_required
 def logout():
     logout_user()
-    return redirect('/')
+    flash(u'退出成功', 'info')
+    return redirect('/login')
 #### Authenticating [END]
 
     
 #### Setting [BEGIN]
 @userview.route('/settings')
-# @login_required
+@login_required
 def profile():
     form = PasswordForm(request.form)
     if request.method == 'POST' and form.validate():
@@ -86,9 +95,9 @@ def user_new():
         username = form.username.data
         user = User.query.filter_by(username=username).first()
         if user is None:
-            #TODO: How to set password hash?
             user = User()
             form.populate_obj(user)
+            user.password = User.create_password(user.password)
             db.session.add(user)
             db.session.commit()
             flash(u'添加用户成功', 'info')
@@ -97,6 +106,7 @@ def user_new():
 
     
 @userview.route('/users/edit/<int:id>/', methods=['POST', 'GET'])
+@login_required
 def user_edit(id):
     form = UserEditForm()
     user = User.query.get_or_404(id)
@@ -110,6 +120,7 @@ def user_edit(id):
     return render_template('/users/user_edit.html', user=user, form=form)
 
 @userview.route('/users/delete/<int:id>/')
+@login_required
 def user_delete(id):
     pass
 #### User [END]
@@ -138,6 +149,7 @@ def get_permissions(form):
 
     
 @userview.route('/roles')
+@login_required
 def roles():
     profile = {}
     table = RoleTable(Role.query).configure(profile, page=1)
@@ -145,6 +157,7 @@ def roles():
     
     
 @userview.route('/roles/new', methods=['GET', 'POST'])
+@login_required
 def role_new():
     perms = get_permissions(request.form)
     form = RoleForm()
@@ -167,6 +180,7 @@ def role_new():
     
 
 @userview.route('/roles/edit/<int:id>', methods=['POST', 'GET'])
+@login_required
 def role_edit(id):
     perms = get_permissions(request.form)
     form = RoleForm()
@@ -193,6 +207,7 @@ def role_edit(id):
     
 
 @userview.route('/roles/delete/<int:id>')
+@login_required
 def role_delete(id):
     role = Role.query.get(id)
     db.session.delete(role)
@@ -210,6 +225,7 @@ def role_delete(id):
     
 #### Domain [BEGIN]
 @userview.route('/domains/load/nodes')
+@login_required
 def domain_load_nodes():
     key = request.args.get('key', '')
     domain_areas = request.args.get('domain_areas', '')
@@ -262,6 +278,7 @@ def domain_load_nodes():
     return json.dumps(nodes)    
     
 @userview.route('/domains')
+@login_required
 def domains():
     profile = {}
     table = DomainTable(Domain.query).configure(profile, page=1)
@@ -272,6 +289,7 @@ def domains():
 
     
 @userview.route('/domains/new', methods=['POST', 'GET'])
+@login_required
 def domain_new():
     form = DomainForm()
     if request.method == 'POST' and form.validate_on_submit():
@@ -287,6 +305,7 @@ def domain_new():
 
     
 @userview.route('/domains/edit/<int:id>', methods=['POST', 'GET'])
+@login_required
 def domain_edit(id):
     form = DomainForm()
     domain = Domain.query.get_or_404(id)
@@ -305,6 +324,7 @@ def domain_edit(id):
     
 
 @userview.route('/domains/delete/<int:id>')
+@login_required
 def domain_delete(id):
     domain = Domain.query.get_or_404(id)
     db.session.delete(domain)
