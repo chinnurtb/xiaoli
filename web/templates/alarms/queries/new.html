@@ -1,6 +1,6 @@
 {% extends 'layout.html' %}
 
-{% set menuid = 'fault' %}
+{% set menuid = 'alarms' %}
 
 {% block title %} 创建检索 {% endblock %}
 
@@ -11,7 +11,7 @@
 <div class="row-fluid content">
     <div class="span2">
         {% set submenuid = 'alarm-query-new' %}
-        {% include '/fault/_sidebar.html' %}
+        {% include '/alarms/_sidebar.html' %}
     </div>
     <div class="span10">
         <h1>创建检索条件</h1>

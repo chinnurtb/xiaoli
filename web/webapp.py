@@ -43,7 +43,7 @@ login_mgr.init_app(app)
 from dashboard.views import homeview
 from topo.views import topoview
 from nodes.views import nodeview
-from fault.views import faultview
+from alarms.views import alarmview
 from perf.views import perfview
 from report.views import reportview
 from users.views import userview
@@ -52,7 +52,7 @@ from system.views import sysview
 blueprints = [homeview,
               #topoview,
               nodeview,
-              faultview,
+              alarmview,
               #perfview,
               #reportview,
               userview,
