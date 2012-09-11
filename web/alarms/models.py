@@ -15,7 +15,7 @@ class Alarm(db.Model):
     alarm_state             = db.Column(db.Integer)
     manager                 = db.Column(db.String(60))   
     agent                   = db.Column(db.String(60))  
-    #node_id                 = db.Column(db.Integer, db.ForeignKey('nodes.id')) 
+    node_id                 = db.Column(db.Integer, db.ForeignKey('nodes.id')) 
     node_class              = db.Column(db.Integer) 
     node_alias              = db.Column(db.String(200))  
     node_addr               = db.Column(db.String(100))  

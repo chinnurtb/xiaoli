@@ -1,6 +1,6 @@
 {% extends 'layout.html' %}
 
-{% set menuid = 'fault' %}
+{% set menuid = 'alarms' %}
 
 {% block title %}历史告警{% endblock %}
 
@@ -32,11 +32,11 @@
     <div class="row-fluid content">
         <div class="span2">
             {% set submenuid = 'histories' %}
-            {% include 'fault/_sidebar.html' %}
+            {% include 'alarms/_sidebar.html' %}
         </div>
 
         <div class="span10">
-            <form id="history-query-form" class="form-inline" action="/fault/histories" method="GET">
+            <form id="history-query-form" class="form-inline" action="/histories" method="GET">
             <div class="tablenav top">
                 <div class="alignleft filters">
                         <select name="last-days" class="input-medium">

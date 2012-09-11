@@ -1,11 +1,19 @@
 {% extends 'layout.html' %}
 
-{% set menuid = 'fault' %}
+{% set menuid = 'alarms' %}
 
 {% block title %} 故障管理 {% endblock %}
 
 {% block head %} 
     <link rel="stylesheet" href="/static/css/alarm.css" type="text/css" media="all">
+    <script type="text/javascript" >
+        $('#alarm-show-model').on('hide', function () {
+           $('#alarm-show-body').html(''); 
+        })
+        $('#alarm-show-model').on('show', function () {
+          alert("show");
+        })
+    </script>
 {% endblock %}
 
 {% from "_table_h.html" import render_table, render_screen_meta %}
@@ -32,26 +40,24 @@
 <div class="row-fluid" style="margin-top:30px;">
     <div class="span2">
         {% set submenuid = 'alarms' %}
-        {% include 'fault/_sidebar.html' %}
+        {% include 'alarms/_sidebar.html' %}
     </div>
 
     <div class="span10">
-        <form id="alarms-form" class="form-inline" action="/fault/alarms" method="GET">
+        <form id="alarms-form" class="form-inline" action="/alarms" method="GET">
 
         <ul class="subsubsub">
-            <li><a href="/fault/alarms">全部<span class="count">(0)</span></a>|</li>
+            <li><a href="/alarms">全部<span class="count">(0)</span></a>|</li>
             {% for severity in severities %}
-            <li class="alarm-{{ severity.name }}"><a {% if request.args['severity'] == severity.name %} class="current" {% endif %} href="/fault/alarms?severity={{ severity.name }}">{{ severity.alias }}<span class="count">({{ severity.count }})</span></a> {% if not loop.last %} | {% endif %} </li>
+            <li class="alarm-{{ severity.name }}"><a {% if request.args['severity'] == severity.name %} class="current" {% endif %} href="/alarms?severity={{ severity.name }}">{{ severity.alias }}<span class="count">({{ severity.count }})</span></a> {% if not loop.last %} | {% endif %} </li>
             {% endfor %}
         </ul>
         <div class="tablenav top">
             <div class="alignleft actions">
-                <select name="action" class="input-medium">
-                    <option value="">操作</option>
-                    <option value="ack">确认</option>
-                    <option value="clear">清除</option>
-                </select>
-                <input type="submit" id="alarm-action-submit" class="btn btn-small" value="应用">
+                <div class="alignleft btn-group">
+                    <a id="alarm-ack-action" class="btn btn-small">确认</a>
+                    <a id="alarm-clear-action" class="btn btn-small">清除</a>
+                </div>
             </div>
             <div class="alignleft filters">
 
@@ -70,6 +76,17 @@
         <br class="clear">
 
         </form>
+
+        <div id="alarm-show-model" class="modal hide" tabindex="-1" role="dialog">
+          <div class="modal-header">
+            <h3 id="alarm-show-header">Alarm Detail</h3>
+          </div>
+          <div id="alarm-show-body" class="modal-body"> </div>
+          <div class="modal-footer">
+            <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+          </div>
+        </div>
+        
     </div>
 </div>
 

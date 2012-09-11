@@ -13,7 +13,7 @@ from tango.ui import Dashboard, Widget, add_widget, widgets
 
 from tango.login import login_required, current_user
 
-from fault import Alarm
+from alarms import Alarm
 
 from tango.models import Profile
 

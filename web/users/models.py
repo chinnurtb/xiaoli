@@ -6,6 +6,7 @@ from tango import db
 from hashlib import md5
 
 from tango.login import UserMixin
+from nodes.models import Area, AREA_CITY, AREA_TOWN, AREA_BRANCH, AREA_ENTRANCE
 
 from datetime import datetime
 
@@ -19,11 +20,11 @@ class User(db.Model, UserMixin):
     username   = db.Column(db.String(40), unique=True)
     name       = db.Column(db.String(40))
     email      = db.Column(db.String(60), unique=True)
-    password   = db.Column(db.String(60))
+    _password   = db.Column('password', db.String(60))
     signup_on  = db.Column(db.DateTime)
-    role_id    = db.Column(db.Integer)#, db.ForeignKey('roles.id'))
-    domain_id  = db.Column(db.Integer)#, db.ForeignKey('domains.id'))
-    group_id   = db.Column(db.Integer)#, db.ForeignKey('user_groups.id'))
+    role_id    = db.Column(db.Integer, db.ForeignKey('roles.id'))
+    domain_id  = db.Column(db.Integer, db.ForeignKey('domains.id'))
+    group_id   = db.Column(db.Integer, db.ForeignKey('user_groups.id'))
     department = db.Column(db.String(100))
     telephone  = db.Column(db.String(20))
     mobile     = db.Column(db.String(20))
@@ -33,14 +34,22 @@ class User(db.Model, UserMixin):
     updated_at = db.Column(db.DateTime, default=datetime.now)
     expired_at = db.Column(db.DateTime, default=datetime.now)
 
-    # role   = db.relation('Role')
-    # domain = db.relation('Domain')
+    role   = db.relation('Role')
+    domain = db.relation('Domain')
     # group  = db.relation('UserGroup')
 
 
     def __init__(self):
         pass
 
+    @property
+    def password(self):
+        return self._password
+
+    @password.setter
+    def password(self, value):
+        self._password = md5(value).hexdigest()        
+    
     def gravatar_url(self, size=80):
         """Return the gravatar image for the given email address."""
         return 'http://www.gravatar.com/avatar/%s?d=identicon&s=%d' % \
@@ -49,11 +58,12 @@ class User(db.Model, UserMixin):
     def __repr__(self):
         return '<User %r>' % self.username
 
+        
     def check_passwd(self, passwd):
         if not self.password:
             return False
-        return self.password == passwd
-        # return self.password == md5(passwd).hexdigest()
+        # return self.password == passwd
+        return self.password == md5(passwd).hexdigest()
 
     @classmethod
     def authenticate(clazz, login, passwd):
@@ -96,6 +106,26 @@ class Domain(db.Model):
     created_at	  = db.Column(db.DateTime, default=datetime.now)
     updated_at	  = db.Column(db.DateTime, default=datetime.now)
     description   = db.Column(db.String(255))
+
+    def dump_areas(self, domain_areas):
+        domain_areas = [int(area_id) for area_id in domain_areas.split(',') if area_id]
+        areas = [Area.query.get(id) for id in domain_areas]
+        city_list = []
+        town_list = []
+        branch_list = []
+        entrance_list = []
+        area_list = { AREA_CITY: city_list,
+                      AREA_TOWN: town_list,
+                      AREA_BRANCH: branch_list,
+                      AREA_ENTRANCE: entrance_list}
+        for area in areas:
+            if area.area_type in (AREA_CITY, AREA_TOWN, AREA_BRANCH, AREA_ENTRANCE):
+                area_list[area.area_type].append(str(area.id))
+        self.city_list = (',').join(city_list)
+        self.town_list = (',').join(town_list)
+        self.branch_list = (',').join(branch_list)
+        self.entrance_list = (',').join(entrance_list)
+        
 
 roles_permissions = db.Table('roles_permissions', db.Model.metadata,
                              db.Column('role_id', db.Integer,
@@ -143,22 +173,35 @@ class Permission(db.Model):
     # module_text        = db.Column(db.String(255))
     # order_seq          = db.Column(db.Integer)
     # is_valid           = db.Column(db.Integer(1), default=1)
-    
 
-# class Permission2(db.Model):
-#     __tablename__ = 'permissions2'
+    def __repr__(self):
+        return '<Permission %r>' % (self.endpoint + self.operation,)
     
-#     id                 = db.Column(db.Integer, primary_key=True)
-#     name               = db.Column(db.String(255), nullable=False)  
-#     text               = db.Column(db.String(255), nullable=False)
-#     module_name        = db.Column(db.String(100), nullable=False)
-#     endpoint           = db.Column(db.String(100), nullable=False)
-#     method             = db.Column(db.String(255), default='GET')
-#     format             = db.Column(db.String(255))
-#     description        = db.Column(db.String(255))
-#     default_permission = db.Column(db.Integer(1), default=0)
-#     order_seq          = db.Column(db.Integer)
-#     is_valid           = db.Column(db.Integer(1), default=1)
-#     created_at         = db.Column(db.DateTime, default=datetime.now)
-#     updated_at         = db.Column(db.DateTime, default=datetime.now)
-
+    @staticmethod
+    def make_tree(role_perms=None):
+        all_perms = Permission.query.all()
+        perm_tree = {}
+        for p in all_perms:
+            module_checked = ''
+            name_checked = ''
+            operation_checked = ''
+            if role_perms is not None:
+                for rp in role_perms:
+                    if p.module == rp.module:
+                        module_checked = 'checked'
+                    if p.name == rp.name:
+                        name_checked = 'checked'
+                    if p.id == rp.id:
+                        operation_checked = 'checked'
+            module_key = (p.module_text, module_checked)
+            name_key = (p.name, name_checked)
+            operation_key = (p.operation, operation_checked)
+            
+            if not perm_tree.get(module_key, None):
+                perm_tree[module_key] = {}
+                perm_tree[module_key][name_key] = {}
+            if not perm_tree[module_key].get(name_key, None):
+                perm_tree[module_key][name_key] = {}
+            perm_tree[module_key][name_key][operation_key] = p.id
+            
+        return perm_tree

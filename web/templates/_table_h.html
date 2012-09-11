@@ -13,7 +13,6 @@
 {% endif %}
 {%- endmacro %}
 
-
 <!-- render_paginate -->
 {% macro render_paginate(page_obj, page_url) -%}
 <div class="tablenav bottom">
@@ -49,7 +48,7 @@
     <tfoot>
 	<tr>
 	    {% for column in table.columns %}
-	    {{ render_column(column, table.page_url, table.page_obj.page) }}
+        {{ render_column(column, table.page_url, table.page_obj.page) }}
 	    {% endfor %}
 	</tr>
     </tfoot>
@@ -59,9 +58,21 @@
 	<tr>
 	    {% for column, cell, cellattrs in row.items %}
 	    {% if column.is_checkbox %}
-	    <th {{ column.attrs.th.as_html(scope="row") }} >{{ cell }}</th>
+            <th {{ column.attrs.th.as_html(scope="row") }} >
+              {% if table.actions %}
+            <div class="row-actions">
+              <div class="btn-group">
+                {% for action in table.actions %}
+                {{ action.render(row.record) }}   
+                {% endfor %}
+                <br>
+              </div>
+            </div>
+            {% endif %}
+            {{ cell }}
+            </th>
 	    {% else %}
-	    <td {{ column.attrs.td.as_html(**cellattrs) }}>{{ cell }}</td>
+            <td {{ column.attrs.td.as_html(**cellattrs) }}>{{ cell }}</td>
 	    {% endif %}
 	    {% endfor %}
 	</tr>

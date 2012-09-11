@@ -1,0 +1,34 @@
+{% extends 'layout.html' %}
+
+{% set menuid = 'alarms' %}
+
+{% block title %}Alarm Clear{% endblock %}
+
+{% block head %} 
+    <link rel="stylesheet" href="/static/css/alarm.css" type="text/css" media="all">
+{% endblock %}
+
+{% from "_form_h.html" import render_field %}
+
+{% block content %}
+
+    <div class="row-fluid content">
+        <div class="span2">
+            {% set submenuid = 'alarms' %}
+            {% include 'alarms/_sidebar.html' %}
+        </div>
+        <div class="span10">
+        <h3>Clear: {{alarm.node_alias}} / {{alarm.alarm_alias}}</h3>
+        
+		<form class="form-horizontal" method="POST" action="/alarms/clear/{{alarm.id}}">
+			{{ form.hidden_tag() }}
+            {{ render_field(form.cleared_note) }}
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary btn-small">Clear</button>
+            </div>
+        </form>
+        </div>
+    </div>
+
+{% endblock %}
+

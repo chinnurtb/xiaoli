@@ -8,8 +8,10 @@
    :copyright: (c) 2012 by Ery Lee(ery.lee@gmail.com)
 """
 
+from repoze.what.plugins.ip import ip_from
+
 from flask import Flask, session, url_for, redirect, \
-    render_template, g, request
+    render_template, g, request, abort
 
 from tango.ui import menus
 
@@ -28,7 +30,7 @@ db.app = app
 
 login_mgr.login_view = "/login"
 
-login_mgr.login_message = u"Please log in to access this page."
+login_mgr.login_message = u"请先登录系统."
 
 login_mgr.refresh_view = "/reauth"
 
@@ -41,7 +43,7 @@ login_mgr.init_app(app)
 from dashboard.views import homeview
 from topo.views import topoview
 from nodes.views import nodeview
-from fault.views import faultview
+from alarms.views import alarmview
 from perf.views import perfview
 from report.views import reportview
 from users.views import userview
@@ -50,7 +52,7 @@ from system.views import sysview
 blueprints = [homeview,
               #topoview,
               nodeview,
-              faultview,
+              alarmview,
               #perfview,
               #reportview,
               userview,
@@ -65,17 +67,39 @@ def index():
     return redirect('/dashboard')
 
 
-def auth_all():
-    pass
+allowed_ips = ['192.168.1.1/24',
+               '127.0.0.1',]
+ip_checker = ip_from(allowed=allowed_ips)
+    
+def check_ip():
+    if ip_checker.is_met({'REMOTE_ADDR':request.remote_addr}) is False:
+        print 'IP check failed'
+        abort(403)
 
-#FIXME
+def check_permissions():
+    permissions = current_user.role.permissions
+    for p in permissions:
+        if p.endpoint == request.endpoint:
+            return
+    print 'Permission check failed'
+    abort(403)
+
+    
 @app.before_request
 def before_request():
-    auth_all()
+    check_ip()
+    SAFE_ENDPOINTS = (None, 'static', 'users.login', 'users.logout')
+    SUPER_USERS = ('root', 'admin')
+    # print '(user, endpoint)', (current_user, request.endpoint)
+    
+    if current_user.is_anonymous and request.endpoint in SAFE_ENDPOINTS:
+        return
+    
     if current_user:
         g.menus = menus
-
-
+        if current_user.username in SUPER_USERS:
+            return
+        check_permissions()
 
 @app.errorhandler(404)
 def page_not_found(e):

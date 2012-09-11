@@ -8,8 +8,8 @@ from .models import User, Role, Domain
 #### Tables
 class UserTable(tables.Table):
     check      = tables.CheckBoxColumn()
-    #edit_btn   = tables.EditBtnColumn(endpoint='user_edit')
-    #delete_btn = tables.DeleteBtnColumn(endpoint='user_delete')
+    edit_btn   = tables.EditBtnColumn(endpoint='users.user_edit')
+    delete_btn = tables.DeleteBtnColumn(endpoint='users.user_delete')
 
     username       = tables.Column(verbose_name=u'用户名', orderable=True)
     name           = tables.Column(verbose_name=u'真实姓名')
@@ -43,7 +43,9 @@ class RoleTable(tables.Table):
 
 
 class DomainTable(tables.Table):
-    check = tables.CheckBoxColumn()
+    check      = tables.CheckBoxColumn()
+    edit_btn   = tables.EditBtnColumn(endpoint='users.domain_edit')
+    delete_btn = tables.DeleteBtnColumn(endpoint='users.domain_delete')
 
     name        = tables.Column(verbose_name=u'名称')
     description = tables.Column(verbose_name=u'描述')

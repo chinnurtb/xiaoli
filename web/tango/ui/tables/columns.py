@@ -70,7 +70,6 @@ class EnumColumn(Column):
         if value in self.enums:
             return self.enums[value]
         return value
-        
 
 class CheckBoxColumn(Column):
 
@@ -98,7 +97,7 @@ class CheckBoxColumn(Column):
     def render(self, record, bound_column):  # pylint: disable=W0221
         default = {
             'type': 'checkbox',
-            'name': 'ids',
+            'name': 'id',
             'value': record.id
         }
         general = self.attrs.get('input')
@@ -164,7 +163,6 @@ class LinkColumn(BaseLinkColumn):
         else:
             uri = url_for(**params)
         return self.render_link(uri, value)
-
 
 class EmailColumn(BaseLinkColumn):
     def render(self, value):

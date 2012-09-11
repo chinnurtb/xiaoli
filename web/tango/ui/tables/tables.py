@@ -8,13 +8,13 @@ from .columns import *
 from .rows import *
 from .utils import *
 
+from .actions import Action
 
 ## Table
 class TableData(object):
     def __init__(self, data, table):
         self.queryset = data
         self.table = table
-
 
     def ordering(self, order_by):
         model = self.table._meta.model
@@ -25,14 +25,12 @@ class TableData(object):
             order_by = order_by[1:]
         a = A("%s.%s" % (order_by, order)) # i.e. "name.desc"
         self.queryset = self.queryset.order_by(a.resolve(model))
-
         
     def paginate(self, page, per_page):
         self.page_obj = self.queryset.paginate(page=self.table.page,
                                                per_page=self.table.per_page)
         self.page_obj.total_items = self.queryset.count()
         self.list = self.page_obj.items
-        
 
     def __iter__(self):
         return iter(self.list)
@@ -47,8 +45,8 @@ class TableData(object):
         else:
             return data
 
-
 class TableMeta(type):
+
     def __new__(cls, name, bases, attrs):
 
         attrs["_meta"] = TableOptions(attrs.get("Meta", None))
@@ -63,6 +61,11 @@ class TableMeta(type):
 
         attrs["base_columns"] = SortedDict(parent_columns)
         attrs["base_columns"].update(SortedDict(columns))
+
+        actions = [(name_, attrs.pop(name_)) for name_, action in attrs.items()
+                                             if isinstance(action, Action)]
+        actions.sort(lambda x, y: cmp(x[1].creation_counter, y[1].creation_counter))
+        attrs["base_actions"] = SortedDict(actions)
 
         return super(TableMeta, cls).__new__(cls, name, bases, attrs)
 
@@ -97,6 +100,10 @@ class Table(object):
             self._sequence.expand(self.base_columns.keys())
         self.columns = BoundColumns(self)
 
+        print self.base_actions
+
+        self.actions = self.base_actions.values()
+
         # Order By
 
         self.data = self.TableDataClass(data=data, table=self)
@@ -104,7 +111,6 @@ class Table(object):
         self.template = template
 
         # print 'self._sequence', self._sequence
-
 
     def configure(self, profile, page=1, order_by=None):
         self.hidden_columns = profile.get(self._meta.hidden_columns_key, '').split(',')
