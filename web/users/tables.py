@@ -11,6 +11,7 @@ class UserTable(tables.Table):
     edit_btn   = tables.EditBtnColumn(endpoint='users.user_edit')
     delete_btn = tables.DeleteBtnColumn(endpoint='users.user_delete')
 
+    resetpwd       = tables.LinkColumn(verbose_name=u'重置密码', accessor='id', endpoint='users.reset_password')
     username       = tables.Column(verbose_name=u'用户名', orderable=True)
     name           = tables.Column(verbose_name=u'真实姓名')
     role_name      = tables.Column(verbose_name=u'角色名称', accessor='role.name')

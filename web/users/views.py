@@ -10,20 +10,24 @@ from flask import (Blueprint, request, session, url_for, abort,
 from tango import db
 # from tango import login_mgr
 from tango.ui import menus, Menu
-from tango.login import logout_user, login_user, current_user, \
-    login_required
+from tango.login import logout_user, login_user, current_user
 
 from tango.models import Profile
 from nodes.models import Area
 from .models import User, Role, Permission, Domain
-from .forms import UserEditForm, UserNewForm, LoginForm, PasswordForm, RoleForm, DomainForm
+from .forms import (UserEditForm, UserNewForm, LoginForm, PasswordForm, RoleForm,
+                    ProfileForm, DomainForm, ResetPasswordForm)
 from .tables import UserTable, RoleTable, DomainTable
 
 
 userview = Blueprint('users', __name__)
 
-#### Authenticating [BEGIN]
-@userview.route('/login', methods=['GET', 'POST'])
+
+# ===============================================================================
+#  Authenticating
+# =============================================================================== 
+
+@userview.route('/login/', methods=['GET', 'POST'])
 def login():
     form = LoginForm(request.form)
     if request.method == 'POST':
@@ -33,7 +37,7 @@ def login():
         if user and authenticated:
             remember = form.remember.data == 'y'
             if login_user(user, remember = remember):
-                flash(u'登录成功', 'info')
+                flash(u'登录成功', 'success')
                 return redirect('/')
         elif not user:
             flash(u'用户不存在', 'error')
@@ -50,31 +54,62 @@ def login():
     return render_template('login.html', form = form)
 
     
-@userview.route('/logout', methods=['GET'])
+@userview.route('/logout/', methods=['GET'])
 def logout():
     logout_user()
-    flash(u'退出成功', 'info')
+    flash(u'退出成功', 'success')
     return redirect('/login')
-#### Authenticating [END]
+
 
     
-#### Setting [BEGIN]
-@userview.route('/settings')
-@login_required
+# ==============================================================================
+#  Setting
+# ==============================================================================
+@userview.route('/settings/')
+def settings():
+    return redirect(url_for('users.profile'))
+
+    
+@userview.route('/settings/profile/', methods=['POST', 'GET'])
 def profile():
-    form = PasswordForm(request.form)
-    if request.method == 'POST' and form.validate():
-        passwd = md5(form.newpasswd.data).hexdigest()
-        User.query.filter_by(id = current_user.id).update({'password':passwd})
+    '''用户修改自己的个人信息'''
+    
+    form = ProfileForm()
+    user = User.query.get_or_404(current_user.id)
+    if request.method == 'POST' and form.validate_on_submit():
+        form.populate_obj(user)
         db.session.commit()
-        flash(u"密码修改成功", 'info')
-    return render_template("settings.html", passwdForm = form)
-#### Setting [END]    
+        flash(u'个人信息修改成功', 'success')
+        return redirect(url_for('users.profile'))
+    
+    form.process(obj=user)
+    form.role_name.data = user.role.name
+    form.domain_name.data = user.domain.name
+    return render_template('settings/profile.html', form=form)
+
+    
+@userview.route('/settings/password/', methods=['POST', 'GET'])
+def change_password():
+    '''用户修改自己的密码'''
+    
+    form = PasswordForm()
+    if request.method == 'POST' and form.validate():
+        user = User.query.get_or_404(current_user.id)
+        if user.check_passwd(form.oldpasswd.data):
+            user.password = form.newpasswd.data
+            db.session.commit()
+            flash(u"密码修改成功", 'success')
+        else:
+            flash(u'当前密码错误', 'error')
+    return render_template("settings/password.html", form = form)
 
 
-#####  User [BEGIN]
+
+
+# ==============================================================================
+#  User
+# ==============================================================================     
 @userview.route('/users/')
-@login_required
 def users():
     profile = Profile.load(current_user.id, "table-users")
     keyword = request.args.get('keyword', '')
@@ -97,16 +132,14 @@ def user_new():
         if user is None:
             user = User()
             form.populate_obj(user)
-            user.password = User.create_password(user.password)
             db.session.add(user)
             db.session.commit()
-            flash(u'添加用户成功', 'info')
+            flash(u'添加用户(%s)成功' % user.usernmae, 'success')
             return redirect(url_for('users.users'))
     return render_template('users/user_new.html', form=form)
 
     
 @userview.route('/users/edit/<int:id>/', methods=['POST', 'GET'])
-@login_required
 def user_edit(id):
     form = UserEditForm()
     user = User.query.get_or_404(id)
@@ -114,50 +147,64 @@ def user_edit(id):
         form.populate_obj(user)
         db.session.add(user)
         db.session.commit()
-        flash(u'修改用户成功', 'info')
+        flash(u'修改用户(%s)成功' % user.username, 'success')
         return redirect(url_for('users.users'))
     form.process(obj=user)
     return render_template('/users/user_edit.html', user=user, form=form)
 
+    
 @userview.route('/users/delete/<int:id>/')
-@login_required
 def user_delete(id):
-    pass
-#### User [END]
+    user = User.query.get_or_404(id)
+    db.session.delete(user)
+    db.session.commit()
+    flash(u'用户(%s)删除成功' % user.username, 'success')
+    return redirect(url_for('users.users'))
+
+    
+@userview.route('/users/reset-password/<int:id>/', methods=['POST', 'GET'])
+def reset_password(id):
+    '''管理员重置用户密码'''
+    
+    form = ResetPasswordForm()
+    if request.method == 'POST' and form.validate_on_submit():
+        newpasswd = form.newpasswd.data
+        user = User.query.get(id)
+        user.password = newpasswd
+        db.session.commit()
+        flash(u'用户(%s)密码重置成功' % user.username , 'success')
+        return redirect(url_for('users.users'))
+    return render_template('users/reset_password.html', form=form, id=id)
 
 
-#### Role [BEGIN]
+    
+# ==============================================================================
+#  Role
+# ============================================================================== 
 def get_permissions(form):
-    # print '-------BEGIN get_permissions--------'
     perms = []
     pattern = "^%s\[(.+)\]$" % 'permissions'
-    # print 'form.keys()::', form.keys()
-    # print 'form.values()::', form.values()
     for key in form.keys():
         if form[key] != 'on': continue
-        # print 'key,form[key]::', key,form[key]
         m = re.match(pattern, key)
         if m:
             try:
                 perm_id = int(m.group(1))
                 perm = Permission.query.get(perm_id)
                 perms.append(perm)
-                # print 'perm.id::', perm.id
             except Exception, e:
                 print 'Exception in get_permissions::', e
     return perms
 
     
-@userview.route('/roles')
-@login_required
+@userview.route('/roles/')
 def roles():
     profile = {}
     table = RoleTable(Role.query).configure(profile, page=1)
     return render_template('users/roles.html', table=table)
     
     
-@userview.route('/roles/new', methods=['GET', 'POST'])
-@login_required
+@userview.route('/roles/new/', methods=['GET', 'POST'])
 def role_new():
     perms = get_permissions(request.form)
     form = RoleForm()
@@ -169,7 +216,7 @@ def role_new():
         form.populate_obj(role)
         db.session.add(role)
         db.session.commit()
-        flash(u'新建角色成功', 'info')
+        flash(u'新建角色成功', 'success')
         return redirect(url_for('users.roles'))
 
     perm_tree = Permission.make_tree()
@@ -179,8 +226,7 @@ def role_new():
                            form=form, perm_tree=perm_tree)
     
 
-@userview.route('/roles/edit/<int:id>', methods=['POST', 'GET'])
-@login_required
+@userview.route('/roles/edit/<int:id>/', methods=['POST', 'GET'])
 def role_edit(id):
     perms = get_permissions(request.form)
     form = RoleForm()
@@ -195,7 +241,7 @@ def role_edit(id):
         form.populate_obj(role)
         db.session.add(role)
         db.session.commit()
-        flash(u'修改角色成功', 'info')
+        flash(u'修改角色(%s)成功' % role.name, 'success')
         return redirect(url_for('users.roles'))
     
     perm_tree = Permission.make_tree(role.permissions)
@@ -206,26 +252,24 @@ def role_edit(id):
                            perm_tree=perm_tree)
     
 
-@userview.route('/roles/delete/<int:id>')
-@login_required
+@userview.route('/roles/delete/<int:id>/')
 def role_delete(id):
-    role = Role.query.get(id)
-    db.session.delete(role)
-    db.session.commit()
-    flash(u'删除角色成功', 'info')
+    user_cnt = User.query.filter(User.role_id == id).count()
+    if user_cnt > 0:
+        flash(u'删除失败: 有(%d)个用户依赖此角色' % user_cnt, 'error')
+    else:
+        role = Role.query.get(id)
+        db.session.delete(role)
+        db.session.commit()
+        flash(u'删除角色(%s)成功' % role.name, 'success')
     return redirect(url_for('users.roles'))
-    
-#### Role [END]    
 
     
-#### Permission [BEGIN]
-## pass ##
-#### Permission [END]
     
-    
-#### Domain [BEGIN]
-@userview.route('/domains/load/nodes')
-@login_required
+# ==============================================================================
+#  Domain
+# ============================================================================== 
+@userview.route('/domains/load/nodes/')
 def domain_load_nodes():
     key = request.args.get('key', '')
     domain_areas = request.args.get('domain_areas', '')
@@ -246,7 +290,6 @@ def domain_load_nodes():
                 path_nodes.add(area.parent_id)
                 area = Area.query.get(area.parent_id)
 
-    # print 'domain_areas::', domain_areas
     def make_node(area):
         node = {}
         node['title'] = area.name
@@ -272,24 +315,18 @@ def domain_load_nodes():
         return node
     nodes = [make_node(area) for area in Area.query.filter(Area.parent_id==key)] \
             if key else [make_nodes(root.id)]
-    # print 'key::', key
-    # print 'domain_areas::', domain_areas
-    # print 'nodes::', nodes
-    return json.dumps(nodes)    
     
-@userview.route('/domains')
-@login_required
+    return json.dumps(nodes)    
+
+    
+@userview.route('/domains/')
 def domains():
     profile = {}
     table = DomainTable(Domain.query).configure(profile, page=1)
     return render_template('users/domains.html', table=table)
 
 
-
-
-    
-@userview.route('/domains/new', methods=['POST', 'GET'])
-@login_required
+@userview.route('/domains/new/', methods=['POST', 'GET'])
 def domain_new():
     form = DomainForm()
     if request.method == 'POST' and form.validate_on_submit():
@@ -304,8 +341,7 @@ def domain_new():
                            form=form)
 
     
-@userview.route('/domains/edit/<int:id>', methods=['POST', 'GET'])
-@login_required
+@userview.route('/domains/edit/<int:id>/', methods=['POST', 'GET'])
 def domain_edit(id):
     form = DomainForm()
     domain = Domain.query.get_or_404(id)
@@ -314,6 +350,7 @@ def domain_edit(id):
         domain.dump_areas(request.form['domain_areas'])
         db.session.add(domain)
         db.session.commit()
+        flash(u'管理域(%s)修改成功' % domain.name, 'success')
         return redirect(url_for('users.domains'))
     domain_areas = ','.join([domain.city_list, domain.town_list,
                              domain.branch_list, domain.entrance_list])
@@ -323,15 +360,21 @@ def domain_edit(id):
                            domain_areas=domain_areas, form=form)
     
 
-@userview.route('/domains/delete/<int:id>')
-@login_required
+@userview.route('/domains/delete/<int:id>/')
 def domain_delete(id):
-    domain = Domain.query.get_or_404(id)
-    db.session.delete(domain)
-    db.session.commit()
+    user_cnt = User.query.filter(User.domain_id == id).count()
+    if user_cnt > 0:
+        flash(u'删除失败: 有(%d)个用户依赖此管理域!' % user_cnt, 'error')
+    else:
+        domain = Domain.query.get_or_404(id)
+        db.session.delete(domain)
+        db.session.commit()
+        flash(u'管理域(%s)删除成功' % domain.name, 'success')
     return redirect(url_for('users.domains'))
     
 
-#### Domain [END]
 
+# ==============================================================================
+#  [OTHER]
+# ==============================================================================
 menus.append(Menu('users', u'用户', '/users'))

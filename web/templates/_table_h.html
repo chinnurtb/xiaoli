@@ -59,14 +59,16 @@
 	    {% for column, cell, cellattrs in row.items %}
 	    {% if column.is_checkbox %}
             <th {{ column.attrs.th.as_html(scope="row") }} >
+              {% if table.actions %}
             <div class="row-actions">
-            <div class="btn-group">
+              <div class="btn-group">
                 {% for action in table.actions %}
-                    {{ action.render(row.record) }}   
+                {{ action.render(row.record) }}   
                 {% endfor %}
                 <br>
+              </div>
             </div>
-            </div>
+            {% endif %}
             {{ cell }}
             </th>
 	    {% else %}

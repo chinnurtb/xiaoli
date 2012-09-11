@@ -1,0 +1,9 @@
+{% set submenuid = 'settings' %}
+
+<div class="well sidebar-nav">
+    <ul class="nav nav-list">
+      <li class="nav-header">个人设置</li>
+      <li><a href="{{url_for('users.profile')}}">个人信息</a></li>
+      <li><a href="{{url_for('users.change_password')}}">修改密码</a></li>
+    </ul>
+</div>
