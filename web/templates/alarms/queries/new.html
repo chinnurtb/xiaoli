@@ -8,13 +8,32 @@
 
 {% block content %}  
 
+{% from "_form_h.html" import render_field %}
+
 <div class="row-fluid content">
     <div class="span2">
         {% set submenuid = 'alarm-query-new' %}
         {% include '/alarms/_sidebar.html' %}
     </div>
     <div class="span10">
-        <h1>创建检索条件</h1>
+        {% include '_alert.html' %}
+        <form class="form-horizontal" action="/alarms/queries/new" method="POST">
+                <legend>创建检索条件</legend>
+                {{ render_field(form.name) }}
+                {{ render_field(form.is_public) }}
+                <legend>Filters</legend>
+                
+                <div class="controls controls-row">
+                    <!--
+                  <input class="span4" type="text" placeholder=".span4">
+                  <input class="span1" type="text" placeholder=".span1">
+                    -->
+                </div>
+
+                <div class="form-actions">
+                    <button class="btn btn-primary" type="submit">Submit</button>                    
+                </div>
+        </form>
     </div>
 </div>
 

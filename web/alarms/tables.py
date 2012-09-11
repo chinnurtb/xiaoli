@@ -54,6 +54,8 @@ class AlarmTable(tables.Table):
         order_by = '-last_occurrence'
 
 class QueryTable(tables.Table):
+    edit       = tables.Action(name=u'Edit', endpoint='alarms.query_edit')
+
     check       = tables.CheckBoxColumn()
     name        = tables.Column(verbose_name=u'名称', orderable=True)
     is_public   = tables.Column(verbose_name=u'是否公开', orderable=True)
@@ -66,9 +68,9 @@ class QueryTable(tables.Table):
         order_by = '-created_at'
 
 class HistoryTable(tables.Table):
-    severity    = tables.Column(verbose_name=u'级别', orderable=True)
-    alarm_alias = tables.Column(verbose_name=u'名称', orderable=True)
-    node_alias  = tables.Column(verbose_name=u'节点', orderable=True)
+    severity    = SeverityColumn()
+    alarm_alias = tables.LinkColumn(verbose_name=u'名称', endpoint='alarms.history_show', orderable=True)
+    node_alias  = NodeLinkColumn(verbose_name=u'节点', orderable=True) #accessor='node.alias', 
     node_addr   = tables.Column(verbose_name=u'节点地址')
     summary     = tables.Column(verbose_name=u'详细')
     occur_count = tables.Column(verbose_name=u'发生次数')

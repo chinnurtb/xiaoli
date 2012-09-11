@@ -100,6 +100,8 @@ def before_request():
         if current_user.username in SUPER_USERS:
             return
         check_permissions()
+    else:
+        abort(403)
 
 @app.errorhandler(404)
 def page_not_found(e):
