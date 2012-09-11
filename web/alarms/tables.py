@@ -54,6 +54,8 @@ class AlarmTable(tables.Table):
         order_by = '-last_occurrence'
 
 class QueryTable(tables.Table):
+    edit       = tables.Action(name=u'Edit', endpoint='alarms.query_edit')
+
     check       = tables.CheckBoxColumn()
     name        = tables.Column(verbose_name=u'名称', orderable=True)
     is_public   = tables.Column(verbose_name=u'是否公开', orderable=True)

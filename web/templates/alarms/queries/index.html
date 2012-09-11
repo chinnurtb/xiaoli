@@ -4,7 +4,9 @@
 
 {% block title %}检索条件{% endblock %}
 
-{% block head %} {% endblock %}
+{% block head %} 
+    <link rel="stylesheet" href="/static/css/alarm.css" type="text/css" media="all">
+{% endblock %}
 
 {% block content %}  
 
@@ -16,7 +18,7 @@
         {% include '/alarms/_sidebar.html' %}
     </div>
     <div class="span10">
-        <form id="alarm-query-form" class="form-inline" action="/alarms/queries" method="POST">
+        <form id="alarm-query-form" class="form-inline" action="{{url_for('alarms.queries')}}" method="GET">
         <div class="tablenav top">
             <div class="alignleft actions">
                 <div class="alignleft btn-group">
@@ -25,7 +27,7 @@
             </div>
             <div class="alignleft filters">
                 <input name='keyword' class="input-large" type="text">     
-                <input type="submit" name="search" class="btn btn-small" value="过滤">
+                <input type="submit" class="btn btn-small" value="过滤">
             </div>
         </div>
         {{ render_table(table) }}

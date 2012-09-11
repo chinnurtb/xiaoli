@@ -3,7 +3,7 @@
 
 from datetime import datetime
 
-from sqlalchemy import desc
+from sqlalchemy import desc, func 
 
 from jinja2 import Markup
 
@@ -46,13 +46,20 @@ def alarm_filter(request):
 @alarmview.route('/alarms', methods = ['GET'])
 @login_required
 def index():
-    print request.args
+    #should use one Query
     severities = AlarmSeverity.query.order_by(desc(AlarmSeverity.id)).all()
+    counts = db.session.query(Alarm.severity, func.count(Alarm.id).label('count')).group_by(Alarm.severity).all()
+    all_count = 0
+    for svt in severities:
+        for id, count in counts:
+            if svt.id == id:
+                all_count += count
+                svt.count = count
     queries = Query.query.filter_by(uid=current_user.id, tab='alarms').all()
     profile = Profile.load(current_user.id, 'table-alarms')
     table = AlarmTable(Alarm.query.filter(alarm_filter(request))).configure(profile)
     return render_template("/alarms/index.html", table = table,
-        severities = severities, queries = queries)
+        severities = severities, queries = queries, all_count = all_count)
 
 @alarmview.route('/alarms/<int:id>')
 @login_required
@@ -79,8 +86,7 @@ def alarm_ack(id):
 
 @alarmview.route('/alarms/clear/<int:id>', methods=['GET', 'POST'])
 @login_required
-def alarm_clear(id):
-    #TODO: clear
+def alarm_clear(id=None):
     form = AlarmClearForm()
     alarm = Alarm.query.get_or_404(id)
     if request.method == 'POST' and form.validate_on_submit():
@@ -104,11 +110,25 @@ def queries():
     t = QueryTable(q).configure(profile)
     return render_template("/alarms/queries/index.html", table = t)
 
-@alarmview.route('/alarms/queries/new')
+@alarmview.route('/alarms/queries/new', methods=['GET','POST'])
 @login_required
 def query_new():
     f = QueryNewForm()
-    return render_template("/alarms/queries/new.html", form = f)
+    q = Query(uid=current_user.id, tab='alarms', filters='', created_at=datetime.now(), updated_at=datetime.now())
+    if request.method == 'POST':
+        q.name = request.form['name']
+        q.is_public = True if request.form['is_public'] == 'y' else False
+        db.session.add(q)
+        db.session.commit()
+        return redirect(url_for('.queries'))
+    f.process(obj=q)
+    return render_template("/alarms/queries/new.html", form=f, query=q)
+
+@alarmview.route('/alarms/queries/edit/<int:id>', methods=['GET','POST'])
+@login_required
+def query_edit(id):
+    q = Query.query.get_or_404(id)
+    return render_template("/alarms/queries/edit.html", query=q)
 
 @alarmview.route('/alarms/console')
 @login_required
