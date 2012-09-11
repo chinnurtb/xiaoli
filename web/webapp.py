@@ -88,14 +88,14 @@ def check_permissions():
 #FIXME
 @app.before_request
 def before_request():
-    check_ip()
-    auth_all()
+    #check_ip()
+    #auth_all()
     if current_user:
         g.menus = menus
-        OUTER_ENDPOINTS = (None, 'static', 'login')
-        if request.endpoint not in OUTER_ENDPOINTS:
-            print request.endpoint, type(current_user), current_user.role.permissions
-            check_permissions()
+        #OUTER_ENDPOINTS = (None, 'static', 'login')
+        #if request.endpoint not in OUTER_ENDPOINTS:
+        #    print request.endpoint, type(current_user), current_user.role.permissions
+        #    check_permissions()
 
 
 @app.errorhandler(404)
