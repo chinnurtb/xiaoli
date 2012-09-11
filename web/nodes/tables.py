@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 from flask import url_for
 from tango.ui import tables
+from tango.ui.tables.utils import Attrs
 from jinja2 import Markup
 from .models import Node,Board,Port
 
@@ -48,9 +49,24 @@ class VendorTable(tables.Table):
     node_count  = tables.Column(verbose_name=u'数量')
     node_status1_count  = tables.Column(verbose_name=u'可用')
     node_status0_count  = tables.Column(verbose_name=u'不可用')
+    node_status_percent = tables.Column(verbose_name=u'可用率',attrs=Attrs(th={"style": "width:30%;"}))
 
-    def render_node_count(self, value):
-        html = u'<span style="color:red;">{text}</span>'.format(
-            text= '%.2f' % value
-        )
+    def render_node_status_percent(self, value, record):
+        percent = (record.node_status1_count*1.0 / record.node_count) if int(record.node_count) != 0 else 0
+        text= '%.2f' % (percent * 100) + '%'
+        if percent < 0.5:
+            bar = 'bar-danger'
+            font_color = '#DD514C'
+        elif percent >= 0.5 and percent < 0.9:
+            bar = 'bar-warning'
+            font_color = '#FAA732'
+        elif percent >= 0.9:
+            bar = 'bar-success'
+            font_color = '#5EB95E'
+        html = u'''
+        <div class="pull-left"><span style="color:{font_color};">{text}&nbsp;&nbsp;</span></div>
+        <div class="progress">
+            <div class="bar {bar}" style="width:{text}"></div>
+        </div>
+        '''.format(text=text,bar=bar,font_color=font_color)
         return Markup(html)

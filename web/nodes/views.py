@@ -16,7 +16,7 @@ from .tables import NodeTable,PortTable,BoardTable,AreaTable,VendorTable
 
 nodeview = Blueprint('nodes', __name__)
 
-@nodeview.route('/nodes')
+@nodeview.route('/nodes/')
 @login_required
 def nodes():
     form = NodeSearchForm()
@@ -32,13 +32,13 @@ def nodes():
     table = NodeTable(query).configure(profile)
     return render_template('nodes/index.html', table = table, form=form)
 
-@nodeview.route('/nodes/<int:id>', methods=['GET'])
+@nodeview.route('/nodes/<int:id>/', methods=['GET'])
 @login_required
 def node_show(id):
     Node = Node.query.get_or_404(id)
     return render_template('nodes/show.html', node = node)
 
-@nodeview.route('/nodes/new', methods=['GET','POST'])
+@nodeview.route('/nodes/new/', methods=['GET','POST'])
 @login_required
 def node_new():
     form = NodeNewForm()
@@ -52,7 +52,7 @@ def node_new():
         return redirect(url_for('nodes.nodes'))
     return render_template('nodes/new.html', form = form)
 
-@nodeview.route('/nodes/edit/<int:id>', methods=['POST', 'GET'])
+@nodeview.route('/nodes/edit/<int:id>/', methods=['POST', 'GET'])
 @login_required
 def node_edit(id):
     form = NodeNewForm()
@@ -78,21 +78,21 @@ def node_delete():
         flash(u'删除节点成功','info')
         return redirect(url_for('nodes.nodes'))
 
-@nodeview.route("/boards")
+@nodeview.route("/boards/")
 @login_required
 def boards():
     profile = Profile.load(current_user.id, 'table-boards')
     table = BoardTable(Board.query).configure(profile)
     return render_template('boards/index.html', table = table)
 
-@nodeview.route("/ports")
+@nodeview.route("/ports/")
 @login_required
 def ports():
     profile = Profile.load(current_user.id, 'table-ports')
     table = PortTable(Port.query).configure(profile)
     return render_template('ports/index.html', table = table)
 
-@nodeview.route("/areas")
+@nodeview.route("/areas/")
 @login_required
 def areas():
     profile = Profile.load(current_user.id, 'table-ports')
@@ -112,7 +112,7 @@ def vendors():
     profile = Profile.load(current_user.id, 'table-ports')
     query = Vendor.query
     table = VendorTable(query).configure(profile)
-    return render_template('ports/index.html', table = table)
+    return render_template('vendors/index.html', table = table)
 
 menus.append(Menu('nodes', u'资源', '/nodes'))
 
