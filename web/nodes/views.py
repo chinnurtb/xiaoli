@@ -10,9 +10,9 @@ from tango.ui import add_widget, Widget
 from tango.login import current_user, login_required
 from tango.models import Profile
 
-from .models import Node, Board, Port
+from .models import Node, Board, Port, Area, Vendor
 from .forms import NodeNewForm, NodeSearchForm
-from .tables import NodeTable,PortTable,BoardTable
+from .tables import NodeTable,PortTable,BoardTable,AreaTable,VendorTable
 
 nodeview = Blueprint('nodes', __name__)
 
@@ -43,27 +43,10 @@ def node_show(id):
 def node_new():
     form = NodeNewForm()
     if request.method == 'POST' and form.validate_on_submit():
-        # 父表插入记录出错，NotSupportedError: (NotSupportedError) 错误:  无法在关系"nodes"上执行INSERT RETURNING
-        # HINT:  您需要一个无条件, 且带有RETURNING子句的ON INSERT DO INSTEAD的规则.
-        #node = Node()
-        #form.populate_obj(node)
-        #node.status = 0
-        #db.session.add(node)
-
-        # 改用原始插入语句
-        conn = db.engine.connect()
-        statement = '''
-            INSERT INTO nodes (
-                name, addr, status, category, area_id, vendor_id, model_id, snmp_port,
-                snmp_ver, snmp_comm, snmp_wcomm)
-            VALUES (
-                %(name)s, %(addr)s, %(status)s, %(category)s, %(area_id)s, %(vendor_id)s, %(model_id)s,
-                %(snmp_port)s, %(snmp_ver)s, %(snmp_comm)s, %(snmp_wcomm)s
-            )
-        '''
-        parameters = form.data
-        parameters.update(status=0)
-        conn.execute(statement,parameters)
+        node = Node()
+        form.populate_obj(node)
+        node.status = 0
+        db.session.add(node)
         db.session.commit()
         flash(u'新建节点成功', 'info')
         return redirect(url_for('nodes.nodes'))
@@ -107,6 +90,28 @@ def boards():
 def ports():
     profile = Profile.load(current_user.id, 'table-ports')
     table = PortTable(Port.query).configure(profile)
+    return render_template('ports/index.html', table = table)
+
+@nodeview.route("/areas")
+@login_required
+def areas():
+    profile = Profile.load(current_user.id, 'table-ports')
+    base = request.args.get("base")
+    if base:
+        base = Area.query.get(base)
+    else:
+        base = Area.query.filter(Area.area_type == 0).first()
+
+    query = Area.query.filter(Area.parent_id == base.id)
+    table = AreaTable(query).configure(profile)
+    return render_template('ports/index.html', table = table)
+
+@nodeview.route("/vendors/")
+@login_required
+def vendors():
+    profile = Profile.load(current_user.id, 'table-ports')
+    query = Vendor.query
+    table = VendorTable(query).configure(profile)
     return render_template('ports/index.html', table = table)
 
 menus.append(Menu('nodes', u'资源', '/nodes'))

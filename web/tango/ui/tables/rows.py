@@ -50,10 +50,12 @@ class BoundRow(object):
             'bound_row':        lambda: self,
             'table':            lambda: self._table,
             }
+        render_FOO = 'render_' + bound_column.name
+        render = getattr(self.table, render_FOO, bound_column.column.render)
         kw = {}
         for arg_name in bound_column._render_args:
             kw[arg_name] = kwargs[arg_name]()
-        return bound_column.render(**kw)
+        return render(**kw)
 
 
 class BoundRows(object):

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from flask import url_for
 from tango.ui import tables
-
+from jinja2 import Markup
 from .models import Node,Board,Port
 
 class NodeTable(tables.Table):
@@ -11,9 +11,7 @@ class NodeTable(tables.Table):
     name        = tables.LinkColumn(endpoint='nodes.node_edit',verbose_name=u'名称',orderable=True)
     category    = tables.EnumColumn(verbose_name=u'类型',name='category', enums={1:u'OLT',2:u'ONU',3:u'DSLAM',4:u'EOC',5:u'Switch'}, orderable=True)
     addr        = tables.Column(verbose_name=u'IP', orderable=True)
-    city_name   = tables.Column(verbose_name=u'地市', orderable=True, accessor='area.city_name', ifnull='')
-    town_name   = tables.Column(verbose_name=u'区县', orderable=True, accessor='area.town_name', ifnull='')
-    branch_name   = tables.Column(verbose_name=u'分局', orderable=True, accessor='area.branch_name', ifnull='')
+    full_name   = tables.Column(verbose_name=u'所属区域', orderable=True, accessor='area.full_name')
     vendor_name = tables.Column(verbose_name=u'厂家', orderable=True, accessor='vendor.name')
     model_name  = tables.Column(verbose_name=u'型号', orderable=True, accessor='model.name')
 
@@ -39,3 +37,20 @@ class PortTable(tables.Table):
         model = Port
         per_page = 30
         order_by = '-alias'
+
+class AreaTable(tables.Table):
+    name        = tables.Column(verbose_name=u'名称', orderable=True)
+    node_count     = tables.Column(verbose_name=u'节点数量')
+    onu_num     = tables.Column(verbose_name=u'ONU数量')
+
+class VendorTable(tables.Table):
+    alias       = tables.Column(verbose_name=u'名称', orderable=True)
+    node_count  = tables.Column(verbose_name=u'数量')
+    node_status1_count  = tables.Column(verbose_name=u'可用')
+    node_status0_count  = tables.Column(verbose_name=u'不可用')
+
+    def render_node_count(self, value):
+        html = u'<span style="color:red;">{text}</span>'.format(
+            text= '%.2f' % value
+        )
+        return Markup(html)
