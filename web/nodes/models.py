@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
+from sqlalchemy.orm import object_session
+from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy import select, func, and_
 from tango import db
 
 #0: 省
@@ -48,6 +50,19 @@ class Area(db.Model):
 
     children = db.relation('Area')
 
+    @hybrid_property
+    def full_name(self):
+        if self.entrance_name is not None:
+            return self.city_name+self.town_name+self.branch_name+self.entrance_name
+        elif self.branch_name is not None:
+            return self.city_name+self.town_name+self.branch_name
+        elif self.town_name is not None:
+            return self.city_name+self.town_name
+        elif self.city_name is not None:
+            return self.city_name
+        else:
+            return self.name
+
 
 class Manager(db.Model):
     """EMS"""
@@ -72,6 +87,28 @@ class Vendor(db.Model):
     alias = db.Column(db.String(100))
     url = db.Column(db.String(100))
     is_valid = db.Column(db.Integer)
+
+    @property
+    def node_count(self):
+        return object_session(self).\
+        scalar(
+            select([func.count(Node.id)]).\
+            where(Node.vendor_id==self.id)
+        )
+    @property
+    def node_status0_count(self):
+        return object_session(self).\
+        scalar(
+            select([func.count(Node.id)]).\
+            where(and_(Node.vendor_id==self.id, Node.status == 0))
+        )
+    @property
+    def node_status1_count(self):
+        return object_session(self).\
+        scalar(
+            select([func.count(Node.id)]).\
+            where(and_(Node.vendor_id==self.id, Node.status == 1))
+        )
 
 class TimePeriod(db.Model):
     """采集规则"""
@@ -158,6 +195,8 @@ class Node(db.Model):
     area   = db.relation('Area')
     vendor = db.relation('Vendor')
     model  = db.relation('Model')
+
+    __table_args__ = {'implicit_returning':False}
 
     def __repr__(self):
         return '<Node %r>' % self.name
