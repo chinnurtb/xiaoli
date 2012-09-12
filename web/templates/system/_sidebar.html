@@ -1,0 +1,7 @@
+
+{% from "tango/_sidebar_h.html" import render_sidebar %}
+
+{{ render_sidebar('Log Management', submenuid, [
+        ('seclogs', 'Security Logs', url_for('system.seclogs')),
+        ('oplogs', 'Oper Logs', url_for('system.oplogs'))])
+}}
