@@ -8,21 +8,19 @@
    :copyright: (c) 2012 by Ery Lee(ery.lee@gmail.com)
 """
 
-from tango.ip import ip_from
 
 from flask import Flask, session, url_for, redirect, \
     render_template, g, request, abort
 
 from tango.ui import menus
+from tango.ip import ip_from
 from tango import db, login_mgr
 from tango.login import login_required, current_user
 
 from users.models import User
 
 app = Flask(__name__)
-
 app.config.from_pyfile('settings.py')
-
 db.init_app(app)
 db.app = app
 
@@ -94,7 +92,7 @@ def before_request():
         if request.endpoint in SAFE_ENDPOINTS:
             return
         else:
-            abort(403)
+            return redirect('/login')
 
     # Not Anonymous User
     if current_user:

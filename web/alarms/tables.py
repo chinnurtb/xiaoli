@@ -31,6 +31,7 @@ class AlarmAliasColumn(tables.Column):
 class NodeLinkColumn(tables.BaseLinkColumn):
     def render(self, value, record, bound_column):
         return self.render_link("/nodes/%d" % record.node_id, value)
+        
 
 class AlarmTable(tables.Table):
     

@@ -56,23 +56,3 @@ th.alarm_alias-column {
     width:10em;
 }
 
-div.row-actions {
-    /*position: absolute;
-    right: 20px;
-    display: none;*/
-    visibility: hidden; 
-    position: absolute;
-    /* margin: 0; */
-    margin-top: -6px;
-    margin-left: -66px;
-    /* left: 140px; */
-}
-
-.row-actions .btn-small {
-    padding:3px 3px;
-}
-
-tr:hover .row-actions {
-    visibility: visible
-}
-
