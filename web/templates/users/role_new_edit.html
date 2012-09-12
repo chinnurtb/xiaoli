@@ -88,14 +88,14 @@
                     <td rowspan="{{ names.keys()|length}}">
                       <label class="checkbox">
                         <input type="checkbox" {{module[1]}}
-                        name="{{ 'perm_module.' + module[0] }}" />{{module[0]}}
+                        name="{{ ['perm_module', module[0]]|join('.') }}" />{{module[0]}}
                       </label>
                     </td>
                     {% endif %}
                     <td>
                       <label class="checkbox">
                         <input type="checkbox" {{name[1]}}
-                               name="{{ 'perm_name.' + name[0] }}" />{{name[0]}}
+                               name="{{ ['perm_name', name[0]]|join('.') }}" />{{name[0]}}
                       </label>
                     </td>
                     <td>

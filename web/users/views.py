@@ -106,7 +106,7 @@ def change_password():
 # ==============================================================================
 #  User
 # ==============================================================================     
-@userview.route('/users')
+@userview.route('/users/')
 def users():
     profile = Profile.load(current_user.id, "table-users")
     keyword = request.args.get('keyword', '')
@@ -164,13 +164,15 @@ def reset_password(id):
     '''管理员重置用户密码'''
     
     form = ResetPasswordForm()
+    user = User.query.get(id)
     if request.method == 'POST' and form.validate_on_submit():
         newpasswd = form.newpasswd.data
-        user = User.query.get(id)
         user.password = newpasswd
         db.session.commit()
         flash(u'用户(%s)密码重置成功' % user.username , 'success')
         return redirect(url_for('users.users'))
+        
+    form.username.data = user.username
     return render_template('users/reset_password.html', form=form, id=id)
 
 
@@ -178,7 +180,7 @@ def reset_password(id):
 # ==============================================================================
 #  Role
 # ============================================================================== 
-@userview.route('/roles')
+@userview.route('/roles/')
 def roles():
     profile = {}
     table = RoleTable(Role.query).configure(profile, page=1)
@@ -304,7 +306,7 @@ def domain_load_nodes():
     return json.dumps(nodes)    
 
     
-@userview.route('/domains')
+@userview.route('/domains/')
 def domains():
     profile = {}
     table = DomainTable(Domain.query).configure(profile, page=1)
