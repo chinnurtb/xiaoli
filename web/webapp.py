@@ -26,9 +26,9 @@ app.config.from_pyfile('settings.py')
 db.init_app(app)
 db.app = app
 
-login_mgr.login_view = "/login/"
+login_mgr.login_view = "/login"
 login_mgr.login_message = u"请先登录系统."
-login_mgr.refresh_view = "/reauth/"
+login_mgr.refresh_view = "/reauth"
 
 @login_mgr.user_loader
 def load_user(id):
@@ -89,6 +89,7 @@ def before_request():
     # print 'request.endpoint::', request.endpoint
     # print 'current_user::', current_user
     # print 'current_user.is_anonymous::', current_user.is_anonymous()
+
     if current_user.is_anonymous():
         if request.endpoint in SAFE_ENDPOINTS:
             return
@@ -98,13 +99,18 @@ def before_request():
     # Not Anonymous User
     if current_user:
         g.menus = menus
-        if current_user.username in SUPER_USERS:
+        if current_user.username in SUPER_USERS \
+           or request.endpoint in SAFE_ENDPOINTS:
             return
         check_permissions()
     else:
         abort(403)
         
 
+@app.errorhandler(403)
+def permission_denied(e):
+    return render_template('403.html'), 403
+        
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template('404.html'), 404
