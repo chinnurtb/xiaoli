@@ -13,12 +13,23 @@ class Page(Blueprint):
 
 class NestedDict(dict):
 
-    def __init__(self, request, method='POST'):
+    def __init__(self, request=None):
+        if request is None:
+            super(NestedDict, self).__init__()
+            return
         kv_lists = request.values.lists()
         for k, v in kv_lists:
-            k_chains = k.split(',')
-            print k_chains
+            if k == 'csrf_token' or v == '': continue
+            k_chains = k.split('.')
+            cur_level = self
+            while len(k_chains) > 1:
+                cur_level = cur_level[k_chains.pop(0)]
+            if isinstance(cur_level, list):
+                raise KeyError('(key : %s) already exists,so (key : %s) is not allowed' %
+                               ('.'.join(k.split('.')[:-1]),k))
+            cur_level[k_chains[0]] = v
 
+            
     def __getitem__(self, key):
         value = None
         if key not in self.keys():

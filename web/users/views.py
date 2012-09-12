@@ -10,6 +10,7 @@ from tango.ui import menus, Menu
 from tango.login import logout_user, login_user, current_user
 
 from tango.models import Profile
+from tango.base import NestedDict
 from nodes.models import Area
 from .models import User, Role, Permission, Domain
 from .forms import (UserEditForm, UserNewForm, LoginForm, PasswordForm, RoleForm,
@@ -177,24 +178,6 @@ def reset_password(id):
 # ==============================================================================
 #  Role
 # ============================================================================== 
-def get_permissions(form):
-    perms = []
-    pattern = "^%s\[(.+)\]$" % 'permissions'
-    print 'form.keys()::', form.keys()
-    print 'form.values()::', form.values()
-    for key in form.keys():
-        if form[key] != 'on': continue
-        m = re.match(pattern, key)
-        if m:
-            try:
-                perm_id = int(m.group(1))
-                perm = Permission.query.get(perm_id)
-                perms.append(perm)
-            except Exception, e:
-                print 'Exception in get_permissions::', e
-    return perms
-
-    
 @userview.route('/roles')
 def roles():
     profile = {}
@@ -204,12 +187,14 @@ def roles():
     
 @userview.route('/roles/new', methods=['GET', 'POST'])
 def role_new():
-    perms = get_permissions(request.form)
+    all_args = NestedDict(request)
+    perms = all_args['permissions']
     form = RoleForm()
     role = Role()
     if request.method == 'POST' and form.validate_on_submit():
-        for p in perms:
-            role.permissions.append(p)
+        for p in perms.keys():
+            perm = Permission.query.get(int(p))
+            role.permissions.append(perm)
             
         form.populate_obj(role)
         db.session.add(role)
@@ -226,16 +211,17 @@ def role_new():
 
 @userview.route('/roles/edit/<int:id>', methods=['POST', 'GET'])
 def role_edit(id):
-    perms = get_permissions(request.form)
+    all_args = NestedDict(request)
+    perms = all_args['permissions']
     form = RoleForm()
     role = Role.query.get_or_404(id)
     
     if request.method == 'POST' and form.validate_on_submit():
-        perms = get_permissions(request.form)
         while len(role.permissions) > 0:
             role.permissions.pop(0)
         for p in perms:
-            role.permissions.append(p)
+            perm = Permission.query.get(int(p))
+            role.permissions.append(perm)
 
         form.populate_obj(role)
         db.session.add(role)
