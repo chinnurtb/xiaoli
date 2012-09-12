@@ -1,14 +1,11 @@
 #!/usr/bin/env python 
 # -*- coding: utf-8 -*-
 import re
-from hashlib import md5
-
 from flask import json
-from flask import (Blueprint, request, session, url_for, abort,
-                   redirect, render_template, g, flash, make_response)
+from flask import (Blueprint, request, url_for,
+                   redirect, render_template, flash)
 
 from tango import db
-# from tango import login_mgr
 from tango.ui import menus, Menu
 from tango.login import logout_user, login_user, current_user
 
@@ -26,8 +23,7 @@ userview = Blueprint('users', __name__)
 # ===============================================================================
 #  Authenticating
 # =============================================================================== 
-
-@userview.route('/login/', methods=['GET', 'POST'])
+@userview.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm(request.form)
     if request.method == 'POST':
@@ -54,7 +50,7 @@ def login():
     return render_template('login.html', form = form)
 
     
-@userview.route('/logout/', methods=['GET'])
+@userview.route('/logout', methods=['GET'])
 def logout():
     logout_user()
     flash(u'退出成功', 'success')
@@ -65,12 +61,12 @@ def logout():
 # ==============================================================================
 #  Setting
 # ==============================================================================
-@userview.route('/settings/')
+@userview.route('/settings')
 def settings():
     return redirect(url_for('users.profile'))
 
     
-@userview.route('/settings/profile/', methods=['POST', 'GET'])
+@userview.route('/settings/profile', methods=['POST', 'GET'])
 def profile():
     '''用户修改自己的个人信息'''
     
@@ -88,7 +84,7 @@ def profile():
     return render_template('settings/profile.html', form=form)
 
     
-@userview.route('/settings/password/', methods=['POST', 'GET'])
+@userview.route('/settings/password', methods=['POST', 'GET'])
 def change_password():
     '''用户修改自己的密码'''
     
@@ -109,7 +105,7 @@ def change_password():
 # ==============================================================================
 #  User
 # ==============================================================================     
-@userview.route('/users/')
+@userview.route('/users')
 def users():
     profile = Profile.load(current_user.id, "table-users")
     keyword = request.args.get('keyword', '')
@@ -123,7 +119,7 @@ def users():
     return render_template('users/index.html', table=table, keyword=keyword)
 
     
-@userview.route('/users/new/', methods=['POST', 'GET'])
+@userview.route('/users/new', methods=['POST', 'GET'])
 def user_new():
     form = UserNewForm()
     if request.method == 'POST' and form.validate_on_submit():
@@ -139,7 +135,7 @@ def user_new():
     return render_template('users/user_new.html', form=form)
 
     
-@userview.route('/users/edit/<int:id>/', methods=['POST', 'GET'])
+@userview.route('/users/edit/<int:id>', methods=['POST', 'GET'])
 def user_edit(id):
     form = UserEditForm()
     user = User.query.get_or_404(id)
@@ -153,7 +149,7 @@ def user_edit(id):
     return render_template('/users/user_edit.html', user=user, form=form)
 
     
-@userview.route('/users/delete/<int:id>/')
+@userview.route('/users/delete/<int:id>')
 def user_delete(id):
     user = User.query.get_or_404(id)
     db.session.delete(user)
@@ -162,7 +158,7 @@ def user_delete(id):
     return redirect(url_for('users.users'))
 
     
-@userview.route('/users/reset-password/<int:id>/', methods=['POST', 'GET'])
+@userview.route('/users/reset-password/<int:id>', methods=['POST', 'GET'])
 def reset_password(id):
     '''管理员重置用户密码'''
     
@@ -184,6 +180,8 @@ def reset_password(id):
 def get_permissions(form):
     perms = []
     pattern = "^%s\[(.+)\]$" % 'permissions'
+    print 'form.keys()::', form.keys()
+    print 'form.values()::', form.values()
     for key in form.keys():
         if form[key] != 'on': continue
         m = re.match(pattern, key)
@@ -197,14 +195,14 @@ def get_permissions(form):
     return perms
 
     
-@userview.route('/roles/')
+@userview.route('/roles')
 def roles():
     profile = {}
     table = RoleTable(Role.query).configure(profile, page=1)
     return render_template('users/roles.html', table=table)
     
     
-@userview.route('/roles/new/', methods=['GET', 'POST'])
+@userview.route('/roles/new', methods=['GET', 'POST'])
 def role_new():
     perms = get_permissions(request.form)
     form = RoleForm()
@@ -226,7 +224,7 @@ def role_new():
                            form=form, perm_tree=perm_tree)
     
 
-@userview.route('/roles/edit/<int:id>/', methods=['POST', 'GET'])
+@userview.route('/roles/edit/<int:id>', methods=['POST', 'GET'])
 def role_edit(id):
     perms = get_permissions(request.form)
     form = RoleForm()
@@ -252,7 +250,7 @@ def role_edit(id):
                            perm_tree=perm_tree)
     
 
-@userview.route('/roles/delete/<int:id>/')
+@userview.route('/roles/delete/<int:id>')
 def role_delete(id):
     user_cnt = User.query.filter(User.role_id == id).count()
     if user_cnt > 0:
@@ -269,7 +267,7 @@ def role_delete(id):
 # ==============================================================================
 #  Domain
 # ============================================================================== 
-@userview.route('/domains/load/nodes/')
+@userview.route('/domains/load/nodes')
 def domain_load_nodes():
     key = request.args.get('key', '')
     domain_areas = request.args.get('domain_areas', '')
@@ -319,14 +317,14 @@ def domain_load_nodes():
     return json.dumps(nodes)    
 
     
-@userview.route('/domains/')
+@userview.route('/domains')
 def domains():
     profile = {}
     table = DomainTable(Domain.query).configure(profile, page=1)
     return render_template('users/domains.html', table=table)
 
 
-@userview.route('/domains/new/', methods=['POST', 'GET'])
+@userview.route('/domains/new', methods=['POST', 'GET'])
 def domain_new():
     form = DomainForm()
     if request.method == 'POST' and form.validate_on_submit():
@@ -341,7 +339,7 @@ def domain_new():
                            form=form)
 
     
-@userview.route('/domains/edit/<int:id>/', methods=['POST', 'GET'])
+@userview.route('/domains/edit/<int:id>', methods=['POST', 'GET'])
 def domain_edit(id):
     form = DomainForm()
     domain = Domain.query.get_or_404(id)
@@ -360,7 +358,7 @@ def domain_edit(id):
                            domain_areas=domain_areas, form=form)
     
 
-@userview.route('/domains/delete/<int:id>/')
+@userview.route('/domains/delete/<int:id>')
 def domain_delete(id):
     user_cnt = User.query.filter(User.domain_id == id).count()
     if user_cnt > 0:

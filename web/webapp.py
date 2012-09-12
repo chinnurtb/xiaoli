@@ -14,9 +14,7 @@ from flask import Flask, session, url_for, redirect, \
     render_template, g, request, abort
 
 from tango.ui import menus
-
 from tango import db, login_mgr
-
 from tango.login import login_required, current_user
 
 from users.models import User
@@ -28,11 +26,9 @@ app.config.from_pyfile('settings.py')
 db.init_app(app)
 db.app = app
 
-login_mgr.login_view = "/login"
-
+login_mgr.login_view = "/login/"
 login_mgr.login_message = u"请先登录系统."
-
-login_mgr.refresh_view = "/reauth"
+login_mgr.refresh_view = "/reauth/"
 
 @login_mgr.user_loader
 def load_user(id):
@@ -90,11 +86,16 @@ def before_request():
     check_ip()
     SAFE_ENDPOINTS = (None, 'static', 'users.login', 'users.logout')
     SUPER_USERS = ('root', 'admin')
-    # print '(user, endpoint)', (current_user, request.endpoint)
-    
-    if current_user.is_anonymous and request.endpoint in SAFE_ENDPOINTS:
-        return
-    
+    # print 'request.endpoint::', request.endpoint
+    # print 'current_user::', current_user
+    # print 'current_user.is_anonymous::', current_user.is_anonymous()
+    if current_user.is_anonymous():
+        if request.endpoint in SAFE_ENDPOINTS:
+            return
+        else:
+            abort(403)
+
+    # Not Anonymous User
     if current_user:
         g.menus = menus
         if current_user.username in SUPER_USERS:
@@ -102,6 +103,7 @@ def before_request():
         check_permissions()
     else:
         abort(403)
+        
 
 @app.errorhandler(404)
 def page_not_found(e):
