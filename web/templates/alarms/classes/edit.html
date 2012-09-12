@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="/static/css/alarm.css" type="text/css" media="all">
 {% endblock %}
 
-{% from "_form_h.html" import render_field %}
+{% from "_form_h.html" import render_field, render_submit %}
 
 {% block content %}
     
@@ -19,13 +19,15 @@
         </div>
 
         <div class="span10">
-            <form id="alarmclass-edit-form" class="form-horizontal" action="{{ url_for('alarms.class_edit') }}" method="POST">
+            <form id="alarmclass-edit-form" class="form-horizontal" action="{{ url_for('alarms.class_edit', id=alarm_class.id) }}" method="POST">
+            <legend>AlarmClass Setting: {{alarm_class.alias}}</legend>
 			{{ form.hidden_tag() }}
             {{ render_field(form.severity) }}
             {{ render_field(form.probablecause) }}
             {{ render_field(form.specific_problem) }}
             {{ render_field(form.additionalinfo) }}
             {{ render_field(form.remark) }}
+            {{ render_submit('Submit') }}
             </form>
         </div>
     </div>

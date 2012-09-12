@@ -2,7 +2,7 @@
 
 {% set menuid = 'alarms' %}
 
-{% block title %}告警类型{% endblock %}
+{% block title %}Alarm Knowledges{% endblock %}
 
 {% block head %} 
     <link rel="stylesheet" href="/static/css/alarm.css" type="text/css" media="all">
@@ -14,16 +14,21 @@
     
     <div class="row-fluid content">
         <div class="span2">
-            {% set submenuid = 'classes' %}
+            {% set submenuid = 'knowledges' %}
             {% include 'alarms/_sidebar.html' %}
         </div>
 
         <div class="span10">
-            <form id="alarmclass-query-form" class="form-inline" action="{{ url_for('alarms.classes') }}" method="GET">
+            <form id="alarm-knowledges-query-form" class="form-inline" action="{{ url_for('alarms.knowledges') }}" method="GET">
             <div class="tablenav top">
+                <div class="alignleft actions">
+                    <div class="alignleft btn-group">
+                        <a class="btn btn-small" href="{{url_for('alarms.knowledge_new')}}">创建Knowledge</a>
+                    </div>
+                </div>
                 <div class="alignleft filters">
                         <input type="text" name="keyword" placeholder="名称" {% if keyword %} value="{{ keyword }}" {% endif %}>
-                        <input type="submit" name="" id="alarmclass-query-submit" class="btn btn-small" value="检索">
+                        <input type="submit" name="" id="alarm-knowledges-query-submit" class="btn btn-small" value="检索">
                 </div>
             </div>
             {{ render_table(table) }}

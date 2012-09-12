@@ -1,0 +1,35 @@
+{% extends 'layout.html' %}
+
+{% set menuid = 'alarms' %}
+
+{% block title %}Knowledge Edit{% endblock %}
+
+{% block head %} 
+    <link rel="stylesheet" href="/static/css/alarm.css" type="text/css" media="all">
+{% endblock %}
+
+{% from "_form_h.html" import render_field, render_submit %}
+
+{% block content %}
+    
+    <div class="row-fluid content">
+        <div class="span2">
+            {% set submenuid = 'knowledges' %}
+            {% include 'alarms/_sidebar.html' %}
+        </div>
+
+        <div class="span10">
+            <form id="alarm-knowledge-edit-form" class="form-horizontal" action="{{ url_for('alarms.knowledge_edit', id=record.id) }}" method="POST">
+            <legend>Knowledge Editing</legend>
+			{{ form.hidden_tag() }}
+            {{ render_field(form.class_id) }}
+            {{ render_field(form.probability) }}
+            {{ render_field(form.probable_cause) }}
+            {{ render_field(form.resolvent) }}
+            {{ render_submit('Submit') }}
+            </form>
+        </div>
+    </div>
+
+{% endblock %}
+
