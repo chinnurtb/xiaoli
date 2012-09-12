@@ -8,7 +8,7 @@
    :copyright: (c) 2012 by Ery Lee(ery.lee@gmail.com)
 """
 
-from repoze.what.plugins.ip import ip_from
+from tango.ip import ip_from
 
 from flask import Flask, session, url_for, redirect, \
     render_template, g, request, abort

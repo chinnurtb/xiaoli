@@ -88,21 +88,21 @@
                     <td rowspan="{{ names.keys()|length}}">
                       <label class="checkbox">
                         <input type="checkbox" {{module[1]}}
-                        name="module[{{moudle}}]" />{{module[0]}}
+                        name="{{ ['perm_module', module[0]]|join('.') }}" />{{module[0]}}
                       </label>
                     </td>
                     {% endif %}
                     <td>
                       <label class="checkbox">
                         <input type="checkbox" {{name[1]}}
-                               name="name[{{name}}]" />{{name[0]}}
+                               name="{{ ['perm_name', name[0]]|join('.') }}" />{{name[0]}}
                       </label>
                     </td>
                     <td>
                       {% for operation, permission_id in operations.iteritems() %}
                         <label class="checkbox inline">
                           <input type="checkbox" {{operation[1]}}
-                                 name="permissions[{{permission_id}}]" />{{operation[0]}}
+                                 name="{{ ['permissions', permission_id]|join('.') }}" />{{operation[0]}}
                         </label>
                       {% endfor %}
                     </td>
