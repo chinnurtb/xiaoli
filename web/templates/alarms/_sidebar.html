@@ -1,19 +1,19 @@
 {% from "tango/_sidebar_h.html" import render_sidebar %}
 
 {{ render_sidebar('告警管理', submenuid, [
-        ('alarms',          '当前告警',     '/alarms'),
-        ('alarm-queries',   '检索条件',     '/alarms/queries'),
-        ('alarm-query-new', '创建检索',     '/alarms/queries/new'),
-        ('histories',       '历史告警',     '/alarms/histories')])
+        ('alarms',          '当前告警',     url_for('alarms.index')),
+        ('alarm-queries',   '检索条件',     url_for('alarms.queries')),
+        ('alarm-query-new', '创建检索',     url_for('alarms.query_new')),
+        ('histories',       '历史告警',     url_for('alarms.histories'))])
 }}
 
 {{ render_sidebar('告警统计', submenuid, [
-        ('alarm-stats-active',  '实时统计', '/alarms/stats/active'),
-        ('alarm-stats-history', '历史统计', '/alarms/stats/history')])
+        ('alarm-stats-active',  '实时统计', url_for('alarms.statistics_active')),
+        ('alarm-stats-history', '历史统计', url_for('alarms.statistics_history'))])
 }}
 
 {{ render_sidebar('告警设置', submenuid, [
-        ('alarm-setting',   '基本设置',     '/alarms/settings'),
-        ('alarm-filter',    '告警过滤',     '/alarms/queries'),
-        ('alarm-knowledges', '告警知识库',   '/alarms/knowledges')])
+        ('alarm-setting',   '基本设置',     url_for('alarms.settings')),
+        ('alarm-class',     '告警分类',     url_for('alarms.classes')),
+        ('knowledges',      '告警知识库',   url_for('alarms.knowledges'))])
 }}
