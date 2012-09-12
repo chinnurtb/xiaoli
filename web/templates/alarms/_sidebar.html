@@ -14,6 +14,7 @@
 
 {{ render_sidebar('告警设置', submenuid, [
         ('alarm-setting',   '基本设置',     '/alarms/settings'),
+        ('alarm-class',     '告警分类',     url_for('alarms.classes')),
         ('alarm-filter',    '告警过滤',     '/alarms/queries'),
         ('alarm-knowledges', '告警知识库',   '/alarms/knowledges')])
 }}

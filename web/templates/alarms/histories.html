@@ -36,7 +36,7 @@
         </div>
 
         <div class="span10">
-            <form id="history-query-form" class="form-inline" action="/histories" method="GET">
+            <form id="history-query-form" class="form-inline" action="{{ url_for('alarms.histories') }}" method="GET">
             <div class="tablenav top">
                 <div class="alignleft filters">
                         <select name="last-days" class="input-medium">
@@ -46,6 +46,7 @@
                             <option value="4">最近一月</option>
                             <option value="4">全部时间</option>
                         </select>
+                        <input type="text" name="nodelike" placeholder="Node Alias or Addr">
                         <input type="submit" name="" id="history-query-submit" class="btn btn-small" value="过滤">
                 </div>
             </div>

@@ -142,6 +142,26 @@ def histories():
     table = HistoryTable(History.query).configure(profile)
     return render_template("/alarms/histories.html", table=table)
 
+#TODO:
+@alarmview.route('/alarms/classes')
+@login_required
+def classes():
+    table = AlarmClassTable(AlarmClass.query)
+    return render_template("/alarms/classes/index.html", table=table)
+
+@alarmview.route('/alarms/classes/edit/<int:id>')
+def class_edit(id):
+    form = AlarmClassForm()
+    alarm_class = AlarmClass.query.get_or_404(id)
+    if request.method == 'POST' and form.validate_on_submit():
+        form.populate_obj(alarm_class)
+        db.session.add(alarm_class)
+        db.session.commit() 
+        flash(u'告警类型修改成功')
+        return redirect(url_for('alarms.classes'))
+    form.process(obj=alarm_class)
+    return render_template("/alarms/classes/edit.html", form = form, alarm_class = alarm_class)
+
 @alarmview.app_template_filter("alarm_severity")
 def alarm_severity_filter(s):
    return Markup('<span class="label severity-%s">%s</span>' % (s, constants.SEVERITIES[int(s)]))
@@ -149,6 +169,7 @@ def alarm_severity_filter(s):
 @alarmview.app_template_filter("alarm_state")
 def alarm_state_filter(s):
     return constants.STATES[int(s)] 
+
 
 menus.append(Menu('alarms', u'故障', '/alarms'))
 

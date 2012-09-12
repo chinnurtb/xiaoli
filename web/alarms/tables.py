@@ -7,7 +7,7 @@ from tango.ui import tables
 
 from tango.models import Query
 
-from .models import Alarm,History
+from .models import Alarm,History,AlarmClass
 
 import constants
 
@@ -54,10 +54,10 @@ class AlarmTable(tables.Table):
         order_by = '-last_occurrence'
 
 class QueryTable(tables.Table):
-    edit       = tables.Action(name=u'Edit', endpoint='alarms.query_edit')
+    #edit       = tables.Action(name=u'Edit', endpoint='alarms.query_edit')
 
     check       = tables.CheckBoxColumn()
-    name        = tables.Column(verbose_name=u'名称', orderable=True)
+    name        = tables.LinkColumn(verbose_name=u'名称', endpoint='alarms.query_edit', orderable=True)
     is_public   = tables.Column(verbose_name=u'是否公开', orderable=True)
     created_at  = tables.Column(verbose_name=u'创建时间', orderable=True)
     updated_at  = tables.Column(verbose_name=u'最后更新时间')
@@ -81,3 +81,19 @@ class HistoryTable(tables.Table):
         model = History
         per_page = 30
         order_by = '-created_at'
+
+class AlarmClassTable(tables.Table):
+    name        = tables.Column(verbose_name=u'分类', orderable=True)
+    alias       = tables.LinkColumn(verbose_name=u'名称', endpoint='alarms.class_edit', orderable=True)
+    severity    = SeverityColumn()
+    x733_type   = tables.Column(verbose_name=u'X733类型')
+    probablecause   = tables.Column(verbose_name=u'可能原因')
+    specific_problem = tables.Column(verbose_name=u'特定原因')
+    additionalinfo   = tables.Column(verbose_name=u'附加信息')
+    remark           = tables.Column(verbose_name=u'备注')
+
+    class Meta:
+        model = AlarmClass
+        per_page = 50
+        order_by = 'id'
+
