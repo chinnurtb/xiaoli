@@ -231,6 +231,7 @@ def role_edit(id):
     role = Role.query.get_or_404(id)
     
     if request.method == 'POST' and form.validate_on_submit():
+        perms = get_permissions(request.form)
         while len(role.permissions) > 0:
             role.permissions.pop(0)
         for p in perms:

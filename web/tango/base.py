@@ -13,8 +13,11 @@ class Page(Blueprint):
 
 class NestedDict(dict):
 
-    def __init__(self, request):
-        pass
+    def __init__(self, request, method='POST'):
+        kv_lists = request.values.lists()
+        for k, v in kv_lists:
+            k_chains = k.split(',')
+            print k_chains
 
     def __getitem__(self, key):
         value = None

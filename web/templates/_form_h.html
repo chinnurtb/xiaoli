@@ -8,6 +8,17 @@
 {% endif %}
 {% endmacro %}
 
+
+{% macro render_csrf_error(form) %}
+{% if form.errors.get('csrf_token', None) %}
+<div class="alert alert-error">
+  <button class="close" data-dismiss="alert">×</button>
+  {{ form.errors['csrf_token'][0] }}
+</div> 
+{% endif %}
+{% endmacro %}
+
+
 {% macro render_field(field) %}
 <div class="control-group {% if field.errors %}error{% endif %}">
   <label class="control-label">
