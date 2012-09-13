@@ -74,13 +74,16 @@ class TableOptions(object):
 
     def __init__(self, options=None):
         super(TableOptions, self).__init__()
-        self.order_by = getattr(options, 'order_by', None)
-        self.model = getattr(options, 'model', None)
-        if self.order_by and self.model is None:
-            raise ValueError("if you give *order_by* you should give *model* too!")
-        self.per_page_key = getattr(options, 'per_page_key', None)
-        self.hidden_columns_key = getattr(options, 'hidden_columns_key', None)
-        self.url_makers = getattr(options, 'url_makers', None)
+        if options:
+            self.order_by = getattr(options, 'order_by', None)
+            self.model = getattr(options, 'model', None)
+            if self.model is None:
+                raise ValueError("*model* is required!")
+
+            self.profile_grp = '.'.join(['table', self.model.__tablename__])
+            self.profile_hiddens_key = '.'.join([self.profile_grp, 'hiddens'])
+            self.profile_perpage_key = '.'.join([self.profile_grp, 'perpage'])
+            self.url_makers = getattr(options, 'url_makers', None)
         # print '(TableOptions)self.per_page::', self.per_page
 
 
@@ -113,17 +116,28 @@ class Table(object):
         # print 'self._sequence', self._sequence
 
     def configure(self, profile, page=1, order_by=None):
-        self.hidden_columns = profile.get(self._meta.hidden_columns_key, '').split(',')
+        self.hidden_columns = profile.get(self.profile_hiddens_key, '').split(',')
         for name in self.hidden_columns:
             if name: self.columns[name].hidden = True
 
-        self.per_page = int(profile.get(self._meta.per_page_key, '20'))
+        self.per_page = int(profile.get(self.profile_perpage_key, '20'))
         self.page = page
+        if order_by is None:
+            order_by = self._meta.order_by
         if order_by:
             self.data.ordering(order_by)
         self.data.paginate(self.page, self.per_page)
         return self
-    
+
+
+    @property
+    def profile_hiddens_key(self):
+        return self._meta.profile_hiddens_key
+
+    @property
+    def profile_perpage_key(self):
+        return self._meta.profile_perpage_key
+        
     @property
     def sequence(self):
         return self._sequence
@@ -142,7 +156,7 @@ class Table(object):
     @property
     def page_url(self):
         req_args = request.args.to_dict()
-        uri = request.url_root + request.path[1:]
+        # uri = request.url_root + request.path[1:]
         def func(page, order_by=None):
             req_args['page'] = page
             old_order_by = req_args.get('order_by', None)
@@ -150,9 +164,9 @@ class Table(object):
                 if old_order_by == order_by:
                     order_by = '-' + order_by
                 req_args['order_by'] = order_by
-            # print 'req_args["order_by"]::', req_args['order_by']
-            return uri + '?' + '&'.join(['%s=%s'%(k, v)
-                                         for k, v in req_args.items()])
+            return url_for(request.endpoint, **req_args)
+            # return uri + '?' + '&'.join(['%s=%s'%(k, v)
+            #                              for k, v in req_args.items()])
         return func
 
     def as_html():

@@ -26,27 +26,36 @@ columns = {
 	},
 
 	saveManageColumnsState : function() {
-		var hidden = this.hidden();
-		$.post(ajaxurl, {
-			action: 'hidden-columns',
-			hidden: hidden,
-			screenoptionnonce: $('#screenoptionnonce').val(),
-			page: pagenow
-		});
+	    var hidden = this.hidden();
+            var _xsrf = this.getCookie('_xsrf');
+	    $.post(userSettings.ajaxurl, {
+                _xsrf: _xsrf,
+                grp :  userSettings.grp,
+                key :  userSettings.key,
+		value: hidden,
+	    });
 	},
+  // Copy from tornado/demos/chat
+  getCookie : function (name) {
+    var r = document.cookie.match("\\b" + name + "=([^;]*)\\b");
+    return r ? r[1] : undefined;
+  },
+
 
 	checked : function(column) {
-		$('.column-' + column).show();
-		this.colSpanChange(+1);
+	  $('.' + column + '-column').show();  // change from --> '.column-' + column
+	  this.colSpanChange(+1);
 	},
 
 	unchecked : function(column) {
-		$('.column-' + column).hide();
-		this.colSpanChange(-1);
+	  $('.' + column + '-column').hide();  // change from --> '.column-' + column
+	  this.colSpanChange(-1);
 	},
 
 	hidden : function() {
-		return $('.manage-column').filter(':hidden').map(function() { return this.id; }).get().join(',');
+          return $('#adv-settings .hide-column-tog').filter('input:checkbox:not(:checked)')
+            .map(function(){return $(this).val();}).get().join(',');
+	  //OLD:: return $('.manage-column').filter(':hidden').map(function() { return this.id; }).get().join(',');
 	},
 
 	useCheckboxesForHidden : function() {

@@ -29,8 +29,7 @@ class UserTable(tables.Table):
 
     class Meta():
         model = User
-        per_page = 3
-        order_by = '-username'
+        order_by = 'username'
 
 
 class RoleTable(tables.Table):
@@ -44,15 +43,18 @@ class RoleTable(tables.Table):
 
     class Meta():
         model = Role
+        order_by = 'id'
 
 
 class DomainTable(tables.Table):
-    check      = tables.CheckBoxColumn()
-    edit_btn   = tables.EditBtnColumn(endpoint='users.domain_edit')
-    delete_btn = tables.DeleteBtnColumn(endpoint='users.domain_delete')
+    edit   = tables.Action(name=u'编辑', endpoint='users.domain_edit')
+    delete = tables.Action(name=u'删除', endpoint='users.domain_delete')
 
+    check  = tables.CheckBoxColumn()
+    
     name        = tables.Column(verbose_name=u'名称')
     description = tables.Column(verbose_name=u'描述')
 
     class Meta():
         model = Domain
+        order_by = 'id'

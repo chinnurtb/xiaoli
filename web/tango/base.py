@@ -14,8 +14,8 @@ class Page(Blueprint):
     pass
 
 
-
 class AutoIncrSortedDict(SortedDict):
+    '''See the name, then you know it.'''
     def __getitem__(self, key):
         value = None
         if key not in self.keys():

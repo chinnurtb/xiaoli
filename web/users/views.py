@@ -64,11 +64,24 @@ def logout():
 # ==============================================================================
 @userview.route('/settings')
 def settings():
-    return redirect(url_for('users.profile'))
+    return redirect(url_for('users.user_info'))
 
-    
 @userview.route('/settings/profile', methods=['POST', 'GET'])
 def profile():
+    args = request.values
+    grp = args.get('grp')
+    key = args.get('key')
+    value = args.get('value')
+    profile = Profile(current_user.id, grp, key, value)
+    profile.update()
+    db.session.commit()
+    if request.method == 'GET':
+        return redirect(request.referrer)
+    else:
+        return 'Updated!'
+    
+@userview.route('/settings/info', methods=['POST', 'GET'])
+def user_info():
     '''用户修改自己的个人信息'''
     
     form = ProfileForm()
@@ -77,12 +90,12 @@ def profile():
         form.populate_obj(user)
         db.session.commit()
         flash(u'个人信息修改成功', 'success')
-        return redirect(url_for('users.profile'))
+        return redirect(url_for('users.user_info'))
     
     form.process(obj=user)
     form.role_name.data = user.role.name
     form.domain_name.data = user.domain.name
-    return render_template('settings/profile.html', form=form)
+    return render_template('settings/user_info.html', form=form)
 
     
 @userview.route('/settings/password', methods=['POST', 'GET'])
@@ -107,16 +120,20 @@ def change_password():
 #  User
 # ==============================================================================     
 @userview.route('/users/')
-def users():
-    profile = Profile.load(current_user.id, "table-users")
+@userview.route('/users/<int:page>')
+def users(page=1):
+        
+    profile = Profile.load(current_user.id, UserTable._meta.profile_grp)
+    order_by = request.args.get('order_by', None)
     keyword = request.args.get('keyword', '')
+
     query = User.query
     if keyword:
         query = query.filter(db.or_(User.name.ilike('%' + keyword + '%'),
                                     User.email.ilike('%' + keyword + '%'),
                                     User.role.has(Role.name.ilike('%' + keyword + '%'))))
     
-    table = UserTable(query).configure(profile, page=1)
+    table = UserTable(query).configure(profile, page=page, order_by=order_by)
     return render_template('users/index.html', table=table, keyword=keyword)
 
     
@@ -181,9 +198,12 @@ def reset_password(id):
 #  Role
 # ============================================================================== 
 @userview.route('/roles/')
-def roles():
-    profile = {}
-    table = RoleTable(Role.query).configure(profile, page=1)
+@userview.route('/roles/<int:page>')
+def roles(page=1):
+    order_by = request.args.get('order_by', None)
+    
+    profile = Profile.load(current_user.id, RoleTable._meta.profile_grp)
+    table = RoleTable(Role.query).configure(profile, page=page, order_by=order_by)
     return render_template('users/roles.html', table=table)
     
     
@@ -255,7 +275,18 @@ def role_delete(id):
     
 # ==============================================================================
 #  Domain
-# ============================================================================== 
+# ==============================================================================
+    
+@userview.route('/domains/')
+@userview.route('/domains/<int:page>')
+def domains(page=1):
+    order_by = request.args.get('order_by', None)
+    
+    profile = Profile.load(current_user.id, DomainTable._meta.profile_grp)
+    table = DomainTable(Domain.query).configure(profile, page=page, order_by=order_by)
+    return render_template('users/domains.html', table=table)
+
+    
 @userview.route('/domains/load/nodes')
 def domain_load_nodes():
     key = request.args.get('key', '')
@@ -304,13 +335,6 @@ def domain_load_nodes():
             if key else [make_nodes(root.id)]
     
     return json.dumps(nodes)    
-
-    
-@userview.route('/domains/')
-def domains():
-    profile = {}
-    table = DomainTable(Domain.query).configure(profile, page=1)
-    return render_template('users/domains.html', table=table)
 
 
 @userview.route('/domains/new', methods=['POST', 'GET'])
@@ -364,4 +388,4 @@ def domain_delete(id):
 # ==============================================================================
 #  [OTHER]
 # ==============================================================================
-menus.append(Menu('users', u'用户', '/users'))
+menus.append(Menu('users', u'用户', '/users/'))

@@ -279,6 +279,8 @@ class BoundColumn(object):
         th_class = set((c for c in th.get("class", "").split(" ") if c))
         td_class = set((c for c in td.get("class", "").split(" ") if c))
         # add classes for ordering
+        if not self.is_checkbox:
+            th['id'] = self.name
         if getattr(self, 'hidden', None):
             th["style"] = "display: none;"
             td["style"] = "display: none;"

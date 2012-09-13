@@ -6,8 +6,12 @@
 
 {% block title %} 用户管理 {% endblock %}
 
-{% block head %} 
-<script type="text/javascript" src="/static/js/table.js"></script>
+{% block head %}
+
+{% from "_table_h.html" import render_profile_settings %}
+<script type="text/javascript">
+ {{ render_profile_settings(table) }} 
+</script>
 {% endblock %}
 
 {% from "_table_h.html" import render_table, render_screen_meta %}
