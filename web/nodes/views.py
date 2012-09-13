@@ -4,6 +4,9 @@
 from flask import Blueprint, request, session, url_for, \
     redirect, render_template, g, flash
 
+from sqlalchemy import func
+from sqlalchemy.orm import aliased
+
 from tango import db
 from tango.ui import menus, Menu
 from tango.ui import add_widget, Widget
@@ -12,7 +15,7 @@ from tango.models import Profile
 
 from .models import Node, Board, Port, Area, Vendor
 from .forms import NodeNewForm, NodeSearchForm
-from .tables import NodeTable,PortTable,BoardTable,AreaTable,VendorTable
+from .tables import NodeTable,PortTable,BoardTable,AreaTable,VendorTable,CategoryTable
 
 nodeview = Blueprint('nodes', __name__)
 
@@ -101,7 +104,7 @@ def areas():
         base = Area.query.get(base)
     else:
         base = Area.query.filter(Area.area_type == 0).first()
-
+    query = db.session.query(Area)
     query = Area.query.filter(Area.parent_id == base.id)
     table = AreaTable(query).configure(profile)
     return render_template('ports/index.html', table = table)
@@ -112,7 +115,35 @@ def vendors():
     profile = Profile.load(current_user.id, 'table-ports')
     query = Vendor.query
     table = VendorTable(query).configure(profile)
-    return render_template('vendors/index.html', table = table)
+    return render_template('nodes/vendor_statistics.html', table = table)
+
+@nodeview.route("/categories/")
+@login_required
+def categories():
+    profile = Profile.load(current_user.id, 'table-ports')
+    query_total = db.session.query(
+        Node.category,func.count(Node.category).label("total_count")
+    ).group_by(Node.category).subquery()
+
+    query_status0 = db.session.query(
+        Node.category,func.count(Node.category).label("status0_count")
+    ).filter(Node.status==0).group_by(Node.category).subquery()
+
+    query_status1 = db.session.query(
+        Node.category,func.count(Node.category).label("status1_count")
+    ).filter(Node.status==1).group_by(Node.category).subquery()
+
+    query = db.session.query(
+        query_total.c.category.label("category_name"),
+        func.coalesce(query_total.c.total_count,0).label("total_count"),
+        func.coalesce(query_status0.c.status0_count,0).label("status0_count"),
+        func.coalesce(query_status1.c.status1_count,0).label("status1_count")
+    ).outerjoin(
+        query_status0,query_total.c.category==query_status0.c.category
+    ).outerjoin(query_status1,query_total.c.category==query_status1.c.category)
+
+    table = CategoryTable(query).configure(profile)
+    return render_template('nodes/category_statistics.html', table = table)
 
 menus.append(Menu('nodes', u'资源', '/nodes'))
 
