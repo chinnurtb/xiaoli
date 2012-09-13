@@ -350,3 +350,31 @@ form fieldset legend {
     margin: 0;
     border: none;
 }
+
+tr {
+    display: table-row;
+    position: relative;
+}
+
+div .row-actions {
+    display: none;
+    position: absolute;
+    margin-left: -100%;
+    /* right : 100%; */
+    /* visibility: hidden; */
+    /* position: absolute; */
+    /* margin: 0; */
+    margin-top: -6px;
+    margin-left: -67px;
+    /* left: 140px; */
+}
+
+.row-actions .btn-small {
+    padding:3px 3px;
+}
+
+tr:hover .row-actions {
+    display: table-cell;
+    /* visibility: visible */
+}
+

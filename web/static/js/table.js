@@ -17,9 +17,12 @@ $(document).ready(function(){
       $('#hidden-columns').val(str_hidden_columns);
       $.ajax({
         type: 'POST',
-        url: '/settings',
+        url: '/settings/profile',
         data: {'_xsrf' : getCookie('_xsrf'),
-               'hidden_columns': str_hidden_columns},
+               'hidden_columns': str_hidden_columns,
+               'grp': userSettings.grp,
+               'key': userSettings.key,
+              },
       });
       return false;
     });

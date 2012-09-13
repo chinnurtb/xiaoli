@@ -6,7 +6,7 @@ from hashlib import md5
 
 from tango import db
 from tango.login import UserMixin
-from tango.ui.tables.utils import SortedDict
+from tango.base import AutoIncrSortedDict
 from nodes.models import Area, AREA_CITY, AREA_TOWN, AREA_BRANCH, AREA_ENTRANCE
 
 from datetime import datetime
@@ -184,7 +184,7 @@ class Permission(db.Model):
     @staticmethod
     def make_tree(role_perms=None):
         all_perms = Permission.query.all()
-        perm_tree = SortedDict()
+        perm_tree = AutoIncrSortedDict()
         for p in all_perms:
             module_checked = ''
             name_checked = ''
@@ -201,11 +201,6 @@ class Permission(db.Model):
             name_key = (p.name, name_checked)
             operation_key = (p.operation, operation_checked)
             
-            if not perm_tree.get(module_key, None):
-                perm_tree[module_key] = SortedDict()
-                perm_tree[module_key][name_key] = SortedDict()
-            if not perm_tree[module_key].get(name_key, None):
-                perm_tree[module_key][name_key] = SortedDict()
             perm_tree[module_key][name_key][operation_key] = p.id
             
         return perm_tree

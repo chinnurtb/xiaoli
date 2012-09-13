@@ -8,30 +8,24 @@
    :copyright: (c) 2012 by Ery Lee(ery.lee@gmail.com)
 """
 
-from repoze.what.plugins.ip import ip_from
 
 from flask import Flask, session, url_for, redirect, \
     render_template, g, request, abort
 
 from tango.ui import menus
-
+from tango.ip import ip_from
 from tango import db, login_mgr
-
 from tango.login import login_required, current_user
 
 from users.models import User
 
 app = Flask(__name__)
-
 app.config.from_pyfile('settings.py')
-
 db.init_app(app)
 db.app = app
 
 login_mgr.login_view = "/login"
-
 login_mgr.login_message = u"请先登录系统."
-
 login_mgr.refresh_view = "/reauth"
 
 @login_mgr.user_loader
@@ -90,19 +84,31 @@ def before_request():
     check_ip()
     SAFE_ENDPOINTS = (None, 'static', 'users.login', 'users.logout')
     SUPER_USERS = ('root', 'admin')
-    # print '(user, endpoint)', (current_user, request.endpoint)
-    
-    if current_user.is_anonymous and request.endpoint in SAFE_ENDPOINTS:
-        return
-    
+    # print 'request.endpoint::', request.endpoint
+    # print 'current_user::', current_user
+    # print 'current_user.is_anonymous::', current_user.is_anonymous()
+
+    if current_user.is_anonymous():
+        if request.endpoint in SAFE_ENDPOINTS:
+            return
+        else:
+            return redirect('/login')
+
+    # Not Anonymous User
     if current_user:
         g.menus = menus
-        if current_user.username in SUPER_USERS:
+        if current_user.username in SUPER_USERS \
+           or request.endpoint in SAFE_ENDPOINTS:
             return
         check_permissions()
     else:
         abort(403)
+        
 
+@app.errorhandler(403)
+def permission_denied(e):
+    return render_template('403.html'), 403
+        
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template('404.html'), 404

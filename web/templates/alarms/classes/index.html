@@ -1,0 +1,36 @@
+{% extends 'layout.html' %}
+
+{% set menuid = 'alarms' %}
+
+{% block title %}告警类型{% endblock %}
+
+{% block head %} 
+    <link rel="stylesheet" href="/static/css/alarm.css" type="text/css" media="all">
+{% endblock %}
+
+{% from "_table_h.html" import render_table %}
+
+{% block content %}
+    
+    <div class="row-fluid content">
+        <div class="span2">
+            {% set submenuid = 'classes' %}
+            {% include 'alarms/_sidebar.html' %}
+        </div>
+
+        <div class="span10">
+            <form id="alarmclass-query-form" class="form-inline" action="{{ url_for('alarms.classes') }}" method="GET">
+            <div class="tablenav top">
+                <div class="alignleft filters">
+                        <input type="text" name="keyword" placeholder="名称" {% if keyword %} value="{{ keyword }}" {% endif %}>
+                        <input type="submit" name="" id="alarmclass-query-submit" class="btn btn-small" value="检索">
+                </div>
+            </div>
+            {{ render_table(table) }}
+            <br class="clear">
+            </form>
+        </div>
+    </div>
+
+{% endblock %}
+

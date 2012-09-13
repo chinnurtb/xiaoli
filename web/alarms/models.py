@@ -149,6 +149,8 @@ class AlarmKnowledge(db.Model):
     created_at      = db.Column(db.DateTime)
     updated_at      = db.Column(db.DateTime)
 
+    alarm_class     = db.relation('AlarmClass')
+
 
 class History(db.Model):
 

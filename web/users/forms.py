@@ -54,6 +54,7 @@ class UserEditForm(Form):
     memo             = TextAreaField(u'备注')
 
 class ResetPasswordForm(Form):
+    username = TextField(u'用户名')
     newpasswd = PasswordField(u'新密码', [
         v.Required(message=u'必填'),
         v.Length(min=6, max=20),
@@ -83,9 +84,6 @@ class LoginForm(Form):
     username = TextField(u'用户名')
     password = PasswordField(u'密码')
     remember = BooleanField(u'记住我')
-
-class AccountForm(Form):
-    pass
 
 
 class ProfileForm(Form):

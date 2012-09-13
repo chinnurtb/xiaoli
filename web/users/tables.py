@@ -7,11 +7,13 @@ from .models import User, Role, Domain
 
 #### Tables
 class UserTable(tables.Table):
-    check      = tables.CheckBoxColumn()
-    edit_btn   = tables.EditBtnColumn(endpoint='users.user_edit')
-    delete_btn = tables.DeleteBtnColumn(endpoint='users.user_delete')
 
-    resetpwd       = tables.LinkColumn(verbose_name=u'重置密码', accessor='id', endpoint='users.reset_password')
+    edit   = tables.Action(name=u'编辑', endpoint='users.user_edit')
+    delete = tables.Action(name=u'删除', endpoint='users.user_delete')
+    reset  = tables.Action(name=u'重置密码', endpoint='users.reset_password')
+    
+    check      = tables.CheckBoxColumn()
+    
     username       = tables.Column(verbose_name=u'用户名', orderable=True)
     name           = tables.Column(verbose_name=u'真实姓名')
     role_name      = tables.Column(verbose_name=u'角色名称', accessor='role.name')
@@ -27,29 +29,32 @@ class UserTable(tables.Table):
 
     class Meta():
         model = User
-        per_page = 3
-        order_by = '-username'
+        order_by = 'username'
 
 
 class RoleTable(tables.Table):
-    check      = tables.CheckBoxColumn()
-    edit_btn   = tables.EditBtnColumn(endpoint='users.role_edit')
-    delete_btn = tables.DeleteBtnColumn(endpoint='users.role_delete')
+    edit   = tables.Action(name=u'编辑', endpoint='users.role_edit')
+    delete = tables.Action(name=u'删除', endpoint='users.role_delete')
+    
+    check  = tables.CheckBoxColumn()
     
     name        = tables.Column(verbose_name=u'角色名称')
     description = tables.Column(verbose_name=u'描述')
 
     class Meta():
         model = Role
+        order_by = 'id'
 
 
 class DomainTable(tables.Table):
-    check      = tables.CheckBoxColumn()
-    edit_btn   = tables.EditBtnColumn(endpoint='users.domain_edit')
-    delete_btn = tables.DeleteBtnColumn(endpoint='users.domain_delete')
+    edit   = tables.Action(name=u'编辑', endpoint='users.domain_edit')
+    delete = tables.Action(name=u'删除', endpoint='users.domain_delete')
 
+    check  = tables.CheckBoxColumn()
+    
     name        = tables.Column(verbose_name=u'名称')
     description = tables.Column(verbose_name=u'描述')
 
     class Meta():
         model = Domain
+        order_by = 'id'

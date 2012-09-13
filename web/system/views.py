@@ -14,5 +14,13 @@ sysview = Blueprint('system', __name__)
 def index():
     return render_template("system/index.html")
 
+@sysview.route('/seclogs/')
+def seclogs():
+    return render_template('/system/seclogs.html')
+
+@sysview.route('/oplogs/')
+def oplogs():
+    return render_template('/system/oplogs.html')
+
 menus.append(Menu('system', u'系统', '/system'))
 
