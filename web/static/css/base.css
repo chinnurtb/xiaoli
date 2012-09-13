@@ -351,13 +351,18 @@ form fieldset legend {
     border: none;
 }
 
+tr {
+    display: table-row;
+    position: relative;
+}
 
-div.row-actions {
-    /*position: absolute;
-    right: 20px;
-    display: none;*/
-    visibility: hidden; 
+div .row-actions {
+    display: none;
     position: absolute;
+    margin-left: -100%;
+    /* right : 100%; */
+    /* visibility: hidden; */
+    /* position: absolute; */
     /* margin: 0; */
     margin-top: -6px;
     margin-left: -67px;
@@ -369,6 +374,7 @@ div.row-actions {
 }
 
 tr:hover .row-actions {
-    visibility: visible
+    display: table-cell;
+    /* visibility: visible */
 }
 

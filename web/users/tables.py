@@ -34,9 +34,10 @@ class UserTable(tables.Table):
 
 
 class RoleTable(tables.Table):
-    check      = tables.CheckBoxColumn()
-    edit_btn   = tables.EditBtnColumn(endpoint='users.role_edit')
-    delete_btn = tables.DeleteBtnColumn(endpoint='users.role_delete')
+    edit   = tables.Action(name=u'编辑', endpoint='users.role_edit')
+    delete = tables.Action(name=u'删除', endpoint='users.role_delete')
+    
+    check  = tables.CheckBoxColumn()
     
     name        = tables.Column(verbose_name=u'角色名称')
     description = tables.Column(verbose_name=u'描述')
