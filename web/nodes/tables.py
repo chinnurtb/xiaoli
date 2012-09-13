@@ -44,6 +44,10 @@ class AreaTable(tables.Table):
     node_count     = tables.Column(verbose_name=u'节点数量')
     onu_num     = tables.Column(verbose_name=u'ONU数量')
 
+    class Meta():
+        model = Node
+        
+
 class CategoryTable(tables.Table):
     category_name   = tables.EnumColumn(verbose_name=u'类型',name='category',
         enums={1:u'OLT',2:u'ONU',3:u'DSLAM',4:u'EOC',5:u'Switch'}, orderable=True)
@@ -72,6 +76,9 @@ class CategoryTable(tables.Table):
         '''.format(text=text,bar=bar,font_color=font_color)
         return Markup(html)
 
+    class Meta():
+        model = Node
+
 
 class VendorTable(tables.Table):
     alias       = tables.Column(verbose_name=u'名称', orderable=True)
@@ -99,3 +106,6 @@ class VendorTable(tables.Table):
         </div>
         '''.format(text=text,bar=bar,font_color=font_color)
         return Markup(html)
+
+    class Meta():
+        model = Node

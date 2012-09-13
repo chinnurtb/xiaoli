@@ -31,7 +31,7 @@ def nodes():
     if query_dict.get("vendor_id"): query=query.filter(Node.vendor_id == query_dict["vendor_id"])
     if query_dict.get("model_id"): query=query.filter(Node.model_id == query_dict["model_id"])
     form.process(**query_dict)
-    profile = Profile.load(current_user.id, 'table-nodes')
+    profile = Profile.load(current_user.id, NodeTable._meta.profile_grp)
     table = NodeTable(query).configure(profile)
     return render_template('nodes/index.html', table = table, form=form)
 
@@ -84,21 +84,21 @@ def node_delete():
 @nodeview.route("/boards/")
 @login_required
 def boards():
-    profile = Profile.load(current_user.id, 'table-boards')
+    profile = Profile.load(current_user.id, BoardTable._meta.profile_grp)
     table = BoardTable(Board.query).configure(profile)
     return render_template('boards/index.html', table = table)
 
 @nodeview.route("/ports/")
 @login_required
 def ports():
-    profile = Profile.load(current_user.id, 'table-ports')
+    profile = Profile.load(current_user.id, PortTable._meta.profile_grp)
     table = PortTable(Port.query).configure(profile)
     return render_template('ports/index.html', table = table)
 
 @nodeview.route("/areas/")
 @login_required
 def areas():
-    profile = Profile.load(current_user.id, 'table-ports')
+    profile = Profile.load(current_user.id, AreaTable._meta.profile_grp)
     base = request.args.get("base")
     if base:
         base = Area.query.get(base)
@@ -112,7 +112,7 @@ def areas():
 @nodeview.route("/vendors/")
 @login_required
 def vendors():
-    profile = Profile.load(current_user.id, 'table-ports')
+    profile = Profile.load(current_user.id, VendorTable._meta.profile_grp)
     query = Vendor.query
     table = VendorTable(query).configure(profile)
     return render_template('nodes/vendor_statistics.html', table = table)
@@ -120,7 +120,7 @@ def vendors():
 @nodeview.route("/categories/")
 @login_required
 def categories():
-    profile = Profile.load(current_user.id, 'table-ports')
+    profile = Profile.load(current_user.id, CategoryTable._meta.profile_grp)
     query_total = db.session.query(
         Node.category,func.count(Node.category).label("total_count")
     ).group_by(Node.category).subquery()
