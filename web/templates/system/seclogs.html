@@ -2,13 +2,12 @@
 
 {% set menuid = 'system' %}
 
-{% block title %} Xitong管理 {% endblock %}
-
 {% block head %} {% endblock %}
 
 {% block content %} 
     <div class="row-fluid" style="margin-top:30px;">
         <div class="span2">
+            {% set submenuid = 'seclogs' %}
             {% include 'system/_sidebar.html' %}
         </div>
         <div class="span10"></div>

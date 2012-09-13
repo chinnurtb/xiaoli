@@ -1,0 +1,23 @@
+{% extends 'layout.html' %}
+
+{% set menuid = 'alarms' %}
+
+{% block title %}告警Active Statistics{% endblock %}
+
+{% block head %} {% endblock %}
+
+{% block content %}
+    
+    <div class="row-fluid content">
+        <div class="span2">
+            {% set submenuid = 'alarm-stats-active' %}
+            {% include 'alarms/_sidebar.html' %}
+        </div>
+
+        <div class="span10">
+            <h1>告警Active Statistics</h1>
+            <br class="clear">
+        </div>
+    </div>
+
+{% endblock %}
