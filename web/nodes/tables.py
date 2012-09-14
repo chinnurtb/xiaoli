@@ -41,12 +41,26 @@ class PortTable(tables.Table):
 
 class AreaTable(tables.Table):
     name        = tables.Column(verbose_name=u'名称', orderable=True)
-    node_count     = tables.Column(verbose_name=u'节点数量')
-    onu_num     = tables.Column(verbose_name=u'ONU数量')
+    total_count     = tables.Column(verbose_name=u'节点数')
+    olt_count     = tables.Column(verbose_name=u'OLT数')
+    onu_count     = tables.Column(verbose_name=u'ONU数')
+    dslam_count     = tables.Column(verbose_name=u'DSLAM数')
+    eoc_count     = tables.Column(verbose_name=u'EOC数')
+    switch_count     = tables.Column(verbose_name=u'Switch数')
+
+    # 根据节点类型决定 name是否有链接，接入点没有链接
+    def render_name(self, value, record, bound_column):
+        if record.area_type == 4:
+            return value
+        else:
+            html = u'''<a href="?base={id}">{text}</a>'''.format(
+                id = record.id,
+                text = record.name
+            )
+            return Markup(html)
 
     class Meta():
         model = Node
-        
 
 class CategoryTable(tables.Table):
     category_name   = tables.EnumColumn(verbose_name=u'类型',name='category',

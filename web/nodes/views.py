@@ -9,7 +9,7 @@ from sqlalchemy.orm import aliased
 
 from tango import db
 from tango.ui import menus, Menu
-from tango.ui import add_widget, Widget
+from tango.ui import add_widget, Widget, tables
 from tango.login import current_user, login_required
 from tango.models import Profile
 
@@ -98,16 +98,45 @@ def ports():
 @nodeview.route("/areas/")
 @login_required
 def areas():
-    profile = Profile.load(current_user.id, AreaTable._meta.profile_grp)
     base = request.args.get("base")
     if base:
         base = Area.query.get(base)
     else:
         base = Area.query.filter(Area.area_type == 0).first()
-    query = db.session.query(Area)
-    query = Area.query.filter(Area.parent_id == base.id)
-    table = AreaTable(query).configure(profile)
-    return render_template('ports/index.html', table = table)
+    area_type_dict = {1:"cityid",2:"town",3:"branch",4:"entrance"}
+    area_type = area_type_dict.get(base.area_type + 1)  # 区域类型，下面的子查询语句的字段将会根据它动态构造
+    sub_query_list = []
+    for index,category in enumerate(['total','olt','onu','dslam','eoc','switch']):
+        sub_query = db.session.query(
+            getattr(Area,area_type),func.count(Node.id).label(category+"_count")
+        ).select_from(Node).outerjoin(
+            Area, Node.area_id==Area.id
+        )
+        if index == 0:
+            sub_query = sub_query.group_by(getattr(Area,area_type)).subquery()
+        else:
+            sub_query = sub_query.filter(Node.category==index).group_by(getattr(Area,area_type)).subquery()
+        sub_query_list.append(sub_query)
+    query = db.session.query(
+        Area.id,Area.name,Area.area_type,
+        func.coalesce(sub_query_list[0].c.total_count,0).label("total_count"),
+        func.coalesce(sub_query_list[1].c.olt_count,0).label("olt_count"),
+        func.coalesce(sub_query_list[2].c.onu_count,0).label("onu_count"),
+        func.coalesce(sub_query_list[3].c.dslam_count,0).label("dslam_count"),
+        func.coalesce(sub_query_list[4].c.eoc_count,0).label("eoc_count"),
+        func.coalesce(sub_query_list[5].c.switch_count,0).label("switch_count")
+    )
+    for sub_query in sub_query_list:
+        query = query.outerjoin(sub_query, getattr(sub_query.c,area_type)==Area.id)
+    query = query.filter(Area.parent_id==base.id)
+
+    table = AreaTable(query).configure({})
+    breadcrumb = [base]
+    while base.parent:
+        breadcrumb.append(base.parent)
+        base = base.parent
+
+    return render_template('nodes/area_statistics.html', table = table, breadcrumb = breadcrumb)
 
 @nodeview.route("/vendors/")
 @login_required
@@ -148,7 +177,7 @@ def categories():
 menus.append(Menu('nodes', u'资源', '/nodes'))
 
 #col2
-add_widget(Widget('dashboard3', 'Dashboard3', content='<div style="height:100px">Dashboard3</div>', column = 'side'))
-add_widget(Widget('dashboard4', 'Dashboard4', content='<div style="height:100px">Dashboard4</div>', column = 'side'))
-add_widget(Widget('dashboard5', 'Dashboard5', content='<div style="height:100px">Dashboard5</div>', column = 'side'))
+add_widget(Widget('category_statistic', u'分类统计', content='<div style="height:100px">Dashboard3</div>', column = 'side'))
+add_widget(Widget('vendor_statistic', u'厂商统计', content='<div style="height:100px">Dashboard4</div>', column = 'side'))
+add_widget(Widget('area_statistic', u'区域统计', content='<div style="height:100px">Dashboard5</div>', column = 'side'))
 
