@@ -98,25 +98,44 @@ def ports():
 @nodeview.route("/areas/")
 @login_required
 def areas():
-    base = request.args.get("base")
-    if base:
-        base = Area.query.get(base)
+    base = request.args.get("base")     # 所统计的区域
+    base = Area.query.get(base) if base else Area.query.filter(Area.area_type == 0).first()
+    query_gran = request.args.get("query_gran")     # 查询粒度，控制table中列的显示
+    query_gran = (base.area_type + 1) if not query_gran else int(query_gran)
+    if query_gran == 2:
+        profile = {"table.nodes.hiddens":"town_count"}
+    elif query_gran == 3:
+        profile = {"table.nodes.hiddens":"town_count,branch_count"}
+    elif query_gran == 4:
+        profile = {"table.nodes.hiddens":"town_count,branch_count,entrance_count"}
     else:
-        base = Area.query.filter(Area.area_type == 0).first()
+        profile = {}
+
+    # 构造各个统计的子查询
     area_type_dict = {1:"cityid",2:"town",3:"branch",4:"entrance"}
-    area_type = area_type_dict.get(base.area_type + 1)  # 区域类型，下面的子查询语句的字段将会根据它动态构造
+    group_type = area_type_dict.get(query_gran)    # 分组类型，下面的子查询语句的字段将会根据它动态构造
+
     sub_query_list = []
     for index,category in enumerate(['total','olt','onu','dslam','eoc','switch']):
         sub_query = db.session.query(
-            getattr(Area,area_type),func.count(Node.id).label(category+"_count")
+            getattr(Area,group_type),func.count(Node.id).label(category+"_count")
         ).select_from(Node).outerjoin(
             Area, Node.area_id==Area.id
         )
         if index == 0:
-            sub_query = sub_query.group_by(getattr(Area,area_type)).subquery()
+            sub_query = sub_query.group_by(getattr(Area,group_type)).subquery()
         else:
-            sub_query = sub_query.filter(Node.category==index).group_by(getattr(Area,area_type)).subquery()
+            sub_query = sub_query.filter(Node.category==index).group_by(getattr(Area,group_type)).subquery()
         sub_query_list.append(sub_query)
+
+    for index,gran in enumerate(['town','branch','entrance']):
+        sub_query = db.session.query(
+            getattr(Area,group_type), func.count(Area.id).label(gran+"_count")
+        ).filter(
+            Area.area_type==(index+2)
+        ).group_by(getattr(Area,group_type)).subquery()
+        sub_query_list.append(sub_query)
+    # 连接各个子查询
     query = db.session.query(
         Area.id,Area.name,Area.area_type,
         func.coalesce(sub_query_list[0].c.total_count,0).label("total_count"),
@@ -124,13 +143,18 @@ def areas():
         func.coalesce(sub_query_list[2].c.onu_count,0).label("onu_count"),
         func.coalesce(sub_query_list[3].c.dslam_count,0).label("dslam_count"),
         func.coalesce(sub_query_list[4].c.eoc_count,0).label("eoc_count"),
-        func.coalesce(sub_query_list[5].c.switch_count,0).label("switch_count")
+        func.coalesce(sub_query_list[5].c.switch_count,0).label("switch_count"),
+        func.coalesce(sub_query_list[6].c.town_count,0).label("town_count"),
+        func.coalesce(sub_query_list[7].c.branch_count,0).label("branch_count"),
+        func.coalesce(sub_query_list[8].c.entrance_count,0).label("entrance_count")
     )
-    for sub_query in sub_query_list:
-        query = query.outerjoin(sub_query, getattr(sub_query.c,area_type)==Area.id)
-    query = query.filter(Area.parent_id==base.id)
+    for index,sub_query in enumerate(sub_query_list):
+        query = query.outerjoin(sub_query, getattr(sub_query.c,group_type)==Area.id)
+    query = query.filter(Area.area_type==query_gran)
+    if query_gran != 1:
+        query = query.filter(getattr(Area,area_type_dict[base.area_type])==base.id)
 
-    table = AreaTable(query).configure({})
+    table = AreaTable(query).configure(profile)
     breadcrumb = [base]
     while base.parent:
         breadcrumb.append(base.parent)

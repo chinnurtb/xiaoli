@@ -41,6 +41,10 @@ class PortTable(tables.Table):
 
 class AreaTable(tables.Table):
     name        = tables.Column(verbose_name=u'名称', orderable=True)
+    #town_count     = tables.Column(verbose_name=u'区县')
+    town_count      = tables.LinkColumn(verbose_name=u'区县')
+    branch_count     = tables.LinkColumn(verbose_name=u'分局')
+    entrance_count     = tables.LinkColumn(verbose_name=u'接入点')
     total_count     = tables.Column(verbose_name=u'节点数')
     olt_count     = tables.Column(verbose_name=u'OLT数')
     onu_count     = tables.Column(verbose_name=u'ONU数')
@@ -61,6 +65,11 @@ class AreaTable(tables.Table):
 
     class Meta():
         model = Node
+        url_makers = {
+            'town_count': lambda record: url_for('nodes.areas', base=record.id, query_gran=2),
+            'branch_count':lambda record: url_for('nodes.areas', base=record.id, query_gran=3),
+            'entrance_count':lambda record: url_for('nodes.areas', base=record.id, query_gran=4),
+        }
 
 class CategoryTable(tables.Table):
     category_name   = tables.EnumColumn(verbose_name=u'类型',name='category',
