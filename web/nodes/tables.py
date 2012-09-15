@@ -57,7 +57,7 @@ class AreaTable(tables.Table):
         if record.area_type == 4:
             return value
         else:
-            html = u'''<a href="?base={id}">{text}</a>'''.format(
+            html = u'''<a href="/areas/?base={id}">{text}</a>'''.format(
                 id = record.id,
                 text = record.name
             )
@@ -77,7 +77,7 @@ class CategoryTable(tables.Table):
     total_count  = tables.Column(verbose_name=u'数量')
     status1_count = tables.Column(verbose_name=u'可用')
     status0_count = tables.Column(verbose_name=u'不可用')
-    node_status_percent = tables.Column(verbose_name=u'可用率',attrs=Attrs(th={"style": "width:190px;"}))
+    node_status_percent = tables.Column(verbose_name=u'可用率',attrs=Attrs(th={"style": "width:175px;"}))
 
     def render_node_status_percent(self, value, record, bound_column):
         percent = (record.status1_count*1.0 / record.total_count) if int(record.total_count) != 0 else 0
@@ -92,10 +92,10 @@ class CategoryTable(tables.Table):
             bar = 'bar-success'
             font_color = '#5EB95E'
         html = u'''
-        <div class="pull-left"><span style="color:{font_color};">{text}&nbsp;&nbsp;</span></div>
-        <div class="progress pull-right" style="width:130px;margin-bottom:5px;">
+        <div class="progress pull-left" style="height:9px;width:100px;margin:4px 5px 5px 0;">
             <div class="bar {bar}" style="width:{text}"></div>
         </div>
+        <div class="pull-left"><span style="color:{font_color};">{text}&nbsp;&nbsp;</span></div>
         '''.format(text=text,bar=bar,font_color=font_color)
         return Markup(html)
 
@@ -108,7 +108,7 @@ class VendorTable(tables.Table):
     node_count  = tables.Column(verbose_name=u'数量')
     node_status1_count  = tables.Column(verbose_name=u'可用')
     node_status0_count  = tables.Column(verbose_name=u'不可用')
-    node_status_percent = tables.Column(verbose_name=u'可用率',attrs=Attrs(th={"style": "width:190px;"}))
+    node_status_percent = tables.Column(verbose_name=u'可用率',attrs=Attrs(th={"style": "width:175px;"}))
 
     def render_node_status_percent(self, value, record, bound_column):
         percent = (record.node_status1_count*1.0 / record.node_count) if int(record.node_count) != 0 else 0
@@ -123,10 +123,10 @@ class VendorTable(tables.Table):
             bar = 'bar-success'
             font_color = '#5EB95E'
         html = u'''
-        <div class="pull-left"><span style="color:{font_color};">{text}&nbsp;&nbsp;</span></div>
-        <div class="progress pull-right" style="width:130px;margin-bottom:5px;">
+        <div class="progress pull-left" style="height:9px;width:100px;margin:4px 5px 5px 0;">
             <div class="bar {bar}" style="width:{text}"></div>
         </div>
+        <div class="pull-left"><span style="color:{font_color};">{text}&nbsp;&nbsp;</span></div>
         '''.format(text=text,bar=bar,font_color=font_color)
         return Markup(html)
 

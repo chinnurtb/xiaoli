@@ -174,8 +174,9 @@ class Table(object):
             #                              for k, v in req_args.items()])
         return func
 
-    def as_html():
-        pass
+    def as_html(self,template="_dashboard_table.html"):
+        from flask import  render_template
+        return render_template(template, table=self)
 
 
 if __name__ == '__main__':

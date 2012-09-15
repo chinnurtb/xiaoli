@@ -159,8 +159,10 @@ def areas():
     while base.parent:
         breadcrumb.append(base.parent)
         base = base.parent
-
-    return render_template('nodes/area_statistics.html', table = table, breadcrumb = breadcrumb)
+    if request.args.get("dashboard"):
+        return table.as_html()
+    else:
+        return render_template('nodes/area_statistics.html', table = table, breadcrumb = breadcrumb)
 
 @nodeview.route("/vendors/")
 @login_required
@@ -168,7 +170,10 @@ def vendors():
     profile = Profile.load(current_user.id, VendorTable._meta.profile_grp)
     query = Vendor.query
     table = VendorTable(query).configure(profile)
-    return render_template('nodes/vendor_statistics.html', table = table)
+    if request.args.get("dashboard"):
+        return table.as_html()
+    else:
+        return render_template('nodes/vendor_statistics.html', table = table)
 
 @nodeview.route("/categories/")
 @login_required
@@ -196,12 +201,15 @@ def categories():
     ).outerjoin(query_status1,query_total.c.category==query_status1.c.category)
 
     table = CategoryTable(query).configure(profile)
-    return render_template('nodes/category_statistics.html', table = table)
+    if request.args.get("dashboard"):
+        return table.as_html()
+    else:
+        return render_template('nodes/category_statistics.html', table = table)
 
 menus.append(Menu('nodes', u'资源', '/nodes'))
 
 #col2
-add_widget(Widget('category_statistic', u'分类统计', content='<div style="height:100px">Dashboard3</div>', column = 'side'))
-add_widget(Widget('vendor_statistic', u'厂商统计', content='<div style="height:100px">Dashboard4</div>', column = 'side'))
-add_widget(Widget('area_statistic', u'区域统计', content='<div style="height:100px">Dashboard5</div>', column = 'side'))
+add_widget(Widget('category_statistic', u'分类统计', url='/categories/?dashboard=true', column = 'side'))
+add_widget(Widget('vendor_statistic', u'厂商统计', url='/vendors/?dashboard=true', column = 'side'))
+add_widget(Widget('area_statistic', u'区域统计',url='/areas/?dashboard=true', column = 'side'))
 

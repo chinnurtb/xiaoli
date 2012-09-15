@@ -1,0 +1,31 @@
+<table class="wp-list-table widefat fixed" cellspacing="0">
+    <thead>
+    <tr>
+        {% for column in table.columns %}
+            {% if not column.is_checkbox %}
+            <th {{ column.attrs.th.as_html(order=False) }}>
+                <span>{{ column.header }}</span>
+            </th>
+            {% endif %}
+        {% endfor %}
+    </tr>
+    </thead>
+
+    <tbody>
+    {% for row in table.rows %}
+    <tr>
+        {% for column, cell, cellattrs in row.items %}
+            {% if not column.is_checkbox %}
+            <td {{ column.attrs.td.as_html(**cellattrs) }}>{{ cell }}</td>
+            {% endif %}
+        {% endfor %}
+    </tr>
+    {% else %}
+    <tr>
+        <td>当前没有数据</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+
