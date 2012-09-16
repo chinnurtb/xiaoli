@@ -1,0 +1,24 @@
+{% extends 'layout.html' %}
+
+{% set menuid = 'nodes' %}
+
+{% block head %} {% endblock %}
+
+{% from "_table_h.html" import render_table, render_screen_meta %}
+
+{% block content %}
+
+<div class="row-fluid"  style="margin-top:30px">
+
+    <div class="span2">
+        {% set submenuid = 'categories' %}
+        {% include 'nodes/_sidebar.html' %}
+    </div>
+
+    <div class="span10">
+        {{ render_table(table) }}
+    </div>
+
+</div>
+
+{% endblock %}

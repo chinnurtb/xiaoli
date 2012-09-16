@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from sqlalchemy.orm import object_session
+from sqlalchemy.orm import object_session,backref
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy import select, func, and_
 from tango import db
@@ -48,7 +48,7 @@ class Area(db.Model):
     created_at     = db.Column(db.DateTime) 
     updated_at     = db.Column(db.DateTime)
 
-    children = db.relation('Area')
+    children = db.relation('Area',backref=backref("parent", remote_side=id),)
 
     @hybrid_property
     def full_name(self):
@@ -62,6 +62,9 @@ class Area(db.Model):
             return self.city_name
         else:
             return self.name
+
+    def __repr__(self):
+        return u'<Area %r>' % self.name
 
 
 class Manager(db.Model):

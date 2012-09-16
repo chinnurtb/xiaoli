@@ -4,6 +4,8 @@ from __future__ import absolute_import, unicode_literals
 
 from flask import Flask, render_template, url_for, request
 
+from flask_sqlalchemy import Pagination
+
 from .columns import *
 from .rows import *
 from .utils import *
@@ -13,8 +15,8 @@ from .actions import Action
 ## Table
 class TableData(object):
     def __init__(self, data, table):
-        self.queryset = data
         self.table = table
+        self.queryset = data
 
     def ordering(self, order_by):
         model = self.table._meta.model
@@ -27,8 +29,11 @@ class TableData(object):
         self.queryset = self.queryset.order_by(a.resolve(model))
         
     def paginate(self, page, per_page):
-        self.page_obj = self.queryset.paginate(page=self.table.page,
-                                               per_page=self.table.per_page)
+        if hasattr(self.queryset, 'paginate') and callable(self.queryset.paginate):
+            self.page_obj = self.queryset.paginate(page=self.table.page,per_page=self.table.per_page)
+        else:
+            items = self.queryset.limit(per_page).offset((page - 1) * per_page).all()
+            self.page_obj = Pagination(self, page, per_page, self.queryset.count(), items)
         self.page_obj.total_items = self.queryset.count()
         self.list = self.page_obj.items
 
@@ -181,8 +186,9 @@ class Table(object):
             #                              for k, v in req_args.items()])
         return func
 
-    def as_html():
-        pass
+    def as_html(self,template="_dashboard_table.html"):
+        from flask import  render_template
+        return render_template(template, table=self)
 
 
 if __name__ == '__main__':

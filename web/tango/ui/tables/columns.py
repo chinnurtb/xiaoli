@@ -49,7 +49,7 @@ class Column(object):
     def cellattrs(self, bound_column, record):
         return {}
 
-    def render(self, value, record=None):
+    def render(self, value, record=None, bound_column=None):
         if value == None and self.ifnull != None:
             return self.ifnull
         else:
