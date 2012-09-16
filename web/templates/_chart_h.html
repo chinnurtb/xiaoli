@@ -1,0 +1,123 @@
+{% macro render_html_css(chart) %}
+  <style>
+    {{chart.svg_path}} {
+      {% if chart.height is defined %}
+        height: {{chart.height}};
+      {% endif %}
+      {% if chart.width is defined %}
+        width: {{chart.width}};
+      {% endif %}
+    }
+  </style>
+
+  <h2>{{ chart.title }}</h2>
+
+  <div id="{{chart.id}}">
+    <svg></svg>
+  </div>
+
+{% endmacro %}
+
+{% macro render_nvd3chart(chart) %}
+  <script type="text/javascript">
+    var chart_data = eval({{ chart.data|safe }});
+    nv.addGraph(function() {
+        var chart = nv.models.{{chart.name}}();
+
+    // (x, y) Axis
+        {% if chart.x is defined %}
+          chart.x({{chart.x_dict[chart.x]|safe}});
+        {% endif %}
+
+        {% if chart.y is defined %}
+          chart.y({{chart.y_dict[chart.y]|safe}});
+        {% endif %}
+
+        {% if chart.x_tickFormat is defined %}
+          chart.xAxis
+          .tickFormat({{chart.get_x_tickFormat()|safe}});
+        {% endif %}
+
+        {% if chart.y_tickFormat is defined %}
+          chart.yAxis
+          .tickFormat({{chart.get_y_tickFormat()|safe}});
+        {% endif %}
+
+    
+    // Boolean options
+        {% if chart.clipEdge is defined %}
+          chart.clipEdge({{chart.clipEdge}});
+        {% endif %}
+
+        {% if chart.showLabels is defined %}
+          chart.showLabels({{chart.showLabels}});
+        {% endif %}
+
+        {% if chart.showValues is defined %}
+          chart.showValues({{chart.showValues}});
+        {% endif %}
+
+        {% if chart.showControls is defined %}
+          chart.showControls({{chart.showControls}});
+        {% endif %}
+
+        {% if chart.showMaxMin is defined %}
+          chart.xAxis.showMaxMin({{chart.showMaxMin}});
+        {% endif %}
+
+        {% if chart.staggerLabels is defined %}
+          chart.staggerLabels({{chart.staggerLabels}});
+        {% endif %}
+
+        {% if chart.tooltips is defined %}
+          chart.tooltips({{chart.tooltips}});
+        {% endif %}
+
+        {% if chart.donut is defined %}
+          chart.donut({{chart.donut}});
+        {% endif %}
+
+
+    // Other
+        {% if chart.color_category is defined %}
+          chart.color({{chart.get_color_range(chart.color_category)|safe}});
+        {% endif %}
+    
+        {% if chart.margin is defined %}
+          chart.margin({{chart.margin|safe}});
+        {% endif %}
+     
+        {% if chart.labelThreshold is defined %}
+          chart.labelThreshold({{chart.labelThreshold|safe}});
+        {% endif %}
+    
+
+        d3.select('#chart svg')
+        .datum(chart_data)
+        .transition().duration(500).call(chart);
+
+        nv.utils.windowResize(chart.update);
+
+        return chart;  
+    });
+
+  </script>
+
+{{render_html_css(chart)}}
+
+{% endmacro %}
+
+
+{% macro render_highchart(chart) %}
+  <script src="/static/js/highcharts/highcharts.src.js"></script>
+  <script src="/static/js/highcharts/modules/exporting.js"></script>
+  <div id="{{chart.html_id}}" style="min-width: {{chart.min_width}}; height: {{chart.height}}; margin: 0 auto"></div>
+  <script type="text/javascript">
+  $(document).ready(function() {
+        chart = new Highcharts.Chart(
+             {{chart.dumps() | safe }}
+        );
+    });
+  </script>
+{% endmacro %}
+

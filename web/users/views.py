@@ -1,17 +1,19 @@
 #!/usr/bin/env python 
 # -*- coding: utf-8 -*-
-import re
 from flask import json
 from flask import (Blueprint, request, url_for,
                    redirect, render_template, flash)
 
 from tango import db
 from tango.ui import menus, Menu
+from tango.ui.charts.nvd3charts import *
+from tango.ui.charts.highcharts import *
 from tango.login import logout_user, login_user, current_user
-
 from tango.models import Profile
 from tango.base import NestedDict
+
 from nodes.models import Area
+from .tdata import *
 from .models import User, Role, Permission, Domain
 from .forms import (UserEditForm, UserNewForm, LoginForm, PasswordForm, RoleForm,
                     ProfileForm, DomainForm, ResetPasswordForm)
@@ -31,7 +33,9 @@ def login():
         username = form.username.data
         password = form.password.data
         user, authenticated = User.authenticate(username, password)
-        if user and authenticated:
+        DEBUG = True # For DEBUG
+        print 'DEBUG::', DEBUG
+        if user and authenticated or DEBUG: 
             remember = form.remember.data == 'y'
             if login_user(user, remember = remember):
                 flash(u'登录成功', 'success')
@@ -114,7 +118,91 @@ def change_password():
     return render_template("settings/password.html", form = form)
 
 
+@userview.route('/test-nvd3charts/<int:index>')
+def test_nvd3charts(index):
+    lst = [(PieChart(), pieChart_data),
+           (StackedAreaChart(), stackedAreaChart_data),
+           (DiscreteBarChart(), discreteBarChart_data),
+           (CumulativeLineChart(), cumulativeLineChart_data),
+           (MultiBarHorizontalChart(), multiBarHorizontalChart_data)]
+    chart = lst[index][0]
+    data = lst[index][1]
+    chart.data = json.dumps(data)
+    return render_template('users/test_nvd3charts.html', chart=chart)
 
+@userview.route('/test-highcharts/<int:index>')
+def test_highcharts(index):
+    lst = [AreaStackedChart, PieBasicChart, SplinePlotBandsChart,
+           BarBasicChart, BarNegativeStackChart, ColumnRotatedLabels,
+           ColumnNegativeChart]
+
+    chart = lst[index]()
+    # chart['series'] = [
+    #     {
+    #         'name': 'Asia',
+    #         'data': [502, 635, 809, 947, 1402, 3634, 5268]},
+    #     {
+    #         'name': 'Africa',
+    #         'data': [106, 107, 111, 133, 221, 767, 1766]},
+    #     {
+    #         'name': 'Europe',
+    #         'data': [163, 203, 276, 408, 547, 729, 628]},
+    #     {
+    #         'name': 'America',
+    #         'data': [18, 31, 54, 156, 339, 818, 1201]},
+    #     {
+    #         'name': 'Oceania',
+    #         'data': [2, 2, 2, 6, 13, 30, 46]}]
+    #chart['series'] = None
+    #chart['title']['text'] = 'Sorry, There is *NO* Data'
+    chart.set_html_id('GGGGGGG')
+    
+    return render_template('users/test_highcharts.html', chart=chart)
+    
+@userview.route('/get-chat-json', methods=['POST'])
+def get_chat_json():
+    resp = '''[
+  {
+    key: "Cumulative Return",
+    values: [
+      {
+        "label" : "CDS / Options" ,
+        "value" : 29.765957771107
+      } ,
+      {
+        "label" : "Cash" ,
+        "value" : 0.0000000001
+      } ,
+      {
+        "label" : "Corporate Bonds" ,
+        "value" : 32.807804682612
+      } ,
+      {
+        "label" : "Equity" ,
+        "value" : 196.45946739256
+      } ,
+      {
+        "label" : "Index Futures" ,
+        "value" : 0.19434030906893
+      } ,
+      {
+        "label" : "Options" ,
+        "value" : 98.079782601442
+      } ,
+      {
+        "label" : "Preferred" ,
+        "value" : 13.925743130903
+      } ,
+      {
+        "label" : "Not Available" ,
+        "value" : 5.1387322875705
+      }
+    ]
+  }
+]'''
+    return resp
+    
+    
 
 # ==============================================================================
 #  User

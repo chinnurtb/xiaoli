@@ -1,4 +1,4 @@
-#coding=utf-8
+# -*- coding: utf-8 -*-
 
 from __future__ import absolute_import, unicode_literals
 
@@ -48,6 +48,17 @@ class TableData(object):
 class TableMeta(type):
 
     def __new__(cls, name, bases, attrs):
+        # print '==========='
+        # print 'cls::', cls
+        # print '-----'
+        # print 'name::', name
+        # print '-----'
+        # print 'bases::', bases
+        # print '-----'
+        # print 'attrs::', attrs
+        # print '-----'
+        # print TableMeta, cls
+        # print '===========\n'
 
         attrs["_meta"] = TableOptions(attrs.get("Meta", None))
         columns = [(name_, attrs.pop(name_)) for name_, column in attrs.items()
@@ -115,6 +126,7 @@ class Table(object):
 
         # print 'self._sequence', self._sequence
 
+        
     def configure(self, profile, page=1, order_by=None):
         self.hidden_columns = profile.get(self.profile_hiddens_key, '').split(',')
         for name in self.hidden_columns:

@@ -1,4 +1,4 @@
-#coding=utf-8
+# -*- coding: utf-8 -*-
 from __future__ import absolute_import, unicode_literals
 
 class QueryFilter(object):
@@ -22,7 +22,7 @@ class QueryFilter(object):
                 "~"     :   'contains',
                 "!~"    :   'not_contains' }
 
-    def __init__(self, field, operator, values):
+   def __init__(self, field, operator, values):
         self.field = field
         self.operator = operator
         self.values = values
