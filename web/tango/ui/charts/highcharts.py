@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from configs import (area_stacked, pie_basic, spline_plot_bands, bar_basic,
-                      bar_negative_stack, column_rotated_labels, column_negative)
+from configs import (area_stacked, pie_basic, spline_plot_bands, bar_basic, bar_stacked,
+                      bar_negative_stack, column_rotated_labels, column_negative,
+                     line_time_series)
 from tango.base import AutoIncrDict
 import demjson
 import copy
@@ -52,7 +53,7 @@ class AreaStackedChart(Chart):
     '''
     [http://www.highcharts.com/demo/area-stacked]'''
     
-    config = area_stacked
+    config = demjson.decode(area_stacked)
 
 
     
@@ -60,16 +61,15 @@ class PieBasicChart(Chart):
     '''
     [http://www.highcharts.com/demo/pie-basic] '''
     
-    config = pie_basic
+    config = demjson.decode(pie_basic)
     
-
 
 
 class SplinePlotBandsChart(Chart):
     '''
     [http://www.highcharts.com/demo/spline-plot-bands]'''
 
-    config = spline_plot_bands
+    config = demjson.decode(spline_plot_bands)
     
 
     
@@ -77,29 +77,48 @@ class BarBasicChart(Chart):
     '''
     [http://www.highcharts.com/demo/bar-basic]'''
 
-    config = bar_basic
+    config = demjson.decode(bar_basic)
     
 
+class BarStacked(Chart):
+    '''
+    [http://www.highcharts.com/demo/bar-stacked] '''
+
+    config = demjson.decode(bar_stacked)
+    
+    
 
 class BarNegativeStackChart(Chart):
     '''
     [http://www.highcharts.com/demo/bar-negative-stack]'''
 
-    config = bar_negative_stack
+    config = demjson.decode(bar_negative_stack)
+
+    
 
 class ColumnRotatedLabels(Chart):
     '''
     [http://www.highcharts.com/demo/column-rotated-labels]
     '''
-    config = column_rotated_labels
+    config = demjson.decode(column_rotated_labels)
     
 
 class ColumnNegativeChart(Chart):
     '''
     [http://www.highcharts.com/demo/column-negative]'''
 
-    config = column_negative
+    config = demjson.decode(column_negative)
 
 
+class LineTimeSeriesChart(Chart):
+    '''
+    [http://www.highcharts.com/demo/line-time-series]'''
+
+    config = demjson.decode(line_time_series)
+    
+
+# ==============================================================================
+#  Unit Test
+# ==============================================================================    
 if __name__ == '__main__':
     print dir(AreaStackedChart)

@@ -1399,6 +1399,12 @@ class JSON(object):
 
         if s.find('function(') > -1 and s.find('{') > -1: # Edit by weet <2012-09-15, 09:38>
             return s
+
+        if s.find('Highcharts.') > -1:
+            return s
+
+        if s.find(' ? ') > -1 and s.find(' : ') > -1:
+            return s
             
         chunks = []
         chunks.append('"')

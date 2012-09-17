@@ -9,7 +9,7 @@
 """
 
 
-from flask import Flask, session, url_for, redirect, \
+from flask import Flask, session, redirect, \
     render_template, g, request, abort
 
 from tango.ui import menus
@@ -62,6 +62,7 @@ def index():
 
 
 allowed_ips = ['192.168.1.1/24',
+               '192.168.100.1/24',
                '127.0.0.1',]
 ip_checker = ip_from(allowed=allowed_ips)
     

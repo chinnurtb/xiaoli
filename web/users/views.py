@@ -6,6 +6,7 @@ from flask import (Blueprint, request, url_for,
 
 from tango import db
 from tango.ui import menus, Menu
+from .tdata import *
 from tango.ui.charts.nvd3charts import *
 from tango.ui.charts.highcharts import *
 from tango.login import logout_user, login_user, current_user
@@ -13,7 +14,6 @@ from tango.models import Profile
 from tango.base import NestedDict
 
 from nodes.models import Area
-from .tdata import *
 from .models import User, Role, Permission, Domain
 from .forms import (UserEditForm, UserNewForm, LoginForm, PasswordForm, RoleForm,
                     ProfileForm, DomainForm, ResetPasswordForm)
@@ -28,22 +28,22 @@ userview = Blueprint('users', __name__)
 # =============================================================================== 
 @userview.route('/login', methods=['GET', 'POST'])
 def login():
-    form = LoginForm(request.form)
-    if request.method == 'POST':
-        username = form.username.data
-        password = form.password.data
-        user, authenticated = User.authenticate(username, password)
-        DEBUG = True # For DEBUG
-        print 'DEBUG::', DEBUG
-        if user and authenticated or DEBUG: 
-            remember = form.remember.data == 'y'
-            if login_user(user, remember = remember):
-                flash(u'登录成功', 'success')
-                return redirect('/')
-        elif not user:
-            flash(u'用户不存在', 'error')
-        else: 
-            flash(u'密码错误', 'error')
+	form = LoginForm(request.form)
+	if request.method == 'POST':
+		username = form.username.data
+		password = form.password.data
+		user, authenticated = User.authenticate(username, password)
+		DEBUG = True # For DEBUG
+		print 'DEBUG::', DEBUG
+		if user and authenticated or DEBUG: 
+			remember = form.remember.data == 'y'
+			if login_user(user, remember = remember):
+				flash(u'登录成功', 'success')
+				return redirect('/')
+		elif not user:
+			flash(u'用户不存在', 'error')
+		else: 
+			flash(u'密码错误', 'error')
 
         # if session.get('login_time', None) is None:
         #     session['login_time'] = 1
@@ -52,7 +52,7 @@ def login():
         # if session['login_time'] > 10:
         #     abort(403)
             
-    return render_template('login.html', form = form)
+	return render_template('login.html', form = form)
 
     
 @userview.route('/logout', methods=['GET'])
@@ -133,8 +133,8 @@ def test_nvd3charts(index):
 @userview.route('/test-highcharts/<int:index>')
 def test_highcharts(index):
     lst = [AreaStackedChart, PieBasicChart, SplinePlotBandsChart,
-           BarBasicChart, BarNegativeStackChart, ColumnRotatedLabels,
-           ColumnNegativeChart]
+           BarBasicChart, BarStacked, BarNegativeStackChart, ColumnRotatedLabels,
+           ColumnNegativeChart, LineTimeSeriesChart]
 
     chart = lst[index]()
     # chart['series'] = [
