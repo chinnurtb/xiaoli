@@ -327,7 +327,11 @@ bar_stacked = '''{
         type: 'bar'
     },
     title: {
-        text: 'Stacked bar chart'
+        text: 'Stacked bar chart',
+        style: {
+            fontSize: '14px',
+            fontWeight: 'bold'
+        }
     },
     xAxis: {
         categories: ['Apples', 'Oranges', 'Pears', 'Grapes', 'Bananas']
