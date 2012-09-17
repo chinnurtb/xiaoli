@@ -40,7 +40,7 @@ def nodes():
 @nodeview.route('/nodes/<int:id>/', methods=['GET'])
 @login_required
 def node_show(id):
-    Node = Node.query.get_or_404(id)
+    node = Node.query.get_or_404(id)
     return render_template('nodes/show.html', node = node)
 
 @nodeview.route('/nodes/new/', methods=['GET','POST'])
@@ -180,8 +180,8 @@ def vendors():
         xAxis_categories = [row["alias"] for row in table.rows]
         name_dict = {table.columns[2].name: table.columns[2].header, table.columns[3].name: table.columns[3].header}
         series = [{"name": name_dict[name], "data": [ row[name] for row in table.rows ]} for name in name_dict.keys() ]
+        chart.set_colors(['red', 'green'])
         chart["series"] = series
-        chart["colors"] = ['#AA4643','#89A54E',]
         chart["xAxis"]["categories"] = xAxis_categories
         chart["title"]["text"] = u"资源厂商统计"
         chart["yAxis"]["title"] = None

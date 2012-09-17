@@ -27,6 +27,17 @@ class Chart(AutoIncrDict):
     # __metaclass__ = ChartMeta
 
     config = {'title': None}
+    colors = {
+        'blue'        :   '#4572A7',
+        'red'         :   '#AA4643',
+        'green'       :   '#89A54E',
+        'blue-purple' :   '#80699B',
+        'sky-blue'    :   '#3D96AE',
+        'orange'      :   '#DB843D',
+        'light-blue'  :   '#92A8CD',
+        'red-purple'  :   '#A47D7C',
+        'light-green' :   '#B5CA92'
+    }
 
     @staticmethod
     def mktime(dt):
@@ -53,6 +64,13 @@ class Chart(AutoIncrDict):
     def set_html_id(self, html_id):
         self.html_id = html_id
         self['chart']['renderTo'] = html_id
+
+    def set_colors(self, name_lst):
+        hex_lst = []
+        for name in name_lst:
+            hex_lst.append(Chart.colors[name])
+        if hex_lst:
+            self['colors'] = hex_lst
     
         
 class AreaStackedChart(Chart):
