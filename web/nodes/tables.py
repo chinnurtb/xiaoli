@@ -13,8 +13,8 @@ class NodeTable(tables.Table):
     category    = tables.EnumColumn(verbose_name=u'类型',name='category', enums={1:u'OLT',2:u'ONU',3:u'DSLAM',4:u'EOC',5:u'Switch'}, orderable=True)
     addr        = tables.Column(verbose_name=u'IP', orderable=True)
     full_name   = tables.Column(verbose_name=u'所属区域', orderable=True, accessor='area.full_name')
-    vendor_name = tables.Column(verbose_name=u'厂家', orderable=True, accessor='vendor.name')
-    model_name  = tables.Column(verbose_name=u'型号', orderable=True, accessor='model.name')
+    vendor_name = tables.Column(verbose_name=u'厂家', orderable=True, accessor='vendor.alias')
+    model_name  = tables.Column(verbose_name=u'型号', orderable=True, accessor='model.alias')
 
     class Meta():
         model = Node
