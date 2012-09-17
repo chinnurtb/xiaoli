@@ -32,7 +32,9 @@ def nodes():
     if query_dict.get("model_id"): query=query.filter(Node.model_id == query_dict["model_id"])
     form.process(**query_dict)
     profile = Profile.load(current_user.id, NodeTable._meta.profile_grp)
-    table = NodeTable(query).configure(profile)
+    order_by = request.args.get('order_by', '')
+    page = int(request.args.get('page',1))
+    table = NodeTable(query).configure(profile, page=page, order_by=order_by)
     return render_template('nodes/index.html', table = table, form=form)
 
 @nodeview.route('/nodes/<int:id>/', methods=['GET'])
@@ -173,7 +175,18 @@ def vendors():
     if request.args.get("dashboard"):
         return table.as_html()
     else:
-        return render_template('nodes/vendor_statistics.html', table = table)
+        from tango.ui.charts.highcharts import BarStacked
+        chart = BarStacked()
+        xAxis_categories = [row["alias"] for row in table.rows]
+        name_dict = {table.columns[2].name: table.columns[2].header, table.columns[3].name: table.columns[3].header}
+        series = [{"name": name_dict[name], "data": [ row[name] for row in table.rows ]} for name in name_dict.keys() ]
+        chart["series"] = series
+        chart["colors"] = ['#AA4643','#89A54E',]
+        chart["xAxis"]["categories"] = xAxis_categories
+        chart["title"]["text"] = u"资源厂商统计"
+        chart["yAxis"]["title"] = None
+        chart.height = str(len(xAxis_categories)*50 + 100)+"px"
+        return render_template('nodes/vendor_statistics.html', table = table, chart = chart)
 
 @nodeview.route("/categories/")
 @login_required
@@ -204,7 +217,18 @@ def categories():
     if request.args.get("dashboard"):
         return table.as_html()
     else:
-        return render_template('nodes/category_statistics.html', table = table)
+        from tango.ui.charts.highcharts import BarStacked
+        chart = BarStacked()
+        xAxis_categories = [row["category_name"] for row in table.rows]
+        name_dict = {table.columns[2].name: table.columns[2].header, table.columns[3].name: table.columns[3].header}
+        series = [{"name": name_dict[name], "data": [ row[name] for row in table.rows ]} for name in name_dict.keys() ]
+        chart["series"] = series
+        chart["colors"] = ['#AA4643','#89A54E',]
+        chart["xAxis"]["categories"] = xAxis_categories
+        chart["title"]["text"] = u"资源分类统计"
+        chart["yAxis"]["title"] = None
+        chart.height = str(len(xAxis_categories)*50 + 100)+"px"
+        return render_template('nodes/category_statistics.html', table = table, chart = chart)
 
 menus.append(Menu('nodes', u'资源', '/nodes'))
 

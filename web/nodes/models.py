@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 from sqlalchemy.orm import object_session,backref
 from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy import select, func, and_
 from tango import db
 
@@ -147,8 +148,7 @@ NODE_STATUS_ONLINE=1
 
 NODE_STATUS_OFFLINE=0
 
-class Node(db.Model):
-    __tablename__ = 'nodes'
+class NodeMixin(object):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(40))
     alias = db.Column(db.String(200))
@@ -166,10 +166,6 @@ class Node(db.Model):
     category = db.Column(db.Integer)
     #-- 1:PON 2:WLAN 3:DATA 4:SERVER 5:CPE 6:ACCESS
     business = db.Column(db.Integer)
-    area_id = db.Column(db.Integer, db.ForeignKey('areas.id'))
-    timeperiod_id = db.Column(db.Integer, db.ForeignKey('timeperiods.id'))
-    vendor_id = db.Column(db.Integer, db.ForeignKey("vendors.id"))
-    model_id = db.Column(db.Integer, db.ForeignKey("models.id"))
     group_id = db.Column(db.Integer)
     summary = db.Column(db.String(255))
     location = db.Column(db.String(200))
@@ -188,21 +184,64 @@ class Node(db.Model):
     controller_id = db.Column(db.Integer)
     agent = db.Column(db.String(100))
     manager = db.Column(db.String(100))
-    maintainer_id = db.Column(db.Integer, db.ForeignKey("maintains.id"))
     extra = db.Column(db.String(255))
     last_check = db.Column(db.DateTime)
     next_check = db.Column(db.DateTime)
     duration = db.Column(db.Integer)
     updated_at = db.Column(db.DateTime)
 
-    area   = db.relation('Area')
-    vendor = db.relation('Vendor')
-    model  = db.relation('Model')
+    @declared_attr
+    def maintainer_id(cls):
+        return db.Column(db.Integer, db.ForeignKey('maintains.id'))
 
-    __table_args__ = {'implicit_returning':False}
+    @declared_attr
+    def maintain(cls):
+        return db.relationship("Maintain")
+
+    @declared_attr
+    def area_id(cls):
+        return db.Column(db.Integer, db.ForeignKey('areas.id'))
+
+    @declared_attr
+    def area(cls):
+        return db.relationship("Area")
+
+    @declared_attr
+    def timeperiod_id(cls):
+        return db.Column(db.Integer, db.ForeignKey('timeperiods.id'))
+
+    @declared_attr
+    def timeperiod(cls):
+        return db.relationship("TimePeriod")
+
+    @declared_attr
+    def vendor_id(cls):
+        return db.Column(db.Integer, db.ForeignKey('vendors.id'))
+
+    @declared_attr
+    def vendor(cls):
+        return db.relationship("Vendor")
+
+    @declared_attr
+    def model_id(cls):
+        return db.Column(db.Integer, db.ForeignKey('models.id'))
+
+    @declared_attr
+    def model(cls):
+        return db.relationship("Model")
+
 
     def __repr__(self):
         return '<Node %r>' % self.name
+
+class Node(NodeMixin,db.Model):
+    """ Node """
+    __tablename__ = 'nodes'
+    __table_args__ = {'implicit_returning':False}
+
+class NodeOlt(NodeMixin,db.Model):
+    """ OLT """
+    __tablename__ = 'node_olts'
 
 class Board(db.Model):
     """板卡"""
@@ -239,7 +278,7 @@ class Server(db.Model):
     created_at = db.Column(db.DateTime)
     updated_at = db.Column(db.DateTime)
 
-class Maintains(db.Model):
+class Maintain(db.Model):
     """维护人信息"""
     __tablename__ = 'maintains'
     id          = db.Column(db.Integer, primary_key=True)
