@@ -103,7 +103,7 @@ defaultOptions.exporting = {
 	//enabled: true,
 	//filename: 'chart',
 	type: 'image/png',
-	url: 'http://export.highcharts.com/',
+	url: 'http://localhost:5000/highchart-export',
 	width: 800,
 	buttons: {
 		exportButton: {
@@ -119,14 +119,15 @@ defaultOptions.exporting = {
 				onclick: function () {
 					this.exportChart();
 				}
-			}, {
-				textKey: 'downloadJPEG',
-				onclick: function () {
-					this.exportChart({
-						type: 'image/jpeg'
-					});
-				}
-			}, {
+			}, // {
+			// 	textKey: 'downloadJPEG',
+			// 	onclick: function () {
+			// 		this.exportChart({
+			// 			type: 'image/jpeg'
+			// 		});
+			// 	}
+			// },
+                                    {
 				textKey: 'downloadPDF',
 				onclick: function () {
 					this.exportChart({

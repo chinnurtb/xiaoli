@@ -110,7 +110,7 @@
 
 {% macro render_highchart(chart) %}
   <script src="/static/js/highcharts/highcharts.src.js"></script>
-  <script src="/static/js/highcharts/modules/exporting.js"></script>
+  <script src="/static/js/highcharts/modules/exporting.src.js"></script>
   <div id="{{chart.html_id}}" style="min-width: {{chart.min_width}}; height: {{chart.height}}; margin: 0 auto"></div>
   <script type="text/javascript">
   $(document).ready(function() {

@@ -1,14 +1,11 @@
 #!/usr/bin/env python 
 # -*- coding: utf-8 -*-
 from flask import json
-from flask import (Blueprint, request, url_for,
+from flask import (Blueprint, request, url_for, make_response, send_file,
                    redirect, render_template, flash)
 
 from tango import db
 from tango.ui import menus, Menu
-from .tdata import *
-from tango.ui.charts.nvd3charts import *
-from tango.ui.charts.highcharts import *
 from tango.login import logout_user, login_user, current_user
 from tango.models import Profile
 from tango.base import NestedDict
@@ -118,6 +115,12 @@ def change_password():
     return render_template("settings/password.html", form = form)
 
 
+# ==============================================================================
+#  Charts
+# ==============================================================================    
+from .tdata import *
+from tango.ui.charts.nvd3charts import *
+from tango.ui.charts.highcharts import *
 @userview.route('/test-nvd3charts/<int:index>')
 def test_nvd3charts(index):
     lst = [(PieChart(), pieChart_data),
@@ -158,6 +161,33 @@ def test_highcharts(index):
     chart.set_html_id('GGGGGGG')
     
     return render_template('users/test_highcharts.html', chart=chart)
+
+
+from cairosvg import svg2png, svg2pdf, svg2svg
+@userview.route('/highchart-export', methods=['POST'])
+def highchart_export():
+    svg = request.form.get('svg', None)
+    filename = request.form.get('filename', None)
+    width = request.form.get('width', None)
+    content_type = request.form.get('type', None)
+    
+    type_dict = {
+        'image/png'       : {'ext':'png',
+                             'converter': svg2png},
+        'application/pdf' : {'ext':'pdf',
+                             'converter': svg2pdf},
+        'image/svg+xml'   : {'ext':'svg',
+                             'converter': svg2svg},
+    }
+    
+    ext = type_dict[content_type]['ext']
+    content = type_dict[content_type]['converter'](svg)
+    resp = make_response(content)
+    resp.headers['Content-disposition'] = 'attachment; filename=%s.%s' % (filename, ext)
+    resp.headers['Content-Type'] = ';'.join([content_type, 'charset=utf-8'])
+    return resp
+
+
     
 @userview.route('/get-chat-json', methods=['POST'])
 def get_chat_json():

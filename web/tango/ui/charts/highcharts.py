@@ -4,6 +4,7 @@ from configs import (area_stacked, pie_basic, spline_plot_bands, bar_basic, bar_
                       bar_negative_stack, column_rotated_labels, column_negative,
                      line_time_series)
 from tango.base import AutoIncrDict
+import time
 import demjson
 import copy
 
@@ -26,6 +27,11 @@ class Chart(AutoIncrDict):
     # __metaclass__ = ChartMeta
 
     config = {'title': None}
+
+    @staticmethod
+    def mktime(dt):
+        return time.mktime(dt.timetuple()) * 1000
+    
     def dumps(self):
         return demjson.encode(self)
         
