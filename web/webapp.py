@@ -9,7 +9,7 @@
 """
 
 
-from flask import Flask, session, redirect, \
+from flask import Flask, session, redirect, url_for, \
     render_template, g, request, abort
 
 from tango.ui import menus
@@ -93,7 +93,7 @@ def before_request():
         if request.endpoint in SAFE_ENDPOINTS:
             return
         else:
-            return redirect('/login')
+            return redirect(url_for('users.login', next=request.url))
 
     # Not Anonymous User
     if current_user:

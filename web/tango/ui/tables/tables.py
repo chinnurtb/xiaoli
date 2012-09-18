@@ -119,7 +119,7 @@ class Table(object):
             self._sequence.expand(self.base_columns.keys())
         self.columns = BoundColumns(self)
 
-        print self.base_actions
+        # print self.base_actions
 
         self.actions = self.base_actions.values()
 

@@ -228,8 +228,8 @@ def categories():
         xAxis_categories = [row["category_name"] for row in table.rows]
         name_dict = {table.columns[2].name: table.columns[2].header, table.columns[3].name: table.columns[3].header}
         series = [{"name": name_dict[name], "data": [ row[name] for row in table.rows ]} for name in name_dict.keys() ]
+        chart.set_colors(['red', 'green'])
         chart["series"] = series
-        chart["colors"] = ['#AA4643','#89A54E',]
         chart["xAxis"]["categories"] = xAxis_categories
         chart["title"]["text"] = u"资源分类统计"
         chart["yAxis"]["title"] = None

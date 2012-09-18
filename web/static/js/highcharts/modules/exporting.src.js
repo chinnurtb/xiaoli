@@ -41,12 +41,12 @@ var HC = Highcharts,
 
 	// Add language
 	extend(defaultOptions.lang, {
-		downloadPNG: 'Download PNG image',
-		downloadJPEG: 'Download JPEG image',
-		downloadPDF: 'Download PDF document',
-		downloadSVG: 'Download SVG vector image',
-		exportButtonTitle: 'Export to raster or vector image',
-		printButtonTitle: 'Print the chart'
+		//downloadJPEG: '导出为 JPEG',
+		downloadPNG: '导出为 PNG',
+		downloadPDF: '导出为 PDF',
+		downloadSVG: '导出为 SVG',
+		exportButtonTitle: '导出此图表',
+		printButtonTitle: '打印此图表'
 	});
 
 // Buttons and menus are collected in a separate config option set called 'navigation'.
@@ -103,7 +103,7 @@ defaultOptions.exporting = {
 	//enabled: true,
 	//filename: 'chart',
 	type: 'image/png',
-	url: 'http://localhost:5000/highchart-export',
+	url: '/highchart-export',
 	width: 800,
 	buttons: {
 		exportButton: {
