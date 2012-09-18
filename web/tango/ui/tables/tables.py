@@ -34,7 +34,7 @@ class TableData(object):
         else:
             items = self.queryset.limit(per_page).offset((page - 1) * per_page).all()
             self.page_obj = Pagination(self, page, per_page, self.queryset.count(), items)
-        self.page_obj.total_items = self.queryset.count()
+        self.page_obj.total_items = len(self.page_obj.items)
         self.list = self.page_obj.items
 
     def __iter__(self):
