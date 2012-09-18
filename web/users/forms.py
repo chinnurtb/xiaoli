@@ -83,6 +83,7 @@ class DomainForm(Form):
 class LoginForm(Form):
     username = TextField(u'用户名')
     password = PasswordField(u'密码')
+    next     = HiddenField()
     remember = BooleanField(u'记住我')
 
 

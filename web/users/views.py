@@ -29,6 +29,7 @@ def login():
 	if request.method == 'POST':
 		username = form.username.data
 		password = form.password.data
+                next = form.next.data
 		user, authenticated = User.authenticate(username, password)
 		DEBUG = True # For DEBUG
 		print 'DEBUG::', DEBUG
@@ -36,19 +37,15 @@ def login():
 			remember = form.remember.data == 'y'
 			if login_user(user, remember = remember):
 				flash(u'登录成功', 'success')
+                                if next:
+                                    return redirect(next)
 				return redirect('/')
 		elif not user:
 			flash(u'用户不存在', 'error')
 		else: 
 			flash(u'密码错误', 'error')
 
-        # if session.get('login_time', None) is None:
-        #     session['login_time'] = 1
-        # else:
-        #     session['login_time'] += 1
-        # if session['login_time'] > 10:
-        #     abort(403)
-            
+        form.next.data = request.args.get('next', '')
 	return render_template('login.html', form = form)
 
     
@@ -163,9 +160,9 @@ def test_highcharts(index):
     return render_template('users/test_highcharts.html', chart=chart)
 
 
-from cairosvg import svg2png, svg2pdf, svg2svg
 @userview.route('/highchart-export', methods=['POST'])
 def highchart_export():
+    from cairosvg import svg2png, svg2pdf, svg2svg
     svg = request.form.get('svg', None)
     filename = request.form.get('filename', None)
     width = request.form.get('width', None)
@@ -181,6 +178,7 @@ def highchart_export():
     }
     
     ext = type_dict[content_type]['ext']
+    svg = unicode(svg).encode('utf-8')
     content = type_dict[content_type]['converter'](svg)
     resp = make_response(content)
     resp.headers['Content-disposition'] = 'attachment; filename=%s.%s' % (filename, ext)
