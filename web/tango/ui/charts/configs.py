@@ -542,7 +542,11 @@ line_time_series = '''{
        spacingRight: 20
    },
    title: {
-       text: 'USD to EUR exchange rate from 2006 through 2008'
+       text: 'USD to EUR exchange rate from 2006 through 2008',
+       style: {
+            fontSize: '14px',
+            fontWeight: 'bold'
+        }
    },
    subtitle: {
        text: "document.ontouchstart === undefined ? 'Click and drag in the plot area to zoom in' : 'Drag your finger over the plot to zoom in'"

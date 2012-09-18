@@ -41,7 +41,13 @@ def nodes():
 @login_required
 def node_show(id):
     node = Node.query.get_or_404(id)
-    return render_template('nodes/show.html', node = node)
+    from tango.ui.charts.highcharts import LineTimeSeriesChart
+    chart = LineTimeSeriesChart()
+    chart["title"]["text"] = u'最近24小时流量图'
+    chart["subtitle"]["text"] = None
+    chart["yAxis"]["title"] = None
+    chart.height = str(280)+"px"
+    return render_template('nodes/show.html', node = node, chart = chart)
 
 @nodeview.route('/nodes/new/', methods=['GET','POST'])
 @login_required

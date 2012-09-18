@@ -163,9 +163,9 @@ def test_highcharts(index):
     return render_template('users/test_highcharts.html', chart=chart)
 
 
-from cairosvg import svg2png, svg2pdf, svg2svg
 @userview.route('/highchart-export', methods=['POST'])
 def highchart_export():
+    from cairosvg import svg2png, svg2pdf, svg2svg
     svg = request.form.get('svg', None)
     filename = request.form.get('filename', None)
     width = request.form.get('width', None)
