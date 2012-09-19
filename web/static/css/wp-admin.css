@@ -514,9 +514,6 @@
 .hidden, .js .closed .inside, .js .hide-if-js, .no-js .hide-if-no-js {
     display: none;
 }
-input[type="text"], input[type="password"], input[type="number"], input[type="search"], input[type="email"], input[type="url"], textarea {
-    -moz-box-sizing: border-box;
-}
 input[type="checkbox"], input[type="radio"] {
     margin: 1px 0 0;
     padding: 0;

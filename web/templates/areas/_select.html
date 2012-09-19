@@ -1,0 +1,67 @@
+<link rel="stylesheet" href="/static/css/jquery.dropPanel.css" />
+<script src="/static/js/jquery.dropPanel.js" type="text/javascript"></script>
+<script type="text/javascript" src="/static/js/jquery.dynatree.js"></script>
+<script type="text/javascript" src="/static/js/jquery-ui.custom.min.js"></script>
+<script type="text/javascript" src="/static/js/jquery.cookie.js"></script>
+<link href="/static/css/dynatree/skin/ui.dynatree.css" rel="stylesheet">
+
+<script type="text/javascript">
+    $(function(){
+        var config = {
+            replaceText: "加载中...",
+            onShow: function(dropPanel){
+                $("#dropContent").dynatree({
+                    checkbox: true,
+                    selectMode: 3,
+                    imagePath: '',
+                    initAjax:{
+                        url:"/area_select",
+                        data:{
+                            domain_ids: $('#domain_ids').val(),
+                            expand_level : 3,
+                            guid : $('#conditions_guid').val()
+                        }
+                    },
+                    onActivate: function(dtnode) {},
+                    onLazyRead: function(dtnode){
+                        dtnode.appendAjax({
+                            url:"/area_select",
+                            data:{
+                                key: dtnode.data.key,
+                                domain_ids: $('#domain_ids').val(),
+                                guid : $('#conditions_guid').val()
+                            }
+                        });
+                    },
+                    onSelect: function(select, dtnode) {
+                        var selNodes = dtnode.tree.getSelectedNodes();
+                        var selkeys = [];
+                        var selTitles = [];
+                        var selvals = $.map(selNodes, function(node){
+                            selkeys.push(node.data.key);
+                            selTitles.push(node.data.title);
+                            return node.data.level_desc + '=' + node.data.key;
+                        });
+                        $("#domains").val(selvals.join(" or "));
+                        $("#domain_ids").val(selkeys.join(","));
+                        $(".dropPanel_txt").val(selTitles.join(","));
+                    },
+                    strings: {
+                        loading: "加载中…",
+                        loadError: "加载错误!"
+                    },
+                    onKeydown: function(dtnode, event) {
+                        if( event.which == 13 ) {
+                            dtnode.toggleSelect();
+                            return false;
+                        }
+                    }
+                });
+            }
+        };
+        $("#area_select").dropPanel(config);
+    });
+</script>
+<select id="area_select" name="area_select"></select>
+<input id="domains" type="hidden" value="" name="alarm_condition[netloc]">
+<input id="domain_ids" type="hidden" value="" name="alarm_condition[area_ids]">

@@ -125,11 +125,18 @@ class Domain(db.Model):
         for area in areas:
             if area.area_type in (AREA_CITY, AREA_TOWN, AREA_BRANCH, AREA_ENTRANCE):
                 area_list[area.area_type].append(str(area.id))
-        self.city_list = (',').join(city_list)
-        self.town_list = (',').join(town_list)
-        self.branch_list = (',').join(branch_list)
-        self.entrance_list = (',').join(entrance_list)
-        
+        if city_list: self.city_list = (',').join(city_list)
+        if town_list: self.town_list = (',').join(town_list)
+        if branch_list: self.branch_list = (',').join(branch_list)
+        if entrance_list: self.entrance_list = (',').join(entrance_list)
+
+    def load_areas(self):
+        domain_areas = []
+        if self.city_list: domain_areas.extend(self.city_list.split(','))
+        if self.town_list: domain_areas.extend(self.town_list.split(','))
+        if self.branch_list: domain_areas.extend(self.branch_list.split(','))
+        if self.entrance_list: domain_areas.extend(self.entrance_list.split(','))
+        return domain_areas
 
 roles_permissions = db.Table('roles_permissions', db.Model.metadata,
                              db.Column('role_id', db.Integer,

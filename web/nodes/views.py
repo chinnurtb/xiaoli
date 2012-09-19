@@ -3,6 +3,7 @@
 
 from flask import Blueprint, request, session, url_for, \
     redirect, render_template, g, flash
+from flask import json
 
 from sqlalchemy import func
 from sqlalchemy.orm import aliased
@@ -18,6 +19,39 @@ from .forms import NodeNewForm, NodeSearchForm
 from .tables import NodeTable,PortTable,BoardTable,AreaTable,VendorTable,CategoryTable
 
 nodeview = Blueprint('nodes', __name__)
+
+@nodeview.route('/area_select', methods=['POST', 'GET'])
+def area_select():
+    key = request.args.get('key')
+    def make_node(area):
+        node = {}
+        node['title'] = area.name
+        node['key'] = str(area.id)
+        if len(area.children) > 0:
+            node['isLazy'] = True
+        return node
+
+    if key:
+        trees = [make_node(area) for area in Area.query.filter(Area.parent_id==key)]
+    else:
+        city_ids = current_user.domain.city_list.split(',') if current_user.domain.city_list else []
+        town_ids = current_user.domain.town_list.split(',') if current_user.domain.town_list else []
+        branch_ids = current_user.domain.branch_list.split(',') if current_user.domain.branch_list else []
+        entrance_ids = current_user.domain.entrance_list.split(',') if current_user.domain.entrance_list else []
+        city_nodes = [Area.query.get(city) for city in city_ids]
+        town_nodes = [Area.query.get(town) for town in town_ids]
+        branch_nodes = [Area.query.get(branch) for branch in branch_ids]
+        entrance_nodes = [Area.query.get(entrance) for entrance in entrance_ids]
+        trees = [make_node(area) for area in city_nodes]
+        trees.extend([make_node(area) for area in town_nodes if str(area.cityid) not in city_ids])
+        trees.extend([make_node(area) for area in branch_nodes if str(area.cityid) not in city_ids
+            and str(area.town) not in town_ids])
+        trees.extend([make_node(area) for area in entrance_nodes if str(area.cityid) not in city_ids
+            and str(area.town) not in town_ids
+            and str(area.branch) not in branch_ids])
+
+    return json.dumps(trees)
+
 
 @nodeview.route('/nodes/')
 @login_required

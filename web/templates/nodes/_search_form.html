@@ -10,17 +10,7 @@
     {% from "_form_h.html" import render_field %}
     <div class="span4">
         所属区域
-        <select data-placeholder="Your Favorite Type of Bear" class="chzn-select-deselect" tabindex="7">
-            <option value=""></option>
-            <option>American Black Bear</option>
-            <option>Asiatic Black Bear</option>
-            <option>Brown Bear</option>
-            <option>Giant Panda</option>
-            <option selected>Sloth Bear</option>
-            <option>Sun Bear</option>
-            <option>Polar Bear</option>
-            <option>Spectacled Bear</option>
-        </select>
+        {% include "areas/_select.html" %}
         {{ render_field(form.name, id="node-name", class="input-large") }}
     </div>
     <div class="span4">
