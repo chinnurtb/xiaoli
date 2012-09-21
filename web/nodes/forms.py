@@ -27,7 +27,8 @@ class NodeNewForm(Form):
     snmp_ver        = TextField(u'SNMP版本')
     snmp_port       = IntegerField(u'SNMP端口', default=0, validators=[NumberRange(min=0,message=u"端口不能是负数")])
 
-class NodeSearchForm(Form):
+from tango.forms import FormPro
+class NodeSearchForm(FormPro):
     area_id         = SelectFieldPro(u'所属区域',
         choices=lambda: [('', u'请选择区域')] + [(unicode(r.id), r.name) for r in Area.query])
     name            = TextField(u'节点名称', validators=[required(message=u'必填')])

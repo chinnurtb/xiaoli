@@ -9,7 +9,7 @@ from .models import Node,Board,Port
 class NodeTable(tables.Table):
     check       = tables.CheckBoxColumn()
     status      = tables.EnumColumn(verbose_name=u'状态', name='state', enums={0: u'不可用', 1: u'可用'},  orderable=True)
-    name        = tables.LinkColumn(endpoint='nodes.node_edit',verbose_name=u'名称',orderable=True)
+    name        = tables.LinkColumn(endpoint='nodes.node_show',verbose_name=u'名称',orderable=True)
     category    = tables.EnumColumn(verbose_name=u'类型',name='category', enums={1:u'OLT',2:u'ONU',3:u'DSLAM',4:u'EOC',5:u'Switch'}, orderable=True)
     addr        = tables.Column(verbose_name=u'IP', orderable=True)
     full_name   = tables.Column(verbose_name=u'所属区域', orderable=True, accessor='area.full_name')

@@ -98,6 +98,7 @@
             </div>
             {% include "nodes/_search_form.html" %}
         </form>
+        <table>{{ form.as_table(2) }}</table>
         <form action="" method="POST" id="node_form">
         {{ render_table(table) }}
         </form>

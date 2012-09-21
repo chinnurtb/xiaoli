@@ -4,17 +4,290 @@
 
 {% block title %}{% endblock %}
 
-{% block head %} {% endblock %}
+{% block head %}
+    <style type="text/css">
+        .node_table {
+            font-size: 12px;
+            margin: 0;
+            border: none;
+        }
+        .node_table th, .node_table td {
+            border-top: 1px solid #ffffff;
+            line-height: 16px;
+        }
+        .node_table .head {
+            width: 80px;
+            background-color: #D9EDF7;
+        }
+        .port_table {
+            font-size: 13px;
+            margin-bottom: 0;
+            border-bottom: none;
+        }
+    </style>
+{% endblock %}
 
-{% block content %} 
-
+{% block content %}
+<div class="row-fluid"  style="margin-top:30px">
     <div class="span2">
-        {% set submenuid = '/nodes' %}
+        {% set submenuid = 'nodes' %}
         {% include 'nodes/_sidebar.html' %}
     </div>
 
     <div class="span10">
+        <div class="tabbable">
+            <ul class="nav nav-tabs">
+                <li class="active"><a href="#basic_info" data-toggle="tab">基本信息</a></li>
+                <li><a href="#snmp_info" data-toggle="tab">SNMP信息</a></li>
+                <li><a href="#device_info" data-toggle="tab">设备信息</a></li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane active" id="basic_info">
+                    <table class="table node_table">
+                        <tr>
+                            <td class="head">所属区域</td>
+                            <td colspan="3">宁夏银川</td>
+                        </tr>
+                        <tr>
+                            <td class="head">节点名称</td>
+                            <td>Test节点</td>
+                            <td class="head">节点类型</td>
+                            <td>OLT</td>
+                        </tr>
+                        <tr>
+                            <td class="head">工程状态</td>
+                            <td>工程中</td>
+                            <td class="head">节点状态</td>
+                            <td>可用/不可用</td>
+                        </tr>
+                        <tr>
+                            <td class="head">IP 地址</td>
+                            <td>198.23.98.190</td>
+                            <td class="head">MAC地址</td>
+                            <td>5C:4C:A9:16:2E:7B</td>
+                        </tr>
+                        <tr>
+                            <td class="head">厂家型号</td>
+                            <td>华为MA5616</td>
+                            <td class="head">子网掩码</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td class="head">设备描述</td>
+                            <td colspan="3"></td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="tab-pane" id="snmp_info">
+                    <table class="table node_table">
+                        <tr>
+                            <td class="head">维护人员</td>
+                            <td></td>
+                            <td class="head">SNMP OID</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td class="head">SNMP端口</td>
+                            <td>Test节点</td>
+                            <td class="head">SNMP版本</td>
+                            <td>Approved</td>
+                        </tr>
+                        <tr>
+                            <td class="head">读团体名</td>
+                            <td>TB - Monthly</td>
+                            <td class="head">写团体名</td>
+                            <td>Call in to confirm</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="tab-pane" id="device_info">
+                    <table class="table node_table">
+                        <tr>
+                            <td class="head">设备名称</td>
+                            <td></td>
+                            <td class="head">启动时间</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td class="head">OID索引</td>
+                            <td>Test节点</td>
+                            <td class="head">设备型号</td>
+                            <td>Approved</td>
+                        </tr>
+                        <tr>
+                            <td class="head">所属代理</td>
+                            <td>TB - Monthly</td>
+                            <td class="head">采集服务器</td>
+                            <td>Call in to confirm</td>
+                        </tr>
+                        <tr>
+                            <td class="head">位置</td>
+                            <td colspan="3"></td>
+                        </tr>
+                        <tr>
+                            <td class="head">设备描述</td>
+                            <td colspan="3"></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% from "_chart_h.html" import render_highchart %}
+        {{ render_highchart(chart) }}
+        <div class="accordion">
+            <div class="accordion-group">
+                <div class="accordion-heading">
+                    <a class="accordion-toggle" data-toggle="collapse" href="#board_info">
+                        板卡信息
+                    </a>
+                </div>
+                <div id="board_info" class="accordion-body in collapse" style="height: auto; ">
+                    <div class="accordion-inner">
+                        <table class="table table-hover port_table">
+                            <thead>
+                            <tr>
+                                <th>槽位</th>
+                                <th>板卡类型</th>
+                                <th>板卡状态</th>
+                                <th>CPU负载</th>
+                                <th>内存占用</th>
+                                <th>硬件版本</th>
+                                <th>软件版本</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>Mark</td>
+                                <td>Otto</td>
+                                <td>@mdo</td>
+                                <td>Otto</td>
+                                <td>@mdo</td>
+                                <td>@mdo</td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>Jacob</td>
+                                <td>Thornton</td>
+                                <td>@fat</td>
+                                <td>Otto</td>
+                                <td>@mdo</td>
+                                <td>@mdo</td>
+                            </tr>
+                            <tr>
+                                <td>3</td>
+                                <td>Larry the Bird</td>
+                                <td>@twitter</td>
+                                <td>Otto</td>
+                                <td>@mdo</td>
+                                <td>@mdo</td>
+                                <td>@mdo</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="accordion-group">
+                <div class="accordion-heading">
+                    <a class="accordion-toggle" data-toggle="collapse" href="#collapseTwo">
+                        PON信息
+                    </a>
+                </div>
+                <div id="collapseTwo" class="accordion-body in collapse" style="height: auto; ">
+                    <div class="accordion-inner">
+                        <table class="table table-hover port_table">
+                            <thead>
+                            <tr>
+                                <th>槽位</th>
+                                <th>端口</th>
+                                <th>类型</th>
+                                <th>状态</th>
+                                <th>可达速率</th>
+                                <th>VLAN</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>Mark</td>
+                                <td>Otto</td>
+                                <td>@mdo</td>
+                                <td>Otto</td>
+                                <td>@mdo</td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>Jacob</td>
+                                <td>Thornton</td>
+                                <td>@fat</td>
+                                <td>Otto</td>
+                                <td>@mdo</td>
+                            </tr>
+                            <tr>
+                                <td>3</td>
+                                <td>Larry the Bird</td>
+                                <td>@twitter</td>
+                                <td>Otto</td>
+                                <td>@mdo</td>
+                                <td>@mdo</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="accordion-group">
+                <div class="accordion-heading">
+                    <a class="accordion-toggle" data-toggle="collapse" href="#collapseThree">
+                        数据口信息
+                    </a>
+                </div>
+                <div id="collapseThree" class="accordion-body in collapse" style="height: auto; ">
+                    <div class="accordion-inner">
+                        <table class="table table-hover port_table">
+                            <thead>
+                            <tr>
+                                <th>槽位</th>
+                                <th>端口</th>
+                                <th>类型</th>
+                                <th>状态</th>
+                                <th>可达速率</th>
+                                <th>VLAN</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>Mark</td>
+                                <td>Otto</td>
+                                <td>@mdo</td>
+                                <td>Otto</td>
+                                <td>@mdo</td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>Jacob</td>
+                                <td>Thornton</td>
+                                <td>@fat</td>
+                                <td>Otto</td>
+                                <td>@mdo</td>
+                            </tr>
+                            <tr>
+                                <td>3</td>
+                                <td>Larry the Bird</td>
+                                <td>@twitter</td>
+                                <td>Otto</td>
+                                <td>@mdo</td>
+                                <td>@mdo</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-
+</div>
 {% endblock %}
 
