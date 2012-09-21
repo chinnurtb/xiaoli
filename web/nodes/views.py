@@ -24,12 +24,12 @@ nodeview = Blueprint('nodes', __name__)
 def nodes():
     form = NodeSearchForm()
     query = Node.query
-    query_dict = dict([(key, request.args.get(key))for key,value in form.data.items()])
-    if query_dict.get("ip"): query=query.filter(Node.addr.like('%'+query_dict["ip"]+'%'))
-    if query_dict.get("name"): query=query.filter(Node.name.like('%'+query_dict["name"]+'%'))
-    if query_dict.get("area_id"): query=query.filter(Node.area_id == query_dict["area_id"])
-    if query_dict.get("vendor_id"): query=query.filter(Node.vendor_id == query_dict["vendor_id"])
-    if query_dict.get("model_id"): query=query.filter(Node.model_id == query_dict["model_id"])
+    query_dict = dict([(key, request.args.get(key))for key,value in form.data.items()])    
+    if query_dict.get("ip"): query=query.filter(Node.addr.like('%'+query_dict["ip"]+'%'))         # ilike
+    if query_dict.get("name"): query=query.filter(Node.name.like('%'+query_dict["name"]+'%'))     # ilike
+    if query_dict.get("area_id"): query=query.filter(Node.area_id == query_dict["area_id"])       # ==
+    if query_dict.get("vendor_id"): query=query.filter(Node.vendor_id == query_dict["vendor_id"]) # ==
+    if query_dict.get("model_id"): query=query.filter(Node.model_id == query_dict["model_id"])    # ==
     form.process(**query_dict)
     profile = Profile.load(current_user.id, NodeTable._meta.profile_grp)
     order_by = request.args.get('order_by', '')

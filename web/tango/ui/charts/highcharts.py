@@ -60,10 +60,12 @@ class Chart(AutoIncrDict):
         # Custom options
         for k, v in kwargs:
             self[k] = v
+            
 
     def set_html_id(self, html_id):
         self.html_id = html_id
         self['chart']['renderTo'] = html_id
+        
 
     def set_colors(self, name_lst):
         hex_lst = []
@@ -71,7 +73,30 @@ class Chart(AutoIncrDict):
             hex_lst.append(Chart.colors[name])
         if hex_lst:
             self['colors'] = hex_lst
-    
+            
+
+    def set_yformatter(self, base_unit='B'):
+        unit_dict = {
+            'b' : '(this.value/8)',
+            'B' : '(this.value)',
+            'KB': '(this.value*1000)',
+            'MB': '(this.value*1000000)',
+        }
+        value = unit_dict[base_unit]
+        funcs = '''
+            function(){
+                var value = this.value;
+                if (value > 1000000000)
+                    return (value)/1000000000 + 'GB';
+                if (value > 1000000)
+                    return (value)/1000000 + 'MB';
+                if (value > 1000)
+                    return (value)/1000 + 'KB';
+            }''' % value
+        funcs = funcs.replace('\n', '').replace('   ', '')
+        self['yAxis']['labels']['formatter'] = funcs
+
+        
         
 class AreaStackedChart(Chart):
     '''
@@ -86,7 +111,12 @@ class PieBasicChart(Chart):
     [http://www.highcharts.com/demo/pie-basic] '''
     
     config = demjson.decode(pie_basic)
-    
+    func_dict = {
+        'click_event' : '',
+    }
+
+    def set_click_function(self, func_str):
+        self['plotOptions']['pie']['events']['click'] = func_str
 
 
 class SplinePlotBandsChart(Chart):
@@ -122,8 +152,8 @@ class BarNegativeStackChart(Chart):
 
 class ColumnRotatedLabels(Chart):
     '''
-    [http://www.highcharts.com/demo/column-rotated-labels]
-    '''
+    [http://www.highcharts.com/demo/column-rotated-labels] '''
+    
     config = demjson.decode(column_rotated_labels)
     
 
@@ -139,6 +169,7 @@ class LineTimeSeriesChart(Chart):
     [http://www.highcharts.com/demo/line-time-series]'''
 
     config = demjson.decode(line_time_series)
+
     
 
 # ==============================================================================

@@ -84,6 +84,9 @@ pie_basic = '''{
        pie: {
            allowPointSelect: true,
            cursor: 'pointer',
+           events: {
+               click: "function(){location.href = 'http://www.google.com';}",
+           },
            dataLabels: {
                enabled: true,
                color: '#000000',
@@ -557,6 +560,9 @@ line_time_series = '''{
    yAxis: {
        title: {
            text: 'Exchange rate'
+       },
+       labels: {
+           formatter: "function() {return (this.value) / 1000000) + 'M';}"
        },
        min: 0.6,
        startOnTick: false,

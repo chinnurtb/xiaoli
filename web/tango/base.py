@@ -82,12 +82,14 @@ class NestedDict(AutoIncrSortedDict):
     具有相同 key 的 values 会得到一个由 values 组成的列表(list)
     '''
     
-    def __init__(self, request):
-        if request is None:
+    def __init__(self, request=None, kv_list=None):
+        if request is None and kv_list is None:
             super(NestedDict, self).__init__()
             return
-        kv_lists = request.values.lists()
-        for k, v in kv_lists:
+            
+        if kv_list is None:
+            kv_list = request.values.lists()
+        for k, v in kv_list:
             if k == 'csrf_token' or v == '': continue
             # key 的层级用 '.' 分割
             # 例如, 给出 a.b.c=3 ,则会得到 {'a':{'b':{'c':'3'}}}
