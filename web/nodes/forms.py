@@ -28,6 +28,7 @@ class NodeNewForm(Form):
     snmp_port       = IntegerField(u'SNMP端口', default=0, validators=[NumberRange(min=0,message=u"端口不能是负数")])
 
 from tango.forms import FormPro
+from tango.ui.tables.utils import Attrs
 class NodeSearchForm(FormPro):
     area_id         = SelectFieldPro(u'所属区域',
         choices=lambda: [('', u'请选择区域')] + [(unicode(r.id), r.name) for r in Area.query])
@@ -37,3 +38,9 @@ class NodeSearchForm(FormPro):
         choices=lambda: [('', u'请选择生产厂家')] + [(unicode(r.id), r.alias) for r in Vendor.query])
     model_id        = SelectFieldPro(u'设备型号',
         choices=lambda: [('', u'请选择设备型号')] + [(unicode(r.id), r.alias) for r in Model.query])
+
+    class Meta():
+        attrs = Attrs(
+            label={'style':'width:80px;text-align: right;padding-bottom: 10px;'},
+            field={'style':'padding-left: 10px;padding-bottom: 10px;'}
+        )

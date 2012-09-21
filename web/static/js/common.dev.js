@@ -27,12 +27,12 @@ columns = {
 
 	saveManageColumnsState : function() {
 	    var hidden = this.hidden();
-            var _xsrf = this.getCookie('_xsrf');
+        var _xsrf = this.getCookie('_xsrf');
 	    $.post(userSettings.ajaxurl, {
-                _xsrf: _xsrf,
-                grp :  userSettings.grp,
-                key :  userSettings.key,
-		value: hidden,
+            _xsrf: _xsrf,
+            grp :  userSettings.grp,
+            key :  userSettings.key,
+            value: hidden
 	    });
 	},
   // Copy from tornado/demos/chat
