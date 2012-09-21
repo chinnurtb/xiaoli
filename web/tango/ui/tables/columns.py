@@ -1,4 +1,4 @@
-#coding=utf-8
+# -*- coding: utf-8 -*-
 from __future__ import absolute_import, unicode_literals
 
 from itertools import  islice
@@ -49,7 +49,7 @@ class Column(object):
     def cellattrs(self, bound_column, record):
         return {}
 
-    def render(self, value, record=None):
+    def render(self, value, record=None, bound_column=None):
         if value == None and self.ifnull != None:
             return self.ifnull
         else:
@@ -279,6 +279,8 @@ class BoundColumn(object):
         th_class = set((c for c in th.get("class", "").split(" ") if c))
         td_class = set((c for c in td.get("class", "").split(" ") if c))
         # add classes for ordering
+        if not self.is_checkbox:
+            th['id'] = self.name
         if getattr(self, 'hidden', None):
             th["style"] = "display: none;"
             td["style"] = "display: none;"

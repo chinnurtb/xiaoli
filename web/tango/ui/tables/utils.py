@@ -1,4 +1,4 @@
-#coding=utf-8
+# -*- coding: utf-8 -*-
 
 import re
 import copy
@@ -80,14 +80,16 @@ A = Accessor  # alias
 
 
 class AttributeDict(dict):
-    def as_html(self, **kwargs):
+    def as_html(self, order=True, **kwargs):
         new_attrs = self
+        if not order:
+            all_class = new_attrs.pop('class','').replace('orderable','').replace('sortable','')
+            new_attrs['class'] = all_class
         if kwargs:
             new_attrs = copy.deepcopy(self)
             AttributeDict.merge(new_attrs, kwargs)
         return Markup(' '.join(['%s="%s"' % (k, escape(v))
                                 for k, v in new_attrs.iteritems()]))
-
 
     @staticmethod
     def merge(default, extra):

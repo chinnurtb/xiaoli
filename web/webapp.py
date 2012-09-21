@@ -9,7 +9,7 @@
 """
 
 
-from flask import Flask, session, url_for, redirect, \
+from flask import Flask, session, redirect, url_for, \
     render_template, g, request, abort
 
 from tango.ui import menus
@@ -35,6 +35,7 @@ def load_user(id):
 login_mgr.init_app(app)
 
 from dashboard.views import homeview
+from tango.views import tangoview
 from topo.views import topoview
 from nodes.views import nodeview
 from alarms.views import alarmview
@@ -43,7 +44,8 @@ from report.views import reportview
 from users.views import userview
 from system.views import sysview
 
-blueprints = [homeview,
+blueprints = [tangoview,
+              homeview,
               #topoview,
               nodeview,
               alarmview,
@@ -62,6 +64,7 @@ def index():
 
 
 allowed_ips = ['192.168.1.1/24',
+               '192.168.100.1/24',
                '127.0.0.1',]
 ip_checker = ip_from(allowed=allowed_ips)
     
@@ -92,7 +95,7 @@ def before_request():
         if request.endpoint in SAFE_ENDPOINTS:
             return
         else:
-            return redirect('/login')
+            return redirect(url_for('users.login', next=request.url))
 
     # Not Anonymous User
     if current_user:

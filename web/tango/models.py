@@ -58,6 +58,15 @@ class Profile(db.Model):
         else:
             db.session.add(self)
 
+class QueryColumn(db.Model):
+    __tablename__ = 'query_columns'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(60))
+    orderable = db.Column(db.Boolean)
+    groupable = db.Column(db.Boolean)
+
+
 class Query(db.Model):
 
     __tablename__ = 'queries'
@@ -71,4 +80,6 @@ class Query(db.Model):
     is_public = db.Column(db.Boolean)
     created_at = db.Column(db.DateTime, default=datetime.now)
     updated_at = db.Column(db.DateTime, default=datetime.now) 
+
+
 

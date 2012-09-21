@@ -1,0 +1,33 @@
+{% set menuid = 'users' %}
+
+{% set submenuid = 'users' %}
+
+{% extends 'layout.html' %} 
+
+{% block title %} 用户管理 {% endblock %}
+
+{% block head %}
+<link href="/static/css/nv.d3.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="/static/js/nvd3/lib/d3.v2.js"></script>
+<script type="text/javascript" src="/static/js/nvd3/nv.d3.js"></script>
+<script type="text/javascript" src="/static/js/nvd3/src/utils.js"></script>
+<script type="text/javascript" src="/static/js/nvd3/src/models/pie.js"></script>
+<script type="text/javascript" src="/static/js/nvd3/src/models/pieChart.js"></script>
+{% endblock %}
+
+{% block content %}
+
+<div class="row-fluid" style="margin-top:20px">
+
+  <div class="span2">
+    {% include "users/_sidebar.html" %}
+  </div>
+
+  <div class="span10">
+    {% include "_alert.html" %}
+    {% from "_chart_h.html" import render_nvd3chart %}
+    {{ render_nvd3chart(chart) }}
+</div>
+
+{% endblock %}
+

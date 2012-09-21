@@ -1,16 +1,15 @@
 #!/usr/bin/env python 
 # -*- coding: utf-8 -*-
-import re
 from flask import json
-from flask import (Blueprint, request, url_for,
+from flask import (Blueprint, request, url_for, make_response, send_file,
                    redirect, render_template, flash)
 
 from tango import db
 from tango.ui import menus, Menu
 from tango.login import logout_user, login_user, current_user
-
 from tango.models import Profile
 from tango.base import NestedDict
+
 from nodes.models import Area
 from .models import User, Role, Permission, Domain
 from .forms import (UserEditForm, UserNewForm, LoginForm, PasswordForm, RoleForm,
@@ -26,29 +25,28 @@ userview = Blueprint('users', __name__)
 # =============================================================================== 
 @userview.route('/login', methods=['GET', 'POST'])
 def login():
-    form = LoginForm(request.form)
-    if request.method == 'POST':
-        username = form.username.data
-        password = form.password.data
-        user, authenticated = User.authenticate(username, password)
-        if user and authenticated:
-            remember = form.remember.data == 'y'
-            if login_user(user, remember = remember):
-                flash(u'登录成功', 'success')
-                return redirect('/')
-        elif not user:
-            flash(u'用户不存在', 'error')
-        else: 
-            flash(u'密码错误', 'error')
+	form = LoginForm(request.form)
+	if request.method == 'POST':
+		username = form.username.data
+		password = form.password.data
+                next = form.next.data
+		user, authenticated = User.authenticate(username, password)
+		DEBUG = True # For DEBUG
+		print 'DEBUG::', DEBUG
+		if user and authenticated or DEBUG: 
+			remember = form.remember.data == 'y'
+			if login_user(user, remember = remember):
+				flash(u'登录成功', 'success')
+                                if next:
+                                    return redirect(next)
+				return redirect('/')
+		elif not user:
+			flash(u'用户不存在', 'error')
+		else: 
+			flash(u'密码错误', 'error')
 
-        # if session.get('login_time', None) is None:
-        #     session['login_time'] = 1
-        # else:
-        #     session['login_time'] += 1
-        # if session['login_time'] > 10:
-        #     abort(403)
-            
-    return render_template('login.html', form = form)
+        form.next.data = request.args.get('next', '')
+	return render_template('login.html', form = form)
 
     
 @userview.route('/logout', methods=['GET'])
@@ -64,11 +62,24 @@ def logout():
 # ==============================================================================
 @userview.route('/settings')
 def settings():
-    return redirect(url_for('users.profile'))
+    return redirect(url_for('users.user_info'))
 
-    
 @userview.route('/settings/profile', methods=['POST', 'GET'])
 def profile():
+    args = request.values
+    grp = args.get('grp')
+    key = args.get('key')
+    value = args.get('value')
+    profile = Profile(current_user.id, grp, key, value)
+    profile.update()
+    db.session.commit()
+    if request.method == 'GET':
+        return redirect(request.referrer)
+    else:
+        return 'Updated!'
+    
+@userview.route('/settings/info', methods=['POST', 'GET'])
+def user_info():
     '''用户修改自己的个人信息'''
     
     form = ProfileForm()
@@ -77,12 +88,12 @@ def profile():
         form.populate_obj(user)
         db.session.commit()
         flash(u'个人信息修改成功', 'success')
-        return redirect(url_for('users.profile'))
+        return redirect(url_for('users.user_info'))
     
     form.process(obj=user)
     form.role_name.data = user.role.name
     form.domain_name.data = user.domain.name
-    return render_template('settings/profile.html', form=form)
+    return render_template('settings/user_info.html', form=form)
 
     
 @userview.route('/settings/password', methods=['POST', 'GET'])
@@ -100,23 +111,26 @@ def change_password():
             flash(u'当前密码错误', 'error')
     return render_template("settings/password.html", form = form)
 
-
-
+    
 
 # ==============================================================================
 #  User
 # ==============================================================================     
 @userview.route('/users/')
-def users():
-    profile = Profile.load(current_user.id, "table-users")
+@userview.route('/users/<int:page>')
+def users(page=1):
+        
+    profile = Profile.load(current_user.id, UserTable._meta.profile_grp)
+    order_by = request.args.get('order_by', None)
     keyword = request.args.get('keyword', '')
+
     query = User.query
     if keyword:
         query = query.filter(db.or_(User.name.ilike('%' + keyword + '%'),
                                     User.email.ilike('%' + keyword + '%'),
                                     User.role.has(Role.name.ilike('%' + keyword + '%'))))
     
-    table = UserTable(query).configure(profile, page=1)
+    table = UserTable(query).configure(profile, page=page, order_by=order_by)
     return render_template('users/index.html', table=table, keyword=keyword)
 
     
@@ -181,9 +195,12 @@ def reset_password(id):
 #  Role
 # ============================================================================== 
 @userview.route('/roles/')
-def roles():
-    profile = {}
-    table = RoleTable(Role.query).configure(profile, page=1)
+@userview.route('/roles/<int:page>')
+def roles(page=1):
+    order_by = request.args.get('order_by', None)
+    
+    profile = Profile.load(current_user.id, RoleTable._meta.profile_grp)
+    table = RoleTable(Role.query).configure(profile, page=page, order_by=order_by)
     return render_template('users/roles.html', table=table)
     
     
@@ -255,7 +272,18 @@ def role_delete(id):
     
 # ==============================================================================
 #  Domain
-# ============================================================================== 
+# ==============================================================================
+    
+@userview.route('/domains/')
+@userview.route('/domains/<int:page>')
+def domains(page=1):
+    order_by = request.args.get('order_by', None)
+    
+    profile = Profile.load(current_user.id, DomainTable._meta.profile_grp)
+    table = DomainTable(Domain.query).configure(profile, page=page, order_by=order_by)
+    return render_template('users/domains.html', table=table)
+
+    
 @userview.route('/domains/load/nodes')
 def domain_load_nodes():
     key = request.args.get('key', '')
@@ -304,13 +332,6 @@ def domain_load_nodes():
             if key else [make_nodes(root.id)]
     
     return json.dumps(nodes)    
-
-    
-@userview.route('/domains/')
-def domains():
-    profile = {}
-    table = DomainTable(Domain.query).configure(profile, page=1)
-    return render_template('users/domains.html', table=table)
 
 
 @userview.route('/domains/new', methods=['POST', 'GET'])
@@ -364,4 +385,4 @@ def domain_delete(id):
 # ==============================================================================
 #  [OTHER]
 # ==============================================================================
-menus.append(Menu('users', u'用户', '/users'))
+menus.append(Menu('users', u'用户', '/users/'))
