@@ -7,9 +7,12 @@ class SelectFieldPro(SelectField):
             choices = choices()
         super(SelectFieldPro, self).__init__(label, validators, coerce, choices, **kwargs)
 
+
+        
 from flask_wtf.form import Form, _Auto
 from jinja2 import Markup
 class  FormPro(Form):
+    
     def _html_output(self, normal_row, column, row_start, row_end):
         "Helper function for outputting HTML. Used by as_table(), as_ul(), as_p()."
         output = []

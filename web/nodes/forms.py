@@ -27,6 +27,7 @@ class NodeNewForm(Form):
     snmp_ver        = TextField(u'SNMP版本')
     snmp_port       = IntegerField(u'SNMP端口', default=0, validators=[NumberRange(min=0,message=u"端口不能是负数")])
 
+    
 from tango.forms import FormPro
 class NodeSearchForm(FormPro):
     area_id         = SelectFieldPro(u'所属区域',

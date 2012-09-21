@@ -58,7 +58,7 @@ def area_select():
 def nodes():
     form = NodeSearchForm()
     query = Node.query
-    query_dict = dict([(key, request.args.get(key))for key,value in form.data.items()])    
+    query_dict = dict([(key, request.args.get(key))for key in form.data.keys()])
     if query_dict.get("ip"): query=query.filter(Node.addr.like('%'+query_dict["ip"]+'%'))         # ilike
     if query_dict.get("name"): query=query.filter(Node.name.like('%'+query_dict["name"]+'%'))     # ilike
     if query_dict.get("area_id"): query=query.filter(Node.area_id == query_dict["area_id"])       # ==
