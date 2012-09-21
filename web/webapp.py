@@ -35,6 +35,7 @@ def load_user(id):
 login_mgr.init_app(app)
 
 from dashboard.views import homeview
+from tango.views import tangoview
 from topo.views import topoview
 from nodes.views import nodeview
 from alarms.views import alarmview
@@ -43,7 +44,8 @@ from report.views import reportview
 from users.views import userview
 from system.views import sysview
 
-blueprints = [homeview,
+blueprints = [tangoview,
+              homeview,
               #topoview,
               nodeview,
               alarmview,
