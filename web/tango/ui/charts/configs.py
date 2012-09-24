@@ -566,7 +566,7 @@ line_time_series = '''{
            text: 'Exchange rate'
        },
        labels: {
-           formatter: "function() {return (this.value) / 1000000) + 'M';}"
+           formatter: "function() {return (this.value / 1000000) + 'M';}"
        },
        min: 0.6,
        startOnTick: false,

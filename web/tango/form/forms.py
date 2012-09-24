@@ -1,15 +1,10 @@
-
-from wtforms.compat import text_type
-from wtforms import SelectField
-class SelectFieldPro(SelectField):
-    def __init__(self, label=None, validators=None, coerce=text_type, choices=None, **kwargs):
-        if callable(choices):
-            choices = choices()
-        super(SelectFieldPro, self).__init__(label, validators, coerce, choices, **kwargs)
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 from flask_wtf.form import Form
 from jinja2 import Markup
 from tango.ui.tables.utils import Attrs, AttributeDict
+from tango.form.widgets import Media
 
 class  FormPro(Form):
     class Meta:
@@ -22,6 +17,8 @@ class  FormPro(Form):
         for field in self:
             if field.type == 'HiddenField' or field.type == 'CSRFTokenField':
                 hidden_fields.append(field())
+            elif hasattr(self.Meta,'list_display') and field.id not in self.Meta.list_display:
+                pass
             else:
                 show_fields.append(field)
         if int(column) > 0:
@@ -85,3 +82,11 @@ class  FormPro(Form):
 
     def as_ul(self):
         pass
+
+    def _get_media(self):
+        media = Media()
+        for field in self:
+            if hasattr(field.widget,'media'): media = media + field.widget.media
+        return media
+    media = property(_get_media)
+

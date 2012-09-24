@@ -45,6 +45,7 @@
         })
     })
 </script>
+    {{ form.media.render() }}
 {% endblock %}
 
 {% from "_table_h.html" import render_table, render_screen_meta %}
@@ -96,7 +97,9 @@
                         <div class="alignleft advance_search" title="高级检索"></div>
                 </div>
             </div>
-            {% include "nodes/_search_form.html" %}
+            <div style="margin: 0; display: none;" class="span12 well advance_search_form header">
+                {{ form.as_table(column=2) }}
+            </div>
         </form>
         <form action="" method="POST" id="node_form">
         {{ render_table(table) }}
