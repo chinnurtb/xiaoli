@@ -7,14 +7,8 @@
     })
 </script>
 <div style="margin: 0; display: none;" class="span12 well advance_search_form header">
-    {% from "_form_h.html" import render_field %}
-    <div class="span4">
-        所属区域
-        {% include "areas/_select.html" %}
-        {{ render_field(form.name, id="node-name", class="input-large") }}
-    </div>
-    <div class="span4">
-        {{ render_field(form.vendor_id, class="input-large") }}
-        {{ render_field(form.model_id, class="input-large") }}
-    </div>
+    {{ form.as_table(column=2) }}
+    <br/>
+    所属区域
+    {% include "areas/_select.html" %}
 </div>

@@ -104,7 +104,7 @@ class Attrs(dict):
     """
     """
     def update(self, extra):
-        for key in ('th', 'td'):
+        for key in ('th', 'td', 'table'):
             self[key] = AttributeDict.merge(self.get(key, {}), extra.get(key, {}))
 
 

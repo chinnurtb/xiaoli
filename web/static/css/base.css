@@ -378,3 +378,7 @@ tr:hover .row-actions {
     /* visibility: visible */
 }
 
+label {
+    margin-bottom: 0;
+}
+
