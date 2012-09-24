@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+
+        
 from flask_wtf.form import Form
 from jinja2 import Markup
 from tango.ui.tables.utils import Attrs, AttributeDict

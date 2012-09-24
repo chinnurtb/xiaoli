@@ -314,8 +314,9 @@ def knowledge_edit(id):
 
 @alarmview.route('/alarms/settings', methods=['GET', 'POST'])
 def settings():
-    return render_template('/alarms/settings.html')
-
+    q = Setting.query.filter_by(mod='alarms')
+    t = SettingTable(q)
+    return render_template('/alarms/settings.html', table=t)
 
 @alarmview.app_template_filter("alarm_severity")
 def alarm_severity_filter(s):
