@@ -85,7 +85,7 @@ class Chart(AutoIncrDict):
         value = unit_dict[base_unit]
         funcs = '''
             function(){
-                var value = this.value;
+                var value = %s;
                 if (value > 1000000000)
                     return (value)/1000000000 + 'GB';
                 if (value > 1000000)

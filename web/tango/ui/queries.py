@@ -39,21 +39,16 @@ from nodes.models import Node
 
 
 class QueryField(object):
-    pass
     
-
-class QueryForm(object):
     def __init__(self,):
         pass
     
 
-# class QueryColumn(object):
-#     def __init__(self, name, **kwargs):
-#         self.name = name
-#         self.sortable = kwargs.get('sortable', False)
-#         self.groupable = kwargs.get('groupable', False)
-#         self.default_order = kwargs.get('default_order', None)
-
+class QueryForm(object):
+    
+    def __init__(self,):
+        pass
+    
 
 class Filter(object):
     operators = {
@@ -116,6 +111,8 @@ class Filters(object):
     def to_str(self):
         return ' AND '.join([filter.to_str() for filter in self.filters])
 
+
+        
 # ==============================================================================
 #  Unit Test
 # ==============================================================================

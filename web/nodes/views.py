@@ -120,6 +120,7 @@ def node_show(id):
     chart["subtitle"]["text"] = None
     chart["yAxis"]["title"] = None
     chart.height = str(280)+"px"
+    chart.set_yformatter()
     return render_template('nodes/show.html', node = node, chart = chart)
 
 @nodeview.route('/nodes/new/', methods=['GET','POST'])
