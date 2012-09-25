@@ -361,8 +361,8 @@ def domain_edit(id):
         db.session.commit()
         flash(u'管理域(%s)修改成功' % domain.name, 'success')
         return redirect(url_for('users.domains'))
-    domain_areas = ','.join([domain.city_list, domain.town_list,
-                             domain.branch_list, domain.entrance_list])
+    domain_areas = [domain.city_list, domain.town_list,domain.branch_list, domain.entrance_list]
+    domain_areas = ','.join([d for d in domain_areas if d])
     form.process(obj=domain)
     return render_template('users/domain_new_edit.html',
                            action=url_for('users.domain_edit', id=id),

@@ -56,7 +56,7 @@ class  FormPro(Form):
         return output
 
     def set_attrs(self):
-        attrs = getattr(self.Meta,'attrs') or Attrs()
+        attrs = getattr(self.Meta,'attrs',{}) or Attrs()
         self.table_attrs = AttributeDict(**(attrs.get('table') or {}))
         self.label_attrs = AttributeDict(**(attrs.get('label') or {}))
         self.field_attrs = AttributeDict(**(attrs.get('field') or {}))

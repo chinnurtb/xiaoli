@@ -2,7 +2,9 @@
 
 {% set menuid = 'nodes' %}
 
-{% block head %} {% endblock %}
+{% block head %}
+    {{ form.media.render() }}
+{% endblock %}
 
 {% block screen_meta %}
 
@@ -27,31 +29,7 @@
         {% from "_form_h.html" import render_field %}
         <form class="form-horizontal" method="POST" action="{{url_for('nodes.node_new')}}">
             <legend>新建节点</legend>
-            {{ form.hidden_tag() }}
-            <div class="span5">
-                {{ render_field(form.area_id, class="input-large") }}
-                {{ render_field(form.name, id="node-alias", class="input-large") }}
-                {{ render_field(form.vendor_id, class="input-large") }}
-            </div>
-            <div class="span5">
-                <!--
-                <div class="row control-group" style="height:30px;"></div>
-                -->
-                {{ render_field(form.category, class="input-large") }}
-                {{ render_field(form.addr, class="input-large") }}
-                {{ render_field(form.model_id, class="input-large") }}
-            </div>
-            <fieldset class="span10">
-                <legend>SNMP参数</legend>
-                <div class="span4">
-                {{ render_field(form.snmp_comm, class="input-large") }}
-                {{ render_field(form.snmp_wcomm, class="input-large") }}
-                </div>
-                <div class="span4 offset2">
-                {{ render_field(form.snmp_ver, class="input-large") }}
-                {{ render_field(form.snmp_port, class="input-large") }}
-                </div>
-            </fieldset>
+            {{ form.as_table(column=2) }}
             <div class="form-actions span10">
                 <button type="submit" class="btn btn-primary btn-small">确定</button>
                 <button type="submit" class="btn btn-small">取消</button>
