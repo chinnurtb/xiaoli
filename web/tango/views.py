@@ -6,6 +6,11 @@ from users.models import User
 
 tangoview = Blueprint('tango', __name__)
 
+from tango.ui import tables
+
+class SettingTable(tables.Table):
+    
+    alias   = tables.LinkColumn(verbose_name='名称', endpoint='settings_edit')
 
 
 # ==============================================================================
@@ -111,5 +116,3 @@ def get_chat_json():
 ]'''
     return resp
     
-
-

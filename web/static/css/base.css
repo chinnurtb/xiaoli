@@ -382,3 +382,13 @@ label {
     margin-bottom: 0;
 }
 
+.postbox .inside {
+    margin: 0;
+    padding: 0;
+}
+.postbox .inside th {
+    background-color: #ffffff;
+    background-image: none;
+    font-size: 12px;
+    font-weight: bold;
+}

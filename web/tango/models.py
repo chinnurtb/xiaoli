@@ -6,11 +6,13 @@ from datetime import datetime
 
 class Setting(db.Model):
     __tablename__ = 'settings'
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100))
-    value = db.Column(db.Text())
-    created_at = db.Column(db.DateTime, default=datetime.now)
-    updated_at = db.Column(db.DateTime, default=datetime.now)
+    id          = db.Column(db.Integer, primary_key=True)
+    name        = db.Column(db.String(100))
+    alias       = db.Column(db.String(100))
+    value       = db.Column(db.Text())
+    unit        = db.Column(db.String(20))
+    created_at  = db.Column(db.DateTime, default=datetime.now)
+    updated_at  = db.Column(db.DateTime, default=datetime.now)
 
     def __init__(self, name, value):
         self.name = name

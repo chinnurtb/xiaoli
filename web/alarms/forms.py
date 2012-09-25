@@ -5,9 +5,9 @@ from flask_wtf import (Form, TextField, SubmitField, PasswordField, RadioField,
                           IntegerField, TextAreaField, SubmitField, RecaptchaField,
                           ValidationError, validators, required, equal_to, email)
 
-from wtforms import BooleanField 
+from wtforms import BooleanField
 
-from tango.forms import SelectFieldPro
+from tango.form.fields import SelectFieldPro
 
 from .models import AlarmSeverity, AlarmClass
 

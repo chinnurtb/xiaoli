@@ -47,7 +47,7 @@ if (jQuery) (function($) {
                 var select = $(this);
                 var init_value = select.val() == null ? "" : select.val();
                 var iWidth = select.width() < 40 ? 40 : select.width();
-                var html = '<div class="dropPanel"><input type="text" style="cursor:pointer;background: none;border: none;box-shadow: none;" class="dropPanel_txt" name="' + select.attr("name") + '" readonly="readonly" value="'+ init_value +'" /></div>';
+                var html = '<div class="dropPanel"><input type="text" style="cursor:pointer;background: none;border: none;box-shadow: none;" class="dropPanel_txt" id="'+ select.attr("id") +'" name="' + select.attr("name") + '" readonly="readonly" value="'+ init_value +'" /></div>';
                 html += '<div class="panelContent" style="position: absolute; z-index: 99999; display: none;">';
 								html += "<div id='" + o.contentId + "'>"+ o.replaceText +"</div>"
                 html += '</div>';
