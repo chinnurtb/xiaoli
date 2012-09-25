@@ -98,8 +98,9 @@ class NestedDict(AutoIncrSortedDict):
             while len(k_chains) > 1:
                 cur_level = cur_level[k_chains.pop(0)]
             if isinstance(cur_level, list):
-                raise KeyError('(key : %s) already exists,so (key : %s) is not allowed' %
-                               ('.'.join(k.split('.')[:-1]),k))
+                raise KeyError('(key : %s) already exists,so (key : %s) is not allowed' % ('.'.join(k.split('.')[:-1]),k))
+            if isinstance(v, list) and len(v) == 1:
+                v = v[0]
             cur_level[k_chains[0]] = v
 
             
