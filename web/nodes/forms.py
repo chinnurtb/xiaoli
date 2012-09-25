@@ -33,7 +33,7 @@ from tango.form.forms import FormPro
 from tango.ui.tables.utils import Attrs
 class NodeSearchForm(FormPro):
     name            = TextField(u'节点名称', validators=[required(message=u'必填')])
-    area_id         = AreaSelectField(u'所属区域')
+    area            = AreaSelectField(u'所属区域')
     vendor_id       = SelectFieldPro(u'生产厂家',
         choices=lambda: [('', u'请选择生产厂家')] + [(unicode(r.id), r.alias) for r in Vendor.query])
     model_id        = SelectFieldPro(u'设备型号',
@@ -45,4 +45,4 @@ class NodeSearchForm(FormPro):
             label={'style':'width:80px;text-align: right;padding-bottom: 10px;'},
             field={'style':'padding-left: 10px;padding-bottom: 10px;'}
         )
-        list_display = ('name','area_id','vendor_id','model_id')
+        list_display = ('name','area','vendor_id','model_id')

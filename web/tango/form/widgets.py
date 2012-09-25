@@ -3,6 +3,7 @@
 
 from itertools import chain
 from jinja2 import Markup
+from flask import request
 
 MEDIA_TYPES = ('css','js')
 
@@ -67,14 +68,12 @@ class AreaSelectWidget(object):
                     onShow: function(dropPanel){
                         $("#dropContent").dynatree({
                             checkbox: true,
-                            selectMode: 3,
+                            selectMode: 2,
                             imagePath: '',
                             initAjax:{
                                 url:"/area_select",
                                 data:{
-                                    domain_ids: $('#domain_ids').val(),
-                                    expand_level : 3,
-                                    guid : $('#conditions_guid').val()
+                                    selected_ids: $('#%(field_id)s_selected').val()
                                 }
                             },
                             onActivate: function(dtnode) {},
@@ -83,8 +82,7 @@ class AreaSelectWidget(object):
                                     url:"/area_select",
                                     data:{
                                         key: dtnode.data.key,
-                                        domain_ids: $('#domain_ids').val(),
-                                        guid : $('#conditions_guid').val()
+                                        selected_ids: $('#%(field_id)s_selected').val()
                                     }
                                 });
                             },
@@ -95,10 +93,10 @@ class AreaSelectWidget(object):
                                 var selvals = $.map(selNodes, function(node){
                                     selkeys.push(node.data.key);
                                     selTitles.push(node.data.title);
-                                    return node.data.level_desc + '=' + node.data.key;
+                                    return node.data.area_type + '=' + node.data.key;
                                 });
-                                $("#domains").val(selvals.join(" or "));
-                                $("#domain_ids").val(selkeys.join(","));
+                                $("#%(field_id)s_netloc").val(selvals.join(" or "));
+                                $("#%(field_id)s_selected").val(selkeys.join(","));
                                 $(".dropPanel_txt").val(selTitles.join(","));
                             },
                             strings: {
@@ -117,12 +115,15 @@ class AreaSelectWidget(object):
                 $("#%(field_id)s").dropPanel(config);
             });
         </script>
-        <select id="%(field_id)s" name="%(field_name)s"></select>
-        <input id="domains" type="hidden" value="" name="netloc">
-        <input id="domain_ids" type="hidden" value="" name="area_ids">
+        <input id="%(field_id)s" name="%(field_name)s" value="%(area_value)s" />
+        <input id="%(field_id)s_netloc" type="hidden" value="%(netloc_value)s" name="%(field_name)s_netloc" />
+        <input id="%(field_id)s_selected" type="hidden" value="%(selected_value)s" name="%(field_name)s_selected" />
         ''' % {
             'field_id': field.id,
-            'field_name': field.name
+            'field_name': field.name,
+            'area_value': request.args.get(field.name,''),
+            'netloc_value': request.args.get(field.name+'_netloc',''),
+            'selected_value': request.args.get(field.name+'_selected','')
         }
         return html
 

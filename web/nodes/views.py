@@ -6,6 +6,7 @@ from flask import Blueprint, request, session, url_for, \
 from flask import json
 
 from sqlalchemy import func
+from sqlalchemy import or_
 from sqlalchemy.orm import aliased
 
 from tango import db
@@ -23,17 +24,46 @@ nodeview = Blueprint('nodes', __name__)
 @nodeview.route('/area_select', methods=['POST', 'GET'])
 def area_select():
     key = request.args.get('key')
+    area_selected = [int(id) for id in request.args.get("selected_ids",'').split(',') if id ]
+    # 获得树需要展开的所有节点
+    expand_nodes = set(area_selected)
+    if area_selected and not key:
+        expand_areas = [Area.query.get(id) for id in area_selected]
+        for area in expand_areas:
+            while area.parent_id != -1:
+                expand_nodes.add(area.parent_id)
+                area = Area.query.get(area.parent_id)
+
+    area_type = {0:'areas.province',1:'areas.cityid',2:'areas.town',3:'areas.branch',4:'areas.entrance'}
     def make_node(area):
         node = {}
         node['title'] = area.name
         node['key'] = str(area.id)
+        node['area_type'] = area_type[area.area_type]
+        if area.id in area_selected:
+            node['select'] = True
         if len(area.children) > 0:
             node['isLazy'] = True
+        return node
+
+    def make_nodes(area):
+        node = make_node(area)
+        if len(area.children) > 0:
+            node['expand'] = False
+            node['children'] = []
+            for child in area.children:
+                if child.id in expand_nodes:
+                    node['expand'] = True
+                    node['children'].append(make_nodes(child))
+                else:
+                    child_node = make_node(child)
+                    node['children'].append(child_node)
         return node
 
     if key:
         trees = [make_node(area) for area in Area.query.filter(Area.parent_id==key)]
     else:
+        # 依次找到当前用户的所有管理域，判断从属关系后合并，最后生成树
         city_ids = current_user.domain.city_list.split(',') if current_user.domain.city_list else []
         town_ids = current_user.domain.town_list.split(',') if current_user.domain.town_list else []
         branch_ids = current_user.domain.branch_list.split(',') if current_user.domain.branch_list else []
@@ -42,13 +72,15 @@ def area_select():
         town_nodes = [Area.query.get(town) for town in town_ids]
         branch_nodes = [Area.query.get(branch) for branch in branch_ids]
         entrance_nodes = [Area.query.get(entrance) for entrance in entrance_ids]
-        trees = [make_node(area) for area in city_nodes]
-        trees.extend([make_node(area) for area in town_nodes if str(area.cityid) not in city_ids])
-        trees.extend([make_node(area) for area in branch_nodes if str(area.cityid) not in city_ids
+        area_nodes = city_nodes
+        area_nodes.extend([area for area in town_nodes if str(area.cityid) not in city_ids])
+        area_nodes.extend([area for area in branch_nodes if str(area.cityid) not in city_ids
             and str(area.town) not in town_ids])
-        trees.extend([make_node(area) for area in entrance_nodes if str(area.cityid) not in city_ids
+        area_nodes.extend([make_node(area) for area in entrance_nodes if str(area.cityid) not in city_ids
             and str(area.town) not in town_ids
             and str(area.branch) not in branch_ids])
+
+        trees = [make_nodes(area) for area in area_nodes]
 
     return json.dumps(trees)
 
@@ -58,10 +90,17 @@ def area_select():
 def nodes():
     form = NodeSearchForm()
     query = Node.query
+    query = query.outerjoin(Area, Node.area_id==Area.id)
+
     query_dict = dict([(key, request.args.get(key))for key in form.data.keys()])
     if query_dict.get("ip"): query=query.filter(Node.addr.like('%'+query_dict["ip"]+'%'))         # ilike
     if query_dict.get("name"): query=query.filter(Node.name.like('%'+query_dict["name"]+'%'))     # ilike
-    if query_dict.get("area_id"): query=query.filter(Node.area_id == query_dict["area_id"])       # ==
+    if query_dict.get("area"):
+        # 区域树查询，是直接用的前台传过来的值作为where条件，如果包含or，需加括号
+        # 注意：值如（areas.cityid=1001 or areas.town=1006），areas 应与实际上生成的sql语句一致
+        netloc = request.args.get('area_netloc')
+        if 'or' in netloc: netloc = '('+netloc+')'
+        query = query.filter(netloc)
     if query_dict.get("vendor_id"): query=query.filter(Node.vendor_id == query_dict["vendor_id"]) # ==
     if query_dict.get("model_id"): query=query.filter(Node.model_id == query_dict["model_id"])    # ==
     form.process(**query_dict)
