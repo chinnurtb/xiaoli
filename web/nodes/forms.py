@@ -5,16 +5,18 @@ import re
 
 from wtforms import BooleanField 
 from wtforms import validators as v
-from tango.form.fields import SelectFieldPro
 from .models import Node, Board, Port, Area, Vendor, Model
 
 from flask_wtf import (Form, TextField, PasswordField, IntegerField,NumberRange,
                        TextAreaField, ValidationError, required, equal_to, email)
-from tango.form.fields import AreaSelectField
 
-class NodeNewForm(Form):
-    area_id         = SelectFieldPro(u'所属区域',validators=[required(message=u'必填')],
-        choices=lambda: [('', u'请选择区域')] + [(unicode(r.id), r.name) for r in Area.query])
+from tango.form.forms import FormPro
+from tango.form.fields import AreaSelectField
+from tango.form.fields import SelectFieldPro
+from tango.ui.tables.utils import Attrs
+
+class NodeNewForm(FormPro):
+    area            = AreaSelectField(u'所属区域',validators=[required(message=u'必填')])
     name            = TextField(u'节点名称', validators=[required(message=u'必填')])
     category        = SelectFieldPro(u'节点类型',validators=[required(message=u'必填')],
         choices=[('',u'请选择节点类型'),('1',u'OLT'),('2',u'ONU'),('3',u'DSLAM'),('4',u'EOC'),('5',u'Switch')])
@@ -28,9 +30,13 @@ class NodeNewForm(Form):
     snmp_ver        = TextField(u'SNMP版本')
     snmp_port       = IntegerField(u'SNMP端口', default=0, validators=[NumberRange(min=0,message=u"端口不能是负数")])
 
+    class Meta():
+        attrs = Attrs(
+            label={'style':'width:80px;text-align: right;padding-bottom: 10px;'},
+            field={'style':'padding-left: 10px;padding-bottom: 10px;'}
+        )
 
-from tango.form.forms import FormPro
-from tango.ui.tables.utils import Attrs
+
 class NodeSearchForm(FormPro):
     name            = TextField(u'节点名称', validators=[required(message=u'必填')])
     area            = AreaSelectField(u'所属区域')
