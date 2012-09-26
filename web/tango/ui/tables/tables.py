@@ -3,13 +3,13 @@
 from __future__ import absolute_import, unicode_literals
 
 from flask import Flask, render_template, url_for, request
-
 from flask_sqlalchemy import Pagination
+
+from tango.base import SortedDict
 
 from .columns import *
 from .rows import *
 from .utils import *
-
 from .actions import Action
 
 ## Table
