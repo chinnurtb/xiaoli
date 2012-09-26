@@ -386,6 +386,13 @@ label {
     margin-bottom: 0;
 }
 
+label em {
+    color: #FFA200;
+    line-height: 1;
+    margin-right: 0.3em;
+    vertical-align: bottom;
+}
+
 .postbox .inside {
     margin: 0;
     padding: 0;
