@@ -15,7 +15,7 @@
 </style>
 <script type="text/javascript">
     var getSelectBox = function(){
-        return $("#node_form").find("input[name^=ids]:checked");
+        return $("#node_form").find("input[name^=id]:checked");
     }
     $(function(){
         $(".advance_search").toggle(
@@ -76,7 +76,7 @@
     </div>
     <div class="span10">
         {% include "_alert.html" %}
-        <form class="form-horizontal" method="POST" action="{{url_for('nodes.nodes')}}" id="search_form">
+        <form class="form-horizontal" method="GET" action="{{url_for('nodes.nodes')}}" id="search_form">
             <div class="tablenav top">
                 <div class="alignleft">
                     <input type="hidden" name="orderby" value="login">
@@ -98,11 +98,13 @@
                 </div>
             </div>
             <div style="margin: 0; display: none;" class="span12 well advance_search_form header">
-                {#{ form.as_table(column=2) }#}
+                {{ form.as_table(column=2) }}
+                <!--
                 {% from "_form_h.html" import render_field %}
                 {% for field in query_form %}
                 {{ render_field(field) }}
                 {% endfor %}
+                -->
             </div>
         </form>
         <form action="" method="POST" id="node_form">

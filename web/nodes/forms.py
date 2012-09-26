@@ -38,7 +38,7 @@ class NodeNewForm(FormPro):
 
 
 class NodeSearchForm(FormPro):
-    name            = TextField(u'节点名称', validators=[required(message=u'必填')])
+    name            = TextField(u'节点名称')
     area            = AreaSelectField(u'所属区域')
     vendor_id       = SelectFieldPro(u'生产厂家',
         choices=lambda: [('', u'请选择生产厂家')] + [(unicode(r.id), r.alias) for r in Vendor.query])
