@@ -16,7 +16,7 @@ from tango.form.fields import SelectFieldPro
 from tango.ui.tables.utils import Attrs
 
 class NodeNewForm(FormPro):
-    area            = AreaSelectField(u'所属区域',validators=[required(message=u'必填')])
+    area_id         = AreaSelectField(u'所属区域', select_mode=1, validators=[required(message=u'必填')])
     name            = TextField(u'节点名称', validators=[required(message=u'必填')])
     category        = SelectFieldPro(u'节点类型',validators=[required(message=u'必填')],
         choices=[('',u'请选择节点类型'),('1',u'OLT'),('2',u'ONU'),('3',u'DSLAM'),('4',u'EOC'),('5',u'Switch')])

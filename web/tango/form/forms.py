@@ -12,9 +12,30 @@ class  FormPro(Form):
     class Meta:
         pass
 
+    def _render_multi_fields(self):
+        pass
+
+    def _render_simple_fields(self):
+        pass
+
+    def _render_field_errors(self):
+        output_errors = []
+        output_errors.append('<div class="alert alert-error span10">')
+        output_errors.append(u'<button type="button" class="close" data-dismiss="alert">×</button>')
+        output_errors.append(u'<strong>请检查下面字段：</strong>')
+        for name,error in self.errors.items():
+            text = getattr(self,name).label.text
+            output_errors.append('<li style="margin-left: 10px;"><span>%(name)s:</span>&nbsp;&nbsp;&nbsp;<span>%(error)s</span></li>' % {
+                'name':text,
+                'error':u'; '.join(error)
+            })
+        output_errors.append('</div>')
+        return output_errors
+
     def _html_output(self, label_row, label_attrs,field_row, field_attrs, column, row_start, row_end):
         "Helper function for outputting HTML. Used by as_table(), as_ul(), as_p()."
         output = []
+        if self.errors: output.extend(self._render_field_errors())
         show_fields,hidden_fields = [],[]
         for field in self:
             if field.type == 'HiddenField' or field.type == 'CSRFTokenField':
@@ -31,6 +52,7 @@ class  FormPro(Form):
                     output.append((label_row+field_row) % {
                         'label': field.label.text,
                         'label_attrs': label_attrs,
+                        'require': '<em>*</em>' if field.flags.required else '',
                         'field': field(),
                         'field_attrs':field_attrs,
                         'field_id': field.id
@@ -42,6 +64,7 @@ class  FormPro(Form):
                 output.append(label_row % {
                     'label': field.label.text,
                     'label_attrs': label_attrs,
+                    'require': '<em>*</em>' if field.flags.required else '',
                     'field_id': field.id
                 })
                 output.append(row_end)
@@ -67,7 +90,7 @@ class  FormPro(Form):
         self.set_attrs()
         output.append(u'<table %s>' % AttributeDict.merge(self.table_attrs, {'class': 'form_table'}).as_html())
         trs = self._html_output(
-            label_row = u'<td %(label_attrs)s><label for="%(field_id)s"><span>%(label)s</span></label></td>',
+            label_row = u'<td %(label_attrs)s><label for="%(field_id)s">%(require)s<span>%(label)s</span></label></td>',
             label_attrs = AttributeDict.merge(self.label_attrs, {'class': 'table_label'}).as_html(),
             field_row = u'<td %(field_attrs)s>%(field)s</td>',
             field_attrs = AttributeDict.merge(self.field_attrs, {'class': 'table_field'}).as_html(),

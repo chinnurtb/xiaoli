@@ -68,7 +68,7 @@ class AreaSelectWidget(object):
                     onShow: function(dropPanel){
                         $("#dropContent").dynatree({
                             checkbox: true,
-                            selectMode: 2,
+                            selectMode: %(select_mode)s,
                             imagePath: '',
                             initAjax:{
                                 url:"/area_select",
@@ -119,11 +119,12 @@ class AreaSelectWidget(object):
         <input id="%(field_id)s_netloc" type="hidden" value="%(netloc_value)s" name="%(field_name)s_netloc" />
         <input id="%(field_id)s_selected" type="hidden" value="%(selected_value)s" name="%(field_name)s_selected" />
         ''' % {
+            'select_mode': field.select_mode,
             'field_id': field.id,
             'field_name': field.name,
-            'area_value': request.args.get(field.name,''),
-            'netloc_value': request.args.get(field.name+'_netloc',''),
-            'selected_value': request.args.get(field.name+'_selected','')
+            'area_value': request.args.get(field.name,'') if request.method == 'GET' else request.form.get(field.name,''),
+            'netloc_value': request.args.get(field.name+'_netloc','') if request.method == 'GET' else request.form.get(field.name+'_netloc',''),
+            'selected_value': request.args.get(field.name+'_selected','') if request.method == 'GET' else request.form.get(field.name+'_selected','')
         }
         return html
 
