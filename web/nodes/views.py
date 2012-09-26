@@ -85,10 +85,15 @@ def area_select():
     return json.dumps(trees)
 
 
-@nodeview.route('/nodes/')
+from tango.ui.queries import NodeForm
+@nodeview.route('/nodes/', methods=['POST', 'GET'])
 @login_required
 def nodes():
     form = NodeSearchForm()
+    query_form = NodeForm()
+    if request.method == 'POST':
+        print 'query_form.filters_str::', query_form.filters_str
+    
     query = Node.query
     query = query.outerjoin(Area, Node.area_id==Area.id)
 
@@ -107,8 +112,10 @@ def nodes():
     profile = Profile.load(current_user.id, NodeTable._meta.profile_grp)
     order_by = request.args.get('order_by', '')
     page = int(request.args.get('page',1))
+    if request.method == 'POST':
+        query = Node.query.filter(query_form.filters_str)
     table = NodeTable(query).configure(profile, page=page, order_by=order_by)
-    return render_template('nodes/index.html', table = table, form=form)
+    return render_template('nodes/index.html', table = table, form=form, query_form=query_form)
 
 @nodeview.route('/nodes/<int:id>/', methods=['GET'])
 @login_required

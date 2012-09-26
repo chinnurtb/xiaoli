@@ -231,6 +231,7 @@ def role_new():
 @userview.route('/roles/edit/<int:id>', methods=['POST', 'GET'])
 def role_edit(id):
     all_args = NestedDict(request)
+    print 'all_args::', all_args
     perms = all_args['permissions']
     form = RoleForm()
     role = Role.query.get_or_404(id)

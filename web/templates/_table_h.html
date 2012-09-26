@@ -16,7 +16,7 @@
 <!-- render_paginate -->
 {% macro render_paginate(page_obj, page_url) -%}
 <div class="tablenav bottom">
-    <div class="tablenav-pages"><span class="displaying-num">{{ page_obj.total_items }} items</span>
+    <div class="tablenav-pages"><span class="displaying-num">{{ page_obj.total }} items</span>
 	<span class="pagination-links">
 	    <a class="first-pag {% if page_obj.page==1 %}disabled{% endif %}"
 	       title="Go to the first page" href="{{ page_url(1) }}">«</a>

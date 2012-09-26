@@ -35,6 +35,7 @@
 </div>
 {% endmacro %}
 
+
 {% macro render_text(field, help = None) -%} 
 <div class="control-group {% if field.errors %}error{% endif %}">
     <label class="control-label" for="{{ field.id }}"><span>{{ field.label.text }}{%- if field.flags.required -%}*{%- endif %} :</span></label>
@@ -46,6 +47,7 @@
     </div>
 </div>        
 {%- endmacro %}
+
 
 {%- macro render_textarea(field, value='', rows=7, cols=40) -%}
 <div class="control-group {% if field.errors %}error{% endif %}">
