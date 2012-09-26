@@ -8,6 +8,8 @@ from jinja2 import Markup
 from jinja2.filters import escape
 from flask import url_for
 
+from tango.base import SortedDict
+
 from .utils import *
 
 __dict__ = ['Column', 'ManageColumn', 'CheckBoxColumn', 'BaseLinkColumn', 'LinkColumn',

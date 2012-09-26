@@ -10,15 +10,8 @@ if __name__ == '__main__':
 from flask import request
 from jinja2 import Markup
 from wtforms import widgets
-from tango.base import NestedDict
-from tango.ui.tables.utils import SortedDict
+from tango.base import NestedDict, SortedDict
 from nodes.models import Node
-
-
-class QueryField(object):
-    
-    def __init__(self,):
-        pass
 
         
 class Flags(object):
@@ -257,6 +250,7 @@ class QueryForm(object):
         else:
             self.filters = None
 
+            
     def process(self):
         for k, v in self.filters.iteritems():
             self[k].process_data(v['value'])

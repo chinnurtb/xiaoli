@@ -63,6 +63,7 @@ def logout():
 @userview.route('/settings')
 def settings():
     return redirect(url_for('users.user_info'))
+    
 
 @userview.route('/settings/profile', methods=['POST', 'GET'])
 def profile():
@@ -77,6 +78,7 @@ def profile():
         return redirect(request.referrer)
     else:
         return 'Updated!'
+        
     
 @userview.route('/settings/info', methods=['POST', 'GET'])
 def user_info():
