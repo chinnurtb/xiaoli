@@ -6,21 +6,48 @@
 
 <div class="row-fluid" style="margin-top: 30px;">
 
-    <div class="span2"></div>
+    <div class="span2">
+      <div class="well">
+        <form method="GET" action="{{url_for('topo.index')}}">
+          <input type="hidden" name="root_id" value="{{root_id}}" />
+          <div class="control-group ">
+            <label class="control-label" for="prog">布局</label>
+            <div class="controls">
+              <select id="prog" name="prog" style="width:auto;">
+                {% for p in ('dot', 'twopi', 'neato') %}
+                <option value="{{p}}" {% if p == prog %}selected{% endif %} >{{p}}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>          
+
+          <div class="control-group ">
+            <label class="control-label" for="level">显示级数</label>
+            <div class="controls">
+              <select id="level" name="level" style="width:auto;">
+                {% for i in (1, 2, 3, 4, 5) %}
+                <option value="{{i}}" {% if i == level %}selected{% endif %}>{{i}}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>          
+          <input type="submit" class="btn btn-primary" value="提交" />
+        </form>
+      </div>
+    </div>
     <div class="span10">
       
         <ul class="breadcrumb">
-            统计区域：
+            区域路径：
             {% for bread in breadcrumb|reverse %}
                 {% if loop.last %}
                     <li class="active">{{bread.name}}</li>
                 {% else %}
-                    <li><a href="{{ url_for('topo.viewtopo', root_id=bread.id) }}">{{bread.name}}</a><span class="divider">/</span></li>
+                    <li><a href="{{ url_for('topo.index', root_id=bread.id) }}">{{bread.name}}</a><span class="divider">/</span></li>
                 {% endif %}
             {% endfor %}
         </ul>
         <div id="container" >
-
           {{ svg|safe }}
         </div>
         </div>
