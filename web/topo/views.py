@@ -10,36 +10,36 @@ from nodes.models import Node, Area
 
 topoview = Blueprint('topo', __name__)
 
+area_style = {
+    'shape' : 'polygon',
+    'sides' : 4,
+    'style' : 'filled',
+    'fillcolor' : 'lightblue',
+    'color' : 'lightblue',
+    'peripheries': 2,
+    'fontsize' : '12.0'
+}
+
+node_style = {
+    'shape' : 'ellipse',
+    'style' : 'filled',
+    'color' : '#999999',
+    'fillcolor' : 'orange',
+    'fontsize' : '10.0'
+}
+
+area_edge_style = {
+    'color' : 'skyblue',
+    'labelfontcolor' : '#009933',
+}
+
+node_edge_style = {
+    'color' : 'orange',
+    'labelfontcolor' : '#009933',
+}
+
 @topoview.route('/topo/')
 def index():
-    area_style = {
-        'shape' : 'polygon',
-        'sides' : 4,
-        'style' : 'filled',
-        'fillcolor' : 'lightblue',
-        'color' : 'lightblue',
-        'peripheries': 2,
-        'fontsize' : '12.0'
-    }
-
-    node_style = {
-        'shape' : 'ellipse',
-        'style' : 'filled',
-        'color' : '#999999',
-        'fillcolor' : 'orange',
-        'fontsize' : '10.0'
-    }
-
-    area_edge_style = {
-        'color' : '#222222',
-        'labelfontcolor' : '#009933',
-    }
-
-    node_edge_style = {
-        'color' : '#999999',
-        'labelfontcolor' : '#009933',
-    }
-
     node_url = lambda id : url_for('nodes.node_edit', id=id)
 
     graph = pydot.Dot(graph_type='digraph')
@@ -75,14 +75,59 @@ def index():
 
         return area_root
 
-
     graph.set_node_defaults(**node_style)
     graph.set_edge_defaults(**node_edge_style)
 
     root_area = Area.query.get(1000)
     mk_areas(root_area)
     svg = unicode(graph.create(prog='dot', format='svg'), 'utf-8')
+    svg = svg[245:]
         
     return render_template("topo/index.html", svg=svg, menuid = 'topo')
 
-menus.append(Menu('topo', u'拓扑', 'topo'))
+
+@topoview.route('/viewtopo/')
+def viewtopo():
+    root_id = request.args.get('root_id', 1000, type=int)
+    graph = pydot.Dot(graph_type='digraph')
+    area_url = lambda area_id : url_for('topo.viewtopo', root_id=area_id)
+    node_url = lambda node_id : url_for('nodes.node_edit', id=node_id)
+    
+    root_area = Area.query.get_or_404(root_id)
+    
+    def touch_nodes(root, level=3):
+        if level == 0:
+            return 
+        root_node =  pydot.Node('areas_%d' % root.id, label=root.name,
+                                URL=area_url(root.id), **area_style)
+        graph.add_node(root_node)
+
+        # touch areas
+        for child_area in root.children:
+            child_area_node = touch_nodes(child_area, level=level-1)
+            if child_area_node:
+                graph.add_edge(pydot.Edge(root_node, child_area_node, **area_edge_style))
+
+        if level == 1:
+            return root_node
+        # touch nodes
+        for node in Node.query.filter(Node.area_id==root.id):
+            node_node = pydot.Node('areas_%d' % node.id, label=node.name,
+                                   URL=node_url(node.id), **node_style)
+            graph.add_node(node_node)
+            graph.add_edge(pydot.Edge(root_node, node_node, **node_edge_style))
+            
+        return root_node
+
+    touch_nodes(root_area)
+    base = root_area
+    breadcrumb = [base]
+    while base.parent:
+        breadcrumb.append(base.parent)
+        base = base.parent
+    svg = unicode(graph.create(prog='dot', format='svg'), 'utf-8')
+    svg = svg[245:]
+    return render_template("topo/index.html", svg=svg, breadcrumb=breadcrumb)
+    
+    
+menus.append(Menu('topo', u'拓扑', '/topo'))
