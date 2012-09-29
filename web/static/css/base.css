@@ -365,6 +365,7 @@ div .row-actions {
     /* margin: 0; */
     margin-top: -6px;
     margin-left: 0;
+    width: 0;
     /* left: 140px; */
 }
 

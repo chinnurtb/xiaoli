@@ -6,9 +6,9 @@ from flask import Blueprint, request, session, url_for, \
 
 from tango.ui import menus, Menu
 
-topoview = Blueprint('topo', __name__, url_prefix='/topo')
+topoview = Blueprint('topo', __name__)
 
-@topoview.route('/')
+@topoview.route('/topo/')
 def index():
     return render_template("topo/index.html", menuid = 'topo')
 
