@@ -11,6 +11,7 @@ topoview = Blueprint('topo', __name__)
 area_style = {
     'shape' : 'polygon',
     # 'sides' : 4,
+    'fixedsize' : 'true',
     'style' : 'filled',
     'color' : 'lightblue',
     # 'peripheries': 2,
@@ -18,10 +19,11 @@ area_style = {
 }
 
 node_style = {
-    'shape' : 'ellipse',
+    'shape' : "doublecircle",
+    'fixedsize' : 'true',
+    'width' : '0.40',
+    'height' : '0.40',
     'style' : 'filled',
-    'color' : '#999999',
-    'fillcolor' : 'orange',
     'fontsize' : '10.0'
 }
 
@@ -34,6 +36,24 @@ node_edge_style = {
     'labelfontcolor' : '#009933',
 }
 
+base_path = '/home/weet/GitHub/environments/FlaskLearn/xiaoli/web'
+img_path = base_path + '/static/img/topo/'
+images = {
+    'area' : 'area.gif',
+    
+    'olt': 'olt.png',
+    'eoc': 'eoc.png',
+    'onu': 'onu.png',
+    'dslam' : 'dslam.png',
+    'switch': 'switch.png',
+    'olt-red': 'olt-red.png',
+    'eoc-red': 'eoc-red.png',
+    'onu-red': 'onu-red.png',
+    'dslam-red' : 'dslam-red.png',
+    'switch-red': 'switch-red.png'
+}
+node_categories = ['olt', 'onu', 'dslam', 'eoc', 'switch']
+table_template = '<<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0"><TR><TD><IMG SRC="%(src)s"/></TD></TR> <TR><TD>%(name)s</TD></TR> <TR><TD>%(addr)s</TD></TR> </TABLE>>'
 
 @topoview.route('/topo/')
 def index():
@@ -42,7 +62,9 @@ def index():
     prog = request.args.get('prog', 'dot')
     area_url = lambda root_id : url_for('topo.index', root_id=root_id, level=level, prog=prog)
     node_url = lambda node_id : url_for('nodes.node_edit', id=node_id)
-    
+    node_label = lambda node : table_template % dict(src=img_path+images[node_categories[node.category-1]
+                                                                          + list(('-red', ''))[node.status]],
+                                                     name=node.name, addr=node.addr)
     graph = pydot.Dot(graph_type='digraph')
     root_area = Area.query.get_or_404(root_id)
 
@@ -50,8 +72,9 @@ def index():
         node_id = 'nodes_%d' % node.id
         node_node =  graph.get_node(node_id)
         if not node_node:
-            node_node = pydot.Node(node_id, label='%s\n%s' % (node.name, node.addr),
-                                         URL=node_url(node.id), **node_style)
+            color = 'lightgreen' if node.status == 1 else 'tomato'
+            node_node = pydot.Node(node_id, label=node_label(node),
+                                   URL=node_url(node.id), color=color, **node_style)
             graph.add_node(node_node)
         else:
             node_node = node_node[0]
@@ -100,7 +123,7 @@ def index():
         breadcrumb.append(base.parent)
         base = base.parent
     svg = unicode(graph.create(prog=prog, format='svg'), 'utf-8')
-    svg = svg[245:]
+    svg = svg[245:].replace(base_path, '')
     return render_template("topo/index.html", svg=svg, breadcrumb=breadcrumb,
                            root_id=root_id, level=level, prog=prog)
     
@@ -129,7 +152,7 @@ def view_all():
                 node_id = 'nodes_%d' % node.controller_id
                 n_controller =  graph.get_node(node_id)
                 if not n_controller:
-                    n_controller = pydot.Node('nodes_%d' % controller.id, label='%s\n%s' % (node.name, node.addr))
+                    n_controller = pydot.Node('nodes_%d' % controller.id, label='%s<br />\n%s' % (node.name, node.addr))
                     graph.add_node(n_controller)
                 else:
                     n_controller = n_controller[0]
