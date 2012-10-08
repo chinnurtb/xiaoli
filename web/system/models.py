@@ -17,8 +17,28 @@ class OperationLog(db.Model):
     created_at  = db.Column(db.DateTime, default=datetime.now)
     updated_at  = db.Column(db.DateTime, default=datetime.now)
 
-    user = db.relationship("User", backref="oplogs")
+    user = db.relationship("User")
 
     @hybrid_property
     def oper_obj(self):
         return self.module + self.summary
+
+class SecurityLog(db.Model):
+    __tablename__ = 'seclogs'
+    id          = db.Column(db.Integer, primary_key=True)
+    session     = db.Column(db.String(50))
+    uid         = db.Column(db.Integer, db.ForeignKey("users.id"))
+    success     = db.Column(db.Integer)
+    summary     = db.Column(db.String(200))
+    terminal_ip = db.Column(db.String(20))
+    login_at  = db.Column(db.DateTime)
+    logout_at  = db.Column(db.DateTime)
+
+    user = db.relationship("User")
+
+    @hybrid_property
+    def time(self):
+        if u'登录' in self.summary:
+            return self.login_at
+        else:
+            return self.logout_at

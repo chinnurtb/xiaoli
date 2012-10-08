@@ -3,7 +3,7 @@
 
 from tango.ui import tables
 
-from .models import OperationLog
+from .models import OperationLog, SecurityLog
 
 class OperationLogTable(tables.Table):
     uid            = tables.Column(verbose_name=u'用户名', orderable=True, accessor='user.username')
@@ -15,3 +15,13 @@ class OperationLogTable(tables.Table):
     class Meta():
         model = OperationLog
         order_by = '-created_at'
+
+class SecurityLogTable(tables.Table):
+    uid            = tables.Column(verbose_name=u'用户名', orderable=True, accessor='user.username')
+    terminal_ip    = tables.Column(verbose_name=u'终端IP', orderable=True)
+    summary        = tables.Column(verbose_name=u'操作', orderable=True)
+    time           = tables.Column(verbose_name=u'时间')
+
+    class Meta():
+        model = SecurityLog
+        order_by = '-id'

@@ -30,21 +30,43 @@ login_mgr.refresh_view = "/reauth"
 
 from flask_sqlalchemy import models_committed, before_models_committed
 def record_oplogs(app,changes):
-    from system.models import OperationLog
+    from system.models import OperationLog, SecurityLog
     for change in changes:
-        if isinstance(change[0], OperationLog):
+        if isinstance(change[0], OperationLog) or isinstance(change[0], SecurityLog):
             continue
         oplog = OperationLog()
-        oplog.session = session['csrf']
         oplog.user = current_user
         oplog.module = request.endpoint
         oplog.action = change[1]
-        oplog.success = 1
         oplog.terminal_ip = request.remote_addr
         oplog.summary = str(change[0])
         db.session.add(oplog)
 models_committed.connect(record_oplogs)
 before_models_committed.connect(record_oplogs)
+
+from tango.login import user_logged_in, user_logged_out
+def record_login(app,user):
+    from system.models import SecurityLog
+    from datetime import datetime
+    seclog = SecurityLog()
+    seclog.user = current_user
+    seclog.terminal_ip = request.remote_addr
+    seclog.summary = u'登录系统'
+    seclog.login_at = datetime.now()
+    db.session.add(seclog)
+    db.session.commit()
+def record_logout(app,user):
+    from system.models import SecurityLog
+    from datetime import datetime
+    seclog = SecurityLog()
+    seclog.user = current_user
+    seclog.terminal_ip = request.remote_addr
+    seclog.summary = u'登出系统'
+    seclog.logout_at = datetime.now()
+    db.session.add(seclog)
+    db.session.commit()
+user_logged_in.connect(record_login)
+user_logged_out.connect(record_logout)
 
 @login_mgr.user_loader
 def load_user(id):
