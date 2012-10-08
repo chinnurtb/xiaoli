@@ -1,6 +1,6 @@
-{% extends 'layout.html' %}
+{% set menuid = 'topo' %}
 
-{% set menuid = '/topo' %}
+{% extends 'layout.html' %}
 
 {% block content %} 
 
@@ -25,7 +25,7 @@
             <label class="control-label" for="level">显示级数</label>
             <div class="controls">
               <select id="level" name="level" style="width:auto;">
-                {% for i in (1, 2, 3, 4, 5) %}
+                {% for i in range(1, 7) %}
                 <option value="{{i}}" {% if i == level %}selected{% endif %}>{{i}}</option>
                 {% endfor %}
               </select>
@@ -43,7 +43,8 @@
                 {% if loop.last %}
                     <li class="active">{{bread.name}}</li>
                 {% else %}
-                    <li><a href="{{ url_for('topo.index', root_id=bread.id) }}">{{bread.name}}</a><span class="divider">/</span></li>
+                    <li><a href="{{ url_for('topo.index',
+                root_id=bread.id, prog=prog, level=level) }}">{{bread.name}}</a><span class="divider">/</span></li>
                 {% endif %}
             {% endfor %}
         </ul>
