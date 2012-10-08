@@ -64,7 +64,7 @@ from system.views import sysview
 
 blueprints = [tangoview,
               homeview,
-              #topoview,
+              topoview,
               nodeview,
               alarmview,
               #perfview,

@@ -365,7 +365,7 @@ div .row-actions {
     /* margin: 0; */
     margin-top: -8px;
     margin-left: 0;
-    width:0;
+    width: 0;
     /* left: 140px; */
 }
 
@@ -404,6 +404,8 @@ label em {
     font-size: 12px;
     font-weight: bold;
 }
+<<<<<<< HEAD
+=======
 
 .bs-docs-sidenav {
     background-color: #fff;
@@ -465,3 +467,4 @@ label em {
     margin-right: -6px;
     opacity: .25;
 }
+>>>>>>> 60a10b45967c03f593992b38cd0f81a859de9f7c
