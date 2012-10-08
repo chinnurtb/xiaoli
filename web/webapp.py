@@ -28,6 +28,24 @@ login_mgr.login_view = "/login"
 login_mgr.login_message = u"请先登录系统."
 login_mgr.refresh_view = "/reauth"
 
+from flask_sqlalchemy import models_committed, before_models_committed
+def record_oplogs(app,changes):
+    from system.models import OperationLog
+    for change in changes:
+        if isinstance(change[0], OperationLog):
+            continue
+        oplog = OperationLog()
+        oplog.session = session['csrf']
+        oplog.user = current_user
+        oplog.module = request.endpoint
+        oplog.action = change[1]
+        oplog.success = 1
+        oplog.terminal_ip = request.remote_addr
+        oplog.summary = str(change[0])
+        db.session.add(oplog)
+models_committed.connect(record_oplogs)
+before_models_committed.connect(record_oplogs)
+
 @login_mgr.user_loader
 def load_user(id):
     return User.query.get(int(id))
