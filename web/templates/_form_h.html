@@ -21,8 +21,7 @@
 
 {% macro render_field(field) %}
 <div class="control-group {% if field.errors %}error{% endif %}">
-  <label class="control-label">
-    {{field.label.text}}</label>
+  <label class="control-label" for="{{ field.id }}">{{field.label.text}}</label>
     <div class="controls">
 	{{ field(**kwargs) }}
         {% if field.flags.required %}<strong><em>*</em></strong>{% endif %}

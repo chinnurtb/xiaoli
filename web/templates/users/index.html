@@ -1,7 +1,5 @@
 {% set menuid = 'users' %}
 
-{% set submenuid = 'users' %}
-
 {% extends 'layout.html' %} 
 
 {% block title %} 用户管理 {% endblock %}
@@ -37,7 +35,8 @@
 <div class="row-fluid" style="margin-top:20px">
 
     <div class="span2">
-        {% include "users/_sidebar.html" %}
+      {% set submenuid = 'users' %}
+      {% include "users/_sidebar.html" %}
     </div>
 
     <div class="span10">

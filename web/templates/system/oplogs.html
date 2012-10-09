@@ -4,12 +4,33 @@
 
 {% block head %} {% endblock %}
 
+{% from "_table_h.html" import render_table, render_screen_meta %}
+
+{% block screen_meta %}
+
+    {{ render_screen_meta(table) }}
+
+    <div id="screen-meta-links">
+        <div id="contextual-help-link-wrap" class="hide-if-no-js screen-meta-toggle">
+            <a href="#contextual-help-wrap" id="contextual-help-link"
+               class="show-settings">Help</a>
+        </div>
+        <div id="screen-options-link-wrap" class="hide-if-no-js screen-meta-toggle">
+            <a href="#screen-options-wrap" id="show-settings-link"
+               class="show-settings">Screen Options</a>
+        </div>
+    </div>
+
+{% endblock %}
+
 {% block content %} 
     <div class="row-fluid" style="margin-top:30px;">
         <div class="span2">
             {% set submenuid = 'oplogs' %}
             {% include 'system/_sidebar.html' %}
         </div>
-        <div class="span10"></div>
-    <div>
+        <div class="span10">
+            {{ render_table(table) }}
+        </div>
+    </div>
 {% endblock %}
