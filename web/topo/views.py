@@ -12,4 +12,4 @@ topoview = Blueprint('topo', __name__, url_prefix='/topo')
 def index():
     return render_template("topo/index.html", menuid = 'topo')
 
-menus.append(Menu('topo', u'拓扑', 'topo'))
+menus.append(Menu('topo', u'拓扑', '/topo'))
