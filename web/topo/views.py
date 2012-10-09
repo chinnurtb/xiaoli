@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from flask import Blueprint, request, url_for, render_template
 import pydot
+from flask import Blueprint, request, url_for, render_template
+
 from tango.ui import menus, Menu
 from nodes.models import Node, Area
 
@@ -36,8 +37,6 @@ node_edge_style = {
     'labelfontcolor' : '#009933',
 }
 
-base_path = '/home/weet/GitHub/environments/FlaskLearn/xiaoli/web'
-img_path = base_path + '/static/img/topo/'
 images = {
     'area' : 'area.gif',
     
@@ -53,10 +52,14 @@ images = {
     'switch-red': 'switch-red.png'
 }
 node_categories = ['olt', 'onu', 'dslam', 'eoc', 'switch']
-table_template = '<<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0"><TR><TD><IMG SRC="%(src)s"/></TD></TR> <TR><TD>%(name)s</TD></TR> <TR><TD>%(addr)s</TD></TR> </TABLE>>'
+table_template = '<<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" ALIGN="center"><TR><TD><IMG SRC="%(src)s"/></TD></TR> <TR><TD>%(name)s</TD></TR> <TR><TD>%(addr)s</TD></TR> </TABLE>>'
 
 @topoview.route('/topo/')
 def index():
+    from webapp import app
+    base_path = app.root_path
+    img_path = base_path + '/static/img/topo/'
+    
     root_id = request.args.get('root_id', 1000, type=int)
     level = request.args.get('level', 3, type=int)
     prog = request.args.get('prog', 'dot')
