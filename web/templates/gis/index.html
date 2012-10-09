@@ -1,0 +1,17 @@
+
+{% set menuid = 'topo' %}
+
+{% extends 'layout.html' %}
+
+{% block content %} 
+
+    <div class="row-fluid" style="margin-top: 30px;">
+        <div class="span2">
+            {% set submenuid = 'gis' %}
+            {% include 'topo/_sidebar.html' %}
+        </div>
+
+        <div class="span10"></div>
+    </div>
+
+{% endblock %}

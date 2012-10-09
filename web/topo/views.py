@@ -129,7 +129,18 @@ def index():
     svg = svg[245:].replace(base_path, '')
     return render_template("topo/index.html", svg=svg, breadcrumb=breadcrumb,
                            root_id=root_id, level=level, prog=prog)
-    
+
+@topoview.route('/topo/network')
+def network():
+    return render_template("topo/network.html")
+
+@topoview.route('/topo/system')
+def system():
+    return render_template('topo/system.html')
+
+@topoview.route('/gis')
+def gis():
+    return render_template('gis/index.html')
     
 @topoview.route('/topo/view-all')
 def view_all():

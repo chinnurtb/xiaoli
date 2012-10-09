@@ -7,6 +7,8 @@
 <div class="row-fluid" style="margin-top: 30px;">
 
     <div class="span2">
+      {% set submenuid = 'topo' %}
+      {% include 'topo/_sidebar.html' %}
       <div class="well">
         <form method="GET" action="{{url_for('topo.index')}}">
           <input type="hidden" name="root_id" value="{{root_id}}" />
@@ -34,6 +36,7 @@
           <input type="submit" class="btn btn-primary" value="提交" />
         </form>
       </div>
+
     </div>
 
     <div class="span10">
