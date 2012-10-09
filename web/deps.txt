@@ -9,3 +9,4 @@ Flask-Login
 #redis
 MySQL_python
 psycopg2
+pydot
