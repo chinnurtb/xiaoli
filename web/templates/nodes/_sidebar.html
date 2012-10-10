@@ -2,8 +2,8 @@
 
 {{ render_sidebar('节点管理', submenuid, [
         ('nodes','所有节点', '/nodes'),
-        ('borads','所有板卡', '/boards'),
-        ('ports','所有接口', '/ports')])
+        ('nodes_add','添加节点', '/nodes/new'),
+        ('nodes_import','批量导入', '/nodes/import')])
 }}
 
 {{ render_sidebar('统计浏览', submenuid, [
@@ -11,3 +11,15 @@
         ('vendors','厂商统计', '/vendors'),
         ('areas','区域统计', '/areas')])
 }}
+
+{{ render_sidebar('网管系统', submenuid, [
+        ('hosts','所有主机', '/hosts'),
+        ('managers','所有管理器', '/managers')])
+}}
+
+<!--
+{{ render_sidebar('版卡接口', submenuid, [
+        ('boards','所有板卡', '/boards'),
+        ('ports','所有接口', '/ports')])
+}}
+--!>

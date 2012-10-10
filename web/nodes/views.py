@@ -170,6 +170,21 @@ def node_delete():
         flash(u'删除节点成功','info')
         return redirect(url_for('nodes.nodes'))
 
+@nodeview.route('/nodes/import', methods=['GET'])
+@login_required
+def nodes_import():
+    return render_template('/nodes/import.html')
+
+@nodeview.route('/hosts', methods=['GET'])
+@login_required
+def hosts():
+    return render_template("/hosts/index.html")
+
+@nodeview.route('/managers', methods=['GET'])
+@login_required
+def managers():
+    return render_template('/managers/index.html')
+
 @nodeview.route("/boards/")
 @login_required
 def boards():
