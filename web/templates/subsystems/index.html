@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+
+{% set menuid = 'nodes' %}
+
+{% block title %} 所有子系统 {% endblock %}
+
+{% block head %} {% endblock %}
+
+{% block content %}
+    
+    <div class="row-fluid"  style="margin-top:30px">
+        <div class="span2">
+            {% set submenuid = 'subsystems' %}
+            {% include 'nodes/_sidebar.html' %}
+        </div>
+        <div class="span10">
+            <h1> 所有子系统 </h1>
+        <div>
+    </div>
+
+{% endblock %}
