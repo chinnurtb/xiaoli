@@ -185,6 +185,11 @@ def hosts():
 def managers():
     return render_template('/managers/index.html')
 
+@nodeview.route('/subsystems', methods=['GET'])
+@login_required
+def subsystems():
+    return render_template('/subsystems/index.html')
+
 @nodeview.route("/boards/")
 @login_required
 def boards():
