@@ -53,6 +53,7 @@ class UserEditForm(Form):
     mobile           = TextField(u'手机', validators=[validate_mobile()])
     memo             = TextAreaField(u'备注')
 
+    
 class ResetPasswordForm(Form):
     username = TextField(u'用户名')
     newpasswd = PasswordField(u'新密码', [

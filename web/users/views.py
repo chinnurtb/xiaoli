@@ -165,13 +165,15 @@ def user_edit(id):
     return render_template('/users/user_edit.html', user=user, form=form)
 
     
-@userview.route('/users/delete/<int:id>')
+@userview.route('/users/delete/<int:id>', methods=('GET', 'POST'))
 def user_delete(id):
     user = User.query.get_or_404(id)
-    db.session.delete(user)
-    db.session.commit()
-    flash(u'用户(%s)删除成功' % user.username, 'success')
-    return redirect(url_for('users.users'))
+    if request.method == 'POST':
+        db.session.delete(user)
+        db.session.commit()
+        flash(u'用户(%s)删除成功' % user.username, 'success')
+        return redirect(url_for('users.users'))
+    return render_template('users/user_delete.html', user=user)
 
     
 @userview.route('/users/reset-password/<int:id>', methods=['POST', 'GET'])
@@ -258,13 +260,15 @@ def role_edit(id):
                            perm_tree=perm_tree)
     
 
-@userview.route('/roles/delete/<int:id>')
+@userview.route('/roles/delete/<int:id>', methods=('GET', 'POST'))
 def role_delete(id):
     user_cnt = User.query.filter(User.role_id == id).count()
+    role = Role.query.get(id)
     if user_cnt > 0:
         flash(u'删除失败: 有(%d)个用户依赖此角色' % user_cnt, 'error')
+    elif request.method == 'GET':
+        return render_template('users/role_delete.html', role=role)
     else:
-        role = Role.query.get(id)
         db.session.delete(role)
         db.session.commit()
         flash(u'删除角色(%s)成功' % role.name, 'success')
@@ -370,13 +374,15 @@ def domain_edit(id):
                            domain_areas=domain_areas, form=form)
     
 
-@userview.route('/domains/delete/<int:id>')
+@userview.route('/domains/delete/<int:id>', methods=('GET', 'POST'))
 def domain_delete(id):
     user_cnt = User.query.filter(User.domain_id == id).count()
+    domain = Domain.query.get_or_404(id)
     if user_cnt > 0:
         flash(u'删除失败: 有(%d)个用户依赖此管理域!' % user_cnt, 'error')
+    elif request.method == 'GET':
+        return render_template('users/domain_delete.html', domain=domain)        
     else:
-        domain = Domain.query.get_or_404(id)
         db.session.delete(domain)
         db.session.commit()
         flash(u'管理域(%s)删除成功' % domain.name, 'success')
