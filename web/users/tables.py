@@ -8,6 +8,8 @@ from .models import User, Role, Domain
 #### Tables
 class UserTable(tables.Table):
 
+    helpdoc = u"用户表: 管理维护用户信息"
+
     edit   = tables.Action(name=u'编辑', endpoint='users.user_edit')
     delete = tables.Action(name=u'删除', endpoint='users.user_delete')
     reset  = tables.Action(name=u'重置密码', endpoint='users.reset_password')

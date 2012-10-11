@@ -6,6 +6,13 @@
 
 {% block head %} 
     <link rel="stylesheet" href="/static/css/alarm.css" type="text/css" media="all">
+
+    {% from "_table_h.html" import render_table_profile %}
+
+    <script type="text/javascript">
+        {{ render_table_profile(table) }} 
+    </script>
+
     <script type="text/javascript" >
 
     $(function(){
@@ -41,17 +48,6 @@
 {% block screen_meta %} 
 
 {{ render_screen_meta(table) }}
-
-<div id="screen-meta-links">
-    <div id="contextual-help-link-wrap" class="hide-if-no-js screen-meta-toggle">
-        <a href="#contextual-help-wrap" id="contextual-help-link"
-        class="show-settings">帮助</a>
-    </div>
-    <div id="screen-options-link-wrap" class="hide-if-no-js screen-meta-toggle">
-        <a href="#screen-options-wrap" id="show-settings-link"
-        class="show-settings">显示选项</a>
-    </div>
-</div>
 
 {% endblock %}
 

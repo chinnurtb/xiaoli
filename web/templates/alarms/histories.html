@@ -5,29 +5,28 @@
 {% block title %}历史告警{% endblock %}
 
 {% block head %} 
-    <link rel="stylesheet" href="/static/css/alarm.css" type="text/css" media="all">
-{% endblock %}
 
-{% from "_table_h.html" import render_table, render_screen_meta %}
+    <link rel="stylesheet" href="/static/css/alarm.css" type="text/css" media="all">
+
+    {% from "_table_h.html" import render_table_profile %}
+
+    <script type="text/javascript">
+        {{ render_table_profile(table) }} 
+    </script>
+
+{% endblock %}
 
 {% block screen_meta %} 
 
-{{ render_screen_meta(table) }}
+    {% from "_table_h.html" import render_screen_meta %}
 
-<div id="screen-meta-links">
-    <div id="contextual-help-link-wrap" class="hide-if-no-js screen-meta-toggle">
-        <a href="#contextual-help-wrap" id="contextual-help-link"
-        class="show-settings">帮助</a>
-    </div>
-    <div id="screen-options-link-wrap" class="hide-if-no-js screen-meta-toggle">
-        <a href="#screen-options-wrap" id="show-settings-link"
-        class="show-settings">显示选项</a>
-    </div>
-</div>
+    {{ render_screen_meta(table) }}
 
 {% endblock %}
 
 {% block content %}
+
+    {% from "_table_h.html" import render_table %}
     
     <div class="row-fluid content">
         <div class="span2">
