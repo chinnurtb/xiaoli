@@ -29,6 +29,14 @@
             {% include 'system/_sidebar.html' %}
         </div>
         <div class="span10">
+            <div class="tablenav top">
+                <div class="alignleft actions">
+                    <form class="form-inline" style="margin:0px;" action="" method="GET">
+                        {{ searchForm.keyword() }}
+                        {{ searchForm.submit(class='btn') }}
+                    </form>
+                </div>
+            </div>
             {{ render_table(table) }}
         </div>
     </div>

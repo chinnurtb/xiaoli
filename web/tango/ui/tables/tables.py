@@ -90,14 +90,14 @@ class TableOptions(object):
     def __init__(self, options=None):
         super(TableOptions, self).__init__()
         if options:
-            self.order_by = getattr(options, 'order_by', None)
+            self._order_by = getattr(options, 'order_by', None)
             self.model = getattr(options, 'model', None)
             if self.model is None:
                 raise ValueError("*model* is required!")
 
-            self.profile_grp = '.'.join(['table', self.model.__tablename__])
-            self.profile_hiddens_key = '.'.join([self.profile_grp, 'hiddens'])
-            self.profile_perpage_key = '.'.join([self.profile_grp, 'perpage'])
+            self.profile = '.'.join(['table', self.model.__tablename__])
+            self.profile_hiddens_key = '.'.join([self.profile, 'hiddens'])
+            self.profile_perpage_key = '.'.join([self.profile, 'perpage'])
             self.url_makers = getattr(options, 'url_makers', None)
         # print '(TableOptions)self.per_page::', self.per_page
 
@@ -130,22 +130,32 @@ class Table(object):
 
         # print 'self._sequence', self._sequence
 
-        
-    def configure(self, profile, page=1, order_by=None):
-        self.hidden_columns = profile.get(self.profile_hiddens_key, '').split(',')
+    @property
+    def order_by(self):
+        return self._order_by
+   
+    @order_by.setter
+    def order_by(self, value):
+        self._order_by = value
+        if self._order_by == None:
+            self._order_by = self._meta._order_by
+        self.data.ordering(self._order_by)
+
+    @property
+    def hiddens(self):
+        return self.hidden_columns
+
+    @hiddens.setter
+    def hiddens(self, value):
+        self.hidden_columns = value.split(',')
         for name in self.hidden_columns:
             if name: self.columns[name].hidden = True
 
-        self.per_page = int(profile.get(self.profile_perpage_key, '20'))
+    def paginate(self, page, per_page):
         self.page = page
-        if order_by is None:
-            order_by = self._meta.order_by
-        if order_by:
-            self.data.ordering(order_by)
-        self.data.paginate(self.page, self.per_page)
-        return self
-
-
+        self.per_page = per_page
+        self.data.paginate(page, per_page)
+        
     @property
     def profile_hiddens_key(self):
         return self._meta.profile_hiddens_key
