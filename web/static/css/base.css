@@ -336,7 +336,7 @@ div.tablenav .filters input[type="text"] {
 }
 
 form fieldset {
-    border:1px solid #e5e5e5;
+    /*border:1px solid #e5e5e5;*/
     padding:10px;
     padding-left: 30px;
     margin-bottom:10px;
@@ -404,8 +404,6 @@ label em {
     font-size: 12px;
     font-weight: bold;
 }
-<<<<<<< HEAD
-=======
 
 .bs-docs-sidenav {
     background-color: #fff;
@@ -467,4 +465,3 @@ label em {
     margin-right: -6px;
     opacity: .25;
 }
->>>>>>> 60a10b45967c03f593992b38cd0f81a859de9f7c
