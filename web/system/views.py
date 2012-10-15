@@ -40,6 +40,16 @@ def dic_codes_new():
     #form = DicCodeNewForm(formdata=request.args)
     return render_template('/system/dic_codes_new.html')
 
+@sysview.route('/timeperiods')
+@login_required
+def timeperiods():
+    return render_template('/system/timeperiods.html')
+
+@sysview.route('/timeperiods/new')
+@login_required
+def timeperiods_new():
+    return render_template('/system/timeperiods_new.html')
+
 @sysview.route('/hosts', methods=['GET'])
 @login_required
 def hosts():
