@@ -4,19 +4,20 @@
 
 {% block content %}
 
-<h1>登录</h1>
+    <h1>登录</h1>
 
-{% with messages = get_flashed_messages(with_categories=true) %}
-  {% if messages %}
-    {% for category, message in messages %}
-        <div class="alert alert-{{ category }}">{{ message }}</div> 
-    {% endfor %}
-  {% endif %}
-{% endwith %}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">{{ message }}</div> 
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
 
-{% from "_form_h.html" import render_fields %}
-<form method="POST" action="/login" class="form-horizontal">
-    {{ render_fields(form, 'Login') }}
-</form>
+    {% from "_form_h.html" import render_fields %}
+    <form method="POST" action="/login" class="form-horizontal">
+        {{ render_fields(form, '登录') }}
+    </form>
+
 {% endblock %}
 

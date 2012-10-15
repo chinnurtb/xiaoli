@@ -14,7 +14,7 @@ adminMenu = {
 columns = {
 	init : function() {
 		var that = this;
-		$('.hide-column-tog', '#adv-settings').click( function() {
+		$('.hide-column-tog', '#table-settings').click( function() {
 			var $t = $(this), column = $t.val();
 			if ( $t.prop('checked') )
 				that.checked(column);
@@ -53,7 +53,7 @@ columns = {
 	},
 
 	hidden : function() {
-          return $('#adv-settings .hide-column-tog').filter('input:checkbox:not(:checked)')
+          return $('#table-settings .hide-column-tog').filter('input:checkbox:not(:checked)')
             .map(function(){return $(this).val();}).get().join(',');
 	  //OLD:: return $('.manage-column').filter(':hidden').map(function() { return this.id; }).get().join(',');
 	},

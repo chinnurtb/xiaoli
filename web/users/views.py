@@ -5,7 +5,9 @@ from flask import (Blueprint, request, url_for, make_response, send_file,
                    redirect, render_template, flash)
 
 from tango import db
+from tango import user_profile
 from tango.ui import menus, Menu
+from tango.ui.tables import TableConfig
 from tango.login import logout_user, login_user, current_user
 from tango.models import Profile
 from tango.base import NestedDict
@@ -112,28 +114,21 @@ def change_password():
             flash(u'当前密码错误', 'error')
     return render_template("settings/password.html", form = form)
 
-    
-
 # ==============================================================================
 #  User
 # ==============================================================================     
-@userview.route('/users/')
-@userview.route('/users/<int:page>')
-def users(page=1):
-        
-    profile = Profile.load(current_user.id, UserTable._meta.profile_grp)
-    order_by = request.args.get('order_by', None)
-    keyword = request.args.get('keyword', '')
-
+@userview.route('/users/', methods=['GET'])
+def users():
     query = User.query
+    keyword = request.args.get('keyword')
     if keyword:
         query = query.filter(db.or_(User.name.ilike('%' + keyword + '%'),
                                     User.email.ilike('%' + keyword + '%'),
                                     User.role.has(Role.name.ilike('%' + keyword + '%'))))
-    
-    table = UserTable(query).configure(profile, page=page, order_by=order_by)
+    table = UserTable(query)
+    profile = user_profile(UserTable._meta.profile)
+    TableConfig(request, profile).configure(table)
     return render_template('users/index.html', table=table, keyword=keyword)
-
     
 @userview.route('/users/new', methods=['POST', 'GET'])
 def user_new():
@@ -198,14 +193,11 @@ def reset_password(id):
 #  Role
 # ============================================================================== 
 @userview.route('/roles/')
-@userview.route('/roles/<int:page>')
-def roles(page=1):
-    order_by = request.args.get('order_by', None)
-    
-    profile = Profile.load(current_user.id, RoleTable._meta.profile_grp)
-    table = RoleTable(Role.query).configure(profile, page=page, order_by=order_by)
+def roles():
+    table = RoleTable(Role.query)
+    profile = user_profile(RoleTable._meta.profile)
+    TableConfig(request, profile).configure(table)
     return render_template('users/roles.html', table=table)
-    
     
 @userview.route('/roles/new', methods=['GET', 'POST'])
 def role_new():
@@ -273,22 +265,16 @@ def role_delete(id):
         db.session.commit()
         flash(u'删除角色(%s)成功' % role.name, 'success')
     return redirect(url_for('users.roles'))
-
-    
     
 # ==============================================================================
 #  Domain
 # ==============================================================================
-    
 @userview.route('/domains/')
-@userview.route('/domains/<int:page>')
-def domains(page=1):
-    order_by = request.args.get('order_by', None)
-    
-    profile = Profile.load(current_user.id, DomainTable._meta.profile_grp)
-    table = DomainTable(Domain.query).configure(profile, page=page, order_by=order_by)
+def domains():
+    profile = user_profile(DomainTable._meta.profile_)
+    table = DomainTable(Domain.query)
+    TableConfig(request, profile).configure(table)
     return render_template('users/domains.html', table=table)
-
     
 @userview.route('/domains/load/nodes')
 def domain_load_nodes():
@@ -388,7 +374,6 @@ def domain_delete(id):
         flash(u'管理域(%s)删除成功' % domain.name, 'success')
     return redirect(url_for('users.domains'))
     
-
 
 # ==============================================================================
 #  [OTHER]

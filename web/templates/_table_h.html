@@ -124,15 +124,15 @@
 	<div id="contextual-help-columns">
             <div class="contextual-help-tabs-wrap">
                 <div id="tab-panel-overview" class="help-tab-content active">
-                    <p>{{ "Table.infomation"  }}</p>
+                    <p>{{ table.helpdoc }}</p>
                 </div>
             </div>
 	</div>
     </div>
 
     <div id="screen-options-wrap" class="hidden" style="display: none; ">
-	<form id="adv-settings" class="form-inline" action="" method="post">
-	    <h5>Show on screen</h5>
+	<form id="table-settings" class="form-inline" action="" method="post">
+	    <h5>显示选项</h5>
 	    <div class="metabox-prefs">
               <input id="hidden-columns" type="hidden" name="hidden-columns" value="" />
 		{% for column in table.columns %}
@@ -140,7 +140,8 @@
 		<label for="{{ column.name }}-hide">
 		    <input class="hide-column-tog" name="{{ column.name }}-hide" type="checkbox"
 			   id="{{ column.name }}-hide" value="{{ column.name }}"
-                           {% if column.name not in table.hidden_columns %} checked="checked" {% endif %} >{{ column.header }}</label>
+                           {% if column.name not in table.hidden_columns %} checked="checked" {% endif %} >{{ column.header }}
+        </label>
 		{% endif %}
 		{% endfor %}
 		<br class="clear">
@@ -151,20 +152,33 @@
 		<input type="number" step="1" min="1" max="999" class="screen-per-page"
 		       name="value" id="users_per_page" maxlength="3" value="{{ table.page_obj.per_page }}">
 		<label for="users_per_page">行</label>
-		<input type="submit" name="screen-options-apply" id="screen-options-apply" class="btn btn-small" value="Apply">
-		<input type="hidden" name="grp" value="{{ table._meta.profile_grp }}">
+		<input type="submit" name="screen-options-apply" id="screen-options-apply" class="btn btn-small" value="应用">
+		<input type="hidden" name="grp" value="{{ table._meta.profile}}">
 		<input type="hidden" name="key" value="{{ table.profile_perpage_key }}">
 	    </div>
 	    <!-- <div><input type="hidden" id="screenoptionnonce" name="screenoptionnonce" value="24b7ebf309"></div> -->
 	</form>
     </div>
 </div>
+
+<div id="screen-meta-links">
+    <div id="contextual-help-link-wrap" class="hide-if-no-js screen-meta-toggle">
+        <a href="#contextual-help-wrap" id="contextual-help-link"
+        class="show-settings">帮助</a>
+    </div>
+    <div id="screen-options-link-wrap" class="hide-if-no-js screen-meta-toggle">
+        <a href="#screen-options-wrap" id="show-settings-link"
+        class="show-settings">显示选项</a>
+    </div>
+</div>
+
 {%- endmacro %}
 
-{% macro render_profile_settings(table) %}
+{% macro render_table_profile(table) %}
     var userSettings = {
         ajaxurl : '/settings/profile',
-        grp : '{{ table._meta.profile_grp }}',
+        grp : '{{ table._meta.profile}}',
         key : '{{ table.profile_hiddens_key }}',
     };
 {% endmacro %}
+

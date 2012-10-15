@@ -5,24 +5,20 @@
 {% block title %} 用户管理 {% endblock %}
 
 {% block head %} 
-<script type="text/javascript" src="/static/js/table.js"></script>
+
+{% from "_table_h.html" import render_table_profile %}
+
+<script type="text/javascript">
+    {{ render_table_profile(table) }} 
+</script>
+
 {% endblock %}
 
 {% from "_table_h.html" import render_table, render_screen_meta %}
+
 {% block screen_meta %}
 
-{{ render_screen_meta(table) }}
-
-<div id="screen-meta-links">
-    <div id="contextual-help-link-wrap" class="hide-if-no-js screen-meta-toggle">
-        <a href="#contextual-help-wrap" id="contextual-help-link"
-        class="show-settings">Help</a>
-    </div>
-    <div id="screen-options-link-wrap" class="hide-if-no-js screen-meta-toggle">
-        <a href="#screen-options-wrap" id="show-settings-link"
-        class="show-settings">Screen Options</a>
-    </div>
-</div>
+    {{ render_screen_meta(table) }}
 
 {% endblock %}
 

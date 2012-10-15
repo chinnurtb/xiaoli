@@ -10,8 +10,10 @@ from sqlalchemy import or_
 from sqlalchemy.orm import aliased
 
 from tango import db
+from tango import user_profile
 from tango.ui import menus, Menu
 from tango.ui import add_widget, Widget, tables
+from tango.ui.tables import TableConfig
 from tango.login import current_user, login_required
 from tango.models import Profile
 
@@ -109,12 +111,11 @@ def nodes():
     if query_dict.get("vendor_id"): query=query.filter(Node.vendor_id == query_dict["vendor_id"]) # ==
     if query_dict.get("model_id"): query=query.filter(Node.model_id == query_dict["model_id"])    # ==
     form.process(**query_dict)
-    profile = Profile.load(current_user.id, NodeTable._meta.profile_grp)
-    order_by = request.args.get('order_by', '')
-    page = int(request.args.get('page',1))
     if request.method == 'POST':
         query = Node.query.filter(query_form.filters_str)
-    table = NodeTable(query).configure(profile, page=page, order_by=order_by)
+    table = NodeTable(query)
+    profile = user_profile(NodeTable._meta.profile)
+    TableConfig(request, profile).configure(table)
     return render_template('nodes/index.html', table = table, form=form, query_form=query_form)
 
 @nodeview.route('/nodes/<int:id>/', methods=['GET'])
@@ -185,18 +186,25 @@ def hosts():
 def managers():
     return render_template('/managers/index.html')
 
+@nodeview.route('/subsystems', methods=['GET'])
+@login_required
+def subsystems():
+    return render_template('/subsystems/index.html')
+
 @nodeview.route("/boards/")
 @login_required
 def boards():
-    profile = Profile.load(current_user.id, BoardTable._meta.profile_grp)
-    table = BoardTable(Board.query).configure(profile)
+    table = BoardTable(Board.query)
+    profile = user_profile(BoardTable._meta.profile)
+    TableConfig(request, profile).configure(table)
     return render_template('boards/index.html', table = table)
 
 @nodeview.route("/ports/")
 @login_required
 def ports():
-    profile = Profile.load(current_user.id, PortTable._meta.profile_grp)
-    table = PortTable(Port.query).configure(profile)
+    table = PortTable(Port.query)
+    profile = user_profile(PortTable._meta.profile)
+    TableConfig(request, profile).configure(table)
     return render_template('ports/index.html', table = table)
 
 @nodeview.route("/areas/")
@@ -271,9 +279,10 @@ def areas():
 @nodeview.route("/vendors/")
 @login_required
 def vendors():
-    profile = Profile.load(current_user.id, VendorTable._meta.profile_grp)
     query = Vendor.query
-    table = VendorTable(query).configure(profile)
+    table = VendorTable(query)
+    profile = user_profile(VendorTable._meta.profile)
+    TableConfig(request, profile).configure(table)
     if request.args.get("dashboard"):
         return table.as_html()
     else:
@@ -293,7 +302,7 @@ def vendors():
 @nodeview.route("/categories/")
 @login_required
 def categories():
-    profile = Profile.load(current_user.id, CategoryTable._meta.profile_grp)
+    profile = user_profile(CategoryTable._meta.profile)
     query_total = db.session.query(
         Node.category,func.count(Node.category).label("total_count")
     ).group_by(Node.category).subquery()
@@ -315,7 +324,8 @@ def categories():
         query_status0,query_total.c.category==query_status0.c.category
     ).outerjoin(query_status1,query_total.c.category==query_status1.c.category)
 
-    table = CategoryTable(query).configure(profile)
+    table = CategoryTable(query)
+    TableConfig(request, profile).configure(table)
     if request.args.get("dashboard"):
         return table.as_html()
     else:

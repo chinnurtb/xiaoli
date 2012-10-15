@@ -2,24 +2,23 @@
 
 {% set menuid = 'system' %}
 
-{% block head %} {% endblock %}
+{% block title %} 安全日志 {% endblock %}
+
+{% block head %} 
+
+{% from "_table_h.html" import render_table_profile %}
+
+<script type="text/javascript">
+    {{ render_table_profile(table) }} 
+</script>
+
+{% endblock %}
 
 {% from "_table_h.html" import render_table, render_screen_meta %}
 
 {% block screen_meta %}
 
     {{ render_screen_meta(table) }}
-
-    <div id="screen-meta-links">
-        <div id="contextual-help-link-wrap" class="hide-if-no-js screen-meta-toggle">
-            <a href="#contextual-help-wrap" id="contextual-help-link"
-               class="show-settings">Help</a>
-        </div>
-        <div id="screen-options-link-wrap" class="hide-if-no-js screen-meta-toggle">
-            <a href="#screen-options-wrap" id="show-settings-link"
-               class="show-settings">Screen Options</a>
-        </div>
-    </div>
 
 {% endblock %}
 
@@ -30,6 +29,14 @@
             {% include 'system/_sidebar.html' %}
         </div>
         <div class="span10">
+            <div class="tablenav top">
+                <div class="alignleft actions">
+                    <form class="form-inline" style="margin:0px;" action="" method="GET">
+                        {{ searchForm.keyword() }}
+                        {{ searchForm.submit(class='btn') }}
+                    </form>
+                </div>
+            </div>
             {{ render_table(table) }}
         </div>
     </div>

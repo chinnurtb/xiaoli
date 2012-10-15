@@ -37,24 +37,21 @@
 	document.body.className = document.body.className.replace('no-js','js');
 </script>
 
-<div class="navbar navbar-fixed-top">
+<div class="navbar navbar-inverse navbar-fixed-top">
 	<div class="navbar-inner">
 		<div class="container-fluid">
 			<a class="brand" href="/">OPENGOSS</a>
 			<div class="nav-collapse">
 				<ul class="nav">
-                    {% if session.user_id %}
+                    {% if current_user.id %}
                         {% for menu in g.menus %}
                             {{ menu.render(menuid)|safe }}
                         {% endfor %}
                     {% endif %}
 				</ul>
 				<ul class="nav pull-right">
-                    {% if not session.user_id %}
-                        <li><a href="/tour">Tour</a></li>
-                    {% endif %}
 					<li class="divider-vertical"></li>
-                    {% if current_user %} 
+                    {% if current_user.id %} 
                     <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{ current_user.username }}<b class="caret"></b></a>
                         <ul class="dropdown-menu">

@@ -10,6 +10,15 @@ from types import GeneratorType
 
 from flask import Flask, Blueprint
 
+from .models import Profile
+
+from .login import current_user
+
+"""
+Get current user's profile.
+"""
+def user_profile(grp):
+    return Profile.load(current_user.id, grp)
 
 class Tango(Flask):
     #TODO:
