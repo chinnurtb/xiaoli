@@ -53,16 +53,9 @@ class Area(db.Model):
 
     @hybrid_property
     def full_name(self):
-        if self.entrance_name is not None:
-            return self.city_name+self.town_name+self.branch_name+self.entrance_name
-        elif self.branch_name is not None:
-            return self.city_name+self.town_name+self.branch_name
-        elif self.town_name is not None:
-            return self.city_name+self.town_name
-        elif self.city_name is not None:
-            return self.city_name
-        else:
-            return self.name
+        name_list = [self.city_name, self.town_name, self.branch_name, self.entrance_name]
+        fname = ''.join([name for name in name_list if name])
+        return self.name if fname == '' else fname
 
     def __repr__(self):
         return u'<Area %r>' % self.name

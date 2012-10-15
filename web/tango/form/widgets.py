@@ -60,6 +60,19 @@ class Media(object):
 
 class AreaSelectWidget(object):
     def __call__(self, field, **kwargs):
+        if request.method == 'POST':
+            area_value = request.form.get(field.name,'')
+            netloc_value = request.form.get(field.name+'_netloc','')
+            selected_value = request.form.get(field.name+'_selected','')
+        else:
+            area_value = request.args.get(field.name,'')
+            netloc_value = request.args.get(field.name+'_netloc','')
+            selected_value = request.args.get(field.name+'_selected','')
+            if hasattr(field.data,'get') and area_value == '':
+                area_value = field.data.get('area_value')
+                netloc_value = field.data.get('netloc_value')
+                selected_value = field.data.get('selected_value')
+
         html = u'''
         <script type="text/javascript">
             $(function(){
@@ -122,9 +135,9 @@ class AreaSelectWidget(object):
             'select_mode': field.select_mode,
             'field_id': field.id,
             'field_name': field.name,
-            'area_value': request.args.get(field.name,'') if request.method == 'GET' else request.form.get(field.name,''),
-            'netloc_value': request.args.get(field.name+'_netloc','') if request.method == 'GET' else request.form.get(field.name+'_netloc',''),
-            'selected_value': request.args.get(field.name+'_selected','') if request.method == 'GET' else request.form.get(field.name+'_selected','')
+            'area_value':area_value,
+            'netloc_value': netloc_value,
+            'selected_value': selected_value
         }
         return html
 

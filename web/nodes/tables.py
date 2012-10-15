@@ -104,7 +104,6 @@ class CategoryTable(tables.Table):
     class Meta():
         model = Node
 
-
 class VendorTable(tables.Table):
     alias       = tables.Column(verbose_name=u'名称', orderable=True)
     node_count  = tables.Column(verbose_name=u'数量')
