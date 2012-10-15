@@ -88,6 +88,15 @@
 
 
 <!-- Query Form -->
+{% macro render_filter_options(filters) %}
+<select name="filter">
+  <option>全部</option>
+  {% for filter in filters %}
+  <option value="{{ filter.id }}">{{ filter.name }}</option>
+  {% endfor %}
+</select>
+{% endmacro %}
+
 {% macro render_query_form(form) %}
 <div style="margin: 15px 0 0 0;" class="span12 well advance_search_form header">      
   <table class="table  table-hover">
