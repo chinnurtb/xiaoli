@@ -15,6 +15,30 @@
 
 <!-- render_paginate -->
 {% macro render_paginate(page_obj, page_url) -%}
+<div class="pagination pagination-right">
+  <ul>
+    {% if page_obj.has_prev %}
+    <li><a href="{{ page_url(page_obj.prev_num) }}">«</a></li>
+    {% endif %}
+    {% for i in page_obj.iter_pages(right_current=2) %}
+        {% if i %}
+            {% if i != page_obj.page %}
+            <li><a href="{{ page_url(i)}}">{{ i }}</a></li>
+            {% else %}
+            <li class="active"><a >{{ i }}</a></li>
+            {% endif %}
+        {% else %}
+            <li><a>...</a></li>
+        {% endif %}
+    {% endfor %}
+    {% if page_obj.has_next %}
+        <li><a href="{{ page_url(page_obj.next_num) }}">»</a></li>
+    {% endif %}
+  </ul>
+</div>
+{% endmacro %}
+
+{% macro render_paginate_wordpress(page_obj, page_url) %}
 <div class="tablenav bottom">
     <div class="tablenav-pages"><span class="displaying-num">{{ page_obj.total }} items</span>
 	<span class="pagination-links">
