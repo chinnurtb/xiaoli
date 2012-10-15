@@ -9,7 +9,7 @@ from tango import user_profile
 from tango.ui import menus, Menu
 from tango.ui.tables import TableConfig
 from tango.login import logout_user, login_user, current_user
-from tango.models import Profile
+from tango.models import Profile, QueryFilter 
 from tango.base import NestedDict
 
 from nodes.models import Area
@@ -135,7 +135,9 @@ def users():
     query = User.query
     query_form = UserQueryForm()
     keyword = request.args.get('keyword', '')
-    query = query.filter(query_form.filters_str)
+    if query_form.is_submitted():
+        print request.form['save']
+        query = query.filter(query_form.filters_str)
     if keyword:
         query = query.filter(db.or_(User.name.ilike('%' + keyword + '%'),
                                     User.email.ilike('%' + keyword + '%'),
@@ -165,6 +167,7 @@ def user_new():
 @userview.route('/users/edit/<int:id>', methods=['POST', 'GET'])
 def user_edit(id):
     form = UserEditForm()
+    print form.data
     user = User.query.get_or_404(id)
     if request.method == 'POST' and form.validate_on_submit():
         form.populate_obj(user)
@@ -395,3 +398,7 @@ def domain_delete(id):
 #  [OTHER]
 # ==============================================================================
 menus.append(Menu('users', u'用户', '/users/'))
+
+@userview.route('/just-test')
+def just_test():
+    return render_template('just_test.html')

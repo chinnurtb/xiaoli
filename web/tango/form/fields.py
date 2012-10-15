@@ -11,7 +11,7 @@ class SelectFieldPro(SelectField):
         if callable(choices):
             choices = choices()
         super(SelectFieldPro, self).__init__(label, validators, coerce, choices, **kwargs)
-
+        
 
 class AreaSelectField(Field):
     widget = AreaSelectWidget()

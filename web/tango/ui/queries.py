@@ -256,7 +256,7 @@ class QueryForm(object):
             self[k].process_data(v['value'])
 
     def is_submitted(self):
-        return request and request.method in ("PUT", "POST", "GET")
+        return request and request.method in ("PUT", "POST")
 
     def __iter__(self):
         return iter(self._fields.itervalues())
@@ -269,6 +269,8 @@ class QueryForm(object):
 
     @property
     def filters_str(self):
+        if self.filters is None:
+            raise ValueError('May not submitted!')
         return self.filters.to_str()
 
 
