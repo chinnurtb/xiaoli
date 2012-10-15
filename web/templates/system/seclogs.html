@@ -32,8 +32,8 @@
             <div class="tablenav top">
                 <div class="alignleft actions">
                     <form class="form-inline" style="margin:0px;" action="" method="GET">
-                        {{ searchForm.keyword() }}
-                        {{ searchForm.submit(class='btn') }}
+                        {{ searchForm.keyword(placeholder='用户名或终端IP') }}
+                        <button class="btn" type="submit">检索</button>
                     </form>
                 </div>
             </div>
