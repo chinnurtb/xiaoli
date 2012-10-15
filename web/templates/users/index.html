@@ -46,12 +46,12 @@
           </div>
         </form>
       </div>
-      <form class="form-inline" style="margin:0px;" action="" method="GET">
+      <form class="form-inline" style="margin:0px;" action="" method="POST">
         <div class="alignleft actions">
-          <input type="text" id="datepicker" name="" value="" />
+          {% from "_form_h.html" import render_filter_options %}
+          {{ render_filter_options(filters) }}
           <button type="submit" name="execute" class="btn">检索</button>
         </div>
-
         <div class="alignright actions">
           <a class="btn btn-small"
              href="#"><i class="icon-download-alt"></i></a>
@@ -64,9 +64,5 @@
     <br class="clear">
   </div>
 </div>
-
-<script type="text/javascript">
-  $('#datepicker').datepicker();
-</script>
 {% endblock %}
 
