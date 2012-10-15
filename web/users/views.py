@@ -27,34 +27,34 @@ userview = Blueprint('users', __name__)
 # =============================================================================== 
 @userview.route('/login', methods=['GET', 'POST'])
 def login():
-	form = LoginForm(request.form)
-	if request.method == 'POST':
-		username = form.username.data
-		password = form.password.data
-                next = form.next.data
-		user, authenticated = User.authenticate(username, password)
-		DEBUG = True # For DEBUG
-		print 'DEBUG::', DEBUG
-		if user and authenticated or DEBUG: 
-			remember = form.remember.data == 'y'
-			if login_user(user, remember = remember):
-				flash(u'登录成功', 'success')
-                                if next:
-                                    return redirect(next)
-				return redirect('/')
-		elif not user:
-			flash(u'用户不存在', 'error')
-		else: 
-			flash(u'密码错误', 'error')
+    form = LoginForm(request.form)
+    if request.method == 'POST':
+        username = form.username.data
+        password = form.password.data
+        next = form.next.data
+        user, authenticated = User.authenticate(username, password)
+        DEBUG = True # For DEBUG
+        print 'DEBUG::', DEBUG
+        if user and authenticated or DEBUG: 
+            remember = form.remember.data == 'y'
+            if login_user(user, remember = remember):
+                #flash(u'登录成功', 'success')
+                if next:
+                    return redirect(next)
+                return redirect('/')
+        elif not user:
+            flash(u'用户不存在', 'error')
+        else: 
+            flash(u'密码错误', 'error')
 
         form.next.data = request.args.get('next', '')
-	return render_template('login.html', form = form)
+    return render_template('login.html', form = form)
 
     
 @userview.route('/logout', methods=['GET'])
 def logout():
     logout_user()
-    flash(u'退出成功', 'success')
+    #flash(u'退出成功', 'success')
     return redirect('/login')
 
     
@@ -141,7 +141,7 @@ def user_new():
             form.populate_obj(user)
             db.session.add(user)
             db.session.commit()
-            flash(u'添加用户(%s)成功' % user.usernmae, 'success')
+            flash(u'添加用户(%s)成功' % user.username, 'success')
             return redirect(url_for('users.users'))
     return render_template('users/user_new.html', form=form)
 
@@ -271,7 +271,7 @@ def role_delete(id):
 # ==============================================================================
 @userview.route('/domains/')
 def domains():
-    profile = user_profile(DomainTable._meta.profile_)
+    profile = user_profile(DomainTable._meta.profile)
     table = DomainTable(Domain.query)
     TableConfig(request, profile).configure(table)
     return render_template('users/domains.html', table=table)
