@@ -336,7 +336,7 @@ div.tablenav .filters input[type="text"] {
 }
 
 form fieldset {
-    border:1px solid #e5e5e5;
+    /*border:1px solid #e5e5e5;*/
     padding:10px;
     padding-left: 30px;
     margin-bottom:10px;
