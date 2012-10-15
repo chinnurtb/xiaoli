@@ -19,6 +19,7 @@ class TableData(object):
         self.queryset = data
 
     def ordering(self, order_by):
+        if not order_by: return
         model = self.table._meta.model
         order = 'asc'
         

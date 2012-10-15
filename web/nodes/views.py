@@ -23,6 +23,8 @@ from .tables import NodeTable,PortTable,BoardTable,AreaTable,VendorTable,Categor
 
 nodeview = Blueprint('nodes', __name__)
 
+area_type = {0:'areas.province',1:'areas.cityid',2:'areas.town',3:'areas.branch',4:'areas.entrance'}
+
 @nodeview.route('/area_select', methods=['POST', 'GET'])
 def area_select():
     key = request.args.get('key')
@@ -36,7 +38,6 @@ def area_select():
                 expand_nodes.add(area.parent_id)
                 area = Area.query.get(area.parent_id)
 
-    area_type = {0:'areas.province',1:'areas.cityid',2:'areas.town',3:'areas.branch',4:'areas.entrance'}
     def make_node(area):
         node = {}
         node['title'] = area.name
@@ -156,7 +157,11 @@ def node_edit(id):
         db.session.commit()
         flash(u'修改节点成功','info')
         return redirect(url_for('nodes.nodes'))
-
+    node.area_id = {
+        'area_value':node.area.name,
+        'netloc_value':area_type[node.area.area_type]+'='+str(node.area.id),
+        'selected_value':node.area.id
+    }
     form.process(obj=node)
     return render_template('/nodes/edit.html', node=node, form=form)
 
@@ -258,7 +263,8 @@ def areas():
     if query_gran != 1:
         query = query.filter(getattr(Area,area_type_dict[base.area_type])==base.id)
 
-    table = AreaTable(query).configure(profile)
+    table = AreaTable(query)
+    TableConfig(request, profile).configure(table)
     breadcrumb = [base]
     while base.parent:
         breadcrumb.append(base.parent)
