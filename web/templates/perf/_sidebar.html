@@ -1,0 +1,6 @@
+
+{% from "tango/_sidebar_h.html" import render_sidebar %}
+
+{{ render_sidebar('性能设置', submenuid, [
+        ('thresholds','阀值设置', url_for('perf.thresholds'))])
+}}

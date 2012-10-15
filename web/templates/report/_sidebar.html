@@ -1,0 +1,9 @@
+{% from 'tango/_sidebar_h.html' import render_sidebar %}
+
+{{ render_sidebar('报表管理', submenuid, [
+    ('nodes_report', '资源报表', url_for('report.nodes_report')),
+    ('perf_report', '性能报表', url_for('report.perf_report')),
+    ('alarms_report', '告警报表', url_for('report.alarms_report'))]) 
+}}
+
+
