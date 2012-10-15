@@ -141,7 +141,7 @@ def user_new():
             form.populate_obj(user)
             db.session.add(user)
             db.session.commit()
-            flash(u'添加用户(%s)成功' % user.usernmae, 'success')
+            flash(u'添加用户(%s)成功' % user.username, 'success')
             return redirect(url_for('users.users'))
     return render_template('users/user_new.html', form=form)
 
