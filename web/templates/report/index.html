@@ -1,9 +1,17 @@
-{% set menuid = 'report' %}
-
 {% extends 'layout.html' %}
 
-{% block body %} 
+{% set menuid = 'report' %}
 
-<h1> Report </h1>
+{% block title %} 报表管理 {% endblock %}
 
+{% block content %} 
+    <div class="row-fluid content">
+        <div class="span2">
+            {% include "report/_sidebar.html" %}
+        </div>
+        <div class="span10">
+            <h1>报表管理</h1>
+        </div>
+
+    </div>
 {% endblock %}
