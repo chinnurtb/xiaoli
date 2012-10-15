@@ -465,3 +465,29 @@ label em {
     margin-right: -6px;
     opacity: .25;
 }
+
+/* Pagination */
+.pagination {
+    margin-top: 8px;
+    height: 30px;
+}
+
+.pagination a, .pagination span {
+    padding: 0 12px;
+    line-height: 28px;
+}
+
+.num-info{
+    float: left;
+    font-size: 13px;
+}
+
+.num-info span{
+    display: inline-block;
+    padding: 0 10px;
+    background-color: white;
+    border: 1px solid #DDD;
+    -webkit-border-radius: 15px;
+    -moz-border-radius: 15px;
+    border-radius: 15px;
+}

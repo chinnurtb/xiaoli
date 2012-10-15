@@ -16,6 +16,10 @@
 <!-- render_paginate -->
 {% macro render_paginate(page_obj, page_url) -%}
 <div class="pagination pagination-right">
+  <div class="num-info">
+    <span>当页 <strong>{{ page_obj.items|length }}</strong> 项 / 总共 <strong>{{ page_obj.total }}</strong> 项</span>
+  </div>
+  {% if page_obj.pages > 1 %}
   <ul>
     {% if page_obj.has_prev %}
     <li><a href="{{ page_url(page_obj.prev_num) }}">«</a></li>
@@ -35,6 +39,7 @@
         <li><a href="{{ page_url(page_obj.next_num) }}">»</a></li>
     {% endif %}
   </ul>
+  {% endif %}
 </div>
 {% endmacro %}
 
