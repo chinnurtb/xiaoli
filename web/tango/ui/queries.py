@@ -269,6 +269,8 @@ class QueryForm(object):
 
     @property
     def filters_str(self):
+        if self.filters is None:
+            raise ValueError('May not submitted!')
         return self.filters.to_str()
 
 

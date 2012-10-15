@@ -9,7 +9,7 @@ from tango import user_profile
 from tango.ui import menus, Menu
 from tango.ui.tables import TableConfig
 from tango.login import logout_user, login_user, current_user
-from tango.models import Profile
+from tango.models import Profile, QueryFilter 
 from tango.base import NestedDict
 
 from nodes.models import Area
@@ -116,11 +116,28 @@ def change_password():
 
 # ==============================================================================
 #  User
-# ==============================================================================     
-@userview.route('/users/', methods=['GET'])
+# ==============================================================================
+from tango.ui.queries import QueryForm, TextField, SelectField    
+class UserQueryForm(QueryForm):
+    username  = TextField(u'用户名', operator='ilike')
+    name      = TextField(u'真实姓名', operator='ilike')
+    domain_id = SelectField(u'管理域', operator='==',
+                            choices=lambda: [('', u'请选择')] + [(unicode(d.id), d.name) for d in Domain.query])
+    role_id   = SelectField(u'角色名', operator='==',
+                            choices=lambda: [('', u'请选择')] + [(unicode(r.id), r.name) for r in Role.query])
+
+    class Meta():
+        model = User
+
+        
+@userview.route('/users/', methods=['GET', 'POST'])
 def users():
     query = User.query
-    keyword = request.args.get('keyword')
+    query_form = UserQueryForm()
+    keyword = request.args.get('keyword', '')
+    if query_form.is_submitted():
+        print request.form['save']
+        query = query.filter(query_form.filters_str)
     if keyword:
         query = query.filter(db.or_(User.name.ilike('%' + keyword + '%'),
                                     User.email.ilike('%' + keyword + '%'),
@@ -128,7 +145,8 @@ def users():
     table = UserTable(query)
     profile = user_profile(UserTable._meta.profile)
     TableConfig(request, profile).configure(table)
-    return render_template('users/index.html', table=table, keyword=keyword)
+    return render_template('users/index.html', table=table, keyword=keyword,
+                           query_form=query_form)
     
 @userview.route('/users/new', methods=['POST', 'GET'])
 def user_new():
@@ -149,6 +167,7 @@ def user_new():
 @userview.route('/users/edit/<int:id>', methods=['POST', 'GET'])
 def user_edit(id):
     form = UserEditForm()
+    print form.data
     user = User.query.get_or_404(id)
     if request.method == 'POST' and form.validate_on_submit():
         form.populate_obj(user)
@@ -379,3 +398,7 @@ def domain_delete(id):
 #  [OTHER]
 # ==============================================================================
 menus.append(Menu('users', u'用户', '/users/'))
+
+@userview.route('/just-test')
+def just_test():
+    return render_template('just_test.html')

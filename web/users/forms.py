@@ -108,3 +108,4 @@ class PasswordForm(Form):
     ])
     confirm = PasswordField(u"确认密码", [v.Required(message=u'必填')])
 
+
