@@ -71,19 +71,19 @@
         <div class="tablenav top">
             <div class="alignleft actions">
                 <div class="alignleft btn-group">
-                    <a id="alarm-ack-action" class="btn btn-small" href="#">确认</a>
-                    <a id="alarm-clear-action" class="btn btn-small" href="#">清除</a>
+                    <a id="alarm-ack-action" class="btn" href="#">确认</a>
+                    <a id="alarm-clear-action" class="btn" href="#">清除</a>
                 </div>
             </div>
-            <div class="alignleft filters">
-                <select name="query_id" class="input-medium">
+            <div class="alignleft actions">
+                <select name="query_id">
                     <option value="">全部告警</option>
                     {% for q in queries %}
                         <option value="{{q.id}}">{{q.name}}</option>
                     {% endfor %}
                 </select>
-                <input type="text" name="nodelike" placeholder="Node Alias or Addr">
-                <input type="submit" id="alarm-query-submit" class="btn btn-small" value="过滤">
+                <input type="text" name="nodelike" placeholder="告警或者节点名称">
+                <button type="submit" class="btn">检索</button>
             </div>
         </div>
 
