@@ -1,0 +1,22 @@
+{% extends 'layout.html' %}
+
+{% set menuid = 'perf' %}
+
+{% block title %} 阀值设置 {% endblock %}
+
+{% block head %} {% endblock %}
+
+{% block content %} 
+    <div class="row-fluid" style="margin-top:30px;">
+        <div class="span2">
+            {% set submenuid = 'thresholds' %}
+            {% include "perf/_sidebar.html" %}
+        </div>
+        <div class="span10">
+            <h1>阀值设置</h1>
+            <p>参考: http://192.168.100.71:9000/thresholds </p>
+        </div>
+    </div>
+{% endblock %}
+
+

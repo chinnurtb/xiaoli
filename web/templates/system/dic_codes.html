@@ -1,0 +1,21 @@
+{% extends 'layout.html' %}
+
+{% set menuid = 'system' %}
+
+{% block title %} 字典管理 {% endblock %}
+
+{% block head %} {% endblock %}
+
+{% block content %}
+    <div class="row-fluid" style="margin-top:30px">
+        <div class="span2">
+            {% set submenuid = 'dic_codes' %}
+            {% include 'system/_sidebar.html' %}
+        </div>
+        <div class="span10">
+            <h1>TODO: 字典表</h1>
+            <p>对应数据库表: dic_codes, dic_types</p>
+        </div>
+    </div>
+{% endblock %}
+

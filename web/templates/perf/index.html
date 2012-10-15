@@ -1,11 +1,16 @@
-{% set menuid = 'perf' %}
-
 {% extends 'layout.html' %}
 
-{% block body %} 
+{% set menuid = 'perf' %}
 
-<h1> Performance Management </h1>
-
+{% block content %} 
+    <div class="row-fluid content">
+        <div class="span2">
+            {% include "perf/_sidebar.html" %}
+        </div>
+        <div class="span10">
+            <h1>性能管理</h1>
+        </div>
+    </div>
 {% endblock %}
 
 
