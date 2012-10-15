@@ -116,11 +116,26 @@ def change_password():
 
 # ==============================================================================
 #  User
-# ==============================================================================     
-@userview.route('/users/', methods=['GET'])
+# ==============================================================================
+from tango.ui.queries import QueryForm, TextField, SelectField    
+class UserQueryForm(QueryForm):
+    username  = TextField(u'用户名', operator='ilike')
+    name      = TextField(u'真实姓名', operator='ilike')
+    domain_id = SelectField(u'管理域', operator='==',
+                            choices=lambda: [('', u'请选择')] + [(unicode(d.id), d.name) for d in Domain.query])
+    role_id   = SelectField(u'角色名', operator='==',
+                            choices=lambda: [('', u'请选择')] + [(unicode(r.id), r.name) for r in Role.query])
+
+    class Meta():
+        model = User
+
+        
+@userview.route('/users/', methods=['GET', 'POST'])
 def users():
     query = User.query
-    keyword = request.args.get('keyword')
+    query_form = UserQueryForm()
+    keyword = request.args.get('keyword', '')
+    query = query.filter(query_form.filters_str)
     if keyword:
         query = query.filter(db.or_(User.name.ilike('%' + keyword + '%'),
                                     User.email.ilike('%' + keyword + '%'),
@@ -128,7 +143,8 @@ def users():
     table = UserTable(query)
     profile = user_profile(UserTable._meta.profile)
     TableConfig(request, profile).configure(table)
-    return render_template('users/index.html', table=table, keyword=keyword)
+    return render_template('users/index.html', table=table, keyword=keyword,
+                           query_form=query_form)
     
 @userview.route('/users/new', methods=['POST', 'GET'])
 def user_new():

@@ -86,3 +86,33 @@
   </fieldset>
 {%- endmacro -%}
 
+
+<!-- Query Form -->
+{% macro render_query_form(form) %}
+<div style="margin: 15px 0 0 0;" class="span12 well advance_search_form header">      
+  <table class="table  table-hover">
+      <tbody>
+        {% for field in form %}
+        {% if loop.index is odd %}<tr>{% endif %}
+          <td><label for="{{ field.id }}">{{field.label.text}}</label></td>
+          <td>
+            {{ field() }}
+            {% if field.flags.required %}<strong><em>*</em></strong>{% endif %}
+            {% if field.errors %}
+            <span class="help-inline">
+              {{ field.errors[0]|e }}
+            </span>
+            {% endif %}
+          </td>
+          {% if loop.index is even %}</tr>{% endif %}
+        {% if loop.last and loop.length is odd %}<td colspan="2"></td></tr>{% endif %}
+       {% endfor %}
+       <tr>
+         <td colspan="4"><button type="submit" name="create-filters"
+         class="btn push-right">创建检索条件</button> </td>
+       </tr>
+      </tbody>
+  </table>
+</div>
+{% endmacro %}
+    

@@ -256,7 +256,7 @@ class QueryForm(object):
             self[k].process_data(v['value'])
 
     def is_submitted(self):
-        return request and request.method in ("PUT", "POST")
+        return request and request.method in ("PUT", "POST", "GET")
 
     def __iter__(self):
         return iter(self._fields.itervalues())
