@@ -12,10 +12,6 @@
     {{ render_table_profile(table) }} 
 </script>
 
-<script type="text/javascript">
-    $(".datepicker").datepicker($.datepicker.regional['zh']);
-</script>
-
 {% endblock %}
 
 {% from "_table_h.html" import render_table, render_screen_meta %}
@@ -50,4 +46,7 @@
     </div>
 {% endblock %}
 
+<script type="text/javascript">
+    $(".datepicker").datepicker();
+</script>
 
