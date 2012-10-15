@@ -135,9 +135,6 @@ class UserQueryForm(QueryForm):
 def users():
     query = User.query
     query_form = UserQueryForm()
-    keyword = ''
-    filters = QueryFilter.query.filter(db.and_(QueryFilter.user_id==current_user.id,
-                                           QueryFilter.table=='users')).all()
     if query_form.is_submitted():
         query_str = query_form.filters_str
         if 'save' in request.form.keys():
@@ -146,16 +143,14 @@ def users():
             filter.table = 'users'
             filter.query_str = query_str
             db.session.add(filter)
-            db.sesssion.commit()
+            db.session.commit()
         query = query.filter(query_str)
-    if keyword:
-        query = query.filter(db.or_(User.name.ilike('%' + keyword + '%'),
-                                    User.email.ilike('%' + keyword + '%'),
-                                    User.role.has(Role.name.ilike('%' + keyword + '%'))))
+    filters = QueryFilter.query.filter(db.and_(QueryFilter.user_id==current_user.id,
+                                           QueryFilter.table=='users')).all()
     table = UserTable(query)
     profile = user_profile(UserTable._meta.profile)
     TableConfig(request, profile).configure(table)
-    return render_template('users/index.html', table=table, keyword=keyword,
+    return render_template('users/index.html', table=table,
                            query_form=query_form, filters=filters)
     
 @userview.route('/users/new', methods=['POST', 'GET'])
