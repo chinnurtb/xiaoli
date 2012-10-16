@@ -11,6 +11,8 @@ from flask import request
 from jinja2 import Markup
 from wtforms import widgets
 from tango.base import NestedDict, SortedDict
+from tango.models import QueryFilter
+from tango.login import current_user
 from nodes.models import Node
 
         
@@ -196,16 +198,17 @@ class Filter(object):
 class Filters(object):
     prefix = 'filters'
 
-    def __init__(self, model=None, request=None, kv_list=None, key_prefix=prefix):
+    def __init__(self, model=None, request=None, kv_list=None, arg_dict=None, key_prefix=prefix):
         self.model = model
         tablename = model.__tablename__
-        arg_dict =  NestedDict(request, kv_list=kv_list).get(key_prefix, {})
+        if arg_dict is None:
+            arg_dict =  NestedDict(request, kv_list=kv_list).get(key_prefix, {})
         self.arg_dict = arg_dict
         self.filters = []
 
         for field_name, items in arg_dict.iteritems():
             field_prefix = '.'.join([tablename, field_name])
-            filter = Filter(field_prefix, items)
+            filter = Filter(field_prefix, items) # items = {'operator': '...', 'value':['a','b']}
             self.filters.append(filter)
 
     def __iter__(self):
@@ -215,12 +218,12 @@ class Filters(object):
         return self.arg_dict.iteritems()
             
     def to_str(self):
-        filter_strs = []
+        query_strs = []
         for filter in self.filters:
-            filter_str = filter.to_str()
-            if filter_str:
-                filter_strs.append(filter_str)
-        return ' AND '.join(filter_strs)
+            query_str = filter.to_str()
+            if query_str:
+                query_strs.append(query_str)
+        return ' AND '.join(query_strs)
 
         
         
@@ -245,11 +248,16 @@ class QueryForm(object):
             self._fields[name] = field
         
         if self.is_submitted():
-            self.filters = Filters(model=self.Meta.model, kv_list=request.values.lists())
+            if kv_list is None: kv_list = request.values.lists()
+            self.filters = Filters(model=self.Meta.model, kv_list=kv_list)
             self.process()
         else:
             self.filters = None
 
+    def clear(self):
+        for k in self.filters:
+            self[k].process_data('')
+        self.filters = None
             
     def process(self):
         for k, v in self.filters.iteritems():
@@ -267,8 +275,35 @@ class QueryForm(object):
     def __getitem__(self, name):
         return self._fields[name]
 
+    def save_filter(self, table_name, user_id=None):
+        if not request.form['filter-name']:
+            return '请给检索条件一个名字!'
+            
+        filter = QueryFilter()
+        filter.name = request.form['filter-name']
+        filter.user_id = current_user.id if user_id is None else user_id
+        filter.table = table_name
+        filter.arg_dict = self.kv_list_str
+        db.session.add(filter)
+        db.session.commit()
+
+            
     @property
-    def filters_str(self):
+    def kv_list_str(self):
+        arg_dict = self.filters.arg_dict
+        field_prefix = 'filters'
+        kv_list = []
+        for field_name, items in arg_dict.iteritems():
+            for k, v in items.iteritems():
+                if isinstance(v, (list, tuple)):
+                    kv_list.extend([('.'.join([field_prefix, field_name, k]), i) for i in v])
+                else:
+                    kv_list.append(('.'.join([field_prefix, field_name, k]), v))
+                
+        return str(kv_list)
+        
+    @property
+    def query_str(self):
         if self.filters is None:
             raise ValueError('May not submitted!')
         return self.filters.to_str()

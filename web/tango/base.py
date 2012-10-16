@@ -227,7 +227,7 @@ class NestedDict(AutoIncrSortedDict):
         if kv_list is None:
             kv_list = request.values.lists()
         for k, v in kv_list:
-            if k == 'csrf_token' or v == '': continue
+            if k == 'csrf_token': continue
             # key 的层级用 '.' 分割
             # 例如, 给出 a.b.c=3 ,则会得到 {'a':{'b':{'c':'3'}}}
             k_chains = k.split('.')

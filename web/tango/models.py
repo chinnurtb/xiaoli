@@ -2,6 +2,7 @@ from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
 
+import ast
 from datetime import datetime
 
 class Setting(db.Model):
@@ -91,9 +92,12 @@ class QueryFilter(db.Model):
     table     = db.Column(db.String(64))
     user_id   = db.Column(db.Integer, db.ForeignKey('users.id'))
     is_public = db.Column(db.Boolean, default=False)
-    query_str = db.Column(db.String(2048))
+    kv_list   = db.Column(db.String(2048))
 
     create_at = db.Column(db.DateTime, default=datetime.now)
+
+    def get_kv_list(self):
+        return ast.literal_eval(self.kv_list)
 
 
 

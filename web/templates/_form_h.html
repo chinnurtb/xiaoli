@@ -88,11 +88,11 @@
 
 
 <!-- Query Form -->
-{% macro render_filter_options(filters) %}
-<select name="filter">
-  <option>全部</option>
+{% macro render_filter_options(filters, filter_id) %}
+<select name="filter_id">
+  <option value>全部</option>
   {% for filter in filters %}
-  <option value="{{ filter.id }}">{{ filter.name }}</option>
+  <option {% if filter_id and filter.id|string ==filter_id %}selected{% endif %} value="{{ filter.id }}">{{ filter.name }}</option>
   {% endfor %}
 </select>
 {% endmacro %}
@@ -117,7 +117,17 @@
         {% if loop.last and loop.length is odd %}<td colspan="2"></td></tr>{% endif %}
        {% endfor %}
        <tr>
-         <td colspan="4"><button type="submit" name="save" class="btn pull-right">创建检索条件</button></td>
+         <td colspan="4">
+           <div class="">
+             <button type="submit" name="test" style="margin: 0 10px;" class="btn pull-right">应用</button>
+           </div>
+         </td>
+       </tr>
+       <tr>
+         <td colspan="4">
+             <button type="submit" name="save" style="margin: 0 10px;" class="btn pull-right">创建检索条件</button>
+             <input type="text" name="filter-name" class="pull-right" />
+         </td>
        </tr>
       </tbody>
   </table>
