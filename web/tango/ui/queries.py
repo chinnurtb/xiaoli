@@ -7,11 +7,11 @@ if __name__ == '__main__':
     sys.path.insert(0,  '../..')
     from webapp import db
 
-from flask import request
+from flask import request, flash
 from jinja2 import Markup
 from wtforms import widgets
 from tango.base import NestedDict, SortedDict
-from tango.models import QueryFilter
+from tango.models import QueryFilter, db
 from tango.login import current_user
 from nodes.models import Node
 
@@ -277,13 +277,14 @@ class QueryForm(object):
 
     def save_filter(self, table_name, user_id=None):
         if not request.form['filter-name']:
-            return '请给检索条件一个名字!'
+            flash('请给检索条件一个名字!', 'error')
+            return
             
         filter = QueryFilter()
         filter.name = request.form['filter-name']
         filter.user_id = current_user.id if user_id is None else user_id
         filter.table = table_name
-        filter.arg_dict = self.kv_list_str
+        filter.kv_list = self.kv_list_str
         db.session.add(filter)
         db.session.commit()
 

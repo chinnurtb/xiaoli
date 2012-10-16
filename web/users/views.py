@@ -146,15 +146,13 @@ def users():
                 query_filter = QueryFilter.query.get(filter_id)
                 query_form = UserQueryForm(query_filter.get_kv_list())
         elif 'save' in request.form.keys():
-            ret_str = query_form.save_filter(table_name)
-            if ret_str: flash(ret_str, 'error')
+            query_form.save_filter(table_name)
         query = query.filter(query_form.query_str)
     filters = QueryFilter.query.filter(db.and_(QueryFilter.user_id==current_user.id,
                                            QueryFilter.table==table_name)).all()
     table = UserTable(query)
     profile = user_profile(UserTable._meta.profile)
     TableConfig(request, profile).configure(table)
-    print filter_id
     return render_template('users/index.html', table=table,
                            query_form=query_form, filters=filters, filter_id=filter_id)
     

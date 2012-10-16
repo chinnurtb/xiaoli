@@ -7,23 +7,43 @@ from flask import Blueprint, request, session, url_for, \
 from tango import db, user_profile
 from tango.login import login_required
 from tango.ui import menus, Menu
-from tango.models import Profile
+from tango.models import Setting, Profile
 from .models import OperationLog, SecurityLog
-from .tables import OperationLogTable, SecurityLogTable
+from .tables import SettingTable, OperationLogTable, SecurityLogTable
 from tango.ui.tables import TableConfig
 
 from users.models import User
-from .forms import SearchForm, OplogFilterForm
+from .forms import SettingEditForm, SearchForm, OplogFilterForm
 
 sysview = Blueprint('system', __name__)
 
 @sysview.route('/system/')
-@sysview.route('/system/settings')
+@sysview.route('/system/settings/')
 @login_required
 def settings():
     #TODO: SettingTable()
-    return render_template('/system/settings.html')
+    query = Setting.query
+    table = SettingTable(query)
+    profile = user_profile(SettingTable._meta.profile)
+    TableConfig(request, profile).configure(table)
+    
+    return render_template('/system/settings.html', table=table)
 
+    
+@sysview.route('/system/setting/edit/<int:id>', methods=('GET', 'POST'))
+def setting_edit(id):
+    form = SettingEditForm()
+    setting = Setting.query.get_or_404(id)
+    if form.is_submitted and form.validate_on_submit():
+        old_value = setting.value
+        setting.value = form.value.data
+        db.session.commit()
+        flash(u'%s 被修改: %s --> %s' % (setting.name, str(old_value), str(form.value.data)), 'success')
+        return redirect('/system/settings/')
+    form.process(obj=setting)
+    return render_template('/system/setting_edit.html', form=form, id=id)
+
+    
 @sysview.route('/dic_codes')
 @login_required
 def dic_codes():
@@ -64,8 +84,8 @@ def subsystems():
 @login_required
 def oplogs():
     filterForm = OplogFilterForm(formdata=request.args)
-    print filterForm.data
     query = OperationLog.query
+    
     user = filterForm.uid.data
     if user :
         query = query.filter(OperationLog.uid == user.id)
@@ -79,6 +99,7 @@ def oplogs():
     if keyword and keyword != '':
         keyword = keyword.strip()
         query = query.filter(OperationLog.summary.ilike('%'+keyword+'%'))
+        
     table = OperationLogTable(query)
     profile = user_profile(OperationLogTable._meta.profile)
     TableConfig(request, profile).configure(table)

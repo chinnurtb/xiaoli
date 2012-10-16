@@ -1,5 +1,4 @@
 # coding: utf-8
-
 from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
@@ -13,13 +12,14 @@ class Setting(db.Model):
     name        = db.Column(db.String(100))
     alias       = db.Column(db.String(100))
     value       = db.Column(db.Text())
-    unit        = db.Column(db.String(20))
+    unit        = db.Column(db.String(20)) # 值的单位
     created_at  = db.Column(db.DateTime, default=datetime.now)
     updated_at  = db.Column(db.DateTime, default=datetime.now)
 
     def __init__(self, name, value):
         self.name = name
         self.value = value
+
 
 class Profile(db.Model):
     __tablename__ = 'profiles'
@@ -103,6 +103,7 @@ class QueryFilter(db.Model):
 
 
 class Category(db.Model):
+
     """全局分类表"""
 
     __tablename__ = 'categories'
