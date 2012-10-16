@@ -318,6 +318,18 @@ div.tablenav .filters input[type="text"] {
     -moz-border-radius: 4px;
 }
 
+.advance_search_form table {
+    width: 680px;
+    margin-bottom: 0;
+    border: none;
+    box-shadow: none;
+}
+
+.advance_search_form table td{
+    
+}
+
+
 /* Echo out a label for the example */
 .advance_search_form.header:after {
     content: "高级检索";

@@ -23,7 +23,7 @@
 {% endblock %}
 
 {% block content %} 
-    <div class="row-fluid" style="margin-top:30px;">
+    <div class="row-fluid content">
         <div class="span2">
             {% set submenuid = 'oplogs' %}
             {% include 'system/_sidebar.html' %}
@@ -32,12 +32,21 @@
             <div class="tablenav top">
                 <div class="alignleft actions">
                     <form class="form-inline" style="margin:0px;" action="" method="GET">
-                        {{ searchForm.keyword() }}
-                        {{ searchForm.submit(class='btn') }}
+                        {{ filterForm.uid(class="input-small") }}
+                        {{ filterForm.start_date(class="input-small datepicker", placeholder="开始日期") }}
+                        <label for='end_date'>-</label>
+                        {{ filterForm.end_date(class="input-small datepicker", placeholder="结束日期") }}
+                        {{ filterForm.keyword(placeholder="详细信息") }}
+                        <button class="btn" type="submit">检索</button>
                     </form>
                 </div>
             </div>
             {{ render_table(table) }}
         </div>
     </div>
+    <script type="text/javascript">
+        $(".datepicker").datepicker({format: "yyyy-mm-dd"});
+    </script>
 {% endblock %}
+
+

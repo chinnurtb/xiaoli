@@ -202,7 +202,7 @@ class Filters(object):
         arg_dict =  NestedDict(request, kv_list=kv_list).get(key_prefix, {})
         self.arg_dict = arg_dict
         self.filters = []
-        
+
         for field_name, items in arg_dict.iteritems():
             field_prefix = '.'.join([tablename, field_name])
             filter = Filter(field_prefix, items)
@@ -269,6 +269,8 @@ class QueryForm(object):
 
     @property
     def filters_str(self):
+        if self.filters is None:
+            raise ValueError('May not submitted!')
         return self.filters.to_str()
 
 

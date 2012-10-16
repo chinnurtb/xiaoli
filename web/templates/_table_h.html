@@ -23,7 +23,10 @@
   <ul>
     {% if page_obj.has_prev %}
     <li><a href="{{ page_url(page_obj.prev_num) }}">«</a></li>
+    {% else %}
+    <li class="disabled"><a>«</a></li>
     {% endif %}
+    
     {% for i in page_obj.iter_pages(right_current=2) %}
         {% if i %}
             {% if i != page_obj.page %}
@@ -37,12 +40,15 @@
     {% endfor %}
     {% if page_obj.has_next %}
         <li><a href="{{ page_url(page_obj.next_num) }}">»</a></li>
+    {% else %}
+    <li class="disabled"><a>»</a></li>
     {% endif %}
   </ul>
   {% endif %}
 </div>
 {% endmacro %}
 
+<!-- render pagination the wordpress style -->
 {% macro render_paginate_wordpress(page_obj, page_url) %}
 <div class="tablenav bottom">
     <div class="tablenav-pages"><span class="displaying-num">{{ page_obj.total }} items</span>

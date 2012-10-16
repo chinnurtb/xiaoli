@@ -82,4 +82,18 @@ class Query(db.Model):
     updated_at = db.Column(db.DateTime, default=datetime.now) 
 
 
+            
+class QueryFilter(db.Model):
+    __tablename__ = 'query_filters'
+
+    id        = db.Column(db.Integer, primary_key=True)
+    name      = db.Column(db.String(64))
+    table     = db.Column(db.String(64))
+    user_id   = db.Column(db.Integer, db.ForeignKey('users.id'))
+    is_public = db.Column(db.Boolean, default=False)
+    query_str = db.Column(db.String(2048))
+
+    create_at = db.Column(db.DateTime, default=datetime.now)
+
+
 

@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 
-{% set menuid = 'nodes' %}
+{% set menuid = 'system' %}
 
 {% block title %} 所有主机 {% endblock %}
 
@@ -8,13 +8,14 @@
 
 {% block content %}
     
-    <div class="row-fluid"  style="margin-top:30px">
+    <div class="row-fluid content">
         <div class="span2">
             {% set submenuid = 'hosts' %}
-            {% include 'nodes/_sidebar.html' %}
+            {% include 'system/_sidebar.html' %}
         </div>
         <div class="span10">
-            <h1> 所有主机 </h1>
+            <h1>TODO: 所有主机 </h1>
+            <p>数据库表: node_hosts</p>
         <div>
     </div>
 

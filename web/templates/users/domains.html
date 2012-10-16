@@ -14,12 +14,10 @@
 
 {% endblock %}
 
-{% block screen_meta %}
-
 {% from "_table_h.html" import render_table, render_screen_meta %}
 
+{% block screen_meta %}
 {{ render_screen_meta(table) }}
-
 {% endblock %}
 
 {% block content %}

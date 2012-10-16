@@ -191,20 +191,12 @@ def node_delete():
 def nodes_import():
     return render_template('/nodes/import.html')
 
-@nodeview.route('/hosts', methods=['GET'])
-@login_required
-def hosts():
-    return render_template("/hosts/index.html")
 
 @nodeview.route('/managers', methods=['GET'])
 @login_required
 def managers():
     return render_template('/managers/index.html')
 
-@nodeview.route('/subsystems', methods=['GET'])
-@login_required
-def subsystems():
-    return render_template('/subsystems/index.html')
 
 @nodeview.route("/boards/")
 @login_required

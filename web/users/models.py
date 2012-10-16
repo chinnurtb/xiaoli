@@ -59,6 +59,9 @@ class User(db.Model, UserMixin):
     def __repr__(self):
         return '<User %r>' % self.username
 
+    def __unicode__(self):
+        return self.username
+
     @staticmethod
     def create_passwd(raw):
         return md5(raw).hexdigest()        
