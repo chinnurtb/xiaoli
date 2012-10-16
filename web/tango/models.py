@@ -1,4 +1,4 @@
-#coding=utf-8
+# coding: utf-8
 from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
@@ -129,4 +129,16 @@ class QueryFilter(db.Model):
         return ast.literal_eval(self.kv_list)
 
 
+class Category(db.Model):
+
+    """全局分类表"""
+
+    __tablename__ = 'categories'
+
+    id          = db.Column(db.Integer, primary_key=True)
+    obj         = db.Column(db.String(100))
+    name        = db.Column(db.String(100))
+    alias       = db.Column(db.String(100))
+    is_valid    = db.Column(db.Boolean, default=True)
+    
 
