@@ -1,7 +1,9 @@
+# coding: utf-8
 from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
 
+import ast
 from datetime import datetime
 
 class Setting(db.Model):
@@ -10,13 +12,14 @@ class Setting(db.Model):
     name        = db.Column(db.String(100))
     alias       = db.Column(db.String(100))
     value       = db.Column(db.Text())
-    unit        = db.Column(db.String(20))
+    unit        = db.Column(db.String(20)) # 值的单位
     created_at  = db.Column(db.DateTime, default=datetime.now)
     updated_at  = db.Column(db.DateTime, default=datetime.now)
 
     def __init__(self, name, value):
         self.name = name
         self.value = value
+
 
 class Profile(db.Model):
     __tablename__ = 'profiles'
@@ -91,9 +94,24 @@ class QueryFilter(db.Model):
     table     = db.Column(db.String(64))
     user_id   = db.Column(db.Integer, db.ForeignKey('users.id'))
     is_public = db.Column(db.Boolean, default=False)
-    query_str = db.Column(db.String(2048))
+    kv_list   = db.Column(db.String(2048))
 
     create_at = db.Column(db.DateTime, default=datetime.now)
 
+    def get_kv_list(self):
+        return ast.literal_eval(self.kv_list)
 
+
+class Category(db.Model):
+
+    """全局分类表"""
+
+    __tablename__ = 'categories'
+
+    id          = db.Column(db.Integer, primary_key=True)
+    obj         = db.Column(db.String(100))
+    name        = db.Column(db.String(100))
+    alias       = db.Column(db.String(100))
+    is_valid    = db.Column(db.Boolean, default=True)
+    
 

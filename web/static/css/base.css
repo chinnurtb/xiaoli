@@ -249,6 +249,7 @@ div.tablenav .filters {
     padding: 2px 8px 0px 0px;
 }
 
+/*
 div.tablenav .filters select,
 div.tablenav .actions select,
 div.tablenav .actions input[type="submit"],
@@ -258,6 +259,7 @@ div.tablenav .filters input[type="text"] {
     font-size: 12px;
     padding: 3px 6px;
 }
+*/
 
 .input-default {
     padding-top: 0 !important;

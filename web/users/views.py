@@ -1,5 +1,7 @@
 #!/usr/bin/env python 
 # -*- coding: utf-8 -*-
+
+import ast
 from flask import json
 from flask import (Blueprint, request, url_for, make_response, send_file,
                    redirect, render_template, flash)
@@ -117,8 +119,8 @@ def change_password():
 # ==============================================================================
 #  User
 # ==============================================================================
-from tango.ui.queries import QueryForm, TextField, SelectField
-from tango.models import QueryFilter
+from tango.ui.queries import Filters, QueryForm, TextField, SelectField
+
 class UserQueryForm(QueryForm):
     username  = TextField(u'用户名', operator='ilike')
     name      = TextField(u'真实姓名', operator='ilike')
@@ -135,28 +137,24 @@ class UserQueryForm(QueryForm):
 def users():
     query = User.query
     query_form = UserQueryForm()
-    keyword = ''
+    table_name = User.__tablename__
+    filter_id = None
+    if request.method == 'POST':
+        if 'filter_id' in request.form.keys():
+            filter_id = request.form['filter_id'] # Defalut = -1
+            if filter_id:
+                query_filter = QueryFilter.query.get(filter_id)
+                query_form = UserQueryForm(query_filter.get_kv_list())
+        elif 'save' in request.form.keys():
+            query_form.save_filter(table_name)
+        query = query.filter(query_form.query_str)
     filters = QueryFilter.query.filter(db.and_(QueryFilter.user_id==current_user.id,
-                                           QueryFilter.table=='users')).all()
-    if query_form.is_submitted():
-        query_str = query_form.filters_str
-        if 'save' in request.form.keys():
-            filter = QueryFilter()
-            filter.user_id = current_user.id
-            filter.table = 'users'
-            filter.query_str = query_str
-            db.session.add(filter)
-            db.sesssion.commit()
-        query = query.filter(query_str)
-    if keyword:
-        query = query.filter(db.or_(User.name.ilike('%' + keyword + '%'),
-                                    User.email.ilike('%' + keyword + '%'),
-                                    User.role.has(Role.name.ilike('%' + keyword + '%'))))
+                                           QueryFilter.table==table_name)).all()
     table = UserTable(query)
     profile = user_profile(UserTable._meta.profile)
     TableConfig(request, profile).configure(table)
-    return render_template('users/index.html', table=table, keyword=keyword,
-                           query_form=query_form, filters=filters)
+    return render_template('users/index.html', table=table,
+                           query_form=query_form, filters=filters, filter_id=filter_id)
     
 @userview.route('/users/new', methods=['POST', 'GET'])
 def user_new():

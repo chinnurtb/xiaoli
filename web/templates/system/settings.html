@@ -4,7 +4,20 @@
 
 {% block title %} 系统设置 {% endblock %}
 
-{% block head %} {% endblock %}
+{% block head %}
+{% from "_table_h.html" import render_table_profile %}
+
+<script type="text/javascript">
+    {{ render_table_profile(table) }} 
+</script>
+{% endblock %}
+
+
+{% from "_table_h.html" import render_table, render_screen_meta %}
+{% block screen_meta %}
+    {{ render_screen_meta(table) }}
+{% endblock %}
+
 
 {% block content %}
     <div class="row-fluid content">
@@ -13,8 +26,8 @@
             {% include 'system/_sidebar.html' %}
         </div>
         <div class="span10">
-            <h1>TODO: 系统设置</h1>
-            <p>对应数据库表: settings</p>
+          {% include "_alert.html" %}
+          {{ render_table(table) }}
         </div>
     </div>
 {% endblock %}

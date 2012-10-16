@@ -16,3 +16,14 @@ pip install -r deps.txt
 Run
 ========
 python server.py
+
+API
+===
+
+http://wtforms.simplecodes.com/docs/1.0.2/
+
+
+Tango
+=====
+
+Tango=Flask+Jinja2+SQLAlchemy+WTForm+Bootstrap
