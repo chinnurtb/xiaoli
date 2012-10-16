@@ -2,9 +2,25 @@
 # -*- coding: utf-8 -*-
 
 from tango.ui import tables
+from tango.models import Setting
 
 from .models import OperationLog, SecurityLog
 
+class SettingTable(tables.Table):
+    helpdoc = u'查看系统设置参数'
+    
+    edit   = tables.Action(name=u'编辑', endpoint='system.setting_edit')
+    
+    check = tables.CheckBoxColumn()
+
+    name  = tables.Column(verbose_name=u'参数名', orderable=True)
+    value = tables.Column(verbose_name=u'参数值', orderable=True)
+    unit  = tables.Column(verbose_name=u'参数单位', orderable=True)
+    alias = tables.Column(verbose_name=u'说明')
+
+    class Meta():
+        model = Setting
+    
 class OperationLogTable(tables.Table):
 
     helpdoc     = u'查看系统操作日志'
