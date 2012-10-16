@@ -124,13 +124,23 @@ def nodes():
 def node_show(id):
     node = Node.query.get_or_404(id)
     from tango.ui.charts.highcharts import LineTimeSeriesChart
-    chart = LineTimeSeriesChart()
-    chart["title"]["text"] = u'最近24小时流量图'
-    chart["subtitle"]["text"] = None
-    chart["yAxis"]["title"] = None
-    chart.height = str(280)+"px"
-    chart.set_yformatter()
-    return render_template('nodes/show.html', node = node, chart = chart)
+    traffic_chart = LineTimeSeriesChart()
+    traffic_chart.set_html_id("traffic")
+    traffic_chart["title"]["text"] = None
+    traffic_chart["subtitle"]["text"] = None
+    traffic_chart["yAxis"]["title"] = None
+    traffic_chart.height = str(250)+"px"
+    traffic_chart.set_yformatter()
+
+    from tango.ui.charts.highcharts import PieBasicChart
+    alarm_chart = PieBasicChart()
+    alarm_chart.set_html_id("alarm")
+    alarm_chart["title"]["text"] = None
+    alarm_chart["plotOptions"]["pie"]["events"]["click"] = None
+    alarm_chart.height = str(220)+"px"
+    alarm_chart.width = str(220)+"px"
+    alarm_chart.min_width = str(220)+"px"
+    return render_template('nodes/show.html', node = node, traffic_chart = traffic_chart, alarm_chart = alarm_chart)
 
 @nodeview.route('/nodes/new/', methods=['GET','POST'])
 @login_required

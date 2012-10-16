@@ -49,16 +49,18 @@
       <form class="form-inline" style="margin:0px;" action="" method="POST">
         <div class="alignleft actions">
           {% from "_form_h.html" import render_filter_options %}
-          {{ render_filter_options(filters) }}
+          {{ render_filter_options(filters, filter_id) }}
           <button type="submit" name="execute" class="btn">检索</button>
         </div>
+      </form>
         <div class="alignright actions">
           <a class="btn btn-small"
              href="#"><i class="icon-download-alt"></i></a>
         </div>
-        {% from "_form_h.html" import render_query_form %}
-        {{ render_query_form(query_form) }}
-      </form>
+        <form method="POST" action="">
+          {% from "_form_h.html" import render_query_form %}
+          {{ render_query_form(query_form) }}
+        </form>
     </div>
     {{ render_table(table) }}
     <br class="clear">
