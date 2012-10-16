@@ -116,6 +116,11 @@ Copyright (c) 2011 by Harvest
 
     AbstractChosen.prototype.set_default_values = function() {
       var _this = this;
+        if (this.options.replace_search_input == undefined) {
+            this.replace_search_input = false;
+        } else {
+            this.replace_search_input = this.options.replace_search_input
+        };
       this.click_test_action = function(evt) {
         return _this.test_active_click(evt);
       };
@@ -353,6 +358,9 @@ Copyright (c) 2011 by Harvest
           "width": sf_width + "px"
         });
       }
+      if (this.replace_search_input) {
+        this.search_container.html(this.replace_search_input);
+      }
       this.results_build();
       this.set_tab_index();
       return this.form_field_jq.trigger("liszt:ready", {
@@ -495,6 +503,7 @@ Copyright (c) 2011 by Harvest
     };
 
     Chosen.prototype.test_active_click = function(evt) {
+      if ($(evt.target).attr("class") == "dynatree-expander") return;
       if ($(evt.target).parents('#' + this.container_id).length) {
         return this.active_field = true;
       } else {

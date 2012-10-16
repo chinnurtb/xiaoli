@@ -72,63 +72,73 @@ class AreaSelectWidget(object):
                 area_value = field.data.get('area_value')
                 netloc_value = field.data.get('netloc_value')
                 selected_value = field.data.get('selected_value')
-
+        if area_value == '':
+            area_value_chosen = u'请选择所属区域'
+        else:
+            area_value_chosen = area_value
         html = u'''
         <script type="text/javascript">
             $(function(){
                 var config = {
-                    replaceText: "加载中...",
-                    onShow: function(dropPanel){
-                        $("#dropContent").dynatree({
-                            checkbox: true,
-                            selectMode: %(select_mode)s,
-                            imagePath: '',
-                            initAjax:{
-                                url:"/area_select",
-                                data:{
-                                    selected_ids: $('#%(field_id)s_selected').val()
-                                }
-                            },
-                            onActivate: function(dtnode) {},
-                            onLazyRead: function(dtnode){
-                                dtnode.appendAjax({
-                                    url:"/area_select",
-                                    data:{
-                                        key: dtnode.data.key,
-                                        selected_ids: $('#%(field_id)s_selected').val()
-                                    }
-                                });
-                            },
-                            onSelect: function(select, dtnode) {
-                                var selNodes = dtnode.tree.getSelectedNodes();
-                                var selkeys = [];
-                                var selTitles = [];
-                                var selvals = $.map(selNodes, function(node){
-                                    selkeys.push(node.data.key);
-                                    selTitles.push(node.data.title);
-                                    return node.data.area_type + '=' + node.data.key;
-                                });
-                                $("#%(field_id)s_netloc").val(selvals.join(" or "));
-                                $("#%(field_id)s_selected").val(selkeys.join(","));
-                                $(".dropPanel_txt").val(selTitles.join(","));
-                            },
-                            strings: {
-                                loading: "加载中…",
-                                loadError: "加载错误!"
-                            },
-                            onKeydown: function(dtnode, event) {
-                                if( event.which == 13 ) {
-                                    dtnode.toggleSelect();
-                                    return false;
-                                }
-                            }
-                        });
+                    replace_search_input: function(){
+                        return '<div id="tree" style="height: 150px;"></div>'
                     }
                 };
-                $("#%(field_id)s").dropPanel(config);
+                $("#%(field_id)s_chosen").chosen(config);
+                $("#tree").dynatree({
+                    checkbox: true,
+                    selectMode: %(select_mode)s,
+                    imagePath: '',
+                    initAjax:{
+                        url:"/area_select",
+                        data:{
+                            selected_ids: $('#%(field_id)s_selected').val()
+                        }
+                    },
+                    onActivate: function(dtnode) {},
+                    onLazyRead: function(dtnode){
+                        dtnode.appendAjax({
+                            url:"/area_select",
+                            data:{
+                                key: dtnode.data.key,
+                                selected_ids: $('#%(field_id)s_selected').val()
+                            }
+                        });
+                    },
+                    onSelect: function(select, dtnode) {
+                        var selNodes = dtnode.tree.getSelectedNodes();
+                        var selkeys = [];
+                        var selTitles = [];
+                        var selvals = $.map(selNodes, function(node){
+                            selkeys.push(node.data.key);
+                            selTitles.push(node.data.title);
+                            return node.data.area_type + '=' + node.data.key;
+                        });
+                        $("#%(field_id)s_netloc").val(selvals.join(" or "));
+                        $("#%(field_id)s_selected").val(selkeys.join(","));
+                        $("#%(field_id)s").val(selTitles.join(","));
+                        if(selTitles == "") {
+                            $("a.chzn-single.chzn-default span").html("请选择所属区域");
+                        }else {
+                            $("a.chzn-single.chzn-default span").html(selTitles.join(","));
+                        }
+                    },
+                    strings: {
+                        loading: "加载中…",
+                        loadError: "加载错误!"
+                    },
+                    onKeydown: function(dtnode, event) {
+                        if( event.which == 13 ) {
+                            dtnode.toggleSelect();
+                            return false;
+                        }
+                    }
+                });
+                $("a.chzn-single.chzn-default span").html("%(area_value_chosen)s");
             });
         </script>
-        <input id="%(field_id)s" name="%(field_name)s" value="%(area_value)s" />
+        <select id="%(field_id)s_chosen"></select>
+        <input id="%(field_id)s" type="hidden" name="%(field_name)s" value="%(area_value)s" />
         <input id="%(field_id)s_netloc" type="hidden" value="%(netloc_value)s" name="%(field_name)s_netloc" />
         <input id="%(field_id)s_selected" type="hidden" value="%(selected_value)s" name="%(field_name)s_selected" />
         ''' % {
@@ -136,6 +146,7 @@ class AreaSelectWidget(object):
             'field_id': field.id,
             'field_name': field.name,
             'area_value':area_value,
+            'area_value_chosen':area_value_chosen,
             'netloc_value': netloc_value,
             'selected_value': selected_value
         }
@@ -144,11 +155,11 @@ class AreaSelectWidget(object):
     def _get_media(self):
         media = Media(media={
             'css': [
-                '/static/css/jquery.dropPanel.css',
+                '/static/css/chosen.css',
                 '/static/css/dynatree/skin/ui.dynatree.css'
             ],
             'js': [
-                '/static/js/jquery.dropPanel.js',
+                '/static/js/chosen.jquery.js',
                 '/static/js/jquery.dynatree.js',
                 '/static/js/jquery-ui.custom.min.js',
                 '/static/js/jquery.cookie.js'
