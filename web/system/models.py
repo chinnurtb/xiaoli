@@ -42,3 +42,20 @@ class SecurityLog(db.Model):
             return self.login_at
         else:
             return self.logout_at
+
+
+class SubSystem(db.Model):
+    """ 子采集 """
+
+    __tablename__ = 'subsystems'
+    
+    id         = db.Column(db.Integer, primary_key=True)
+    rdn        = db.Column(db.String(100))
+    name       = db.Column(db.String(100))
+    alias      = db.Column(db.String(100))
+    host       = db.Column(db.String(100))
+    status     = db.Column(db.Integer)
+    descr      = db.Column(db.String(200))
+    started_at = db.Column(db.DateTime) # 启动采集的时间
+    updated_at = db.Column(db.DateTime, onupdate=datetime.now)
+ 

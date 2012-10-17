@@ -45,6 +45,7 @@ class DictType(db.Model):
     type_name  = db.Column(db.String(100))
     type_label = db.Column(db.String(100))
     editable   = db.Column(db.Boolean)
+
     
 
 class Profile(db.Model):
@@ -56,7 +57,7 @@ class Profile(db.Model):
     key = db.Column(db.String(100))
     value = db.Column(db.Text())
     created_at = db.Column(db.DateTime, default=datetime.now)
-    updated_at = db.Column(db.DateTime, default=datetime.now)
+    updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
 
     def __init__(self, uid, grp, key, value):
         self.uid = uid
@@ -123,7 +124,7 @@ class QueryFilter(db.Model):
     is_public = db.Column(db.Boolean, default=False)
     kv_list   = db.Column(db.String(2048))
 
-    create_at = db.Column(db.DateTime, default=datetime.now)
+    created_at = db.Column(db.DateTime, default=datetime.now)
 
     def get_kv_list(self):
         return ast.literal_eval(self.kv_list)

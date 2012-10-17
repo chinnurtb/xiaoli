@@ -23,11 +23,6 @@ class UserTable(tables.Table):
     email          = tables.EmailColumn(verbose_name=u'邮箱')
     department     = tables.Column(verbose_name=u'部门')
     telephone      = tables.Column(verbose_name=u'电话')
-    # mobile         = tables.Column()
-    # memo           = tables.Column()
-    # status         = tables.Column()
-    # created_at     = tables.DateTimeColumn(verbose_name=u'注册时间',format='%Y-%m-%d %H:%M')
-    # remember_token = tables.Column()
 
     class Meta():
         model = User

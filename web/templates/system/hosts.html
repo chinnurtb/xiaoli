@@ -1,10 +1,22 @@
 {% extends "layout.html" %}
-
 {% set menuid = 'system' %}
-
 {% block title %} 所有主机 {% endblock %}
 
-{% block head %} {% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="/static/css/node.css" type="text/css" media="screen" />
+
+{% from "_table_h.html" import render_table_profile %}
+<script type="text/javascript">
+    {{ render_table_profile(table) }} 
+</script>
+{% endblock %}
+
+
+{% from "_table_h.html" import render_table, render_screen_meta %}
+{% block screen_meta %}
+    {{ render_screen_meta(table) }}
+{% endblock %}
 
 {% block content %}
     
@@ -14,8 +26,8 @@
             {% include 'system/_sidebar.html' %}
         </div>
         <div class="span10">
-            <h1>TODO: 所有主机 </h1>
-            <p>数据库表: node_hosts</p>
+          {% include "_alert.html" %}
+          {{ render_table(table) }}
         <div>
     </div>
 

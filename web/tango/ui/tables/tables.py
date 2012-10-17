@@ -5,8 +5,6 @@ from __future__ import absolute_import, unicode_literals
 from flask import Flask, render_template, url_for, request
 from flask_sqlalchemy import Pagination
 
-from tango.base import SortedDict
-
 from .columns import *
 from .rows import *
 from .utils import *
@@ -65,7 +63,11 @@ class TableMeta(type):
         # print TableMeta, cls
         # print '===========\n'
 
-        attrs["_meta"] = TableOptions(attrs.get("Meta", None))
+        _meta = attrs.get("Meta", None)
+        if _meta is None and name != 'Table':
+            raise ValueError("*Meta* class is required in class (%s)!" % name)
+        
+        attrs["_meta"] = TableOptions(attrs.get("Meta", None), name)
         columns = [(name_, attrs.pop(name_)) for name_, column in attrs.items()
                                              if isinstance(column, Column)]
         columns.sort(lambda x, y: cmp(x[1].creation_counter, y[1].creation_counter))
@@ -88,13 +90,13 @@ class TableMeta(type):
 
 class TableOptions(object):
 
-    def __init__(self, options=None):
+    def __init__(self, options=None, name=''):
         super(TableOptions, self).__init__()
         if options:
             self._order_by = getattr(options, 'order_by', None)
             self.model = getattr(options, 'model', None)
             if self.model is None:
-                raise ValueError("*model* is required!")
+                raise ValueError("In %s's Meta class *model* is required!" % name)
 
             self.profile = '.'.join(['table', self.model.__tablename__])
             self.profile_hiddens_key = '.'.join([self.profile, 'hiddens'])

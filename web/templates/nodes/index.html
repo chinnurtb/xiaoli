@@ -5,14 +5,8 @@
 {% block title %}所有节点{% endblock %}
 
 {% block head %}
-<style type="text/css">
-    .status-column.state-0 {
-        color: red;
-    }
-    .status-column.state-1 {
-        color: green;
-    }
-</style>
+<link rel="stylesheet" href="/static/css/node.css" type="text/css" media="screen" />
+
 <script type="text/javascript">
     var getSelectBox = function(){
         return $("#node_form").find("input[name^=id]:checked");
