@@ -20,9 +20,36 @@ class Setting(db.Model):
         self.name = name
         self.value = value
 
+class DictCode(db.Model):
+    __tablename__ = 'dict_codes'
+    
+    id         = db.Column(db.Integer, primary_key=True)
+    cityid     = db.Column(db.Integer)
+    type_id    = db.Column(db.Integer, db.ForeignKey('dict_types.id'))
+    parent_id  = db.Column(db.Integer, db.ForeignKey('dict_codes.id'))
+    code_name  = db.Column(db.String(100)) # 字典编码
+    code_label = db.Column(db.String(100)) # 字典值
+    is_valid   = db.Column(db.Boolean)
+    remark     = db.Column(db.String(100))
+
+    type = db.relationship('DictType')
+    parent = db.relationship('DictCode')
+
+    
+class DictType(db.Model):
+    __tablename__ = 'dict_types'
+
+    id         = db.Column(db.Integer, primary_key=True)
+    cityid     = db.Column(db.Integer)
+    type_group = db.Column(db.String(100))
+    type_name  = db.Column(db.String(100))
+    type_label = db.Column(db.String(100))
+    editable   = db.Column(db.Boolean)
+    
 
 class Profile(db.Model):
     __tablename__ = 'profiles'
+    
     id = db.Column(db.Integer, primary_key=True)
     uid = db.Column(db.Integer, db.ForeignKey('users.id'))
     grp = db.Column(db.String(40))
