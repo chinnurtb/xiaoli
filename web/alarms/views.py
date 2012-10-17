@@ -83,12 +83,12 @@ def index():
         severities = severities, total = total)
 
 @alarmview.route('/alarms/<int:id>')
-def alarm_show(id):
+def alarms_show(id):
     alarm = Alarm.query.get_or_404(id)
     return render_template("/alarms/detail.html", alarm=alarm)
 
 @alarmview.route('/alarms/ack/<int:id>', methods=['GET', 'POST'])
-def alarm_ack(id):
+def alarms_ack(id):
     form = AlarmAckForm()
     alarm = Alarm.query.get_or_404(id)
     if request.method == 'POST' and form.validate_on_submit():
@@ -104,7 +104,7 @@ def alarm_ack(id):
         return render_template('/alarms/ack.html', alarm=alarm, form=form)
 
 @alarmview.route('/alarms/clear/<int:id>', methods=['GET', 'POST'])
-def alarm_clear(id=None):
+def alarms_clear(id=None):
     form = AlarmClearForm()
     alarm = Alarm.query.get_or_404(id)
     if request.method == 'POST' and form.validate_on_submit():
@@ -120,7 +120,7 @@ def alarm_clear(id=None):
         form.process(obj=alarm)
         return render_template('/alarms/clear.html', alarm=alarm, form=form)
 
-@alarmview.route('/alarms/histories')
+@alarmview.route('/histories')
 def histories():
     filterForm = AlarmFilterForm(formdata=request.args)
     query = alarm_filter(History, History.query, filterForm)
@@ -131,22 +131,18 @@ def histories():
         table=table, filterForm=filterForm)
 
 @alarmview.route('/alarms/console')
-def alarm_console():
+def alarms_console():
     return render_template("/alarms/console.html")
 
-@alarmview.route('/alarms/statistics/active')
-@login_required
-def statistics_active():
-    return render_template('/alarms/statistics/active.html')
+@alarmview.route('/alarms/stats/current')
+def stats_current():
+    return render_template('/alarms/stats/current.html')
     
-@alarmview.route('/alarms/statistics/history')
-@login_required
-def statistics_history():
-    return render_template('/alarms/statistics/history.html')
+@alarmview.route('/alarms/stats/history')
+def stats_history():
+    return render_template('/alarms/stats/history.html')
 
-#TODO:
 @alarmview.route('/alarms/classes')
-@login_required
 def classes():
     keyword = request.args.get('keyword')
     query = AlarmClass.query
@@ -159,7 +155,7 @@ def classes():
     return render_template("/alarms/classes/index.html", table=table, keyword=keyword)
 
 @alarmview.route('/alarms/classes/edit/<int:id>', methods=['GET', 'POST'])
-def class_edit(id):
+def classes_edit(id):
     form = AlarmClassForm()
     alarm_class = AlarmClass.query.get_or_404(id)
     if request.method == 'POST' and form.validate_on_submit():
@@ -172,7 +168,6 @@ def class_edit(id):
     return render_template("/alarms/classes/edit.html", form = form, alarm_class = alarm_class)
 
 @alarmview.route("/alarms/knowledges/")
-@login_required
 def knowledges():
     query = AlarmKnowledge.query
     keyword = request.args.get('keyword')
@@ -186,8 +181,7 @@ def knowledges():
         table=table, keyword=keyword)
 
 @alarmview.route('/alarms/knowledges/new', methods=['GET', 'POST'])
-@login_required
-def knowledge_new():
+def knowledges_new():
     form = AlarmKnowledgeForm()
     if request.method == 'POST' and form.validate_on_submit():
         record = AlarmKnowledge()
@@ -199,8 +193,7 @@ def knowledge_new():
     return render_template('/alarms/knowledges/new.html', form=form)
 
 @alarmview.route('/alarms/knowledges/edit/<int:id>', methods=['GET', 'POST'])
-@login_required
-def knowledge_edit(id):
+def knowledges_edit(id):
     form = AlarmKnowledgeForm()
     record = AlarmKnowledge.query.get_or_404(id)
     if request.method == 'POST' and form.validate_on_submit():

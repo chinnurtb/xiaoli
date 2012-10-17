@@ -6,12 +6,12 @@
 }}
 
 {{ render_sidebar('告警统计', submenuid, [
-        ('alarm-stats-active',  '实时统计', url_for('alarms.statistics_active')),
-        ('alarm-stats-history', '历史统计', url_for('alarms.statistics_history'))])
+        ('alarms_stats_current',  '实时统计', url_for('alarms.stats_current')),
+        ('alarms_stats_history', '历史统计', url_for('alarms.stats_history'))])
 }}
 
 {{ render_sidebar('告警设置', submenuid, [
-        ('alarm-setting',   '基本设置',     url_for('alarms.settings')),
-        ('alarm_classes',     '告警类型',     url_for('alarms.classes')),
-        ('alarm_knowledges',      '告警知识库',   url_for('alarms.knowledges'))])
+        ('alarms_settings',   '基本设置',     url_for('alarms.settings')),
+        ('alarms_classes',     '告警类型',     url_for('alarms.classes')),
+        ('alarms_knowledges',      '告警知识库',   url_for('alarms.knowledges'))])
 }}

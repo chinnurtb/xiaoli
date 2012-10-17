@@ -33,14 +33,14 @@ class NodeLinkColumn(t.BaseLinkColumn):
 
 class AlarmTable(t.Table):
     
-    ack         = t.Action(name=u'确认', endpoint='alarms.alarm_ack')
-    clear       = t.Action(name=u'清除', endpoint='alarms.alarm_clear')
+    ack         = t.Action(name=u'确认', endpoint='alarms.alarms_ack')
+    clear       = t.Action(name=u'清除', endpoint='alarms.alarms_clear')
 
     check       = t.CheckBoxColumn()
 
     severity    = SeverityColumn()
     alarm_state = t.EnumColumn(verbose_name=u'状态', name='alarm-state', enums=constants.STATES,  orderable=True)
-    alarm_alias = t.LinkColumn(verbose_name=u'名称', endpoint='alarms.alarm_show', orderable=True)
+    alarm_alias = t.LinkColumn(verbose_name=u'名称', endpoint='alarms.alarms_show', orderable=True)
     node_alias  = NodeLinkColumn(verbose_name=u'节点', orderable=True) #accessor='node.alias', 
     node_addr   = t.Column(verbose_name=u'节点地址') #, accessor='node.addr'
     summary     = t.Column(verbose_name=u'详细')
@@ -82,8 +82,8 @@ class HistoryTable(t.Table):
         order_by = '-created_at'
 
 class AlarmClassTable(t.Table):
-    name        = t.LinkColumn(verbose_name=u'名称', endpoint='alarms.class_edit', orderable=True)
-    alias       = t.LinkColumn(verbose_name=u'显示名', endpoint='alarms.class_edit', orderable=True)
+    name        = t.LinkColumn(verbose_name=u'名称', endpoint='alarms.classes_edit', orderable=True)
+    alias       = t.LinkColumn(verbose_name=u'显示名', endpoint='alarms.classes_edit', orderable=True)
     category   = t.Column(verbose_name=u'分类', accessor="category.alias")
     severity    = SeverityColumn()
     probablecause   = t.Column(verbose_name=u'可能原因')
@@ -98,7 +98,7 @@ class AlarmClassTable(t.Table):
 
 class AlarmKnowledgeTable(t.Table):
     
-    class_alias     = t.LinkColumn(verbose_name=u'故障名称', endpoint='alarms.knowledge_edit', accessor='alarm_class.alias', orderable=True)
+    class_alias     = t.LinkColumn(verbose_name=u'故障名称', endpoint='alarms.knowledges_edit', accessor='alarm_class.alias', orderable=True)
     probable_cause  = t.Column(verbose_name=u'可能原因')
     resolvent       = t.Column(verbose_name=u'解决方法')
     probability     = t.EnumColumn('probability', verbose_name=u'发生概率', enums={1: u'极少发生', 2: u'偶尔发生', 3: u'频繁发生'})

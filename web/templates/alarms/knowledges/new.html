@@ -14,12 +14,12 @@
     
     <div class="row-fluid content">
         <div class="span2">
-            {% set submenuid = 'alarm_knowledges' %}
+            {% set submenuid = 'alarms_knowledges' %}
             {% include 'alarms/_sidebar.html' %}
         </div>
 
         <div class="span10">
-            <form id="alarm-knowledge-edit-form" class="form-horizontal" action="{{ url_for('alarms.knowledge_new') }}" method="POST">
+            <form id="alarm-knowledge-edit-form" class="form-horizontal" action="{{ url_for('alarms.knowledges_new') }}" method="POST">
             <legend>添加告警知识库</legend>
 			{{ form.hidden_tag() }}
             {{ render_field(form.class_id) }}
