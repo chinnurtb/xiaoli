@@ -2,8 +2,6 @@
 
 {{ render_sidebar('告警管理', submenuid, [
         ('alarms',          '当前告警',     url_for('alarms.index')),
-        ('alarm-queries',   '检索条件',     url_for('alarms.queries')),
-        ('alarm-query-new', '创建检索',     url_for('alarms.query_new')),
         ('histories',       '历史告警',     url_for('alarms.histories'))])
 }}
 

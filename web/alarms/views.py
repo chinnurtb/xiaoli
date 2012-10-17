@@ -30,7 +30,7 @@ from tango.models import Query, Profile
 
 from .models import Alarm, AlarmSeverity, History, AlarmClass, AlarmKnowledge
 
-from .forms import QueryNewForm, AlarmAckForm, AlarmClearForm, AlarmClassForm, AlarmKnowledgeForm
+from .forms import QueryNewForm, AlarmAckForm, AlarmClearForm, AlarmClassForm, AlarmKnowledgeForm, AlarmFilterForm
 
 from .tables import AlarmTable, QueryTable, HistoryTable, AlarmClassTable, AlarmKnowledgeTable
 
@@ -38,44 +38,55 @@ import constants
 
 alarmview = Blueprint("alarms", __name__)
 
-def alarm_filter(request):
-    filter = []
-    if 'severity' in request.args:
-        id = AlarmSeverity.name2id(request.args['severity']) 
-        if id != -1:
-            filter.append("severity="+str(id))
-    if 'query_id' in request.args:
-        if request.args['query_id'] != '':
-            filter.append("query_id="+request.args['query_id'])
-    return ' and '.join(filter)
+#===============================================================
+#当前告警和历史告警 
+#===============================================================
+def alarm_filter(cls, query, form):
+    """告警过滤"""
+    alarm_class = form.alarm_class.data
+    if alarm_class:
+        query = query.filter(cls.alarm_class_id == alarm_class.id)
+    start_date = form.start_date.data
+    if start_date:
+        query = query.filter(cls.first_occurrence >= start_date)
+    end_date = form.end_date.data
+    if end_date:
+        query = query.filter(cls.first_occurrence <= end_date)
+    keyword = form.keyword.data
+    if keyword and keyword != '':
+        query = query.filter(db.or_(
+                    cls.alarm_alias.ilike('%'+keyword+'%'),
+                    cls.node_alias.ilike('%'+keyword+'%')))
+    return query
+
+def alarm_severities():
+    q = db.session.query(AlarmSeverity, func.count(Alarm.id).label('count'))
+    q = q.outerjoin(Alarm, AlarmSeverity.id == Alarm.severity)
+    q = q.group_by(AlarmSeverity).order_by(AlarmSeverity.id.desc())
+    return q
 
 @alarmview.route('/alarms', methods = ['GET'])
-@login_required
 def index():
-    #should use one Query
-    severities = AlarmSeverity.query.order_by(desc(AlarmSeverity.id)).all()
-    counts = db.session.query(Alarm.severity, func.count(Alarm.id).label('count')).group_by(Alarm.severity).all()
-    all_count = 0
-    for svt in severities:
-        for id, count in counts:
-            if svt.id == id:
-                all_count += count
-                svt.count = count
-    queries = Query.query.filter_by(uid=current_user.id, tab='alarms').all()
+    filterForm = AlarmFilterForm(formdata=request.args)
+    query = alarm_filter(Alarm, Alarm.query, filterForm)
+    severity = request.args.get('severity')
+    if severity:
+        query = query.filter(Alarm.severity == AlarmSeverity.name2id(severity))
+    severities = alarm_severities().all()
+    total = sum([c for s, c in severities])
+    table = AlarmTable(query)
     profile = user_profile(AlarmTable._meta.profile)
-    table = AlarmTable(Alarm.query.filter(alarm_filter(request)))
     TableConfig(request, profile).configure(table)
-    return render_template("/alarms/index.html", table = table,
-        severities = severities, queries = queries, all_count = all_count)
+    return render_template("/alarms/index.html",
+        table = table, filterForm = filterForm, 
+        severities = severities, total = total)
 
 @alarmview.route('/alarms/<int:id>')
-@login_required
 def alarm_show(id):
     alarm = Alarm.query.get_or_404(id)
     return render_template("/alarms/detail.html", alarm=alarm)
 
 @alarmview.route('/alarms/ack/<int:id>', methods=['GET', 'POST'])
-@login_required
 def alarm_ack(id):
     form = AlarmAckForm()
     alarm = Alarm.query.get_or_404(id)
@@ -92,7 +103,6 @@ def alarm_ack(id):
         return render_template('/alarms/ack.html', alarm=alarm, form=form)
 
 @alarmview.route('/alarms/clear/<int:id>', methods=['GET', 'POST'])
-@login_required
 def alarm_clear(id=None):
     form = AlarmClearForm()
     alarm = Alarm.query.get_or_404(id)
@@ -109,47 +119,19 @@ def alarm_clear(id=None):
         form.process(obj=alarm)
         return render_template('/alarms/clear.html', alarm=alarm, form=form)
 
-@alarmview.route('/alarms/queries')
-@login_required
-def queries():
-    profile = user_profile(QueryTable.profile)
-    query = Query.query.filter_by(tab='alarms')
-    table = QueryTable(query)
+@alarmview.route('/alarms/histories')
+def histories():
+    filterForm = AlarmFilterForm(formdata=request.args)
+    query = alarm_filter(History, History.query, filterForm)
+    table = HistoryTable(query)
+    profile = user_profile(HistoryTable._meta.profile)
     TableConfig(request, profile).configure(table)
-    return render_template("/alarms/queries/index.html", table = table)
-
-@alarmview.route('/alarms/queries/new', methods=['GET','POST'])
-@login_required
-def query_new():
-    f = QueryNewForm()
-    q = Query(uid=current_user.id, tab='alarms', filters='', created_at=datetime.now(), updated_at=datetime.now())
-    if request.method == 'POST':
-        q.name = request.form['name']
-        q.is_public = True if request.form['is_public'] == 'y' else False
-        db.session.add(q)
-        db.session.commit()
-        return redirect(url_for('.queries'))
-    f.process(obj=q)
-    return render_template("/alarms/queries/new.html", form=f, query=q)
-
-@alarmview.route('/alarms/queries/edit/<int:id>', methods=['GET','POST'])
-@login_required
-def query_edit(id):
-    q = Query.query.get_or_404(id)
-    return render_template("/alarms/queries/edit.html", query=q)
+    return render_template("/alarms/histories.html",
+        table=table, filterForm=filterForm)
 
 @alarmview.route('/alarms/console')
-@login_required
 def alarm_console():
     return render_template("/alarms/console.html")
-
-@alarmview.route('/alarms/histories')
-@login_required
-def histories():
-    profile = user_profile(HistoryTable.profile)
-    table = HistoryTable(History.query)
-    TableConfig(request, profile).configure(table)
-    return render_template("/alarms/histories.html", table=table)
 
 @alarmview.route('/alarms/statistics/active')
 @login_required

@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 
 from flask_wtf import (Form, TextField, SubmitField, PasswordField, RadioField,
-                          SelectMultipleField, SelectField, HiddenField, DateField,
+                          SelectMultipleField, SelectField, HiddenField, DateField, DateTimeField ,
                           IntegerField, TextAreaField, SubmitField, RecaptchaField,
                           ValidationError, validators, required, equal_to, email)
 
 from wtforms import BooleanField
+
+from wtforms.ext.sqlalchemy.fields import QuerySelectField
 
 from tango.form.fields import SelectFieldPro
 
@@ -41,4 +43,9 @@ class AlarmKnowledgeForm(Form):
     probable_cause  = TextAreaField(u'可能原因') 
     resolvent       = TextAreaField(u'Jiejuefangan')
 
+class AlarmFilterForm(Form):
+    alarm_class = QuerySelectField(query_factory=lambda: AlarmClass.query, get_label='alias', allow_blank=True, blank_text=u'全部告警')
+    start_date  = DateTimeField(u'开始时间', format='%Y-%m-%d')
+    end_date    = DateTimeField(u'结束时间', format='%Y-%m-%d')
+    keyword     = TextField()
     
