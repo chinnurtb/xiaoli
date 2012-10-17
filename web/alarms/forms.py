@@ -37,11 +37,10 @@ class AlarmClassForm(Form):
     remark           = TextAreaField(u'备注')
 
 class AlarmKnowledgeForm(Form):
-    #id              = HiddenField(u'Id')
-    class_id        = SelectFieldPro(u'AlarmClass', validators=[required(message=u'必填')], choices=lambda: [('', u'Choice')] + [(unicode(r.id), r.alias) for r in AlarmClass.query])
-    probability     = SelectField(u'probability', validators=[required(message=u'必填')], choices=[(unicode(1), u'极少发生'), (unicode(2), u'偶尔发生'), (unicode(3), u'频繁发生')])
+    class_id        = SelectFieldPro(u'告警类型', validators=[required(message=u'必填')], choices=lambda: [('', u'Choice')] + [(unicode(r.id), r.alias) for r in AlarmClass.query])
+    probability     = SelectField(u'发生几率', validators=[required(message=u'必填')], choices=[(unicode(1), u'极少发生'), (unicode(2), u'偶尔发生'), (unicode(3), u'频繁发生')])
     probable_cause  = TextAreaField(u'可能原因') 
-    resolvent       = TextAreaField(u'Jiejuefangan')
+    resolvent       = TextAreaField(u'解决方案')
 
 class AlarmFilterForm(Form):
     alarm_class = QuerySelectField(query_factory=lambda: AlarmClass.query, get_label='alias', allow_blank=True, blank_text=u'全部告警')

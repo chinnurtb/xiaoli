@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+# coding: utf-8
 
 from datetime import datetime
 
@@ -26,7 +25,9 @@ from tango.ui import Widget, add_widget
 
 from tango.ui.tables import TableConfig
 
-from tango.models import Query, Profile
+from tango.models import Query, Profile, Category
+
+from nodes.models import Node, Vendor
 
 from .models import Alarm, AlarmSeverity, History, AlarmClass, AlarmKnowledge
 
@@ -147,13 +148,13 @@ def statistics_history():
 @alarmview.route('/alarms/classes')
 @login_required
 def classes():
-    keyword = request.args.get('keyword', '')
+    keyword = request.args.get('keyword')
     query = AlarmClass.query
-    if keyword:
+    if keyword is not None and keyword != '':
         query = query.filter(db.or_(AlarmClass.name.ilike('%'+keyword+'%'),
                                     AlarmClass.alias.ilike('%'+keyword+'%')))
     table = AlarmClassTable(query)
-    profile = user_profile(AlarmClassTable.profile)
+    profile = user_profile(AlarmClassTable._meta.profile)
     TableConfig(request, profile).configure(table)
     return render_template("/alarms/classes/index.html", table=table, keyword=keyword)
 
@@ -173,10 +174,16 @@ def class_edit(id):
 @alarmview.route("/alarms/knowledges/")
 @login_required
 def knowledges():
-    profile = user_profile(AlarmKnowledgeTable.profile)
-    table = AlarmKnowledgeTable(AlarmKnowledge.query)
+    query = AlarmKnowledge.query
+    keyword = request.args.get('keyword')
+    if keyword is not None and keyword != '':
+        query = query.filter(AlarmKnowledge.alarm_class.has(
+            AlarmClass.alias.ilike('%'+keyword+'%')))
+    table = AlarmKnowledgeTable(query)
+    profile = user_profile(AlarmKnowledgeTable._meta.profile)
     TableConfig(request, profile).configure(table)
-    return render_template('/alarms/knowledges/index.html', table=table)
+    return render_template('/alarms/knowledges/index.html',
+        table=table, keyword=keyword)
 
 @alarmview.route('/alarms/knowledges/new', methods=['GET', 'POST'])
 @login_required
@@ -219,10 +226,61 @@ def alarm_severity_filter(s):
 def alarm_state_filter(s):
     return constants.STATES[int(s)] 
 
+#==============================================
+#Statistics 
+#==============================================
+@alarmview.route('/alarms/stats/by_severity')
+def stats_by_severity():
+    q = db.session.query(AlarmSeverity, func.count(Alarm.id).label('count'))
+    q = q.outerjoin(Alarm, AlarmSeverity.id == Alarm.severity)
+    q = q.group_by(AlarmSeverity).order_by(AlarmSeverity.id.desc())
+    data = [{'name': s.alias, 'color': s.color, 'y': c} for s,c in q.all()]
+    from tango.ui.charts.highcharts import PieBasicChart
+    chart = PieBasicChart()
+    chart.set_html_id('alarms_stats_by_severity')
+    chart['title']['text'] = None
+    chart['plotOptions']['pie']['events']['click'] = None
+    chart['series'] = [{'type': 'pie', 'data': data}]
+    return render_template("/alarms/stats/by_severity.html", chart=chart)
+
+@alarmview.route('/alarms/stats/by_category')
+def stats_by_category():
+    q = db.session.query(func.count(Alarm.id), Category.id, Category.alias)
+    q = q.outerjoin(AlarmClass, Alarm.alarm_class_id == AlarmClass.id)
+    q = q.outerjoin(Category, AlarmClass.category_id == Category.id)
+    q = q.group_by(Category.id, Category.alias).order_by(Category.id)
+    return render_template("/alarms/stats/by_category.html", data=q.all())
+
+@alarmview.route('/alarms/stats/by_class')
+def stats_by_class():
+    q = db.session.query(func.count(Alarm.id), AlarmClass.id, AlarmClass.alias)
+    q = q.outerjoin(AlarmClass, Alarm.alarm_class_id == AlarmClass.id)
+    q = q.group_by(AlarmClass.id, AlarmClass.alias)
+    return render_template('/alarms/stats/by_class.html', data=q.all())
+
+@alarmview.route('/alarms/stats/by_node_category')
+def stats_by_node_category():
+    q = db.session.query(func.count(Alarm.id), Category.id, Category.alias)
+    q = q.outerjoin(Node, Alarm.node_id == Node.id)
+    q = q.outerjoin(Category, Node.category == Category.id)
+    q = q.group_by(Category.id, Category.alias).order_by(Category.id)
+    return render_template("/alarms/stats/by_node_category.html", data=q.all())
+
+@alarmview.route('/alarms/stats/by_node_vendor')
+def stats_by_node_vendor():
+    q = db.session.query(func.count(Alarm.id), Vendor.id, Vendor.alias)
+    q = q.outerjoin(Node, Alarm.node_id == Node.id)
+    q = q.outerjoin(Vendor, Node.vendor_id == Vendor.id)
+    q = q.group_by(Vendor.id, Vendor.alias).order_by(Vendor.id)
+    return render_template('/alarms/stats/by_node_vendor.html', data=q.all())
+
 menus.append(Menu('alarms', u'故障', '/alarms'))
 
-add_widget(Widget('event_summary', u'告警统计', url = '/widgets/alarm/summary'))
-add_widget(Widget('event_statistics', u'告警概要', content='<div style="height:100px">......</div>'))
-add_widget(Widget('dashboard1', 'Dashboard1', ''))
-add_widget(Widget('dashboard2', 'Dashboard2', ''))
+add_widget(Widget('alarms_stats_by_severity', u'告警概况', url = '/alarms/stats/by_severity'))
+add_widget(Widget('alarms_stats_by_category', u'告警分类', url = '/alarms/stats/by_category'))
+
+add_widget(Widget('alamrs_stats_by_class', u'告警类型', url = '/alarms/stats/by_class'))
+add_widget(Widget('alamrs_stats_by_node_category', u'设备告警', url = '/alarms/stats/by_node_category'))
+add_widget(Widget('alamrs_stats_by_node_vendor', u'厂商告警', url = '/alarms/stats/by_node_vendor'))
+
 

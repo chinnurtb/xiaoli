@@ -65,7 +65,6 @@ class Chart(AutoIncrDict):
     def set_html_id(self, html_id):
         self.html_id = html_id
         self['chart']['renderTo'] = html_id
-        
 
     def set_colors(self, name_lst):
         hex_lst = []

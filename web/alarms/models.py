@@ -129,8 +129,6 @@ class AlarmSeverity(db.Model):
     color       = db.Column(db.String(60)) 
     sound       = db.Column(db.String(60))
     remark      = db.Column(db.String(60))
-    created_at  = db.Column(db.DateTime)
-    updated_at  = db.Column(db.DateTime)
     
     count       = 0
 
@@ -149,7 +147,6 @@ class AlarmSeverity(db.Model):
 
     def __unicode__(self):
         return self.alias
-
 
 class AlarmKnowledge(db.Model):
 

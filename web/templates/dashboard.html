@@ -44,7 +44,7 @@
     <div id="contextual-help-columns">
         <div class="contextual-help-tabs-wrap">
             <div id="tab-panel-overview" class="help-tab-content active">
-                <p>This screen lists all dashboards...</p> 
+                <p>个性化Dashboard显示</p> 
             </div>
         </div>
     </div>
@@ -52,19 +52,19 @@
 
     <div id="screen-options-wrap" class="hidden">
     <form id="adv-settings" action="" method="post">
-        <h5>Show on screen</h5>
+        <h5>在屏幕上显示</h5>
         <div class="metabox-prefs">
             {% from '_dashboard_h.html' import render_metabox %}
             {{ render_metabox(dashboard) }}
             <label for="wp_welcome_panel-hide">
                 <input id="wp_welcome_panel-hide" type="checkbox" {% if dashboard.welcome %} checked="checked" {% endif %}>
-                Welcome
+                欢迎页
             </label>
             <br class="clear">
         </div>
 
-        <h5 class="screen-layout">Screen Layout</h5>
-        <div class="columns-prefs">Number of Columns:
+        <h5 class="screen-layout">布局</h5>
+        <div class="columns-prefs">列数:
             {% for col in [1,2,3] %}
                 <label class="columns-prefs-{{ col }}"><input name="screen_columns" value="{{ col }}" {% if dashboard.layout == col %} checked="checked" {% endif %} type="radio">{{ col }}</label>
             {% endfor %}
@@ -92,7 +92,7 @@
     <input id="welcomepanelnonce" name="welcomepanelnonce" value="b125a460c3" type="hidden">	<a class="welcome-panel-close" href="http://wp34.webim20.cn/wp-admin/?welcome=0">Close</a>
 
     <div class="welcome-panel-content">
-        <div class="welcome-panel-column-container"> 欢迎使用新Dashboard... </div>
+        <div class="welcome-panel-column-container"> 欢迎使用OPENGOSS融合接入层网管... </div>
     </div>
 </div>
 

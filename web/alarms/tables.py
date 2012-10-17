@@ -82,10 +82,10 @@ class HistoryTable(t.Table):
         order_by = '-created_at'
 
 class AlarmClassTable(t.Table):
-    name        = t.LinkColumn(verbose_name=u'分类', endpoint='alarms.class_edit', orderable=True)
-    alias       = t.LinkColumn(verbose_name=u'名称', endpoint='alarms.class_edit', orderable=True)
+    name        = t.LinkColumn(verbose_name=u'名称', endpoint='alarms.class_edit', orderable=True)
+    alias       = t.LinkColumn(verbose_name=u'显示名', endpoint='alarms.class_edit', orderable=True)
+    category   = t.Column(verbose_name=u'分类', accessor="category.alias")
     severity    = SeverityColumn()
-    x733_type   = t.Column(verbose_name=u'X733类型')
     probablecause   = t.Column(verbose_name=u'可能原因')
     specific_problem = t.Column(verbose_name=u'特定原因')
     additionalinfo   = t.Column(verbose_name=u'附加信息')

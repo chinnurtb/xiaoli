@@ -33,7 +33,7 @@ def alarms_report():
 menus.append(Menu('report', u'报表', '/report'))
 
 #col3
-add_widget(Widget('dashboard6', 'Dashboard6', content='<div style="height:100px">Dashboard6</div>', column = 'column3'))
-add_widget(Widget('dashboard7', 'Dashboard7', content='<div style="height:100px">Dashboard7</div>', column = 'column3'))
-add_widget(Widget('dashboard8', 'Dashboard8', content='<div style="height:100px">Dashboard8</div>', column = 'column3'))
+#add_widget(Widget('dashboard6', 'Dashboard6', content='<div style="height:100px">Dashboard6</div>', column = 'column3'))
+#add_widget(Widget('dashboard7', 'Dashboard7', content='<div style="height:100px">Dashboard7</div>', column = 'column3'))
+#add_widget(Widget('dashboard8', 'Dashboard8', content='<div style="height:100px">Dashboard8</div>', column = 'column3'))
 
