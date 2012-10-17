@@ -10,7 +10,8 @@ if __name__ == '__main__':
 from flask import request, flash
 from jinja2 import Markup
 from wtforms import widgets
-from tango.base import NestedDict, SortedDict
+from tango.base import NestedDict
+from tango.ui.tables.utils import SortedDict
 from tango.models import QueryFilter, db
 from tango.login import current_user
 from nodes.models import Node

@@ -64,25 +64,25 @@ class Area(db.Model):
 class Manager(db.Model):
     """EMS"""
     __tablename__ = 'managers'
-    id = db.Column(db.Integer, primary_key=True)
-    cityid = db.Column(db.Integer)
-    rdn = db.Column(db.String(100))
-    name = db.Column(db.String(40))
-    alias = db.Column(db.String(100))
-    addr  = db.Column(db.String(100))
-    status = db.Column(db.Integer)
+    id         = db.Column(db.Integer, primary_key=True)
+    cityid     = db.Column(db.Integer)
+    rdn        = db.Column(db.String(100))
+    name       = db.Column(db.String(40))
+    alias      = db.Column(db.String(100))
+    addr       = db.Column(db.String(100))
+    status     = db.Column(db.Integer)
     created_at = db.Column(db.DateTime)
     updated_at = db.Column(db.DateTime)
 
 class Vendor(db.Model):
     """Device Vendor"""
     __tablename__ = 'vendors'
-    id = db.Column(db.Integer, primary_key=True)
-    cityid = db.Column(db.Integer)
-    type_id = db.Column(db.Integer)
-    name = db.Column(db.String(100))   
-    alias = db.Column(db.String(100))
-    url = db.Column(db.String(100))
+    id       = db.Column(db.Integer, primary_key=True)
+    cityid   = db.Column(db.Integer)
+    type_id  = db.Column(db.Integer)
+    name     = db.Column(db.String(100))   
+    alias    = db.Column(db.String(100))
+    url      = db.Column(db.String(100))
     is_valid = db.Column(db.Integer)
 
     @property
@@ -110,78 +110,78 @@ class Vendor(db.Model):
 class TimePeriod(db.Model):
     """采集规则"""
     __tablename__ = 'timeperiods'
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100))
-    alias = db.Column(db.String(100))
-    rule_format = db.Column(db.String(100))
-    match_status = db.Column(db.Integer)
-    other_status = db.Column(db.Integer)
-    start_time = db.Column(db.DateTime)
-    end_time = db.Column(db.DateTime)
-    curr_status = db.Column(db.Integer)
+    id            = db.Column(db.Integer, primary_key=True)
+    name          = db.Column(db.String(100))
+    alias         = db.Column(db.String(100))
+    rule_format   = db.Column(db.String(100))
+    match_status  = db.Column(db.Integer)
+    other_status  = db.Column(db.Integer)
+    start_time    = db.Column(db.DateTime)
+    end_time      = db.Column(db.DateTime)
+    curr_status   = db.Column(db.Integer)
 
 class Model(db.Model):
     """设备型号"""
-    __tablename__ = 'models'
-    id = db.Column(db.Integer, primary_key=True)
-    cityid = db.Column(db.Integer)
-    type_id = db.Column(db.Integer)
-    object = db.Column(db.String(100))
-    name = db.Column(db.String(100))
-    alias = db.Column(db.String(100))
-    sysoid = db.Column(db.String(100))
-    vendor_id = db.Column(db.Integer, db.ForeignKey("vendors.id"))
-    fttx = db.Column(db.Integer)
-    control_slot_num = db.Column(db.Integer)
+    __tablename__     = 'models'
+    id                = db.Column(db.Integer, primary_key=True)
+    cityid            = db.Column(db.Integer)
+    type_id           = db.Column(db.Integer)
+    object            = db.Column(db.String(100))
+    name              = db.Column(db.String(100))
+    alias             = db.Column(db.String(100))
+    sysoid            = db.Column(db.String(100))
+    vendor_id         = db.Column(db.Integer, db.ForeignKey("vendors.id"))
+    fttx              = db.Column(db.Integer)
+    control_slot_num  = db.Column(db.Integer)
     business_slot_num = db.Column(db.Integer)
-    is_valid = db.Column(db.Integer)
-    remark = db.Column(db.String(100))
+    is_valid          = db.Column(db.Integer)
+    remark            = db.Column(db.String(100))
 
 NODE_STATUS_ONLINE=1
 
 NODE_STATUS_OFFLINE=0
 
 class NodeMixin(object):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(40))
-    alias = db.Column(db.String(200))
-    addr = db.Column(db.String(20))
-    mask = db.Column(db.String(60))
-    mac = db.Column(db.String(20))
+    id            = db.Column(db.Integer, primary_key=True)
+    name          = db.Column(db.String(40))
+    alias         = db.Column(db.String(200))
+    addr          = db.Column(db.String(20))
+    mask          = db.Column(db.String(60))
+    mac           = db.Column(db.String(20))
     #-- 0:不可用 1:可用
-    status = db.Column(db.Integer)
+    status        = db.Column(db.Integer)
     #-- 0:未管理 1:已管理
     managed_state = db.Column(db.Integer)
     #-- 0:Production 1:Pre-Production 2:Test 3:Maintenance 4:Decommissioned
-    prod_state = db.Column(db.Integer)
-    remark = db.Column(db.String(200))
-    #-- 1:olt 2:onu 3:dslam 4:eoc 5:switch
-    category = db.Column(db.Integer)
+    prod_state    = db.Column(db.Integer)
+    remark        = db.Column(db.String(200))
+    #-- 1:olt 2:onu 3:dslam 4:eoc 5:switch 90:host
+    category      = db.Column(db.Integer)
     #-- 1:PON 2:WLAN 3:DATA 4:SERVER 5:CPE 6:ACCESS
-    business = db.Column(db.Integer)
-    group_id = db.Column(db.Integer)
-    summary = db.Column(db.String(255))
-    location = db.Column(db.String(200))
-    owner = db.Column(db.String(40))
-    snmp_port = db.Column(db.Integer)
-    snmp_ver = db.Column(db.String(20))
-    snmp_comm = db.Column(db.String(40))
-    snmp_wcomm = db.Column(db.String(40))
-    sysoid = db.Column(db.String(100))
-    sysname = db.Column(db.String(40))
-    sysdescr = db.Column(db.String(200))
-    sysuptime = db.Column(db.DateTime)
-    oid_idx = db.Column(db.String(100))
-    sysmodel = db.Column(db.String(100))
-    os_version = db.Column(db.String(40))
+    business      = db.Column(db.Integer)
+    group_id      = db.Column(db.Integer)
+    summary       = db.Column(db.String(255))
+    location      = db.Column(db.String(200))
+    owner         = db.Column(db.String(40))
+    snmp_port     = db.Column(db.Integer)
+    snmp_ver      = db.Column(db.String(20))
+    snmp_comm     = db.Column(db.String(40))
+    snmp_wcomm    = db.Column(db.String(40))
+    sysoid        = db.Column(db.String(100))
+    sysname       = db.Column(db.String(40))
+    sysdescr      = db.Column(db.String(200))
+    sysuptime     = db.Column(db.DateTime)
+    oid_idx       = db.Column(db.String(100))
+    sysmodel      = db.Column(db.String(100))
+    os_version    = db.Column(db.String(40))
     controller_id = db.Column(db.Integer)
-    agent = db.Column(db.String(100))
-    manager = db.Column(db.String(100))
-    extra = db.Column(db.String(255))
-    last_check = db.Column(db.DateTime)
-    next_check = db.Column(db.DateTime)
-    duration = db.Column(db.Integer)
-    updated_at = db.Column(db.DateTime)
+    agent         = db.Column(db.String(100))
+    manager       = db.Column(db.String(100))
+    extra         = db.Column(db.String(255))
+    last_check    = db.Column(db.DateTime)
+    next_check    = db.Column(db.DateTime)
+    duration      = db.Column(db.Integer)
+    updated_at    = db.Column(db.DateTime)
 
     @declared_attr
     def maintainer_id(cls):
@@ -232,6 +232,18 @@ class Node(NodeMixin,db.Model):
     __tablename__ = 'nodes'
     __table_args__ = {'implicit_returning':False}
 
+
+class NodeHost(NodeMixin, db.Model):
+    """ Hosts """
+    __tablename__ = 'node_hosts'
+    os_type    = db.Column(db.String(100))
+    ifaces     = db.Column(db.String(200)) # 
+    cpu_info   = db.Column(db.String(200))
+    mem_info   = db.Column(db.String(200))
+    swap_info  = db.Column(db.String(200))
+    disk_info  = db.Column(db.String(200))
+    worker_num = db.Column(db.Integer) # 采集进程数
+
 class NodeOlt(NodeMixin,db.Model):
     """ OLT """
     __tablename__ = 'node_olts'
@@ -239,38 +251,41 @@ class NodeOlt(NodeMixin,db.Model):
 class Board(db.Model):
     """板卡"""
     __tablename__ = 'boards'
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(60), unique = True)
-    alias = db.Column(db.String(40))
+    id         = db.Column(db.Integer, primary_key=True)
+    name       = db.Column(db.String(60), unique = True)
+    alias      = db.Column(db.String(40))
     created_at = db.Column(db.DateTime)
 
+    
 class Port(db.Model):
     """端口"""
     __tablename__ = 'ports'
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(60), unique = True)
-    alias = db.Column(db.String(40))
+    id         = db.Column(db.Integer, primary_key=True)
+    name       = db.Column(db.String(60), unique = True)
+    alias      = db.Column(db.String(40))
     created_at = db.Column(db.DateTime)
 
+    
 class Server(db.Model):
     """Servers of the system"""
     __tablename__ = 'servers'
-    id = db.Column(db.Integer, primary_key=True)
-    dn = db.Column(db.String(200))
-    jid = db.Column(db.String(200))
-    name = db.Column(db.String(100))
-    os_type = db.Column(db.String(100))
-    addrs = db.Column(db.String(200))  
-    cpu_info = db.Column(db.String(200))
-    mem_info = db.Column(db.String(200))
-    swap_info = db.Column(db.String(200))
-    disk_info = db.Column(db.String(200))
+    id         = db.Column(db.Integer, primary_key=True)
+    dn         = db.Column(db.String(200))
+    jid        = db.Column(db.String(200))
+    name       = db.Column(db.String(100))
+    os_type    = db.Column(db.String(100))
+    addrs      = db.Column(db.String(200))  
+    cpu_info   = db.Column(db.String(200))
+    mem_info   = db.Column(db.String(200))
+    swap_info  = db.Column(db.String(200))
+    disk_info  = db.Column(db.String(200))
     worker_num = db.Column(db.Integer)
-    presence = db.Column(db.Integer)
-    descr = db.Column(db.String(200))
+    presence   = db.Column(db.Integer)
+    descr      = db.Column(db.String(200))
     created_at = db.Column(db.DateTime)
     updated_at = db.Column(db.DateTime)
 
+    
 class Maintain(db.Model):
     """维护人信息"""
     __tablename__ = 'maintains'

@@ -5,7 +5,7 @@ from __future__ import absolute_import, unicode_literals
 
 from .utils import *
 
-__dict__ = ['BoundRow', 'BoundRows']
+__all__ = ['BoundRow', 'BoundRows']
 
 ## Row
 class BoundRow(object):

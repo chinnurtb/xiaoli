@@ -32,3 +32,9 @@ class OplogFilterForm(Form):
     keyword     = TextField()
 
     
+
+class NodeHostEditForm(Form):
+    name  = TextField(u'名称')
+    alias = TextField(u'显示名')
+    ifaces = TextField(u'接口地址')
+    remark = TextAreaField(u'备注')

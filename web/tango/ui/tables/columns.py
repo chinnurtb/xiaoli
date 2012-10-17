@@ -8,13 +8,10 @@ from jinja2 import Markup
 from jinja2.filters import escape
 from flask import url_for
 
-from tango.base import SortedDict
-
 from .utils import *
 
-__dict__ = ['Column', 'ManageColumn', 'CheckBoxColumn', 'BaseLinkColumn', 'LinkColumn',
-            'EmailColumn', 'DateTimeColumn',
-            'BoundColumn', 'BoundColumns']
+__all__ = ['Column', 'EnumColumn', 'CheckBoxColumn', 'BaseLinkColumn', 'LinkColumn',
+           'EmailColumn', 'DateTimeColumn', 'BoundColumn', 'BoundColumns']
 
 ## Column
 class Column(object):
@@ -221,11 +218,13 @@ class DeleteBtnColumn(ButtonColumn):
 
 
 class DateTimeColumn(Column):
-    def __init__(self, format=None, **extra):
+    def __init__(self, format='%Y-%m-%d %H:%M:%S', **extra):
         super(DateTimeColumn, self).__init__(**extra)
         self.format = format
 
     def render(self, value):
+        if value is None:
+            return ''
         if not isinstance(value, datetime.datetime):
             raise TypeError('The value must a *datetime.datetime* type')
         return value.strftime(self.format)

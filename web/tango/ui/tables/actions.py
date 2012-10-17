@@ -8,7 +8,7 @@ from .utils import *
 
 from jinja2 import Markup
 
-__dict__ = ['Action']
+__all__ = ['Action']
 
 class Action(object):
     creation_counter = 0

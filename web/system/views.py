@@ -5,16 +5,19 @@ from flask import Blueprint, request, session, url_for, \
     redirect, render_template, g, flash
 
 from tango import db, user_profile
+from tango.base import make_table
 from tango.login import login_required
 from tango.ui import menus, Menu
 from tango.models import Setting, Profile, DictCode, DictType
-from .models import OperationLog, SecurityLog
+from .models import OperationLog, SecurityLog, SubSystem
 from .tables import (SettingTable, OperationLogTable, SecurityLogTable,
-                     DictCodeTable)
+                     DictCodeTable, NodeHostTable, SubSystemTable)
 from tango.ui.tables import TableConfig
 
+from nodes.models import NodeHost
 from users.models import User
-from .forms import SettingEditForm, SearchForm, OplogFilterForm, DictCodeNewEditForm
+from .forms import (SettingEditForm, SearchForm, OplogFilterForm,
+                    DictCodeNewEditForm, NodeHostEditForm)
 
 sysview = Blueprint('system', __name__)
 
@@ -85,20 +88,47 @@ def dict_codes_edit(id):
     
 @sysview.route('/timeperiods')
 def timeperiods():
-    
+    # :HOLD
     return render_template('/system/timeperiods.html')
 
 @sysview.route('/timeperiods/new')
 def timeperiods_new():
+    # :HOLD
     return render_template('/system/timeperiods_new.html')
 
-@sysview.route('/hosts', methods=['GET'])
-def hosts():
-    return render_template("/system/hosts.html")
 
+##  Hosts
+@sysview.route('/hosts/')
+def hosts():
+    profile = user_profile(NodeHostTable._meta.profile)
+    table = NodeHostTable(NodeHost.query)
+    TableConfig(request, profile).configure(table)
+    return render_template("/system/hosts.html", table=table)
+    
+
+@sysview.route('/hosts/edit/<int:id>', methods=['GET', 'POST'])
+def hosts_edit(id):
+    host = NodeHost.query.get_or_404(id)
+    form = NodeHostEditForm()
+    
+    if form.is_submitted and form.validate_on_submit():
+        alias = form.alias.data
+        remark = form.remark.data
+        host.alias = alias
+        host.remark = remark
+        db.session.commit()
+        flash(u'%s 修改成功' % host.name, 'success')
+        return redirect('/hosts/')
+        
+    form.process(obj=host)
+    return render_template("/system/hosts_edit.html", form=form,
+                           action=url_for('system.hosts_edit', id=id))
+
+    
 @sysview.route('/subsystems', methods=['GET'])
 def subsystems():
-    return render_template('/system/subsystems.html')
+    table = make_table(SubSystem.query, SubSystemTable)
+    return render_template('/system/subsystems.html', table=table)
     
 @sysview.route('/oplogs/')
 def oplogs():
