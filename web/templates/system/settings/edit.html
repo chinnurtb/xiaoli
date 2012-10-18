@@ -19,7 +19,7 @@
 	<div class="row-fluid">
 	    <div class="">
 		<form class="form-horizontal" method="POST"
-                       action="{{url_for('system.settings_edit',id=id)}}">
+                       action="{{ action }}">
 		    <fieldset>
 			{{ form.hidden_tag() }}
                         {{ render_field(form.name, disabled="disabled") }}

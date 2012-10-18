@@ -212,7 +212,8 @@ def reset_password(id):
         return redirect(url_for('users.users'))
         
     form.username.data = user.username
-    return render_template('users/reset_password.html', form=form, id=id)
+    return render_template('users/reset_password.html', form=form,
+                           action=url_for('users.reset_password', id=id))
 
 
     

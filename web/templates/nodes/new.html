@@ -27,7 +27,7 @@
 
     <div class="span10">
         {% from "_form_h.html" import render_field %}
-        <form class="form-horizontal" method="POST" action="{{url_for('nodes.node_new')}}">
+        <form class="form-horizontal" method="POST" action="{{url_for('nodes.nodes_new')}}">
             <legend>新建节点</legend>
             {{ form.as_table(column=2) }}
             <div class="form-actions span10">

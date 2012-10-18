@@ -44,7 +44,8 @@ def settings_edit(id):
         flash(u'%s 被修改: %s --> %s' % (setting.name, str(old_value), str(form.value.data)), 'success')
         return redirect('/system/settings/')
     form.process(obj=setting)
-    return render_template('/system/settings/edit.html', form=form, id=id)
+    return render_template('/system/settings/edit.html', form=form,
+                           action=url_for('syste.settings_edit', id=id))
 
     
 @sysview.route('/dict_codes')

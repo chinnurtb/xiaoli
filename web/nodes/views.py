@@ -144,7 +144,7 @@ def node_show(id):
 
 @nodeview.route('/nodes/new/', methods=['GET','POST'])
 @login_required
-def node_new():
+def nodes_new():
     form = NodeNewForm()
     if request.method == 'POST' and form.validate_on_submit():
         node = Node()
@@ -158,7 +158,7 @@ def node_new():
 
 @nodeview.route('/nodes/edit/<int:id>/', methods=['POST', 'GET'])
 @login_required
-def node_edit(id):
+def nodes_edit(id):
     form = NodeNewForm()
     node = Node.query.get_or_404(id)
     if request.method == 'POST' and form.validate_on_submit():
@@ -176,7 +176,7 @@ def node_edit(id):
     return render_template('/nodes/edit.html', node=node, form=form)
 
 @nodeview.route('/users/delete/', methods=['POST'])
-def node_delete():
+def nodes_delete():
     if request.method == 'POST':
         ids = request.form.getlist('ids')
         for id in ids:
