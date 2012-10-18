@@ -212,8 +212,8 @@ def reset_password(id):
         return redirect(url_for('users.users'))
         
     form.username.data = user.username
-    return render_template('users/reset_password.html', form=form,
-                           action=url_for('users.reset_password', id=id))
+    return render_template('users/reset_password.html', form=form, user=user)
+
 
 
     
@@ -276,8 +276,7 @@ def roles_edit(id):
     form.process(obj=role)
     return render_template('users/roles/new_edit.html',
                            action=url_for('users.roles_edit', id=id),
-                           form=form,
-                           perm_tree=perm_tree)
+                           form=form, perm_tree=perm_tree)
     
 
 @userview.route('/roles/delete/<int:id>', methods=('GET', 'POST'))
