@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from configs import (area_stacked, pie_basic, spline_plot_bands, bar_basic, bar_stacked,
                       bar_negative_stack, column_rotated_labels, column_negative,
-                     line_time_series)
+                     line_time_series, column_basic)
 from tango.base import AutoIncrDict
 import time
 import demjson
@@ -139,15 +139,16 @@ class BarStacked(Chart):
 
     config = demjson.decode(bar_stacked)
     
-    
-
 class BarNegativeStackChart(Chart):
     '''
     [http://www.highcharts.com/demo/bar-negative-stack]'''
 
     config = demjson.decode(bar_negative_stack)
 
-    
+
+class ColumnBasicChart(Chart):
+
+    config = demjson.decode(column_basic)
 
 class ColumnRotatedLabels(Chart):
     '''

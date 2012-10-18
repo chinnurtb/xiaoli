@@ -1,6 +1,7 @@
 {% from "tango/_sidebar_h.html" import render_sidebar %}
 
 {{ render_sidebar('告警管理', submenuid, [
+        ('alarms_console',  '监视面板',     url_for('alarms.alarms_console')),
         ('alarms',          '当前告警',     url_for('alarms.index')),
         ('histories',       '历史告警',     url_for('alarms.histories'))])
 }}

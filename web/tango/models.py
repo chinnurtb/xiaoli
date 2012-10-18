@@ -9,6 +9,7 @@ from datetime import datetime
 class Setting(db.Model):
     __tablename__ = 'settings'
     id          = db.Column(db.Integer, primary_key=True)
+    mod         = db.Column(db.String())
     name        = db.Column(db.String(100))
     alias       = db.Column(db.String(100))
     value       = db.Column(db.Text())
@@ -141,5 +142,4 @@ class Category(db.Model):
     name        = db.Column(db.String(100))
     alias       = db.Column(db.String(100))
     is_valid    = db.Column(db.Boolean, default=True)
-    
 

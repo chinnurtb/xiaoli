@@ -127,7 +127,7 @@ def node_show(id):
     traffic_chart["title"]["text"] = None
     traffic_chart["subtitle"]["text"] = None
     traffic_chart["yAxis"]["title"] = None
-    traffic_chart.height = str(250)+"px"
+    #traffic_chart.height = str(250)+"px"
     traffic_chart.set_yformatter()
 
     from tango.ui.charts.highcharts import PieBasicChart
@@ -135,8 +135,8 @@ def node_show(id):
     alarm_chart.set_html_id("alarm")
     alarm_chart["title"]["text"] = None
     alarm_chart["plotOptions"]["pie"]["events"]["click"] = None
-    alarm_chart.height = str(220)+"px"
-    alarm_chart.width = str(220)+"px"
+    #alarm_chart.height = str(220)+"px"
+    #alarm_chart.width = str(220)+"px"
     alarm_chart.min_width = str(220)+"px"
     return render_template('nodes/show.html', node = node, traffic_chart = traffic_chart, alarm_chart = alarm_chart)
 

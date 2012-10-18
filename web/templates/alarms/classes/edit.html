@@ -2,7 +2,7 @@
 
 {% set menuid = 'alarms' %}
 
-{% block title %}告警类型修改{% endblock %}
+{% set title = "修改告警类型" %}
 
 {% block head %} 
     <link rel="stylesheet" href="/static/css/alarm.css" type="text/css" media="all">
@@ -19,7 +19,7 @@
         </div>
 
         <div class="span10">
-            <form id="alarmclass-edit-form" class="form-horizontal" action="{{ url_for('alarms.class_edit', id=alarm_class.id) }}" method="POST">
+            <form id="alarmclass-edit-form" class="form-horizontal" action="{{ url_for('alarms.classes_edit', id=alarm_class.id) }}" method="POST">
             <legend>{{alarm_class.alias}}</legend>
 			{{ form.hidden_tag() }}
             {{ render_field(form.severity) }}
@@ -27,7 +27,7 @@
             {{ render_field(form.specific_problem) }}
             {{ render_field(form.additionalinfo) }}
             {{ render_field(form.remark) }}
-            {{ render_submit('Submit') }}
+            {{ render_submit('提交') }}
             </form>
         </div>
     </div>
