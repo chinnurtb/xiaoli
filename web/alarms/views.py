@@ -15,6 +15,8 @@ from jinja2 import Markup
 
 from tango import user_profile
 
+from tango.base import make_table
+
 from tango.login import login_required, current_user
 
 from tango.ui import menus, Menu
@@ -22,8 +24,6 @@ from tango.ui import menus, Menu
 from tango.ui import tables
 
 from tango.ui import Widget, add_widget
-
-from tango.ui.tables import TableConfig
 
 from tango.models import Query, Profile, Category
 
@@ -75,9 +75,7 @@ def index():
         query = query.filter(Alarm.severity == AlarmSeverity.name2id(severity))
     severities = alarm_severities().all()
     total = sum([c for s, c in severities])
-    table = AlarmTable(query)
-    profile = user_profile(AlarmTable._meta.profile)
-    TableConfig(request, profile).configure(table)
+    table = make_table(query, AlarmTable)
     return render_template("/alarms/index.html",
         table = table, filterForm = filterForm, 
         severities = severities, total = total)
@@ -124,9 +122,7 @@ def alarms_clear(id=None):
 def histories():
     filterForm = AlarmFilterForm(formdata=request.args)
     query = alarm_filter(History, History.query, filterForm)
-    table = HistoryTable(query)
-    profile = user_profile(HistoryTable._meta.profile)
-    TableConfig(request, profile).configure(table)
+    table = make_table(query, HistoryTable)
     return render_template("/alarms/histories.html",
         table=table, filterForm=filterForm)
 
@@ -149,9 +145,7 @@ def classes():
     if keyword is not None and keyword != '':
         query = query.filter(db.or_(AlarmClass.name.ilike('%'+keyword+'%'),
                                     AlarmClass.alias.ilike('%'+keyword+'%')))
-    table = AlarmClassTable(query)
-    profile = user_profile(AlarmClassTable._meta.profile)
-    TableConfig(request, profile).configure(table)
+    table = make_table(query, AlarmClassTable)
     return render_template("/alarms/classes/index.html", table=table, keyword=keyword)
 
 @alarmview.route('/alarms/classes/edit/<int:id>', methods=['GET', 'POST'])
@@ -174,9 +168,7 @@ def knowledges():
     if keyword is not None and keyword != '':
         query = query.filter(AlarmKnowledge.alarm_class.has(
             AlarmClass.alias.ilike('%'+keyword+'%')))
-    table = AlarmKnowledgeTable(query)
-    profile = user_profile(AlarmKnowledgeTable._meta.profile)
-    TableConfig(request, profile).configure(table)
+    table = make_table(query, AlarmKnowledgeTable)
     return render_template('/alarms/knowledges/index.html',
         table=table, keyword=keyword)
 

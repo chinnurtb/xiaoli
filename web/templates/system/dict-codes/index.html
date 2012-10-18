@@ -26,6 +26,22 @@
             {% include 'system/_sidebar.html' %}
         </div>
         <div class="span10">
+          <div class="tablenav top">
+            <div class="alignleft actions">
+              <div class="alignleft btn-group">
+                <a class="btn" href="/dict-codes/new">新建</a>
+              </div>
+            </div>
+            <div class="alignleft actions">
+              <form method="GET" id="" class="form-inline" action="">
+                {{ form.is_valid(style="width:auto;") }}
+                {{ form.type(style="width:auto;") }}
+                <button class="btn" type="submit">检索</button>
+              </form>
+            </div>
+
+          </div>
+
           {% include "_alert.html" %}
           {{ render_table(table) }}
         </div>

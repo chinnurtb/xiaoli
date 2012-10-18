@@ -8,7 +8,6 @@ from tango import db, user_profile
 from tango.base import make_table
 from tango.models import Setting, DictCode
 from tango.ui import menus, Menu
-from tango.ui.tables import TableConfig
 
 from nodes.models import NodeHost
 from users.models import User
@@ -16,7 +15,7 @@ from users.models import User
 from .models import OperationLog, SecurityLog, SubSystem
 from .tables import (SettingTable, OperationLogTable, SecurityLogTable,
                      DictCodeTable, NodeHostTable, SubSystemTable)
-from .forms import (SettingEditForm, SearchForm, OplogFilterForm,
+from .forms import (SettingEditForm, SearchForm, OplogFilterForm, DictCodeFilterForm,
                     DictCodeNewEditForm, NodeHostEditForm)
 
 sysview = Blueprint('system', __name__)
@@ -25,11 +24,7 @@ sysview = Blueprint('system', __name__)
 @sysview.route('/system/settings/')
 def settings():
     #TODO: SettingTable()
-    query = Setting.query
-    table = SettingTable(query)
-    profile = user_profile(SettingTable._meta.profile)
-    TableConfig(request, profile).configure(table)
-    
+    table = make_table(Setting.query, SettingTable)
     return render_template('/system/settings/index.html', table=table)
 
     
@@ -47,15 +42,20 @@ def settings_edit(id):
     return render_template('/system/settings/edit.html', form=form, setting=setting)
 
     
-@sysview.route('/dict_codes')
+@sysview.route('/dict-codes/')
 def dict_codes():
-    profile = user_profile(DictCodeTable._meta.profile)
-    table = DictCodeTable(DictCode.query)
-    TableConfig(request, profile).configure(table)
-    return render_template('/system/dict_codes/index.html', table=table)
+    form = DictCodeFilterForm(formdata=request.args)
+    query = DictCode.query
+    if form.type.data:
+        query = query.filter_by(type_id=form.type.data.id)
+    if form.is_valid.data:
+        query = query.filter_by(is_valid=form.is_valid.data)
+
+    table = make_table(query, DictCodeTable)
+    return render_template('/system/dict-codes/index.html', table=table, form=form)
     
 
-@sysview.route('/dict_codes/new', methods=('GET', 'POST'))
+@sysview.route('/dict-codes/new', methods=('GET', 'POST'))
 def dict_codes_new():
     form = DictCodeNewEditForm()
     if form.is_submitted and form.validate_on_submit():
@@ -64,13 +64,13 @@ def dict_codes_new():
         db.session.add(dict_code)
         db.session.commit()
         flash(u'%s 添加成功' % dict_code.code_label, 'success')
-        return redirect('/dict_codes')
+        return redirect('/dict-codes/')
 
-    return render_template('/system/dict_codes/new_edit.html', form=form,
-                           action='/dict_codes/new')
+    return render_template('/system/dict-codes/new_edit.html', form=form,
+                           action='/dict-codes/new')
 
 
-@sysview.route('/dict_code/edit/<int:id>', methods=('GET', 'POST'))
+@sysview.route('/dict-codes/edit/<int:id>', methods=('GET', 'POST'))
 def dict_codes_edit(id):
     dict_code = DictCode.query.get_or_404(id)
     form = DictCodeNewEditForm()
@@ -79,14 +79,14 @@ def dict_codes_edit(id):
         form.populate_obj(dict_code)
         db.session.commit()
         flash(u'%s 修改成功' % dict_code.code_label, 'success')
-        return redirect('/dict_codes')
+        return redirect('/dict-codes/')
         
     form.process(obj=dict_code)
-    return render_template('/system/dict_codes/new_edit.html', form=form,
+    return render_template('/system/dict-codes/new_edit.html', form=form,
                            action=url_for('system.dict_codes_edit', id=id))
 
     
-@sysview.route('/timeperiods')
+@sysview.route('/timeperiods/')
 def timeperiods():
     # :HOLD
     return render_template('/system/timeperiods/index.html')
@@ -100,9 +100,7 @@ def timeperiods_new():
 ##  Hosts
 @sysview.route('/hosts/')
 def hosts():
-    profile = user_profile(NodeHostTable._meta.profile)
-    table = NodeHostTable(NodeHost.query)
-    TableConfig(request, profile).configure(table)
+    table = make_table(NodeHost.query, NodeHostTable)
     return render_template("/system/hosts/index.html", table=table)
     
 
@@ -124,7 +122,7 @@ def hosts_edit(id):
     return render_template("/system/hosts/edit.html", form=form, host=host)
 
     
-@sysview.route('/subsystems', methods=['GET'])
+@sysview.route('/subsystems/', methods=['GET'])
 def subsystems():
     table = make_table(SubSystem.query, SubSystemTable)
     return render_template('/system/subsystems.html', table=table)
@@ -147,10 +145,8 @@ def oplogs():
     if keyword and keyword != '':
         keyword = keyword.strip()
         query = query.filter(OperationLog.summary.ilike('%'+keyword+'%'))
-        
-    table = OperationLogTable(query)
-    profile = user_profile(OperationLogTable._meta.profile)
-    TableConfig(request, profile).configure(table)
+
+    table = make_table(query, OperationLogTable)
     return render_template('/system/oplogs.html', 
         table=table, filterForm=filterForm)
 
@@ -165,9 +161,8 @@ def seclogs():
         query = query.filter(db.or_(
             SecurityLog.terminal_ip.ilike('%'+keyword+'%'),
             SecurityLog.user.has(User.username.ilike('%'+keyword+'%'))))
-    table = SecurityLogTable(query)
-    profile = user_profile(SecurityLogTable._meta.profile)
-    TableConfig(request, profile).configure(table)
+        
+    table = make_table(query, SecurityLogTable)
     return render_template('/system/seclogs.html', 
         table=table, searchForm = searchForm)
 

@@ -18,8 +18,9 @@ def user_profile(grp):
     """ Get current user's profile. """
     return Profile.load(current_user.id, grp)
 
-def make_table(query, table_cls):
-    profile = user_profile(table_cls._meta.profile)
+def make_table(query, table_cls, profile=None):
+    if profile is None:
+        profile = user_profile(table_cls._meta.profile)
     table = table_cls(query)
     TableConfig(request, profile).configure(table)
     return table

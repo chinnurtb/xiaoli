@@ -8,11 +8,10 @@ from flask import (Blueprint, request, url_for, make_response, send_file,
 
 from tango import db
 from tango import user_profile
+from tango.base import NestedDict, make_table
 from tango.ui import menus, Menu
-from tango.ui.tables import TableConfig
 from tango.login import logout_user, login_user, current_user
 from tango.models import Profile, QueryFilter 
-from tango.base import NestedDict
 
 from nodes.models import Area
 from .models import User, Role, Permission, Domain
@@ -119,7 +118,7 @@ def change_password():
 # ==============================================================================
 #  User
 # ==============================================================================
-from tango.ui.queries import Filters, QueryForm, TextField, SelectField
+from tango.ui.queries import QueryForm, TextField, SelectField
 
 class UserQueryForm(QueryForm):
     username  = TextField(u'用户名', operator='ilike')
@@ -150,9 +149,7 @@ def users():
         query = query.filter(query_form.query_str)
     filters = QueryFilter.query.filter(db.and_(QueryFilter.user_id==current_user.id,
                                            QueryFilter.table==table_name)).all()
-    table = UserTable(query)
-    profile = user_profile(UserTable._meta.profile)
-    TableConfig(request, profile).configure(table)
+    table = make_table(query, UserTable)
     return render_template('users/index.html', table=table,
                            query_form=query_form, filters=filters, filter_id=filter_id)
     
@@ -222,9 +219,7 @@ def reset_password(id):
 # ============================================================================== 
 @userview.route('/roles/')
 def roles():
-    table = RoleTable(Role.query)
-    profile = user_profile(RoleTable._meta.profile)
-    TableConfig(request, profile).configure(table)
+    table = make_table(Role.query, RoleTable)
     return render_template('users/roles/index.html', table=table)
     
 @userview.route('/roles/new', methods=['GET', 'POST'])
@@ -298,9 +293,7 @@ def roles_delete(id):
 # ==============================================================================
 @userview.route('/domains/')
 def domains():
-    profile = user_profile(DomainTable._meta.profile)
-    table = DomainTable(Domain.query)
-    TableConfig(request, profile).configure(table)
+    table = make_table(Domain.query, DomainTable)
     return render_template('users/domains/index.html', table=table)
     
 @userview.route('/domains/load/nodes')

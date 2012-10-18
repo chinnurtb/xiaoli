@@ -1,7 +1,8 @@
 # coding: utf-8
 
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
-from flask_wtf import Form, TextField, DateTimeField, SelectField, TextAreaField, required 
+from flask_wtf import (Form, TextField, DateTimeField, SelectField, BooleanField,
+                       TextAreaField, required )
 
 from tango.models import DictType
 from tango.form.fields import SelectFieldPro
@@ -19,11 +20,16 @@ class SettingEditForm(Form):
 class DictCodeNewEditForm(Form):
     type       = QuerySelectField(u'字典类型', [required(message=u'必填'),],
                                   query_factory=lambda: DictType.query, get_label='type_label', allow_blank=False)
-    code_name = TextField(u'字典编码', [required(message=u'必填'),])
+    code_name  = TextField(u'字典编码', [required(message=u'必填'),])
     code_label = TextField(u'字典值', [required(message=u'必填'),])
     is_valid   = SelectField(u'有效性', choices=[(u'0', u'无效'),(u'1', u'有效')])
     remark     = TextAreaField(u'备注')
-    
+
+class DictCodeFilterForm(Form):
+    type      = QuerySelectField(u'字典类型', query_factory=lambda: DictType.query,
+                                 get_label='type_label', allow_blank=True, blank_text=u'选择字典类型')
+    is_valid  = SelectField(u'有效性', choices=[(u'', u'选择有效性'), (u'0', u'无效'), (u'1', u'有效')],
+                            filters=(lambda data: data if data != u'None' else '',))
     
 class OplogFilterForm(Form):
     uid         = QuerySelectField(query_factory=lambda: User.query, allow_blank=True, blank_text=u'选择用户')
@@ -31,7 +37,6 @@ class OplogFilterForm(Form):
     end_date    = DateTimeField(u'结束时间', format='%Y-%m-%d')
     keyword     = TextField()
 
-    
 
 class NodeHostEditForm(Form):
     name  = TextField(u'名称')
