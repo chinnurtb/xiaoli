@@ -1,4 +1,7 @@
 /* @group Base */
+select {
+    width: 224px;
+}
 .chzn-container {
   font-size: 13px;
   position: relative;
