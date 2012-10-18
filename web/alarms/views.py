@@ -25,10 +25,10 @@ from tango.ui import tables
 
 from tango.ui import Widget, add_widget
 
-from tango.models import Query, Profile, Category
+from tango.models import Query, Profile, Category, Setting
 
 from nodes.models import Node, Vendor
-
+from system.tables import SettingTable
 from .models import Alarm, AlarmSeverity, History, AlarmClass, AlarmKnowledge
 
 from .forms import QueryNewForm, AlarmAckForm, AlarmClearForm, AlarmClassForm, AlarmKnowledgeForm, AlarmFilterForm

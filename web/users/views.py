@@ -132,26 +132,16 @@ class UserQueryForm(QueryForm):
         model = User
 
         
-@userview.route('/users/', methods=['GET', 'POST'])
+@userview.route('/users/')
 def users():
+    keyword = request.args.get('keyword', '')
     query = User.query
-    query_form = UserQueryForm()
-    table_name = User.__tablename__
-    filter_id = None
-    if request.method == 'POST':
-        if 'filter_id' in request.form.keys():
-            filter_id = request.form['filter_id'] # Defalut = -1
-            if filter_id:
-                query_filter = QueryFilter.query.get(filter_id)
-                query_form = UserQueryForm(query_filter.get_kv_list())
-        elif 'save' in request.form.keys():
-            query_form.save_filter(table_name)
-        query = query.filter(query_form.query_str)
-    filters = QueryFilter.query.filter(db.and_(QueryFilter.user_id==current_user.id,
-                                           QueryFilter.table==table_name)).all()
+    if keyword:
+        query = query.filter(db.or_(User.name.ilike('%' + keyword + '%'),
+                                    User.email.ilike('%' + keyword + '%'),
+                                    User.role.has(Role.name.ilike('%' + keyword + '%'))))        
     table = make_table(query, UserTable)
-    return render_template('users/index.html', table=table,
-                           query_form=query_form, filters=filters, filter_id=filter_id)
+    return render_template('users/index.html', table=table, keyword=keyword)
     
 @userview.route('/users/new', methods=['POST', 'GET'])
 def users_new():
