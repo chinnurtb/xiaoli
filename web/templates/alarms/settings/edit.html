@@ -1,23 +1,23 @@
 {% extends 'layout.html' %}
 
-{% set menuid = 'system' %}
+{% set menuid = 'alarms' %}
 
-{% block title %} 系统设置 {% endblock %}
+{% block title %} 告警设置 {% endblock %}
 
 {% from "_form_h.html" import render_field %}
 
 {% block content %}
 <div class="row-fluid" style="margin-top:20px">
     <div class="span2">
-      {% set submenuid = 'settings' %}
-      {% include "system/_sidebar.html" %}
+      {% set submenuid = 'alarms_settings' %}
+      {% include "alarms/_sidebar.html" %}
     </div>
     
     <div class="span10">
 	<div class="row-fluid">
 	    <div class="">
 		<form class="form-horizontal" method="POST"
-                       action="{{ url_for('system.settings_edit',id=setting.id) }}">
+                       action="{{ url_for('alarms.settings_edit',id=setting.id) }}">
 		    <fieldset>
 			{{ form.hidden_tag() }}
                         {{ render_field(form.name, disabled="disabled") }}
