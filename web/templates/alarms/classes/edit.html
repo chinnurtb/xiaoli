@@ -2,7 +2,7 @@
 
 {% set menuid = 'alarms' %}
 
-{% block title %}告警类型配置{% endblock %}
+{% block title %}告警类型修改{% endblock %}
 
 {% block head %} 
     <link rel="stylesheet" href="/static/css/alarm.css" type="text/css" media="all">
@@ -14,13 +14,13 @@
     
     <div class="row-fluid content">
         <div class="span2">
-            {% set submenuid = 'classes' %}
+            {% set submenuid = 'alarms_classes' %}
             {% include 'alarms/_sidebar.html' %}
         </div>
 
         <div class="span10">
             <form id="alarmclass-edit-form" class="form-horizontal" action="{{ url_for('alarms.class_edit', id=alarm_class.id) }}" method="POST">
-            <legend>AlarmClass Setting: {{alarm_class.alias}}</legend>
+            <legend>{{alarm_class.alias}}</legend>
 			{{ form.hidden_tag() }}
             {{ render_field(form.severity) }}
             {{ render_field(form.probablecause) }}

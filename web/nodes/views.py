@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
+# coding: utf-8
 
 from flask import Blueprint, request, session, url_for, \
     redirect, render_template, g, flash
@@ -199,7 +199,6 @@ def managers():
 
 
 @nodeview.route("/boards/")
-@login_required
 def boards():
     table = BoardTable(Board.query)
     profile = user_profile(BoardTable._meta.profile)

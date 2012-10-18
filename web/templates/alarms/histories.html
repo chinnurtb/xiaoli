@@ -26,34 +26,35 @@
 
 {% block content %}
 
-    {% from "_table_h.html" import render_table %}
-    
-    <div class="row-fluid content">
-        <div class="span2">
-            {% set submenuid = 'histories' %}
-            {% include 'alarms/_sidebar.html' %}
-        </div>
+{% from "_table_h.html" import render_table %}
 
-        <div class="span10">
-            <form id="history-query-form" class="form-inline" action="{{ url_for('alarms.histories') }}" method="GET">
-            <div class="tablenav top">
-                <div class="alignleft filters">
-                        <select name="last-days" class="input-medium">
-                            <option value="1">最近一天</option>
-                            <option value="2">最近两天</option>
-                            <option value="3">最近一周</option>
-                            <option value="4">最近一月</option>
-                            <option value="4">全部时间</option>
-                        </select>
-                        <input type="text" name="nodelike" placeholder="Node Alias or Addr">
-                        <input type="submit" name="" id="history-query-submit" class="btn btn-small" value="过滤">
-                </div>
-            </div>
-            {{ render_table(table) }}
-            <br class="clear">
-            </form>
-        </div>
+<div class="row-fluid content">
+    <div class="span2">
+        {% set submenuid = 'histories' %}
+        {% include 'alarms/_sidebar.html' %}
     </div>
+
+    <div class="span10">
+        <form id="history-query-form" class="form-inline" action="{{ url_for('alarms.histories') }}" method="GET">
+        <div class="tablenav top">
+            <div class="alignleft filters">
+                {{ filterForm.alarm_class(class="input-small") }}
+                {{ filterForm.start_date(class="input-small datepicker", placeholder="开始日期") }}
+                <label for='end_date'>-</label>
+                {{ filterForm.end_date(class="input-small datepicker", placeholder="结束日期") }}
+                {{ filterForm.keyword(placeholder='告警或节点名称') }}
+                <button type="submit" class="btn">检索</button>
+            </div>
+        </div>
+        {{ render_table(table) }}
+        <br class="clear">
+        </form>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(".datepicker").datepicker({format: "yyyy-mm-dd"});
+</script>
 
 {% endblock %}
 

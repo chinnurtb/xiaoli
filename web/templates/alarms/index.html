@@ -63,9 +63,9 @@
         <form id="alarms-form" class="form-inline" action="/alarms" method="GET">
 
         <ul class="subsubsub">
-            <li><a href="/alarms">全部<span class="count">({{all_count}})</span></a>|</li>
-            {% for severity in severities %}
-            <li class="alarm-{{ severity.name }}"><a {% if request.args['severity'] == severity.name %} class="current" {% endif %} href="/alarms?severity={{ severity.name }}">{{ severity.alias }}<span class="count">({{ severity.count }})</span></a> {% if not loop.last %} | {% endif %} </li>
+            <li><a href="/alarms">全部<span class="count">({{total}})</span></a>|</li>
+            {% for severity, count in severities %}
+            <li class="alarm-{{ severity.name }}"><a {% if request.args['severity'] == severity.name %} class="current" {% endif %} href="/alarms?severity={{ severity.name }}">{{ severity.alias }}<span class="count">({{ count }})</span></a> {% if not loop.last %} | {% endif %} </li>
             {% endfor %}
         </ul>
         <div class="tablenav top">
@@ -76,13 +76,11 @@
                 </div>
             </div>
             <div class="alignleft actions">
-                <select name="query_id">
-                    <option value="">全部告警</option>
-                    {% for q in queries %}
-                        <option value="{{q.id}}">{{q.name}}</option>
-                    {% endfor %}
-                </select>
-                <input type="text" name="nodelike" placeholder="告警或者节点名称">
+                {{ filterForm.alarm_class(class="input-small") }}
+                {{ filterForm.start_date(class="input-small datepicker", placeholder="开始日期") }}
+                <label for='end_date'>-</label>
+                {{ filterForm.end_date(class="input-small datepicker", placeholder="结束日期") }}
+                {{ filterForm.keyword(placeholder='告警或节点名称') }}
                 <button type="submit" class="btn">检索</button>
             </div>
         </div>
@@ -105,6 +103,8 @@
         
     </div>
 </div>
-
+<script type="text/javascript">
+    $(".datepicker").datepicker({format: "yyyy-mm-dd"});
+</script>
 {% endblock %}
 

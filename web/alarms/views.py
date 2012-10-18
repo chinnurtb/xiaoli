@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+# coding: utf-8
 
 from datetime import datetime
 
@@ -26,11 +25,13 @@ from tango.ui import Widget, add_widget
 
 from tango.ui.tables import TableConfig
 
-from tango.models import Query, Profile
+from tango.models import Query, Profile, Category
+
+from nodes.models import Node, Vendor
 
 from .models import Alarm, AlarmSeverity, History, AlarmClass, AlarmKnowledge
 
-from .forms import QueryNewForm, AlarmAckForm, AlarmClearForm, AlarmClassForm, AlarmKnowledgeForm
+from .forms import QueryNewForm, AlarmAckForm, AlarmClearForm, AlarmClassForm, AlarmKnowledgeForm, AlarmFilterForm
 
 from .tables import AlarmTable, QueryTable, HistoryTable, AlarmClassTable, AlarmKnowledgeTable
 
@@ -38,45 +39,56 @@ import constants
 
 alarmview = Blueprint("alarms", __name__)
 
-def alarm_filter(request):
-    filter = []
-    if 'severity' in request.args:
-        id = AlarmSeverity.name2id(request.args['severity']) 
-        if id != -1:
-            filter.append("severity="+str(id))
-    if 'query_id' in request.args:
-        if request.args['query_id'] != '':
-            filter.append("query_id="+request.args['query_id'])
-    return ' and '.join(filter)
+#===============================================================
+#当前告警和历史告警 
+#===============================================================
+def alarm_filter(cls, query, form):
+    """告警过滤"""
+    alarm_class = form.alarm_class.data
+    if alarm_class:
+        query = query.filter(cls.alarm_class_id == alarm_class.id)
+    start_date = form.start_date.data
+    if start_date:
+        query = query.filter(cls.first_occurrence >= start_date)
+    end_date = form.end_date.data
+    if end_date:
+        query = query.filter(cls.first_occurrence <= end_date)
+    keyword = form.keyword.data
+    if keyword and keyword != '':
+        query = query.filter(db.or_(
+                    cls.alarm_alias.ilike('%'+keyword+'%'),
+                    cls.node_alias.ilike('%'+keyword+'%')))
+    return query
+
+def alarm_severities():
+    q = db.session.query(AlarmSeverity, func.count(Alarm.id).label('count'))
+    q = q.outerjoin(Alarm, AlarmSeverity.id == Alarm.severity)
+    q = q.group_by(AlarmSeverity).order_by(AlarmSeverity.id.desc())
+    return q
 
 @alarmview.route('/alarms', methods = ['GET'])
-@login_required
 def index():
-    #should use one Query
-    severities = AlarmSeverity.query.order_by(desc(AlarmSeverity.id)).all()
-    counts = db.session.query(Alarm.severity, func.count(Alarm.id).label('count')).group_by(Alarm.severity).all()
-    all_count = 0
-    for svt in severities:
-        for id, count in counts:
-            if svt.id == id:
-                all_count += count
-                svt.count = count
-    queries = Query.query.filter_by(uid=current_user.id, tab='alarms').all()
+    filterForm = AlarmFilterForm(formdata=request.args)
+    query = alarm_filter(Alarm, Alarm.query, filterForm)
+    severity = request.args.get('severity')
+    if severity:
+        query = query.filter(Alarm.severity == AlarmSeverity.name2id(severity))
+    severities = alarm_severities().all()
+    total = sum([c for s, c in severities])
+    table = AlarmTable(query)
     profile = user_profile(AlarmTable._meta.profile)
-    table = AlarmTable(Alarm.query.filter(alarm_filter(request)))
     TableConfig(request, profile).configure(table)
-    return render_template("/alarms/index.html", table = table,
-        severities = severities, queries = queries, all_count = all_count)
+    return render_template("/alarms/index.html",
+        table = table, filterForm = filterForm, 
+        severities = severities, total = total)
 
 @alarmview.route('/alarms/<int:id>')
-@login_required
-def alarm_show(id):
+def alarms_show(id):
     alarm = Alarm.query.get_or_404(id)
     return render_template("/alarms/detail.html", alarm=alarm)
 
 @alarmview.route('/alarms/ack/<int:id>', methods=['GET', 'POST'])
-@login_required
-def alarm_ack(id):
+def alarms_ack(id):
     form = AlarmAckForm()
     alarm = Alarm.query.get_or_404(id)
     if request.method == 'POST' and form.validate_on_submit():
@@ -92,8 +104,7 @@ def alarm_ack(id):
         return render_template('/alarms/ack.html', alarm=alarm, form=form)
 
 @alarmview.route('/alarms/clear/<int:id>', methods=['GET', 'POST'])
-@login_required
-def alarm_clear(id=None):
+def alarms_clear(id=None):
     form = AlarmClearForm()
     alarm = Alarm.query.get_or_404(id)
     if request.method == 'POST' and form.validate_on_submit():
@@ -109,74 +120,42 @@ def alarm_clear(id=None):
         form.process(obj=alarm)
         return render_template('/alarms/clear.html', alarm=alarm, form=form)
 
-@alarmview.route('/alarms/queries')
-@login_required
-def queries():
-    profile = user_profile(QueryTable.profile)
-    query = Query.query.filter_by(tab='alarms')
-    table = QueryTable(query)
+@alarmview.route('/histories')
+def histories():
+    filterForm = AlarmFilterForm(formdata=request.args)
+    query = alarm_filter(History, History.query, filterForm)
+    table = HistoryTable(query)
+    profile = user_profile(HistoryTable._meta.profile)
     TableConfig(request, profile).configure(table)
-    return render_template("/alarms/queries/index.html", table = table)
-
-@alarmview.route('/alarms/queries/new', methods=['GET','POST'])
-@login_required
-def query_new():
-    f = QueryNewForm()
-    q = Query(uid=current_user.id, tab='alarms', filters='', created_at=datetime.now(), updated_at=datetime.now())
-    if request.method == 'POST':
-        q.name = request.form['name']
-        q.is_public = True if request.form['is_public'] == 'y' else False
-        db.session.add(q)
-        db.session.commit()
-        return redirect(url_for('.queries'))
-    f.process(obj=q)
-    return render_template("/alarms/queries/new.html", form=f, query=q)
-
-@alarmview.route('/alarms/queries/edit/<int:id>', methods=['GET','POST'])
-@login_required
-def query_edit(id):
-    q = Query.query.get_or_404(id)
-    return render_template("/alarms/queries/edit.html", query=q)
+    return render_template("/alarms/histories.html",
+        table=table, filterForm=filterForm)
 
 @alarmview.route('/alarms/console')
-@login_required
-def alarm_console():
+def alarms_console():
     return render_template("/alarms/console.html")
 
-@alarmview.route('/alarms/histories')
-@login_required
-def histories():
-    profile = user_profile(HistoryTable.profile)
-    table = HistoryTable(History.query)
-    TableConfig(request, profile).configure(table)
-    return render_template("/alarms/histories.html", table=table)
-
-@alarmview.route('/alarms/statistics/active')
-@login_required
-def statistics_active():
-    return render_template('/alarms/statistics/active.html')
+@alarmview.route('/alarms/stats/current')
+def stats_current():
+    return render_template('/alarms/stats/current.html')
     
-@alarmview.route('/alarms/statistics/history')
-@login_required
-def statistics_history():
-    return render_template('/alarms/statistics/history.html')
+@alarmview.route('/alarms/stats/history')
+def stats_history():
+    return render_template('/alarms/stats/history.html')
 
-#TODO:
 @alarmview.route('/alarms/classes')
-@login_required
 def classes():
-    keyword = request.args.get('keyword', '')
+    keyword = request.args.get('keyword')
     query = AlarmClass.query
-    if keyword:
+    if keyword is not None and keyword != '':
         query = query.filter(db.or_(AlarmClass.name.ilike('%'+keyword+'%'),
                                     AlarmClass.alias.ilike('%'+keyword+'%')))
     table = AlarmClassTable(query)
-    profile = user_profile(AlarmClassTable.profile)
+    profile = user_profile(AlarmClassTable._meta.profile)
     TableConfig(request, profile).configure(table)
     return render_template("/alarms/classes/index.html", table=table, keyword=keyword)
 
 @alarmview.route('/alarms/classes/edit/<int:id>', methods=['GET', 'POST'])
-def class_edit(id):
+def classes_edit(id):
     form = AlarmClassForm()
     alarm_class = AlarmClass.query.get_or_404(id)
     if request.method == 'POST' and form.validate_on_submit():
@@ -189,16 +168,20 @@ def class_edit(id):
     return render_template("/alarms/classes/edit.html", form = form, alarm_class = alarm_class)
 
 @alarmview.route("/alarms/knowledges/")
-@login_required
 def knowledges():
-    profile = user_profile(AlarmKnowledgeTable.profile)
-    table = AlarmKnowledgeTable(AlarmKnowledge.query)
+    query = AlarmKnowledge.query
+    keyword = request.args.get('keyword')
+    if keyword is not None and keyword != '':
+        query = query.filter(AlarmKnowledge.alarm_class.has(
+            AlarmClass.alias.ilike('%'+keyword+'%')))
+    table = AlarmKnowledgeTable(query)
+    profile = user_profile(AlarmKnowledgeTable._meta.profile)
     TableConfig(request, profile).configure(table)
-    return render_template('/alarms/knowledges/index.html', table=table)
+    return render_template('/alarms/knowledges/index.html',
+        table=table, keyword=keyword)
 
 @alarmview.route('/alarms/knowledges/new', methods=['GET', 'POST'])
-@login_required
-def knowledge_new():
+def knowledges_new():
     form = AlarmKnowledgeForm()
     if request.method == 'POST' and form.validate_on_submit():
         record = AlarmKnowledge()
@@ -210,8 +193,7 @@ def knowledge_new():
     return render_template('/alarms/knowledges/new.html', form=form)
 
 @alarmview.route('/alarms/knowledges/edit/<int:id>', methods=['GET', 'POST'])
-@login_required
-def knowledge_edit(id):
+def knowledges_edit(id):
     form = AlarmKnowledgeForm()
     record = AlarmKnowledge.query.get_or_404(id)
     if request.method == 'POST' and form.validate_on_submit():
@@ -237,10 +219,61 @@ def alarm_severity_filter(s):
 def alarm_state_filter(s):
     return constants.STATES[int(s)] 
 
+#==============================================
+#Statistics 
+#==============================================
+@alarmview.route('/alarms/stats/by_severity')
+def stats_by_severity():
+    q = db.session.query(AlarmSeverity, func.count(Alarm.id).label('count'))
+    q = q.outerjoin(Alarm, AlarmSeverity.id == Alarm.severity)
+    q = q.group_by(AlarmSeverity).order_by(AlarmSeverity.id.desc())
+    data = [{'name': s.alias, 'color': s.color, 'y': c} for s,c in q.all()]
+    from tango.ui.charts.highcharts import PieBasicChart
+    chart = PieBasicChart()
+    chart.set_html_id('alarms_stats_by_severity')
+    chart['title']['text'] = None
+    chart['plotOptions']['pie']['events']['click'] = None
+    chart['series'] = [{'type': 'pie', 'data': data}]
+    return render_template("/alarms/stats/by_severity.html", chart=chart)
+
+@alarmview.route('/alarms/stats/by_category')
+def stats_by_category():
+    q = db.session.query(func.count(Alarm.id), Category.id, Category.alias)
+    q = q.outerjoin(AlarmClass, Alarm.alarm_class_id == AlarmClass.id)
+    q = q.outerjoin(Category, AlarmClass.category_id == Category.id)
+    q = q.group_by(Category.id, Category.alias).order_by(Category.id)
+    return render_template("/alarms/stats/by_category.html", data=q.all())
+
+@alarmview.route('/alarms/stats/by_class')
+def stats_by_class():
+    q = db.session.query(func.count(Alarm.id), AlarmClass.id, AlarmClass.alias)
+    q = q.outerjoin(AlarmClass, Alarm.alarm_class_id == AlarmClass.id)
+    q = q.group_by(AlarmClass.id, AlarmClass.alias)
+    return render_template('/alarms/stats/by_class.html', data=q.all())
+
+@alarmview.route('/alarms/stats/by_node_category')
+def stats_by_node_category():
+    q = db.session.query(func.count(Alarm.id), Category.id, Category.alias)
+    q = q.outerjoin(Node, Alarm.node_id == Node.id)
+    q = q.outerjoin(Category, Node.category == Category.id)
+    q = q.group_by(Category.id, Category.alias).order_by(Category.id)
+    return render_template("/alarms/stats/by_node_category.html", data=q.all())
+
+@alarmview.route('/alarms/stats/by_node_vendor')
+def stats_by_node_vendor():
+    q = db.session.query(func.count(Alarm.id), Vendor.id, Vendor.alias)
+    q = q.outerjoin(Node, Alarm.node_id == Node.id)
+    q = q.outerjoin(Vendor, Node.vendor_id == Vendor.id)
+    q = q.group_by(Vendor.id, Vendor.alias).order_by(Vendor.id)
+    return render_template('/alarms/stats/by_node_vendor.html', data=q.all())
+
 menus.append(Menu('alarms', u'故障', '/alarms'))
 
-add_widget(Widget('event_summary', u'告警统计', url = '/widgets/alarm/summary'))
-add_widget(Widget('event_statistics', u'告警概要', content='<div style="height:100px">......</div>'))
-add_widget(Widget('dashboard1', 'Dashboard1', ''))
-add_widget(Widget('dashboard2', 'Dashboard2', ''))
+add_widget(Widget('alarms_stats_by_severity', u'告警概况', url = '/alarms/stats/by_severity'))
+add_widget(Widget('alarms_stats_by_category', u'告警分类', url = '/alarms/stats/by_category'))
+
+add_widget(Widget('alamrs_stats_by_class', u'告警类型', url = '/alarms/stats/by_class'))
+add_widget(Widget('alamrs_stats_by_node_category', u'设备告警', url = '/alarms/stats/by_node_category'))
+add_widget(Widget('alamrs_stats_by_node_vendor', u'厂商告警', url = '/alarms/stats/by_node_vendor'))
+
 

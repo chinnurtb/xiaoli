@@ -1,15 +1,18 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+# coding: utf-8
 
 from tango import db
 
+from tango.models import Category
+
 class Alarm(db.Model):
+    
+    """告警表"""
 
     __tablename__ = 'alarms'
 
-    id = db.Column(db.Integer, primary_key=True)
+    id                      = db.Column(db.Integer, primary_key=True)
     alarm_key               = db.Column(db.String(200))
-    alarm_class             = db.Column(db.String(60))
+    alarm_class_id          = db.Column(db.Integer, db.ForeignKey('alarm_classes.id'))
     alarm_name              = db.Column(db.String(60))
     alarm_alias             = db.Column(db.String(200))
     alarm_state             = db.Column(db.Integer)
@@ -55,21 +58,23 @@ class Alarm(db.Model):
     created_at              = db.Column(db.DateTime) 
     updated_at              = db.Column(db.DateTime) 
 
-    #node                    = db.relation('Node', backref=db.backref("alarms"))
+    alarm_class             = db.relation('AlarmClass')
+    node                    = db.relation('Node', backref=db.backref("alarms"))
 
     def __repr__(self):
         return '<Alarm%r>' % self.alarm_alias
 
 class AlarmClass(db.Model):
 
+    """告警类型表"""
+
     __tablename__ = 'alarm_classes'
 
     id = db.Column(db.Integer, primary_key=True)
-    parent_id = db.Column(db.Integer)
+    category_id = db.Column(db.Integer, db.ForeignKey('categories.id'))
     name = db.Column(db.String(60))
     alias = db.Column(db.String(60))
     severity = db.Column(db.Integer)
-    x733_type = db.Column(db.String(60))
     probablecause = db.Column(db.String(200))
     specificproblem = db.Column(db.String(200))
     additionalinfo = db.Column(db.String(200))
@@ -77,8 +82,14 @@ class AlarmClass(db.Model):
     created_at = db.Column(db.DateTime)
     updated_at  = db.Column(db.DateTime)
 
+    category    = db.relation('Category')
+
+
     def __repr__(self):
         return '<AlarmClass %r>' % self.name
+
+    def __unicode__(self):
+        return self.alias
 
 class AlarmJournal(db.Model):
 
@@ -118,8 +129,6 @@ class AlarmSeverity(db.Model):
     color       = db.Column(db.String(60)) 
     sound       = db.Column(db.String(60))
     remark      = db.Column(db.String(60))
-    created_at  = db.Column(db.DateTime)
-    updated_at  = db.Column(db.DateTime)
     
     count       = 0
 
@@ -135,6 +144,9 @@ class AlarmSeverity(db.Model):
 
     def __repr__(self):
         return '<Severity%r>' % self.name
+
+    def __unicode__(self):
+        return self.alias
 
 class AlarmKnowledge(db.Model):
 
