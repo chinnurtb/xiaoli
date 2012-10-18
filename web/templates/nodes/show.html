@@ -78,7 +78,7 @@
         </div>
             {% from "_chart_h.html" import render_highchart %}
         <div class="span3" style="margin-left: -50px;">
-            {{ render_highchart(alarm_chart) }}
+            {{ render_highchart(alarm_chart, height="220px", width="220px") }}
         </div>
         <div class="clear"></div>
         <div class="tabbable">
@@ -92,7 +92,7 @@
             <div class="tab-content">
                 <div class="tab-pane active" id="basic_info">
                     {% from "_chart_h.html" import render_highchart %}
-                    {{ render_highchart(traffic_chart) }}
+                    {{ render_highchart(traffic_chart, height="250px") }}
                 </div>
                 <div class="tab-pane" id="snmp_info">
                     <table class="table node_table">

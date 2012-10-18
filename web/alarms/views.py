@@ -21,7 +21,7 @@ from tango.ui import menus, Menu
 
 from tango.ui import tables
 
-from tango.ui import Widget, add_widget
+from tango.ui import Dashboard, Widget, add_widget
 
 from tango.ui.tables import TableConfig
 
@@ -78,14 +78,14 @@ def index():
     table = AlarmTable(query)
     profile = user_profile(AlarmTable._meta.profile)
     TableConfig(request, profile).configure(table)
-    return render_template("/alarms/index.html",
+    return render_template("alarms/index.html",
         table = table, filterForm = filterForm, 
         severities = severities, total = total)
 
 @alarmview.route('/alarms/<int:id>')
 def alarms_show(id):
     alarm = Alarm.query.get_or_404(id)
-    return render_template("/alarms/detail.html", alarm=alarm)
+    return render_template("alarms/detail.html", alarm=alarm)
 
 @alarmview.route('/alarms/ack/<int:id>', methods=['GET', 'POST'])
 def alarms_ack(id):
@@ -101,7 +101,7 @@ def alarms_ack(id):
         return redirect(url_for('.index'))
     else: # request.method == 'GET':
         form.process(obj=alarm)
-        return render_template('/alarms/ack.html', alarm=alarm, form=form)
+        return render_template('alarms/ack.html', alarm=alarm, form=form)
 
 @alarmview.route('/alarms/clear/<int:id>', methods=['GET', 'POST'])
 def alarms_clear(id=None):
@@ -118,7 +118,7 @@ def alarms_clear(id=None):
         return redirect(url_for('.index'))
     else:
         form.process(obj=alarm)
-        return render_template('/alarms/clear.html', alarm=alarm, form=form)
+        return render_template('alarms/clear.html', alarm=alarm, form=form)
 
 @alarmview.route('/histories')
 def histories():
@@ -127,20 +127,111 @@ def histories():
     table = HistoryTable(query)
     profile = user_profile(HistoryTable._meta.profile)
     TableConfig(request, profile).configure(table)
-    return render_template("/alarms/histories.html",
+    return render_template('alarms/histories.html',
         table=table, filterForm=filterForm)
 
-@alarmview.route('/alarms/console')
+#======================================================
+#告警控制台
+#======================================================
+@alarmview.route('/alarms/console/')
 def alarms_console():
-    return render_template("/alarms/console.html")
+    
+    from datetime import datetime, timedelta
+    today = datetime.today()
+    dates = [today - timedelta(hours=i) for i in range(12)]
+    hours = [str(d.hour) for d in reversed(dates)]
+    data =  [{'name': u'严重',
+              'color': '#ED4D5A',
+              'data': [49, 71, 106, 129, 144, 176, 135, 148, 216, 194, 95, 54]
+            }, {
+               'name': u'重要',
+               'color': '#F6983E',
+               'data': [83, 78, 98, 93, 106, 84, 105, 104, 91, 83, 106, 92]
+            }, {
+                'name': u'次要',
+                'color': '#E6F940',
+                'data': [48, 38, 39, 41, 47, 48, 59, 59, 52, 65, 59, 51]
+            }, {
+                'name': u'警告',
+                'color': '#43D5FA',
+                'data': [42, 33, 34, 39, 52, 75, 57, 60, 47, 39, 46, 51]
+            }] 
+    from tango.ui.charts.highcharts import ColumnBasicChart 
+    chart = ColumnBasicChart()
+    chart.set_html_id("console_demo_chart")
+    chart["title"]["text"] = u'最近12小时接收告警'
+    chart['xAiax']['categories'] = hours 
+    chart['series'] = data
+
+    widgets = [Widget('alarms_console_all', u'全部告警', url = url_for('alarms.console_all')),
+                Widget('alarms_console_lasthour', u'最近1小时告警', url = url_for('alarms.console_lasthour'), column='side'),
+                Widget('alarms_console_status', u'状态告警', url=url_for('alarms.console_category_status')),
+                Widget('alarms_console_perf', u'性能告警', url=url_for('alarms.console_category_perf'), column='side'),
+                Widget('alarms_console_system', u'网管自身告警', url=url_for('alarms.console_category_system'))]
+    board = Dashboard(widgets)
+    board.configure({})
+    return render_template('alarms/console/index.html', chart = chart, dashboard = board)
+
+@alarmview.route('/alarms/console/all')
+def console_all():
+    return render_console_chart('alarm_console_all', _console_query())
+
+@alarmview.route('/alarms/console/lasthour')
+def console_lasthour():
+    from datetime import datetime, timedelta
+    lastHour = datetime.today() - timedelta(hours = 1)
+    filter = Alarm.first_occurrence >= lastHour
+    return render_console_chart('alarm_console_lasthour', _console_query(filter))
+
+def _console_query(filter=None):
+    q = db.session.query(Alarm.severity, func.count(Alarm.id).label('count'))
+    if filter is not None:
+        q = q.filter(filter)
+    return q.group_by(Alarm.severity).order_by(Alarm.severity)
+
+@alarmview.route('/alarms/console/category_status')
+def console_category_status():
+    query = _console_category_query(100)
+    return render_console_chart('console_category_status', query)
+
+@alarmview.route('/alarms/console/category_perf')
+def console_category_perf():
+    query = _console_category_query(101)
+    return render_console_chart('console_category_perf', query)
+
+@alarmview.route('/alarms/console/category_system')
+def console_category_system():
+    query = _console_category_query(102)
+    return render_console_chart('console_category_system', query)
+
+def _console_category_query(cid):
+    q = db.session.query(Alarm.severity, func.count(Alarm.id).label('count'))
+    q = q.outerjoin(AlarmClass, Alarm.alarm_class_id == AlarmClass.id)
+    q = q.outerjoin(Category, AlarmClass.category_id == Category.id)
+    return q.filter(Category.id == cid).group_by(Alarm.severity)
+
+def render_console_chart(id, query):
+    severities = AlarmSeverity.query.order_by(AlarmSeverity.id.desc()).all()
+    columns = [severity.alias for severity in severities]
+    counts = dict(query.all())
+    data = [{'color': severity.color, 'y': counts.get(severity.id, 0)}
+                for severity in severities]
+    from tango.ui.charts.highcharts import ColumnBasicChart
+    chart = ColumnBasicChart()
+    chart.set_html_id(id)
+    chart['title']['text'] = None
+    chart['xAxis']['categories'] = columns
+    chart['series'] = [{'name': u'告警', 'data': data}]
+
+    return render_template('alarms/console/_chart.html', chart = chart)
 
 @alarmview.route('/alarms/stats/current')
 def stats_current():
-    return render_template('/alarms/stats/current.html')
+    return render_template('alarms/stats/current.html')
     
 @alarmview.route('/alarms/stats/history')
 def stats_history():
-    return render_template('/alarms/stats/history.html')
+    return render_template('alarms/stats/history.html')
 
 @alarmview.route('/alarms/classes')
 def classes():
@@ -152,7 +243,7 @@ def classes():
     table = AlarmClassTable(query)
     profile = user_profile(AlarmClassTable._meta.profile)
     TableConfig(request, profile).configure(table)
-    return render_template("/alarms/classes/index.html", table=table, keyword=keyword)
+    return render_template('alarms/classes/index.html', table=table, keyword=keyword)
 
 @alarmview.route('/alarms/classes/edit/<int:id>', methods=['GET', 'POST'])
 def classes_edit(id):
@@ -165,7 +256,7 @@ def classes_edit(id):
         flash(u'告警类型修改成功')
         return redirect(url_for('alarms.classes'))
     form.process(obj=alarm_class)
-    return render_template("/alarms/classes/edit.html", form = form, alarm_class = alarm_class)
+    return render_template('alarms/classes/edit.html', form = form, alarm_class = alarm_class)
 
 @alarmview.route("/alarms/knowledges/")
 def knowledges():
@@ -177,7 +268,7 @@ def knowledges():
     table = AlarmKnowledgeTable(query)
     profile = user_profile(AlarmKnowledgeTable._meta.profile)
     TableConfig(request, profile).configure(table)
-    return render_template('/alarms/knowledges/index.html',
+    return render_template('alarms/knowledges/index.html',
         table=table, keyword=keyword)
 
 @alarmview.route('/alarms/knowledges/new', methods=['GET', 'POST'])
@@ -190,7 +281,7 @@ def knowledges_new():
         db.session.commit()
         flash("Add Alarm Knowledge Successfully!")
         return redirect(url_for('.knowledges'))
-    return render_template('/alarms/knowledges/new.html', form=form)
+    return render_template('alarms/knowledges/new.html', form=form)
 
 @alarmview.route('/alarms/knowledges/edit/<int:id>', methods=['GET', 'POST'])
 def knowledges_edit(id):
@@ -203,13 +294,13 @@ def knowledges_edit(id):
         flash("Edit Alarm Knowledge Successfully!")
         return redirect(url_for('.knowledges'))
     form.process(obj=record)
-    return render_template('/alarms/knowledges/edit.html', form=form, record=record)
+    return render_template('alarms/knowledges/edit.html', form=form, record=record)
 
 @alarmview.route('/alarms/settings', methods=['GET', 'POST'])
 def settings():
     q = Setting.query.filter_by(mod='alarms')
     t = SettingTable(q)
-    return render_template('/alarms/settings.html', table=t)
+    return render_template('alarms/settings.html', table=t)
 
 @alarmview.app_template_filter("alarm_severity")
 def alarm_severity_filter(s):
@@ -234,7 +325,7 @@ def stats_by_severity():
     chart['title']['text'] = None
     chart['plotOptions']['pie']['events']['click'] = None
     chart['series'] = [{'type': 'pie', 'data': data}]
-    return render_template("/alarms/stats/by_severity.html", chart=chart)
+    return render_template('alarms/stats/by_severity.html', chart=chart)
 
 @alarmview.route('/alarms/stats/by_category')
 def stats_by_category():
@@ -242,14 +333,14 @@ def stats_by_category():
     q = q.outerjoin(AlarmClass, Alarm.alarm_class_id == AlarmClass.id)
     q = q.outerjoin(Category, AlarmClass.category_id == Category.id)
     q = q.group_by(Category.id, Category.alias).order_by(Category.id)
-    return render_template("/alarms/stats/by_category.html", data=q.all())
+    return render_template('alarms/stats/by_category.html', data=q.all())
 
 @alarmview.route('/alarms/stats/by_class')
 def stats_by_class():
     q = db.session.query(func.count(Alarm.id), AlarmClass.id, AlarmClass.alias)
     q = q.outerjoin(AlarmClass, Alarm.alarm_class_id == AlarmClass.id)
     q = q.group_by(AlarmClass.id, AlarmClass.alias)
-    return render_template('/alarms/stats/by_class.html', data=q.all())
+    return render_template('alarms/stats/by_class.html', data=q.all())
 
 @alarmview.route('/alarms/stats/by_node_category')
 def stats_by_node_category():
@@ -257,7 +348,7 @@ def stats_by_node_category():
     q = q.outerjoin(Node, Alarm.node_id == Node.id)
     q = q.outerjoin(Category, Node.category == Category.id)
     q = q.group_by(Category.id, Category.alias).order_by(Category.id)
-    return render_template("/alarms/stats/by_node_category.html", data=q.all())
+    return render_template('alarms/stats/by_node_category.html', data=q.all())
 
 @alarmview.route('/alarms/stats/by_node_vendor')
 def stats_by_node_vendor():
@@ -265,15 +356,15 @@ def stats_by_node_vendor():
     q = q.outerjoin(Node, Alarm.node_id == Node.id)
     q = q.outerjoin(Vendor, Node.vendor_id == Vendor.id)
     q = q.group_by(Vendor.id, Vendor.alias).order_by(Vendor.id)
-    return render_template('/alarms/stats/by_node_vendor.html', data=q.all())
+    return render_template('alarms/stats/by_node_vendor.html', data=q.all())
 
 menus.append(Menu('alarms', u'故障', '/alarms'))
 
 add_widget(Widget('alarms_stats_by_severity', u'告警概况', url = '/alarms/stats/by_severity'))
 add_widget(Widget('alarms_stats_by_category', u'告警分类', url = '/alarms/stats/by_category'))
 
-add_widget(Widget('alamrs_stats_by_class', u'告警类型', url = '/alarms/stats/by_class'))
-add_widget(Widget('alamrs_stats_by_node_category', u'设备告警', url = '/alarms/stats/by_node_category'))
-add_widget(Widget('alamrs_stats_by_node_vendor', u'厂商告警', url = '/alarms/stats/by_node_vendor'))
+add_widget(Widget('alarms_stats_by_class', u'告警类型', url = '/alarms/stats/by_class'))
+add_widget(Widget('alarms_stats_by_node_category', u'设备告警', url = '/alarms/stats/by_node_category'))
+add_widget(Widget('alarms_stats_by_node_vendor', u'厂商告警', url = '/alarms/stats/by_node_vendor'))
 
 
