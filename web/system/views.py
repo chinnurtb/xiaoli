@@ -1,21 +1,21 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from flask import Blueprint, request, session, url_for, \
-    redirect, render_template, g, flash
+from flask import (Blueprint, request, url_for, redirect,
+                   render_template, flash)
 
 from tango import db, user_profile
 from tango.base import make_table
-from tango.login import login_required
+from tango.models import Setting, DictCode
 from tango.ui import menus, Menu
-from tango.models import Setting, Profile, DictCode, DictType
-from .models import OperationLog, SecurityLog, SubSystem
-from .tables import (SettingTable, OperationLogTable, SecurityLogTable,
-                     DictCodeTable, NodeHostTable, SubSystemTable)
 from tango.ui.tables import TableConfig
 
 from nodes.models import NodeHost
 from users.models import User
+
+from .models import OperationLog, SecurityLog, SubSystem
+from .tables import (SettingTable, OperationLogTable, SecurityLogTable,
+                     DictCodeTable, NodeHostTable, SubSystemTable)
 from .forms import (SettingEditForm, SearchForm, OplogFilterForm,
                     DictCodeNewEditForm, NodeHostEditForm)
 
@@ -30,11 +30,11 @@ def settings():
     profile = user_profile(SettingTable._meta.profile)
     TableConfig(request, profile).configure(table)
     
-    return render_template('/system/settings.html', table=table)
+    return render_template('/system/settings/index.html', table=table)
 
     
-@sysview.route('/system/settings/edit/<int:id>', methods=('GET', 'POST'))
-def setting_edit(id):
+@sysview.route('/system/setting/edit/<int:id>', methods=('GET', 'POST'))
+def settings_edit(id):
     form = SettingEditForm()
     setting = Setting.query.get_or_404(id)
     if form.is_submitted and form.validate_on_submit():
@@ -44,7 +44,7 @@ def setting_edit(id):
         flash(u'%s 被修改: %s --> %s' % (setting.name, str(old_value), str(form.value.data)), 'success')
         return redirect('/system/settings/')
     form.process(obj=setting)
-    return render_template('/system/setting_edit.html', form=form, id=id)
+    return render_template('/system/settings/edit.html', form=form, id=id)
 
     
 @sysview.route('/dict_codes')
@@ -52,7 +52,7 @@ def dict_codes():
     profile = user_profile(DictCodeTable._meta.profile)
     table = DictCodeTable(DictCode.query)
     TableConfig(request, profile).configure(table)
-    return render_template('/system/dict_codes.html', table=table)
+    return render_template('/system/dict_codes/index.html', table=table)
     
 
 @sysview.route('/dict_codes/new', methods=('GET', 'POST'))
@@ -66,11 +66,11 @@ def dict_codes_new():
         flash(u'%s 添加成功' % dict_code.code_label, 'success')
         return redirect('/dict_codes')
 
-    return render_template('/system/dict_codes_new_edit.html', form=form,
+    return render_template('/system/dict_codes/new_edit.html', form=form,
                            action='/dict_codes/new')
 
 
-@sysview.route('/dict_codes/edit/<int:id>', methods=('GET', 'POST'))
+@sysview.route('/dict_code/edit/<int:id>', methods=('GET', 'POST'))
 def dict_codes_edit(id):
     dict_code = DictCode.query.get_or_404(id)
     form = DictCodeNewEditForm()
@@ -82,19 +82,19 @@ def dict_codes_edit(id):
         return redirect('/dict_codes')
         
     form.process(obj=dict_code)
-    return render_template('/system/dict_codes_new_edit.html', form=form,
+    return render_template('/system/dict_codes/new_edit.html', form=form,
                            action=url_for('system.dict_codes_edit', id=id))
 
     
 @sysview.route('/timeperiods')
 def timeperiods():
     # :HOLD
-    return render_template('/system/timeperiods.html')
+    return render_template('/system/timeperiods/index.html')
 
 @sysview.route('/timeperiods/new')
 def timeperiods_new():
     # :HOLD
-    return render_template('/system/timeperiods_new.html')
+    return render_template('/system/timeperiods/new.html')
 
 
 ##  Hosts
@@ -103,7 +103,7 @@ def hosts():
     profile = user_profile(NodeHostTable._meta.profile)
     table = NodeHostTable(NodeHost.query)
     TableConfig(request, profile).configure(table)
-    return render_template("/system/hosts.html", table=table)
+    return render_template("/system/hosts/index.html", table=table)
     
 
 @sysview.route('/hosts/edit/<int:id>', methods=['GET', 'POST'])
@@ -121,7 +121,7 @@ def hosts_edit(id):
         return redirect('/hosts/')
         
     form.process(obj=host)
-    return render_template("/system/hosts_edit.html", form=form,
+    return render_template("/system/hosts/edit.html", form=form,
                            action=url_for('system.hosts_edit', id=id))
 
     
@@ -155,6 +155,7 @@ def oplogs():
     return render_template('/system/oplogs.html', 
         table=table, filterForm=filterForm)
 
+    
 @sysview.route('/seclogs/')
 def seclogs():
     searchForm = SearchForm(formdata=request.args)

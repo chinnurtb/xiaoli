@@ -10,8 +10,8 @@ class UserTable(tables.Table):
 
     helpdoc = u"用户表: 管理维护用户信息"
 
-    edit   = tables.Action(name=u'编辑', endpoint='users.user_edit')
-    delete = tables.Action(name=u'删除', endpoint='users.user_delete')
+    edit   = tables.Action(name=u'编辑', endpoint='users.users_edit')
+    delete = tables.Action(name=u'删除', endpoint='users.users_delete')
     reset  = tables.Action(name=u'重置密码', endpoint='users.reset_password')
     
     check      = tables.CheckBoxColumn()
@@ -30,8 +30,8 @@ class UserTable(tables.Table):
 
 
 class RoleTable(tables.Table):
-    edit   = tables.Action(name=u'编辑', endpoint='users.role_edit')
-    delete = tables.Action(name=u'删除', endpoint='users.role_delete')
+    edit   = tables.Action(name=u'编辑', endpoint='users.roles_edit')
+    delete = tables.Action(name=u'删除', endpoint='users.roles_delete')
     
     check  = tables.CheckBoxColumn()
     
@@ -44,8 +44,8 @@ class RoleTable(tables.Table):
 
 
 class DomainTable(tables.Table):
-    edit   = tables.Action(name=u'编辑', endpoint='users.domain_edit')
-    delete = tables.Action(name=u'删除', endpoint='users.domain_delete')
+    edit   = tables.Action(name=u'编辑', endpoint='users.domains_edit')
+    delete = tables.Action(name=u'删除', endpoint='users.domains_delete')
 
     check  = tables.CheckBoxColumn()
     

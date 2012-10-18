@@ -1,0 +1,42 @@
+
+{% set menuid = 'users' %}
+{% set submenuid = 'users/new' %}
+
+{% extends 'layout.html' %}
+
+{% block title %} 添加用户 {% endblock %}
+
+{% from "_form_h.html" import render_field %}
+
+{% block content %}
+<div class="row-fluid" style="margin-top:20px">
+    <div class="span2">
+      {% set submenuid = 'users' %}
+      {% include "users/_sidebar.html" %}
+    </div>
+    
+    <div class="span10">
+	<div class="row-fluid">
+	    <div class="">
+		<form class="form-horizontal" method="POST"
+                       action="{{url_for('system.settings_edit',id=id)}}">
+		    <fieldset>
+			{{ form.hidden_tag() }}
+                        {{ render_field(form.name, disabled="disabled") }}
+                        {{ render_field(form.alias, disabled="disabled", class="input-xxlarge") }}
+                        {{ render_field(form.value) }}
+			<div class="control-group">
+			    <div class="controls">
+				<button type="submit" class="btn btn-primary">确定</button>
+				<a href="#" class="btn">取消</a>
+			    </div>
+			</div>
+		    </fieldset>		    
+		</form>
+	    </div>
+	</div>
+        <br class="clear">
+    </div>
+</div>
+
+{% endblock %}
