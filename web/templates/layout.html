@@ -9,7 +9,7 @@
 	<meta name="description" content="OPENGOSS">
 	<meta name="author" content="ery.lee@gmail.com">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>{% block title %}{% endblock %} - OPENGOSS</title>
+	<title>{% if title %}{{title}} - {% endif %}OPENGOSS</title>
     <link rel="stylesheet" href="/static/css/wp-admin.css" type="text/css" media="all">
     <link rel="stylesheet" href="/static/css/thickbox.css" type="text/css" media="all">
     <link rel="stylesheet" href="/static/css/colors-fresh.css" type="text/css" media="all">
