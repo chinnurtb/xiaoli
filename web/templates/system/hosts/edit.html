@@ -16,7 +16,7 @@
 	<div class="row-fluid">
 	    <div class="">
 		<form class="form-horizontal" method="POST"
-                       action="{{action}}">
+                       action="{{ url_for('system.hosts_edit', id=host.id) }}">
 		    <fieldset>
 			{{ form.hidden_tag() }}
                         {{ render_field(form.name, disabled="disabled") }}

@@ -1,5 +1,6 @@
 
 {% set menuid = 'users' %}
+{% set submenuid = 'users/new' %}
 
 {% extends 'layout.html' %}
 
@@ -10,27 +11,20 @@
 {% block content %}
 <div class="row-fluid" style="margin-top:20px">
     <div class="span2">
-      {% set submenuid = 'users-new' %}
+      {% set submenuid = 'users' %}
       {% include "users/_sidebar.html" %}
     </div>
     
     <div class="span10">
 	<div class="row-fluid">
 	    <div class="">
-		<form class="form-horizontal" method="POST" id="test-wtf" action="{{url_for('users.user_new')}}">
+		<form class="form-horizontal" method="POST"
+                       action="{{ url_for('system.settings_edit',id=setting.id) }}">
 		    <fieldset>
 			{{ form.hidden_tag() }}
-			{{ render_field(form.username, id="user-username", class="input-medium") }}
-			{{ render_field(form.name, class="input-medium") }}
-			{{ render_field(form.password) }}
-			{{ render_field(form.password_confirm) }}
-			{{ render_field(form.role_id) }}
-			{{ render_field(form.domain_id) }}
-			{{ render_field(form.department) }}
-			{{ render_field(form.email) }}
-			{{ render_field(form.telephone, class="input-xlarge") }}
-			{{ render_field(form.mobile, class="input-xlarge") }}
-			{{ render_field(form.memo, rows=4, class="input-xlarge") }}
+                        {{ render_field(form.name, disabled="disabled") }}
+                        {{ render_field(form.alias, disabled="disabled", class="input-xxlarge") }}
+                        {{ render_field(form.value) }}
 			<div class="control-group">
 			    <div class="controls">
 				<button type="submit" class="btn btn-primary">确定</button>

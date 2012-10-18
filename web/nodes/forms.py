@@ -14,12 +14,13 @@ from tango.form.forms import FormPro
 from tango.form.fields import AreaSelectField
 from tango.form.fields import SelectFieldPro
 from tango.ui.tables.utils import Attrs
+from tango.models import  Category
 
 class NodeNewForm(FormPro):
     area_id         = AreaSelectField(u'所属区域', select_mode=1, validators=[required(message=u'必填')])
     name            = TextField(u'节点名称', validators=[required(message=u'必填')])
-    category        = SelectFieldPro(u'节点类型',validators=[required(message=u'必填')],
-        choices=[('',u'请选择节点类型'),('1',u'OLT'),('2',u'ONU'),('3',u'DSLAM'),('4',u'EOC'),('5',u'Switch')])
+    category_id     = SelectFieldPro(u'节点类型',validators=[required(message=u'必填')],
+        choices=lambda: [('', u'请选择节点类型')] + [(unicode(r.id), r.alias) for r in Category.query.filter(Category.obj=="node")])
     addr            = TextField(u'IP 地址', validators=[required(message=u'必填')])
     vendor_id       = SelectFieldPro(u'生产厂家',validators=[required(message=u'必填')],
         choices=lambda: [('', u'请选择生产厂家')] + [(unicode(r.id), r.alias) for r in Vendor.query])

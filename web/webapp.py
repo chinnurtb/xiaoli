@@ -131,13 +131,15 @@ def before_request():
     # print 'current_user::', current_user
     # print 'current_user.is_anonymous::', current_user.is_anonymous()
 
+    # Equal to @login_required
     if current_user.is_anonymous():
-        if request.endpoint in SAFE_ENDPOINTS:
-            return
-        else:
+        if request.endpoint not in SAFE_ENDPOINTS:
             return redirect(url_for('users.login', next=request.url))
+            
+        return None
 
     # Not Anonymous User
+    # Already Login
     if current_user:
         g.menus = menus
         if current_user.username in SUPER_USERS \
