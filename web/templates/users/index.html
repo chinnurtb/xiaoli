@@ -39,29 +39,24 @@
           <input type="hidden" name="orderby" value="login">
           <input type="hidden" name="order" value="asc">
           <div class="alignleft btn-group">
-            <a class="btn" href="{{url_for('users.user_new')}}">新建用户</a>
+            <a class="btn" href="{{url_for('users.users_new')}}">新建用户</a>
             <!-- <button class="btn">重置密码</button> -->
             <a class="btn" href="#">删除用户</a>
             <br class="clear">
           </div>
         </form>
       </div>
-      <form class="form-inline" style="margin:0px;" action="" method="POST">
+      <form class="form-inline" style="margin:0px;" action="" method="GET">
         <div class="alignleft actions">
-          {% from "_form_h.html" import render_filter_options %}
-          {{ render_filter_options(filters, filter_id) }}
-          <button type="submit" name="execute" class="btn">检索</button>
+          <input type="text" name="keyword" value="{{ keyword }}" placeholder="Keyword" />
+          <button type="submit" class="btn">检索</button>
         </div>
       </form>
         <div class="alignright actions">
           <a class="btn btn-small"
              href="#"><i class="icon-download-alt"></i></a>
         </div>
-        <form method="POST" action="">
-          {% from "_form_h.html" import render_query_form %}
-          {{ render_query_form(query_form) }}
-        </form>
-    </div>
+     </div>
     {{ render_table(table) }}
     <br class="clear">
   </div>

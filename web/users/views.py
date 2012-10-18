@@ -8,11 +8,10 @@ from flask import (Blueprint, request, url_for, make_response, send_file,
 
 from tango import db
 from tango import user_profile
+from tango.base import NestedDict, make_table
 from tango.ui import menus, Menu
-from tango.ui.tables import TableConfig
 from tango.login import logout_user, login_user, current_user
 from tango.models import Profile, QueryFilter 
-from tango.base import NestedDict
 
 from nodes.models import Area
 from .models import User, Role, Permission, Domain
@@ -119,7 +118,7 @@ def change_password():
 # ==============================================================================
 #  User
 # ==============================================================================
-from tango.ui.queries import Filters, QueryForm, TextField, SelectField
+from tango.ui.queries import QueryForm, TextField, SelectField
 
 class UserQueryForm(QueryForm):
     username  = TextField(u'用户名', operator='ilike')
@@ -133,31 +132,19 @@ class UserQueryForm(QueryForm):
         model = User
 
         
-@userview.route('/users/', methods=['GET', 'POST'])
+@userview.route('/users/')
 def users():
+    keyword = request.args.get('keyword', '')
     query = User.query
-    query_form = UserQueryForm()
-    table_name = User.__tablename__
-    filter_id = None
-    if request.method == 'POST':
-        if 'filter_id' in request.form.keys():
-            filter_id = request.form['filter_id'] # Defalut = -1
-            if filter_id:
-                query_filter = QueryFilter.query.get(filter_id)
-                query_form = UserQueryForm(query_filter.get_kv_list())
-        elif 'save' in request.form.keys():
-            query_form.save_filter(table_name)
-        query = query.filter(query_form.query_str)
-    filters = QueryFilter.query.filter(db.and_(QueryFilter.user_id==current_user.id,
-                                           QueryFilter.table==table_name)).all()
-    table = UserTable(query)
-    profile = user_profile(UserTable._meta.profile)
-    TableConfig(request, profile).configure(table)
-    return render_template('users/index.html', table=table,
-                           query_form=query_form, filters=filters, filter_id=filter_id)
+    if keyword:
+        query = query.filter(db.or_(User.name.ilike('%' + keyword + '%'),
+                                    User.email.ilike('%' + keyword + '%'),
+                                    User.role.has(Role.name.ilike('%' + keyword + '%'))))        
+    table = make_table(query, UserTable)
+    return render_template('users/index.html', table=table, keyword=keyword)
     
 @userview.route('/users/new', methods=['POST', 'GET'])
-def user_new():
+def users_new():
     form = UserNewForm()
     if request.method == 'POST' and form.validate_on_submit():
         username = form.username.data
@@ -169,11 +156,11 @@ def user_new():
             db.session.commit()
             flash(u'添加用户(%s)成功' % user.username, 'success')
             return redirect(url_for('users.users'))
-    return render_template('users/user_new.html', form=form)
+    return render_template('users/new.html', form=form)
 
     
 @userview.route('/users/edit/<int:id>', methods=['POST', 'GET'])
-def user_edit(id):
+def users_edit(id):
     form = UserEditForm()
     print form.data
     user = User.query.get_or_404(id)
@@ -184,18 +171,18 @@ def user_edit(id):
         flash(u'修改用户(%s)成功' % user.username, 'success')
         return redirect(url_for('users.users'))
     form.process(obj=user)
-    return render_template('/users/user_edit.html', user=user, form=form)
+    return render_template('users/edit.html', user=user, form=form)
 
     
 @userview.route('/users/delete/<int:id>', methods=('GET', 'POST'))
-def user_delete(id):
+def users_delete(id):
     user = User.query.get_or_404(id)
     if request.method == 'POST':
         db.session.delete(user)
         db.session.commit()
         flash(u'用户(%s)删除成功' % user.username, 'success')
         return redirect(url_for('users.users'))
-    return render_template('users/user_delete.html', user=user)
+    return render_template('users/delete.html', user=user)
 
     
 @userview.route('/users/reset-password/<int:id>', methods=['POST', 'GET'])
@@ -212,7 +199,8 @@ def reset_password(id):
         return redirect(url_for('users.users'))
         
     form.username.data = user.username
-    return render_template('users/reset_password.html', form=form, id=id)
+    return render_template('users/reset_password.html', form=form, user=user)
+
 
 
     
@@ -221,13 +209,11 @@ def reset_password(id):
 # ============================================================================== 
 @userview.route('/roles/')
 def roles():
-    table = RoleTable(Role.query)
-    profile = user_profile(RoleTable._meta.profile)
-    TableConfig(request, profile).configure(table)
-    return render_template('users/roles.html', table=table)
+    table = make_table(Role.query, RoleTable)
+    return render_template('users/roles/index.html', table=table)
     
 @userview.route('/roles/new', methods=['GET', 'POST'])
-def role_new():
+def roles_new():
     all_args = NestedDict(request)
     perms = all_args['permissions']
     form = RoleForm()
@@ -245,13 +231,13 @@ def role_new():
 
     perm_tree = Permission.make_tree()
     
-    return render_template('users/role_new_edit.html',
-                           action=url_for('users.role_new'),
+    return render_template('users/roles/new_edit.html',
+                           action=url_for('users.roles_new'),
                            form=form, perm_tree=perm_tree)
     
 
 @userview.route('/roles/edit/<int:id>', methods=['POST', 'GET'])
-def role_edit(id):
+def roles_edit(id):
     all_args = NestedDict(request)
     print 'all_args::', all_args
     perms = all_args['permissions']
@@ -273,20 +259,19 @@ def role_edit(id):
     
     perm_tree = Permission.make_tree(role.permissions)
     form.process(obj=role)
-    return render_template('users/role_new_edit.html',
-                           action=url_for('users.role_edit', id=id),
-                           form=form,
-                           perm_tree=perm_tree)
+    return render_template('users/roles/new_edit.html',
+                           action=url_for('users.roles_edit', id=id),
+                           form=form, perm_tree=perm_tree)
     
 
 @userview.route('/roles/delete/<int:id>', methods=('GET', 'POST'))
-def role_delete(id):
+def roles_delete(id):
     user_cnt = User.query.filter(User.role_id == id).count()
     role = Role.query.get(id)
     if user_cnt > 0:
         flash(u'删除失败: 有(%d)个用户依赖此角色' % user_cnt, 'error')
     elif request.method == 'GET':
-        return render_template('users/role_delete.html', role=role)
+        return render_template('users/roles/delete.html', role=role)
     else:
         db.session.delete(role)
         db.session.commit()
@@ -298,10 +283,8 @@ def role_delete(id):
 # ==============================================================================
 @userview.route('/domains/')
 def domains():
-    profile = user_profile(DomainTable._meta.profile)
-    table = DomainTable(Domain.query)
-    TableConfig(request, profile).configure(table)
-    return render_template('users/domains.html', table=table)
+    table = make_table(Domain.query, DomainTable)
+    return render_template('users/domains/index.html', table=table)
     
 @userview.route('/domains/load/nodes')
 def domain_load_nodes():
@@ -354,7 +337,7 @@ def domain_load_nodes():
 
 
 @userview.route('/domains/new', methods=['POST', 'GET'])
-def domain_new():
+def domains_new():
     form = DomainForm()
     if request.method == 'POST' and form.validate_on_submit():
         domain = Domain()
@@ -363,13 +346,13 @@ def domain_new():
         db.session.add(domain)
         db.session.commit()
         return redirect(url_for('users.domains'))
-    return render_template('users/domain_new_edit.html',
-                           action=url_for('users.domain_new'),
+    return render_template('users/domains/new_edit.html',
+                           action=url_for('users.domains_new'),
                            form=form)
 
     
 @userview.route('/domains/edit/<int:id>', methods=['POST', 'GET'])
-def domain_edit(id):
+def domains_edit(id):
     form = DomainForm()
     domain = Domain.query.get_or_404(id)
     if request.method == 'POST' and form.validate_on_submit():
@@ -382,19 +365,19 @@ def domain_edit(id):
     domain_areas = [domain.city_list, domain.town_list,domain.branch_list, domain.entrance_list]
     domain_areas = ','.join([d for d in domain_areas if d])
     form.process(obj=domain)
-    return render_template('users/domain_new_edit.html',
-                           action=url_for('users.domain_edit', id=id),
+    return render_template('users/domains/new_edit.html',
+                           action=url_for('users.domains_edit', id=id),
                            domain_areas=domain_areas, form=form)
     
 
 @userview.route('/domains/delete/<int:id>', methods=('GET', 'POST'))
-def domain_delete(id):
+def domains_delete(id):
     user_cnt = User.query.filter(User.domain_id == id).count()
     domain = Domain.query.get_or_404(id)
     if user_cnt > 0:
         flash(u'删除失败: 有(%d)个用户依赖此管理域!' % user_cnt, 'error')
     elif request.method == 'GET':
-        return render_template('users/domain_delete.html', domain=domain)        
+        return render_template('users/domains/delete.html', domain=domain)        
     else:
         db.session.delete(domain)
         db.session.commit()

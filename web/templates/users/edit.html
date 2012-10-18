@@ -12,13 +12,13 @@
 {% block content %}
 <div class="row-fluid" style="margin-top:20px">
     <div class="span2">
-        {% include "_sidebar.html" %}
+        {% include "users/_sidebar.html" %}
     </div>
     
     <div class="span10">
 	<div class="row-fluid">
 	    <div class="">
-		<form class="form-horizontal" method="POST" id="test-wtf" action="{{url_for('user_edit', id=user.id)}}">
+		<form class="form-horizontal" method="POST" id="test-wtf" action="{{url_for('users.users_edit', id=user.id)}}">
 		    <fieldset>
 			{{ form.hidden_tag() }}
 			{{ render_field(form.name, class="input-medium") }}

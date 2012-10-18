@@ -64,8 +64,8 @@ class Profile(db.Model):
         self.grp = grp
         self.key = key
         self.value = value
-        created_at = datetime.now()
-        updated_at = datetime.now()
+        self.created_at = datetime.now()
+        self.updated_at = datetime.now()
 
     @staticmethod
     def load(uid, grp):

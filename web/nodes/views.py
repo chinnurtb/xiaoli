@@ -11,9 +11,9 @@ from sqlalchemy.orm import aliased
 
 from tango import db
 from tango import user_profile
+from tango.base import make_table
 from tango.ui import menus, Menu
 from tango.ui import add_widget, Widget, tables
-from tango.ui.tables import TableConfig
 from tango.login import current_user, login_required
 from tango.models import Profile, Category
 
@@ -114,9 +114,7 @@ def nodes():
     form.process(**query_dict)
     if request.method == 'POST':
         query = Node.query.filter(query_form.filters_str)
-    table = NodeTable(query)
-    profile = user_profile(NodeTable._meta.profile)
-    TableConfig(request, profile).configure(table)
+    table = make_table(query, NodeTable)
     return render_template('nodes/index.html', table = table, form=form, query_form=query_form)
 
 @nodeview.route('/nodes/<int:id>/', methods=['GET'])
@@ -144,7 +142,7 @@ def node_show(id):
 
 @nodeview.route('/nodes/new/', methods=['GET','POST'])
 @login_required
-def node_new():
+def nodes_new():
     form = NodeNewForm()
     if request.method == 'POST' and form.validate_on_submit():
         node = Node()
@@ -158,7 +156,7 @@ def node_new():
 
 @nodeview.route('/nodes/edit/<int:id>/', methods=['POST', 'GET'])
 @login_required
-def node_edit(id):
+def nodes_edit(id):
     form = NodeNewForm()
     node = Node.query.get_or_404(id)
     if request.method == 'POST' and form.validate_on_submit():
@@ -176,7 +174,7 @@ def node_edit(id):
     return render_template('/nodes/edit.html', node=node, form=form)
 
 @nodeview.route('/users/delete/', methods=['POST'])
-def node_delete():
+def nodes_delete():
     if request.method == 'POST':
         ids = request.form.getlist('ids')
         for id in ids:
@@ -200,17 +198,13 @@ def managers():
 
 @nodeview.route("/boards/")
 def boards():
-    table = BoardTable(Board.query)
-    profile = user_profile(BoardTable._meta.profile)
-    TableConfig(request, profile).configure(table)
+    table = make_table(Board.query, BoardTable)
     return render_template('boards/index.html', table = table)
 
 @nodeview.route("/ports/")
 @login_required
 def ports():
-    table = PortTable(Port.query)
-    profile = user_profile(PortTable._meta.profile)
-    TableConfig(request, profile).configure(table)
+    table = make_table(Port.query, PortTable)
     return render_template('ports/index.html', table = table)
 
 @nodeview.route("/areas/")
@@ -272,8 +266,7 @@ def areas():
     if query_gran != 1:
         query = query.filter(getattr(Area,area_type_dict[base.area_type])==base.id)
 
-    table = AreaTable(query)
-    TableConfig(request, profile).configure(table)
+    table = make_table(query, AreaTable, profile=profile)
     breadcrumb = [base]
     while base.parent:
         breadcrumb.append(base.parent)
@@ -286,10 +279,7 @@ def areas():
 @nodeview.route("/vendors/")
 @login_required
 def vendors():
-    query = Vendor.query
-    table = VendorTable(query)
-    profile = user_profile(VendorTable._meta.profile)
-    TableConfig(request, profile).configure(table)
+    table = make_table(Vendor.query, VendorTable)
     if request.args.get("dashboard"):
         return table.as_html()
     else:
@@ -309,7 +299,6 @@ def vendors():
 @nodeview.route("/categories/")
 @login_required
 def categories():
-    profile = user_profile(CategoryTable._meta.profile)
     query_total = db.session.query(
         Node.category_id,func.count(Node.category_id).label("total_count")
     ).group_by(Node.category_id).subquery()
@@ -335,8 +324,7 @@ def categories():
         query_status1,Category.id==query_status1.c.category_id
     ).filter(Category.obj == "node").filter(Category.is_valid == 1)
 
-    table = CategoryTable(query)
-    TableConfig(request, profile).configure(table)
+    table = make_table(query, CategoryTable)
     if request.args.get("dashboard"):
         return table.as_html()
     else:
@@ -359,4 +347,3 @@ menus.append(Menu('nodes', u'资源', '/nodes'))
 add_widget(Widget('category_statistic', u'分类统计', url='/categories/?dashboard=true', column = 'side'))
 add_widget(Widget('vendor_statistic', u'厂商统计', url='/vendors/?dashboard=true', column = 'side'))
 add_widget(Widget('area_statistic', u'区域统计',url='/areas/?dashboard=true', column = 'side'))
-

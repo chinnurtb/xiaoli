@@ -1,5 +1,7 @@
 {% set menuid = 'users' %}
 
+{% set submenuid = 'users' %}
+
 {% extends 'layout.html' %} 
 
 {% block title %} 用户管理 {% endblock %}
@@ -15,9 +17,10 @@
 {% endblock %}
 
 {% from "_table_h.html" import render_table, render_screen_meta %}
-
 {% block screen_meta %}
-{{ render_screen_meta(table) }}
+
+    {{ render_screen_meta(table) }}
+
 {% endblock %}
 
 {% block content %}
@@ -25,8 +28,7 @@
 <div class="row-fluid" style="margin-top:20px">
 
     <div class="span2">
-      {% set submenuid = 'domains' %}
-      {% include "users/_sidebar.html" %}
+        {% include "users/_sidebar.html" %}
     </div>
 
     <div class="span10">
@@ -37,10 +39,9 @@
                 <input type="hidden" name="orderby" value="login">
                 <input type="hidden" name="order" value="asc">
                 <div class="alignleft btn-group">
-                    <a class="btn"
-                    href="{{url_for('users.domain_new')}}">新建管理域</a>
+                    <a class="btn" href="{{url_for('users.users_new')}}">新建用户</a>
                     <button class="btn">重置密码</button>
-                    <button class="btn">删除管理域</button>
+                    <button class="btn">删除用户</button>
                     <br class="clear">
                 </div>
                 </form>

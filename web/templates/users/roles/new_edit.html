@@ -10,7 +10,7 @@
 {% block content %}
 <div class="row-fluid" style="margin-top:20px">
   <div class="span2">
-    {% if request.endpoint == 'users.role_new' %}
+    {% if request.endpoint == 'users.roles_new' %}
         {% set submenuid = 'roles-new' %}
     {% endif %}
     {% include "users/_sidebar.html" %}

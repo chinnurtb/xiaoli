@@ -7,8 +7,8 @@ from jinja2 import Markup
 from .models import Node,Board,Port
 
 class NodeTable(tables.Table):
-    edit        = tables.Action(name=u'编辑', endpoint='nodes.node_edit')
-    delete      = tables.Action(name=u'删除', endpoint='nodes.node_delete')
+    edit        = tables.Action(name=u'编辑', endpoint='nodes.nodes_edit')
+    delete      = tables.Action(name=u'删除', endpoint='nodes.nodes_delete')
     check       = tables.CheckBoxColumn()
     status      = tables.EnumColumn(verbose_name=u'状态', name='state', enums={0: u'不可用', 1: u'可用'},  orderable=True)
     name        = tables.LinkColumn(endpoint='nodes.node_show',verbose_name=u'名称',orderable=True)
@@ -22,7 +22,7 @@ class NodeTable(tables.Table):
         model = Node
         per_page = 30
         order_by = '-alias'
-        #url_makers = {'name': lambda record: url_for('nodes.node_edit', id=record.id)}
+        #url_makers = {'name': lambda record: url_for('nodes.nodes_edit', id=record.id)}
 
 class BoardTable(tables.Table):
     check       = tables.CheckBoxColumn()

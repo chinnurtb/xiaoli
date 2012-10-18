@@ -11,7 +11,7 @@ from .models import OperationLog, SecurityLog, SubSystem
 class SettingTable(tables.Table):
     helpdoc = u'查看系统设置参数'
     
-    edit   = tables.Action(name=u'编辑', endpoint='system.setting_edit')
+    edit   = tables.Action(name=u'编辑', endpoint='system.settings_edit')
     
     check = tables.CheckBoxColumn()
 

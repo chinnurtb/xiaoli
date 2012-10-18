@@ -1,6 +1,6 @@
 {% extends 'layout.html' %}
 
-{% set menuid = 'users' %}
+{% set menuid = 'roles' %}
 
 {% block title %}删除用户{% endblock %}
 
@@ -10,25 +10,24 @@
 
 <div class="row-fluid content">
   <div class="span2">
-    {% set submenuid = 'users' %}
+    {% set submenuid = 'roles' %}
     {% include 'users/_sidebar.html' %}
   </div>
   <div class="span10">
     <div class="">
       <form class="form-horizontal" method="POST"
-            action="{{url_for('users.user_delete', id=user.id)}}">
+            action="{{url_for('users.roles_delete', id=role.id)}}">
 	<fieldset>
           <div class="control-group ">
-            <label class="control-label" >用户名</label>
+            <label class="control-label" >角色名</label>
             <div class="controls">
-	      <input disabled="disabled" name="username" type="text" value="{{user.username}}">
+	      <input disabled="disabled" name="name" type="text" value="{{role.name}}">
             </div>
           </div>
-          
           <div class="control-group ">
-            <label class="control-label">真实姓名</label>
+            <label class="control-label">描述</label>
             <div class="controls">
-	      <input disabled="disabled" name="name" type="text" value="{{user.name}}">
+	      <textarea disabled="disabled" name="description" type="text">{{role.description}}</textarea>
             </div>
           </div>
 
