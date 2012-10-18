@@ -29,6 +29,8 @@ from tango.models import Query, Profile, Category, Setting
 
 from nodes.models import Node, Vendor
 from system.tables import SettingTable
+from system.forms import SettingEditForm
+
 from .models import Alarm, AlarmSeverity, History, AlarmClass, AlarmKnowledge
 
 from .forms import QueryNewForm, AlarmAckForm, AlarmClearForm, AlarmClassForm, AlarmKnowledgeForm, AlarmFilterForm
@@ -291,9 +293,21 @@ def knowledges_edit(id):
 
 @alarmview.route('/alarms/settings', methods=['GET', 'POST'])
 def settings():
-    q = Setting.query.filter_by(mod='alarms')
-    t = SettingTable(q)
-    return render_template('alarms/settings.html', table=t)
+    table = make_table(Setting.query.filter(Setting.mod == 'alarms'), SettingTable)
+    return render_template('/alarms/settings/index.html', table=table)
+
+@alarmview.route('/alarms/setting/edit/<int:id>', methods=('GET', 'POST'))
+def settings_edit(id):
+    form = SettingEditForm()
+    setting = Setting.query.get_or_404(id)
+    if form.is_submitted and form.validate_on_submit():
+        old_value = setting.value
+        setting.value = form.value.data
+        db.session.commit()
+        flash(u'%s 被修改: %s --> %s' % (setting.name, str(old_value), str(form.value.data)), 'success')
+        return redirect('/alarms/settings/')
+    form.process(obj=setting)
+    return render_template('/alarms/settings/edit.html', form=form, setting=setting)
 
 @alarmview.app_template_filter("alarm_severity")
 def alarm_severity_filter(s):
@@ -339,8 +353,9 @@ def stats_by_class():
 def stats_by_node_category():
     q = db.session.query(func.count(Alarm.id), Category.id, Category.alias)
     q = q.outerjoin(Node, Alarm.node_id == Node.id)
-    q = q.outerjoin(Category, Node.category == Category.id)
+    q = q.outerjoin(Category, Node.category_id == Category.id)
     q = q.group_by(Category.id, Category.alias).order_by(Category.id)
+    print q.all()
     return render_template('alarms/stats/by_node_category.html', data=q.all())
 
 @alarmview.route('/alarms/stats/by_node_vendor')
