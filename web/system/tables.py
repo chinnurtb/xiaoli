@@ -13,9 +13,9 @@ class SettingTable(tables.Table):
     check   = tables.CheckBoxColumn()
 
     name  = tables.Column(verbose_name=u'参数名', orderable=True)
-    value = tables.Column(verbose_name=u'参数值', orderable=True)
-    unit  = tables.Column(verbose_name=u'参数单位', orderable=True)
-    alias = tables.Column(verbose_name=u'说明')
+    alias = tables.Column(verbose_name=u'参数别名', orderable=True)
+    value = tables.Column(verbose_name=u'参数值')
+    unit  = tables.Column(verbose_name=u'参数单位')
 
     class Meta():
         model = Setting

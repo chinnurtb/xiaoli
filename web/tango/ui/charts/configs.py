@@ -113,7 +113,8 @@ pie_basic = '''{
             name: '清除',
             y: 19
         }]
-    }]
+    }],
+    exporting: { enabled: false }
 }
 '''
 
@@ -368,7 +369,8 @@ bar_stacked = '''{
     }, {
         name: 'Joe',
         data: [3, 4, 4, 2, 5]
-    }]
+    }],
+    exporting: { enabled: false }
 }
 '''
 
@@ -432,6 +434,44 @@ bar_negative_stack = '''{
             3360596, 3493473, 3050775, 2759560, 2304444, 2426504, 2568938, 1785638,
             1447162, 1005011, 330870, 130632, 21208]
     }]
+}
+'''
+
+column_basic = ''' 
+{
+    chart: {
+        renderTo: 'container',
+        type: 'column'
+    },
+    title: {
+        text: 'Basic Column'
+    },
+    xAxis: {
+        categories: []
+    },
+    yAxis: {
+        min: 0,
+        minorTickInterval: 1,
+        title: {
+            text: ''
+        }
+    },
+    plotOptions: {
+        column: {
+            cursor: 'pointer',
+            point: {
+                events: {
+                }
+            },
+            dataLabels: {
+                enabled: true
+            }
+        }
+    },
+    tooltip: {
+    },
+    series: [],
+    exporting: { enabled: false }
 }
 '''
 

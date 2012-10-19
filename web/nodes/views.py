@@ -15,7 +15,7 @@ from tango.base import make_table
 from tango.ui import menus, Menu
 from tango.ui import add_widget, Widget, tables
 from tango.login import current_user, login_required
-from tango.models import Profile
+from tango.models import Profile, Category
 
 from .models import Node, Board, Port, Area, Vendor
 from .forms import NodeNewForm, NodeSearchForm
@@ -127,7 +127,7 @@ def node_show(id):
     traffic_chart["title"]["text"] = None
     traffic_chart["subtitle"]["text"] = None
     traffic_chart["yAxis"]["title"] = None
-    traffic_chart.height = str(250)+"px"
+    #traffic_chart.height = str(250)+"px"
     traffic_chart.set_yformatter()
 
     from tango.ui.charts.highcharts import PieBasicChart
@@ -135,8 +135,8 @@ def node_show(id):
     alarm_chart.set_html_id("alarm")
     alarm_chart["title"]["text"] = None
     alarm_chart["plotOptions"]["pie"]["events"]["click"] = None
-    alarm_chart.height = str(220)+"px"
-    alarm_chart.width = str(220)+"px"
+    #alarm_chart.height = str(220)+"px"
+    #alarm_chart.width = str(220)+"px"
     alarm_chart.min_width = str(220)+"px"
     return render_template('nodes/show.html', node = node, traffic_chart = traffic_chart, alarm_chart = alarm_chart)
 
@@ -237,7 +237,7 @@ def areas():
         if index == 0:
             sub_query = sub_query.group_by(getattr(Area,group_type)).subquery()
         else:
-            sub_query = sub_query.filter(Node.category==index).group_by(getattr(Area,group_type)).subquery()
+            sub_query = sub_query.filter(Node.category_id==index).group_by(getattr(Area,group_type)).subquery()
         sub_query_list.append(sub_query)
 
     for index,gran in enumerate(['town','branch','entrance']):
@@ -300,25 +300,29 @@ def vendors():
 @login_required
 def categories():
     query_total = db.session.query(
-        Node.category,func.count(Node.category).label("total_count")
-    ).group_by(Node.category).subquery()
+        Node.category_id,func.count(Node.category_id).label("total_count")
+    ).group_by(Node.category_id).subquery()
 
     query_status0 = db.session.query(
-        Node.category,func.count(Node.category).label("status0_count")
-    ).filter(Node.status==0).group_by(Node.category).subquery()
+        Node.category_id,func.count(Node.category_id).label("status0_count")
+    ).filter(Node.status==0).group_by(Node.category_id).subquery()
 
     query_status1 = db.session.query(
-        Node.category,func.count(Node.category).label("status1_count")
-    ).filter(Node.status==1).group_by(Node.category).subquery()
+        Node.category_id,func.count(Node.category_id).label("status1_count")
+    ).filter(Node.status==1).group_by(Node.category_id).subquery()
 
     query = db.session.query(
-        query_total.c.category.label("category_name"),
+        Category.id, Category.alias.label("category_name"),
         func.coalesce(query_total.c.total_count,0).label("total_count"),
         func.coalesce(query_status0.c.status0_count,0).label("status0_count"),
         func.coalesce(query_status1.c.status1_count,0).label("status1_count")
     ).outerjoin(
-        query_status0,query_total.c.category==query_status0.c.category
-    ).outerjoin(query_status1,query_total.c.category==query_status1.c.category)
+        query_total, query_total.c.category_id==Category.id
+    ).outerjoin(
+        query_status0,Category.id==query_status0.c.category_id
+    ).outerjoin(
+        query_status1,Category.id==query_status1.c.category_id
+    ).filter(Category.obj == "node").filter(Category.is_valid == 1)
 
     table = make_table(query, CategoryTable)
     if request.args.get("dashboard"):

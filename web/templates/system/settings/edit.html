@@ -1,18 +1,16 @@
-
-{% set menuid = 'users' %}
-{% set submenuid = 'users/new' %}
-
 {% extends 'layout.html' %}
 
-{% block title %} 添加用户 {% endblock %}
+{% set menuid = 'system' %}
+
+{% set title = '系统设置' %}
 
 {% from "_form_h.html" import render_field %}
 
 {% block content %}
 <div class="row-fluid" style="margin-top:20px">
     <div class="span2">
-      {% set submenuid = 'users' %}
-      {% include "users/_sidebar.html" %}
+      {% set submenuid = 'settings' %}
+      {% include "system/_sidebar.html" %}
     </div>
     
     <div class="span10">

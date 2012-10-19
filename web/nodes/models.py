@@ -125,7 +125,7 @@ class Model(db.Model):
     __tablename__     = 'models'
     id                = db.Column(db.Integer, primary_key=True)
     cityid            = db.Column(db.Integer)
-    type_id           = db.Column(db.Integer)
+    category_id       = db.Column(db.Integer)
     object            = db.Column(db.String(100))
     name              = db.Column(db.String(100))
     alias             = db.Column(db.String(100))
@@ -155,8 +155,6 @@ class NodeMixin(object):
     #-- 0:Production 1:Pre-Production 2:Test 3:Maintenance 4:Decommissioned
     prod_state    = db.Column(db.Integer)
     remark        = db.Column(db.String(200))
-    #-- 1:olt 2:onu 3:dslam 4:eoc 5:switch 90:host
-    category      = db.Column(db.Integer)
     #-- 1:PON 2:WLAN 3:DATA 4:SERVER 5:CPE 6:ACCESS
     business      = db.Column(db.Integer)
     group_id      = db.Column(db.Integer)
@@ -182,6 +180,15 @@ class NodeMixin(object):
     next_check    = db.Column(db.DateTime)
     duration      = db.Column(db.Integer)
     updated_at    = db.Column(db.DateTime)
+
+    #-- 20:olt 21:onu 30:dslam 50:eoc 2:switch 90:host
+    @declared_attr
+    def category_id(cls):
+        return db.Column(db.Integer, db.ForeignKey('categories.id'))
+
+    @declared_attr
+    def category(cls):
+        return db.relationship("Category")
 
     @declared_attr
     def maintainer_id(cls):

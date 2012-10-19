@@ -1,13 +1,12 @@
-{% extends "layout.html" %}
+{% extends 'layout.html' %}
 
-{% set menuid = 'system' %}
+{% set menuid = 'alarms' %}
 
-{% set title = '所有主机' %}
+{% set title = '告警设置' %}
 
 {% block head %}
-<link rel="stylesheet" href="/static/css/node.css" type="text/css" media="screen" />
-
 {% from "_table_h.html" import render_table_profile %}
+
 <script type="text/javascript">
     {{ render_table_profile(table) }} 
 </script>
@@ -20,16 +19,15 @@
 {% endblock %}
 
 {% block content %}
-    
     <div class="row-fluid content">
         <div class="span2">
-            {% set submenuid = 'hosts' %}
-            {% include 'system/_sidebar.html' %}
+            {% set submenuid = 'alarms_settings' %}
+            {% include 'alarms/_sidebar.html' %}
         </div>
         <div class="span10">
           {% include "_alert.html" %}
           {{ render_table(table) }}
-        <div>
+        </div>
     </div>
-
 {% endblock %}
+

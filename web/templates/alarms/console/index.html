@@ -2,7 +2,7 @@
 
 {% set menuid = 'alarms' %}
 
-{% block title %}告警控制台{% endblock %}
+{% set title = "告警监视面板" %}
 
 {% block head %} {% endblock %}
 
@@ -15,7 +15,16 @@
         </div>
 
         <div class="span10">
-            <h1>告警控制台</h1>
+
+            <div style="padding:0px; border: 1px solid #E3E3E3; border-radius: 3px 3px 3px 3px;">
+            {% from "_chart_h.html" import render_highchart %}
+            {{ render_highchart(chart, height='240px') }}
+            </div>
+
+            {% from '_dashboard_h.html' import render_dashboard %}
+
+            {{ render_dashboard(dashboard) }}
+
             <br class="clear">
         </div>
     </div>

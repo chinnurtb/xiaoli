@@ -107,10 +107,10 @@
 
 {% endmacro %}
 
-{% macro render_highchart(chart, width=None, height=None) %}
+{% macro render_highchart(chart, width="160px", height=None) %}
   <script src="/static/js/highcharts/highcharts.src.js"></script>
   <script src="/static/js/highcharts/modules/exporting.src.js"></script>
-  <div id="{{ chart.html_id }}" style="{%if width %} min-width: {{width}};{% endif %} {% if height %} height: {{height}}; {% endif %} margin: 10px auto"></div>
+  <div id="{{ chart.html_id }}" style="{%if width %} min-width: {{width}};{% endif %} {% if height %} height: {{height}}; {% endif %} margin: 1px auto"></div>
   <script type="text/javascript">
   $(document).ready(function() {
         chart = new Highcharts.Chart(

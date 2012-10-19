@@ -1,4 +1,4 @@
-#dashboard widgets
+# dashboard
 widgets = []
 
 def add_widget(widget):
