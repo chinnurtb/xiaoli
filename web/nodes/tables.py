@@ -1,10 +1,13 @@
 #!/usr/bin/env python  
 # -*- coding: utf-8 -*-
+from jinja2 import Markup
 from flask import url_for
+
 from tango.ui import tables
 from tango.ui.tables.utils import Attrs
-from jinja2 import Markup
-from .models import Node,Board,Port
+
+from nodes import constants
+from .models import Node, Board, Port, NodeHost
 
 class NodeTable(tables.Table):
     edit        = tables.Action(name=u'编辑', endpoint='nodes.nodes_edit')
@@ -24,6 +27,27 @@ class NodeTable(tables.Table):
         order_by = '-alias'
         #url_makers = {'name': lambda record: url_for('nodes.nodes_edit', id=record.id)}
 
+
+class NodeHostTable(tables.Table):
+    helpdoc = u'查看所有主机'
+    edit    = tables.Action(name=u'编辑', endpoint='system.hosts_edit')
+    check   = tables.CheckBoxColumn()
+
+    name       = tables.Column(verbose_name=u'名称')
+    alias      = tables.Column(verbose_name=u'显示名')
+    status     = tables.EnumColumn('state', verbose_name=u'状态', enums=constants.STATUS, orderable=True)
+    ifaces     = tables.Column(verbose_name=u'接口地址')
+    cpu_info   = tables.Column(verbose_name=u'CPU 信息')
+    mem_info   = tables.Column(verbose_name=u'内存 信息')
+    disk_info  = tables.Column(verbose_name=u'磁盘 信息')
+    worker_num = tables.Column(verbose_name=u'采集进程数')
+    os_type    = tables.Column(verbose_name=u'操作系统')
+    updated_at = tables.DateTimeColumn(verbose_name=u'更新时间')
+
+    class Meta():
+        model = NodeHost
+
+        
 class BoardTable(tables.Table):
     check       = tables.CheckBoxColumn()
     status      = tables.Column(verbose_name=u'状态')
