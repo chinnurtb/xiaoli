@@ -4,17 +4,18 @@
 from flask import (Blueprint, request, url_for, redirect,
                    render_template, flash)
 
-from tango import db, user_profile
+from tango import db
 from tango.base import make_table
 from tango.models import Setting, DictCode
 from tango.ui import menus, Menu
 
 from nodes.models import NodeHost
+from nodes.tables import NodeHostTable
 from users.models import User
 
 from .models import OperationLog, SecurityLog, SubSystem
 from .tables import (SettingTable, OperationLogTable, SecurityLogTable,
-                     DictCodeTable, NodeHostTable, SubSystemTable)
+                     DictCodeTable, SubSystemTable)
 from .forms import (SettingEditForm, SearchForm, OplogFilterForm, DictCodeFilterForm,
                     DictCodeNewEditForm, NodeHostEditForm)
 

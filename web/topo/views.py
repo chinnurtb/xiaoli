@@ -47,6 +47,7 @@ images = {
     'dslam' : 'olt-network_32x32.png',
     'switch': 'switch_32x32.gif',
 }
+
 node_categories = ['olt', 'onu', 'dslam', 'eoc', 'switch']
 table_template = '<<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" ALIGN="center"><TR><TD><IMG SRC="%(src)s"/></TD></TR> <TR><TD>%(name)s</TD></TR> <TR><TD>%(addr)s</TD></TR> </TABLE>>'
 
@@ -120,7 +121,7 @@ def network():
     
     area_url = lambda a_id : url_for('topo.network', area_id=a_id, level=level, prog=prog)
     node_url = lambda n_id : url_for('topo.network', node_id=n_id, level=level, prog=prog)
-    node_label = lambda node : table_template % dict(src=img_path+images[node_categories[node.category-1]],
+    node_label = lambda node : table_template % dict(src=img_path+images[node.category.name],
                                                      name=node.name, addr=node.addr)
     graph = pydot.Dot(graph_type='digraph')
     root_node = Node.query.get(node_id) if node_id else None
