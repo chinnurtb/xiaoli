@@ -6,10 +6,13 @@
 
 {% block head %}
 
+<script type="text/javascript" src="/static/js/bootstrap-modal.js"></script>
 {% from "_table_h.html" import render_table_profile %}
-
 <script type="text/javascript">
   {{ render_table_profile(table) }}
+  $(document).ready(function(){
+      $('.row-atcion a').modal('hide');
+  });
 </script>
 
 {% endblock %}
@@ -41,10 +44,11 @@
           <div class="alignleft btn-group">
             <a class="btn" href="{{url_for('users.users_new')}}">新建用户</a>
             <!-- <button class="btn">重置密码</button> -->
-            <a class="btn" href="#">删除用户</a>
+            <a class="btn" role="button" href="#myModal" data-toggle="modal">删除用户</a>
             <br class="clear">
           </div>
         </form>
+        {% include "users/_modal.html" %}
       </div>
       <form class="form-inline" style="margin:0px;" action="" method="GET">
         <div class="alignleft actions">
