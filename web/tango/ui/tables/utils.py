@@ -230,7 +230,7 @@ class Attrs(dict):
     """
     """
     def update(self, extra):
-        for key in ('th', 'td', 'table'):
+        for key in self.keys():
             self[key] = AttributeDict.merge(self.get(key, {}), extra.get(key, {}))
 
 

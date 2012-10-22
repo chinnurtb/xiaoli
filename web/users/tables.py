@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from tango.ui import tables
+from tango.ui.tables import Attrs
 
 from .models import User, Role, Domain
 
@@ -11,7 +12,7 @@ class UserTable(tables.Table):
     helpdoc = u"用户表: 管理维护用户信息"
 
     edit   = tables.Action(name=u'编辑', endpoint='users.users_edit')
-    delete = tables.Action(name=u'删除', endpoint='users.users_delete')
+    delete = tables.Action(name=u'删除', endpoint='users.users_delete', attrs=Attrs(a={"class": "delete"}))
     reset  = tables.Action(name=u'重置密码', endpoint='users.reset_password')
     
     check      = tables.CheckBoxColumn()

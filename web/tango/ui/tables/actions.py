@@ -24,15 +24,18 @@ class Action(object):
             warnings.warn('attrs must be Attrs object, not %s'
                           % type(attrs).__name__, DeprecationWarning)
             attrs = Attrs(attrs)
+        # print 'B', default_attrs
         default_attrs.update(attrs)
+        # print 'E', default_attrs
         self.attrs = default_attrs
 
         self.creation_counter = Action.creation_counter
         Action.creation_counter += 1
     
     def render(self, record):
-        
+        attrs = AttributeDict(self.attrs.get('a', {}))
+        print attrs
         uri = url_for(self.endpoint, id=getattr(record, 'id', None))
-        text = u'<a class="btn btn-small" href="%s">%s</a>' % (uri, self.name)
+        text = u'<a %s href="%s">%s</a>' % (attrs.as_html(), uri, self.name)
         return Markup(text)
 
