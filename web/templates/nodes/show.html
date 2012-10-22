@@ -21,6 +21,7 @@
             background-color: #D9EDF7;
         }
     </style>
+    <link rel="stylesheet" href="/static/css/detail.css" type="text/css" media="all">
 {% endblock %}
 
 {% block content %}
@@ -31,51 +32,53 @@
     </div>
 
     <div class="span10">
-            <h4> 节点属性 </h4>
-            <div class="btn-group pull-right" style="margin-top: -20px;">
+            <h4 class="detail-title pull-left"> 节点属性 </h4>
+            <div class="btn-group pull-right">
                 <a class="btn btn-small" href="#">测试</a>
                 <a class="btn btn-small" href="#">Ping</a>
                 <a class="btn btn-small" href="/nodes/edit/{{ node.id }}">编辑</a>
             </div>
-            <hr/>
-            <div class="span8">
-            <table class="table node_table">
-                <tr>
-                    <td class="head">所属区域</td>
-                    <td colspan="3">宁夏银川</td>
-                </tr>
-                <tr>
-                    <td class="head">节点名称</td>
-                    <td>Test节点</td>
-                    <td class="head">节点类型</td>
-                    <td>OLT</td>
-                </tr>
-                <tr>
-                    <td class="head">工程状态</td>
-                    <td>工程中</td>
-                    <td class="head">节点状态</td>
-                    <td>可用/不可用</td>
-                </tr>
-                <tr>
-                    <td class="head">IP 地址</td>
-                    <td>198.23.98.190</td>
-                    <td class="head">MAC地址</td>
-                    <td>5C:4C:A9:16:2E:7B</td>
-                </tr>
-                <tr>
-                    <td class="head">厂家型号</td>
-                    <td>华为MA5616</td>
-                    <td class="head">子网掩码</td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td class="head">设备描述</td>
-                    <td colspan="3"></td>
-                </tr>
-            </table>
+            <hr class="clear"/>
+            <div class="span8" style="margin-left:0px;">
+                <div class="detail">
+                <table class="table">
+                    <tr>
+                        <td  width="17.5%" scope="col">节点名称:</td>
+                        <td>Test节点</td>
+                        <td  width="17.5%" scope="col">节点类型</td>
+                        <td>OLT</td>
+                    </tr>
+                    <tr>
+                        <td  width="17.5%" scope="col">工程状态</td>
+                        <td>工程中</td>
+                        <td  width="17.5%" scope="col">节点状态</td>
+                        <td>可用/不可用</td>
+                    </tr>
+                    <tr>
+                        <td  width="17.5%" scope="col">IP 地址</td>
+                        <td>198.23.98.190</td>
+                        <td  width="17.5%" scope="col">MAC地址</td>
+                        <td>5C:4C:A9:16:2E:7B</td>
+                    </tr>
+                    <tr>
+                        <td  width="17.5%" scope="col">厂家型号</td>
+                        <td>华为MA5616</td>
+                        <td  width="17.5%" scope="col">子网掩码</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td  width="17.5%" scope="col">所属区域:</td>
+                        <td colspan="3">宁夏银川</td>
+                    </tr>
+                    <tr>
+                        <td width="17.5%" scope="col">设备描述</td>
+                        <td colspan="3"></td>
+                    </tr>
+                </table>
+              </div>
             </div>
             {% from "_chart_h.html" import render_highchart %}
-            <div class="span2" style="margin-left: -50px;">
+            <div class="span2">
                 {{ render_highchart(alarm_chart, height="220px", width="220px") }}
             </div>
             <div class="clear"></div>
