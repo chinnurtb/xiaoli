@@ -189,12 +189,32 @@ def nodes_delete():
 def nodes_import():
     return render_template('/nodes/import.html')
 
-
 @nodeview.route('/managers', methods=['GET'])
-@login_required
 def managers():
     return render_template('/managers/index.html')
 
+#================================================
+# 节点分类管理
+#================================================
+@nodeview.route('/nodes/switches/', methods=['GET'])
+def switches():
+    #TODO:
+    return render_template('nodes/switches/index.html')
+
+@nodeview.route('/nodes/olts/', methods=['GET'])
+def olts():
+    #TODO:
+    return render_template('nodes/olts/index.html')
+
+@nodeview.route('/nodes/onus/', methods=['GET'])
+def onus():
+    #TODO:
+    return render_template('/nodes/onus/index.html')
+
+@nodeview.route('/nodes/eocs/', methods=['GET'])
+def eocs():
+    #TODO:
+    return render_template('/nodes/eocs/index.html')
 
 @nodeview.route("/boards/")
 def boards():
