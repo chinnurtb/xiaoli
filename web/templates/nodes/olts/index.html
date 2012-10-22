@@ -2,32 +2,96 @@
 
 {% set menuid = 'nodes' %}
 
-{% set title = 'OLT管理' %}
-
 {% block head %}
 <link rel="stylesheet" href="/static/css/node.css" type="text/css" media="screen" />
+
+<script type="text/javascript">
+    var getSelectBox = function(){
+        return $("#node_form").find("input[name^=id]:checked");
+    }
+    $(function(){
+        $(".advance_search").toggle(
+            function() {
+                $(".advance_search_form").show();
+                $(this).addClass("hidedetail");
+            },
+            function() {
+                $(".advance_search_form").hide();
+                $(this).removeClass("hidedetail");
+            }
+        )
+        $("#advance_search").click(function() {
+            search_form = $("#search_form");
+            search_form.attr("action","{{url_for('nodes.nodes')}}").submit();
+        })
+        var node_form = $("#node_form");
+        $("#delete_btn").click(function() {
+            var ids = getSelectBox();
+            if(ids.length > 0){
+                if(confirm("确认删除这些节点？")) {
+                    node_form.attr("action","{{url_for('nodes.nodes_delete')}}").submit();
+                }
+            }else{
+                alert("请选择节点");
+            }
+        })
+    })
+</script>
+    {{ form.media.render() }}
+{% endblock %}
+
+{% from "_table_h.html" import render_table, render_screen_meta %}
+
+{% block screen_meta %}
+
+{{ render_screen_meta(table) }}
+
 {% endblock %}
 
 {% block content %}
 
 <div class="row-fluid content">
     <div class="span2">
-        {% set submenuid = 'olts' %}
+        {% set submenuid = 'nodes_olts' %}
         {% include 'nodes/_sidebar.html' %}
     </div>
     <div class="span10">
-        <form classh"form-horizontal" method="GET" action="nodes/switches'" id="switch_search_form">
+        {% include "_alert.html" %}
+        <ul id="status_statistics">
+            <li class="status-1">正常<span class="count">(0)</span></li>
+            <li class="status-2">宕机<span class="count">(0)</span></li>
+            <li class="status-3">不可达<span class="count">(0)</span></li>
+            <li class="status-4">未监控<span class="count">(0)</span></li>
+        </ul>
+        <form class="form-horizontal" method="GET" action="{{url_for('nodes.nodes')}}" id="search_form">
             <div class="tablenav top">
-                <div class="alignleft actions">
-                    <input type="hidden" name="order_by" value="asc">
+                <div class="alignleft">
+                    <input type="hidden" name="orderby" value="login">
+                    <input type="hidden" name="order" value="asc">
                     <div class="alignleft btn-group">
-                        <a class="btn" href="/nodes/olts/new">添加OLT</a>
+                        <a class="btn btn-small" href="/nodes/new">新建</a>
+                        <a class="btn btn-small" href="#" id="delete_btn">删除</a>
+                        <a class="btn btn-small" href="#">导入</a>
                     </div>
                 </div>
+                <div class="alignleft form-search" style="height: 26px;">
+                        {% set keyword = '名称、别名或IP' %}
+                        <div class="input-append alignleft" style="margin-left: 20px;">
+                            {{ form.name(placeholder=keyword,class="input-low input-medium") }}
+                            <button id="advance_sarch" class="btn btn-small">确定</button>
+                        </div>
+                        <div class="alignleft advance_search" title="高级检索"></div>
+                </div>
+                <div class="alignright actions">
+                    <a class="btn btn-small" href="#" title="Excel导出"><i class="icon-download-alt"></i></a>
+                </div>
+            </div>
+            <div style="margin: 0; display: none;" class="span12 well advance_search_form header">
+                {{ form.as_table(column=2) }}
             </div>
         </form>
-        <form action="" method="POST" id="olts_form">
-            <div> OLT列表 </div>
+        <form action="" method="POST" id="node_form">
+        {{ render_table(table) }}
         </form>
         <br class="clear">
     </div>

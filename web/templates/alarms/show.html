@@ -17,15 +17,15 @@
             {% include 'alarms/_sidebar.html' %}
         </div>
         <div class="span10">
-        <!-- Title --!>
+        <!-- Title -->
         <h4 class="detail-title pull-left">{{alarm.node_alias}} / {{alarm.alarm_alias}}</h4>
-        <!-- Actions --!>
+        <!-- Actions -->
         <div class="btn-group pull-right">
             <a id="alarm-ack-action" class="btn btn-small" href="{{url_for('alarms.alarms_ack', id=alarm.id)}}">确认</a>
             <a id="alarm-clear-action" class="btn btn-small" href="{{url_for('alarms.alarms_clear', id=alarm.id)}}">清除</a>
         </div>
         <div class="clear"></div>
-        <!-- Details --!>
+        <!-- Details -->
         <div class="detail">
             <table class="table">
               <tbody>
@@ -76,7 +76,7 @@
             </table>
         </div>
         
-        <!-- Tabs --!>
+        <!-- Tabs -->
         <div class="tabbable"> 
           <ul class="nav nav-tabs">
             <li class="active"><a href="#tab1" data-toggle="tab">告警日志</a></li>

@@ -137,9 +137,7 @@ class Model(db.Model):
     is_valid          = db.Column(db.Integer)
     remark            = db.Column(db.String(100))
 
-NODE_STATUS_ONLINE=1
-
-NODE_STATUS_OFFLINE=0
+NODE_STATUS_DICT = {1: u'正常', 2: u'宕机', 3: u'不可达', 4: u'未监控'}
 
 class NodeMixin(object):
     id            = db.Column(db.Integer, primary_key=True)

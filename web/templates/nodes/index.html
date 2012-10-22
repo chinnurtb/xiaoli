@@ -2,44 +2,41 @@
 
 {% set menuid = 'nodes' %}
 
-{% set title = '所有节点' %}
-
 {% block head %}
-<link rel="stylesheet" href="/static/css/node.css" type="text/css" media="screen" />
+    <link rel="stylesheet" href="/static/css/node.css" type="text/css" media="screen" />
 
-<script type="text/javascript">
-    var getSelectBox = function(){
-        return $("#node_form").find("input[name^=id]:checked");
-    }
-    $(function(){
-        $(".advance_search").toggle(
-            function() {
-                $(".advance_search_form").show();
-                $(this).addClass("hidedetail");
-            },
-            function() {
-                $(".advance_search_form").hide();
-                $(this).removeClass("hidedetail");
-            }
-        )
-        $("#advance_search").click(function() {
-            search_form = $("#search_form");
-            search_form.attr("action","{{url_for('nodes.nodes')}}").submit();
-        })
-        var node_form = $("#node_form");
-        $("#delete_btn").click(function() {
-            var ids = getSelectBox();
-            if(ids.length > 0){
-                if(confirm("确认删除这些节点？")) {
-                    node_form.attr("action","{{url_for('nodes.nodes_delete')}}").submit();
+    <script type="text/javascript">
+        var getSelectBox = function(){
+            return $("#node_form").find("input[name^=id]:checked");
+        }
+        $(function(){
+            $(".advance_search").toggle(
+                    function() {
+                        $(".advance_search_form").show();
+                        $(this).addClass("hidedetail");
+                    },
+                    function() {
+                        $(".advance_search_form").hide();
+                        $(this).removeClass("hidedetail");
+                    }
+            )
+            $("#advance_search").click(function() {
+                search_form = $("#search_form");
+                search_form.attr("action","{{url_for('nodes.nodes')}}").submit();
+            })
+            var node_form = $("#node_form");
+            $("#delete_btn").click(function() {
+                var ids = getSelectBox();
+                if(ids.length > 0){
+                    if(confirm("确认删除这些节点？")) {
+                        node_form.attr("action","{{url_for('nodes.nodes_delete')}}").submit();
+                    }
+                }else{
+                    alert("请选择节点");
                 }
-            }else{
-                alert("请选择节点");
-            }
+            })
         })
-        $("#model_id").chosen();
-    })
-</script>
+    </script>
     {{ form.media.render() }}
 {% endblock %}
 
@@ -47,56 +44,55 @@
 
 {% block screen_meta %}
 
-{{ render_screen_meta(table) }}
+    {{ render_screen_meta(table) }}
 
 {% endblock %}
 
 {% block content %}
 
-<div class="row-fluid content">
-    <div class="span2">
-        {% set submenuid = 'nodes' %}
-        {% include 'nodes/_sidebar.html' %}
-    </div>
-    <div class="span10">
-        {% include "_alert.html" %}
-        <form class="form-horizontal" method="GET" action="{{url_for('nodes.nodes')}}" id="search_form">
-            <div class="tablenav top">
-                <div class="alignleft">
-                    <input type="hidden" name="orderby" value="login">
-                    <input type="hidden" name="order" value="asc">
-                    <div class="alignleft btn-group">
-                        <a class="btn btn-small" href="/nodes/new">新建</a>
-                        <a class="btn btn-small" href="#" id="delete_btn">删除</a>
-                        <a class="btn btn-small" href="#">规划</a>
-                        <a class="btn btn-small" href="#">更新规则</a>
+    <div class="row-fluid content">
+        <div class="span2">
+            {% set submenuid = 'nodes' %}
+            {% include 'nodes/_sidebar.html' %}
+        </div>
+        <div class="span10">
+            {% include "_alert.html" %}
+            <ul id="status_statistics">
+                {% for status in status_statistcs %}
+                    <li class="status-{{ status.status }}">{{ status.name }}<span class="count">({{ status.number }})</span></li>
+                {% endfor %}
+            </ul>
+            <form class="form-horizontal" method="GET" action="{{url_for('nodes.nodes')}}" id="search_form">
+                <div class="tablenav top">
+                    <div class="alignleft">
+                        <input type="hidden" name="orderby" value="login">
+                        <input type="hidden" name="order" value="asc">
+                        <div class="alignleft btn-group">
+                            <a class="btn btn-small" href="/nodes/new">新建</a>
+                            <a class="btn btn-small" href="#" id="delete_btn">删除</a>
+                        </div>
                     </div>
-                </div>
-                <div class="alignleft form-search" style="height: 26px;">
-                        {% set keyword = '<IP>' %}
+                    <div class="alignleft form-search" style="height: 26px;">
+                        {% set keyword = '名称、别名或IP' %}
                         <div class="input-append alignleft" style="margin-left: 20px;">
-                            {{ form.ip(placeholder=keyword,class="input-low") }}
-                            <button id="advance_sarch" class="btn btn-small">确定</button>
+                            {{ form.name(placeholder=keyword,class="input-low input-medium") }}
+                            <button id="advance_sarch" class="btn btn-small">检索</button>
                         </div>
                         <div class="alignleft advance_search" title="高级检索"></div>
+                    </div>
+                    <div class="alignright actions">
+                        <a class="btn btn-small" href="#" title="Excel导出"><i class="icon-download-alt"></i></a>
+                    </div>
                 </div>
-            </div>
-            <div style="margin: 0; display: none;" class="span12 well advance_search_form header">
-                {{ form.as_table(column=2) }}
-                <!--
-                {% from "_form_h.html" import render_field %}
-                {% for field in query_form %}
-                {{ render_field(field) }}
-                {% endfor %}
-                -->
-            </div>
-        </form>
-        <form action="" method="POST" id="node_form">
-        {{ render_table(table) }}
-        </form>
-        <br class="clear">
-
+                <div style="margin: 0; display: none;" class="span12 well advance_search_form header">
+                    {{ form.as_table(column=2) }}
+                </div>
+            </form>
+            <form action="" method="POST" id="node_form">
+                {{ render_table(table) }}
+            </form>
+            <br class="clear">
+        </div>
     </div>
-</div>
 
 {% endblock %}

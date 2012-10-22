@@ -19,17 +19,13 @@ from tango.models import  Category
 class NodeNewForm(FormPro):
     area_id         = AreaSelectField(u'所属区域', select_mode=1, validators=[required(message=u'必填')])
     name            = TextField(u'节点名称', validators=[required(message=u'必填')])
+    alias           = TextField(u'节点别名', validators=[required(message=u'必填')])
     category_id     = SelectFieldPro(u'节点类型',validators=[required(message=u'必填')],
         choices=lambda: [('', u'请选择节点类型')] + [(unicode(r.id), r.alias) for r in Category.query.filter(Category.obj=="node")])
     addr            = TextField(u'IP 地址', validators=[required(message=u'必填')])
-    vendor_id       = SelectFieldPro(u'生产厂家',validators=[required(message=u'必填')],
-        choices=lambda: [('', u'请选择生产厂家')] + [(unicode(r.id), r.alias) for r in Vendor.query])
-    model_id        = SelectFieldPro(u'设备型号',validators=[required(message=u'必填')],
-        choices=lambda: [('', u'请选择设备型号')] + [(unicode(r.id), r.alias) for r in Model.query])
-    snmp_comm       = TextField(u'读团体名')
-    snmp_wcomm      = TextField(u'写团体名')
-    snmp_ver        = TextField(u'SNMP版本')
-    snmp_port       = IntegerField(u'SNMP端口', default=0, validators=[NumberRange(min=0,message=u"端口不能是负数")])
+    snmp_comm       = TextField(u'读团体名', validators=[required(message=u'必填')])
+    snmp_wcomm      = TextField(u'写团体名', validators=[required(message=u'必填')])
+    location        = TextAreaField(u'所在位置')
 
     class Meta():
         attrs = Attrs(
@@ -39,17 +35,31 @@ class NodeNewForm(FormPro):
 
 
 class NodeSearchForm(FormPro):
-    name            = TextField(u'节点名称')
+    name            = TextField(u'IP 地址')
     area            = AreaSelectField(u'所属区域')
     vendor_id       = SelectFieldPro(u'生产厂家',
         choices=lambda: [('', u'请选择生产厂家')] + [(unicode(r.id), r.alias) for r in Vendor.query])
     model_id        = SelectFieldPro(u'设备型号',
         choices=lambda: [('', u'请选择设备型号')] + [(unicode(r.id), r.alias) for r in Model.query])
-    ip              = TextField(u'IP 地址', validators=[required(message=u'必填')])
 
     class Meta():
         attrs = Attrs(
             label={'style':'width:80px;text-align: right;padding-bottom: 10px;'},
             field={'style':'padding-left: 10px;padding-bottom: 10px;'}
         )
-        list_display = ('name','area','vendor_id','model_id')
+        list_display = ('area','vendor_id','model_id')
+
+class OltSearchForm(FormPro):
+    name            = TextField(u'IP 地址')
+    area            = AreaSelectField(u'所属区域')
+    vendor_id       = SelectFieldPro(u'生产厂家',
+        choices=lambda: [('', u'请选择生产厂家')] + [(unicode(r.id), r.alias) for r in Vendor.query])
+    model_id        = SelectFieldPro(u'设备型号',
+        choices=lambda: [('', u'请选择设备型号')] + [(unicode(r.id), r.alias) for r in Model.query])
+
+    class Meta():
+        attrs = Attrs(
+            label={'style':'width:80px;text-align: right;padding-bottom: 10px;'},
+            field={'style':'padding-left: 10px;padding-bottom: 10px;'}
+        )
+        list_display = ('area','vendor_id','model_id')

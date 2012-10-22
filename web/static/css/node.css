@@ -4,3 +4,40 @@
 .status-column.state-1 {
     color: green;
 }
+
+#status_statistics {
+    font-size: 12px;
+    margin: 0;
+    padding-bottom: 25px;
+}
+#status_statistics li {
+    float: left;
+    padding-right: 10px;
+}
+#status_statistics .status-1 {
+    color: lime;
+}
+#status_statistics .status-2 {
+    color: red;
+}
+#status_statistics .status-3 {
+    color: #F6983E;
+}
+#status_statistics .status-4 {
+    color: #43D5FA;
+}
+#search_form {
+    margin-bottom: 5px;
+}
+#search_form label {
+    font-size: 12px;
+}
+#search_form input,#search_form select {
+    font-size: 12px;
+    height: 26px;
+    line-height: 26px;
+    width: 180px;
+}
+select#area_chosen {
+    width: 166px;
+}
