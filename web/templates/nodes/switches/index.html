@@ -1,0 +1,36 @@
+{% extends 'layout.html' %}
+
+{% set menuid = 'nodes' %}
+
+{% set title = '交换机管理' %}
+
+{% block head %}
+<link rel="stylesheet" href="/static/css/node.css" type="text/css" media="screen" />
+{% endblock %}
+
+{% block content %}
+
+<div class="row-fluid content">
+    <div class="span2">
+        {% set submenuid = 'switches' %}
+        {% include 'nodes/_sidebar.html' %}
+    </div>
+    <div class="span10">
+        <form classh"form-horizontal" method="GET" action="nodes/switches'" id="switch_search_form">
+            <div class="tablenav top">
+                <div class="alignleft actions">
+                    <input type="hidden" name="order_by" value="asc">
+                    <div class="alignleft btn-group">
+                        <a class="btn" href="/switches/new">添加交换机</a>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <form action="" method="POST" id="switches_form">
+            <div> 交换机列表 </div>
+        </form>
+        <br class="clear">
+    </div>
+</div>
+
+{% endblock %}

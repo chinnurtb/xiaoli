@@ -1,0 +1,38 @@
+{% extends 'layout.html' %}
+
+{% set menuid = 'eocs' %}
+
+{% set title = 'EOC管理' %}
+
+{% block head %}
+<link rel="stylesheet" href="/static/css/node.css" type="text/css" media="screen" />
+{% endblock %}
+
+{% block content %}
+
+<div class="row-fluid content">
+    <div class="span2">
+        {% set submenuid = 'eocs' %}
+        {% include 'nodes/_sidebar.html' %}
+    </div>
+    <div class="span10">
+        <div class="tablenav top">
+            <div class="alignleft actions">
+                <input type="hidden" name="order_by" value="asc">
+                <div class="alignleft btn-group">
+                    <a class="btn" href="/eocs/new">添加EOC</a>
+                </div>
+            </div>
+            <div class="alignleft actions">
+                <form classh"form-horizontal" method="GET" action="nodes/eocs'" id="eoc_search_form">
+                </form>
+            </div>
+        </div>
+        <form action="" method="POST" id="eocs_form">
+            <div> EOC列表 </div>
+        </form>
+        <br class="clear">
+    </div>
+</div>
+
+{% endblock %}
