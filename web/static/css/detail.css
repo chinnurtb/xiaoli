@@ -1,0 +1,40 @@
+h4.detail-title {
+     margin-top:0px;
+}
+
+.detail {
+    font-size: 13px;
+}
+
+.detail table {
+    border: 1px solid #DDD;
+    border-top: 0px;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+    box-shadow:none;
+}
+
+.detail table, table.detail {
+    background-color: #ccc;
+}
+
+.detail tr td[scope="row"] {
+    color: #888;
+    background-color: #eee;
+    border-color: #ccc;
+}
+
+.detail tr td {
+    color: #222;
+    border-color: #ccc;
+    background-color: #fff;
+}
+
+.detail tr td[scope="col"] {
+    color: #888;
+    background-color: #eee;
+    border-color: #ccc;
+    text-align: right;
+    white-space: nowrap;
+}

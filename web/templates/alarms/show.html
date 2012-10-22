@@ -1,0 +1,81 @@
+{% extends 'layout.html' %}
+
+{% set menuid = 'alarms' %}
+
+{% set title = '告警详细' %}
+
+{% block head %} 
+    <link rel="stylesheet" href="/static/css/alarm.css" type="text/css" media="all">
+    <link rel="stylesheet" href="/static/css/detail.css" type="text/css" media="all">
+{% endblock %}
+
+{% block content %}
+
+    <div class="row-fluid content">
+        <div class="span2">
+            {% set submenuid = 'alarms' %}
+            {% include 'alarms/_sidebar.html' %}
+        </div>
+        <div class="span10">
+        <!-- Title -->
+        <h4 class="detail-title pull-left">{{alarm.node_alias}} / {{alarm.alarm_alias}}</h4>
+        <!-- Actions -->
+        <div class="btn-group pull-right">
+            <a id="alarm-ack-action" class="btn btn-small" href="{{url_for('alarms.alarms_ack', id=alarm.id)}}">确认</a>
+            <a id="alarm-clear-action" class="btn btn-small" href="{{url_for('alarms.alarms_clear', id=alarm.id)}}">清除</a>
+        </div>
+        <div class="clear"></div>
+        <!-- Details -->
+        <div class="detail">
+            <table class="table">
+              <tbody>
+              <tr>
+                <td width="17.5%" scope="col">告警名称:</td><td width="32.5%"><span>{{alarm.alarm_alias}}</span></td>
+                <td width="17.5%" scope="col">告警类型:</td><td width="32.5%"><span>{{alarm.alarm_class}}</span></td>
+              </tr>
+              <tr>
+                <td width="17.5%" scope="col">告警级别:</td><td>{{alarm.severity|alarm_severity}}</td>
+                <td width="17.5%" scope="col">告警状态:</td><td>{{alarm.alarm_state|alarm_state}}</td>
+              </tr>
+              <tr>
+                <td width="17.5%" scope="col">告警设备:</td><td><a href="{{ url_for("nodes.node_show", id = alarm.node_id)}}">{{alarm.node_alias}}</a></td>
+                <td width="17.5%" scope="col">设备地址:</td><td>{{alarm.node_addr}}</td>
+              </tr>
+              <tr>
+                <td width="17.5%" scope="col">产生时间:</td><td>{{alarm.first_occurrence}}</td>
+                <td width="17.5%" scope="col">最后发生时间:</td><td>{{alarm.last_occurrence}}</td>
+              </tr>
+              <tr>
+                <td width="17.5%" scope="col">告警次数:</td><td colspan="3">{{alarm.occur_count}}</td>
+              </tr>
+              <tr>
+                <td width="17.5%" scope="col">告警详细:</td><td rowspan="2" colspan="3">{{alarm.summary}}</td>
+              </tr>
+            </tbody>
+            </table>
+        </div>
+        
+        <!-- Tabs -->
+        <div class="tabbable"> 
+          <ul class="nav nav-tabs">
+            <li class="active"><a href="#tab1" data-toggle="tab">告警日志</a></li>
+            <li><a href="#tab2" data-toggle="tab">告警变量</a></li>
+          </ul>
+          <div class="tab-content">
+            <div class="tab-pane active" id="tab1">
+              <p>10:10: 用户xxx确认该告警</p>
+              <p>10:10: 用户xxx清除该告警</p>
+            </div>
+            <div class="tab-pane" id="tab2">
+              <p>manager: trapd@host1</p>
+            </div>
+          </div>
+        </div>
+        
+
+
+        </div>
+    </div>
+
+{% endblock %}
+

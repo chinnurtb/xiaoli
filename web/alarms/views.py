@@ -85,7 +85,7 @@ def index():
 @alarmview.route('/alarms/<int:id>')
 def alarms_show(id):
     alarm = Alarm.query.get_or_404(id)
-    return render_template("alarms/detail.html", alarm=alarm)
+    return render_template("alarms/show.html", alarm=alarm)
 
 @alarmview.route('/alarms/ack/<int:id>', methods=['GET', 'POST'])
 def alarms_ack(id):
