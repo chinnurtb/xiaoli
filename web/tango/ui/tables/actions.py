@@ -34,7 +34,6 @@ class Action(object):
     
     def render(self, record):
         attrs = AttributeDict(self.attrs.get('a', {}))
-        print attrs
         uri = url_for(self.endpoint, id=getattr(record, 'id', None))
         text = u'<a %s href="%s">%s</a>' % (attrs.as_html(), uri, self.name)
         return Markup(text)
