@@ -1,47 +1,21 @@
-
-{% extends 'layout.html' %}
-
-{% set menuid = 'users' %}
-
-{% set submenuid = 'users' %}
-
-{% set title = '修改用户' %}
-
-{% from "_form_h.html" import render_field %}
-
-{% block content %}
-<div class="row-fluid" style="margin-top:20px">
-    <div class="span2">
-        {% include "users/_sidebar.html" %}
+<form class="form-horizontal" method="POST" id="test-wtf"
+      action="{{url_for('users.users_edit', id=user.id)}}">
+  {% from "_form_h.html" import render_field %}
+  <fieldset>
+    {{ form.hidden_tag() }}
+    {{ render_field(form.name, class="input-medium") }}
+    {{ render_field(form.role_id) }}
+    {{ render_field(form.domain_id) }}
+    {{ render_field(form.department) }}
+    {{ render_field(form.email) }}
+    {{ render_field(form.telephone, class="input-xlarge") }}
+    {{ render_field(form.mobile, class="input-xlarge") }}
+    {{ render_field(form.memo, rows=4, class="input-xlarge") }}
+    <div class="control-group">
+      <div class="controls">
+	<button type="submit" class="btn btn-primary">确定</button>
+	<a href="#" class="btn">取消</a>
+      </div>
     </div>
-    
-    <div class="span10">
-	<div class="row-fluid">
-	    <div class="">
-		<form class="form-horizontal" method="POST" id="test-wtf" action="{{url_for('users.users_edit', id=user.id)}}">
-		    <fieldset>
-			{{ form.hidden_tag() }}
-			{{ render_field(form.name, class="input-medium") }}
-			{{ render_field(form.role_id) }}
-			{{ render_field(form.domain_id) }}
-			{{ render_field(form.department) }}
-			{{ render_field(form.email) }}
-			{{ render_field(form.telephone, class="input-xlarge") }}
-			{{ render_field(form.mobile, class="input-xlarge") }}
-			{{ render_field(form.memo, rows=4, class="input-xlarge") }}
-			<div class="control-group">
-			    <div class="controls">
-				<button type="submit" class="btn btn-primary">确定</button>
-				<a href="#" class="btn">取消</a>
-			    </div>
-			</div>
-		    </fieldset>
-		</form>
-	    </div>
-	</div>
-        <br class="clear">
-    </div>
-</div>
-
-{% endblock %}
-
+  </fieldset>
+</form>

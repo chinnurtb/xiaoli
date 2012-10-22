@@ -164,7 +164,6 @@ def test_modal(id):
 @userview.route('/users/edit/<int:id>', methods=['POST', 'GET'])
 def users_edit(id):
     form = UserEditForm()
-    print form.data
     user = User.query.get_or_404(id)
     if request.method == 'POST' and form.validate_on_submit():
         form.populate_obj(user)
@@ -172,8 +171,13 @@ def users_edit(id):
         db.session.commit()
         flash(u'修改用户(%s)成功' % user.username, 'success')
         return redirect(url_for('users.users'))
+        
     form.process(obj=user)
-    return render_template('users/edit.html', user=user, form=form)
+    res = {
+        'title': u'编辑用户',
+        'body': render_template('users/edit.html', user=user, form=form)
+    }
+    return json.dumps(res)
 
     
 @userview.route('/users/delete/<int:id>', methods=('GET', 'POST'))
@@ -184,7 +188,12 @@ def users_delete(id):
         db.session.commit()
         flash(u'用户(%s)删除成功' % user.username, 'success')
         return redirect(url_for('users.users'))
-    return render_template('users/delete.html', user=user)
+
+    res = {
+        'title': u'删除用户',
+        'body': render_template('users/delete.html', user=user)
+    }
+    return json.dumps(res)
 
     
 @userview.route('/users/reset-password/<int:id>', methods=['POST', 'GET'])
@@ -241,7 +250,6 @@ def roles_new():
 @userview.route('/roles/edit/<int:id>', methods=['POST', 'GET'])
 def roles_edit(id):
     all_args = NestedDict(request)
-    print 'all_args::', all_args
     perms = all_args['permissions']
     form = RoleForm()
     role = Role.query.get_or_404(id)
@@ -279,6 +287,7 @@ def roles_delete(id):
         db.session.commit()
         flash(u'删除角色(%s)成功' % role.name, 'success')
     return redirect(url_for('users.roles'))
+
     
 # ==============================================================================
 #  Domain
