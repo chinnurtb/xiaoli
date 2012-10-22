@@ -197,9 +197,6 @@ from .forms import  OltSearchForm
 @login_required
 def olts():
     form = OltSearchForm()
-    if request.method == 'POST':
-        print 'query_form.filters_str::', query_form.filters_str
-
     query = NodeOlt.query
     query = query.outerjoin(Area, NodeOlt.area_id==Area.id)
 
@@ -214,7 +211,7 @@ def olts():
     if query_dict.get("model_id"): query=query.filter(NodeOlt.model_id == query_dict["model_id"])    # ==
     form.process(**query_dict)
     table = make_table(query, OltTable)
-    return render_template('nodes/olts/index.html', table = table, form=form)
+    return render_template('/nodes/olts/index.html', table = table, form=form)
 
 @nodeview.route('/nodes/olts/edit/<int:id>/', methods=['POST', 'GET'])
 @login_required
@@ -286,11 +283,6 @@ def managers():
 def switches():
     #TODO:
     return render_template('nodes/switches/index.html')
-
-@nodeview.route('/nodes/olts/', methods=['GET'])
-def olts():
-    #TODO:
-    return render_template('nodes/olts/index.html')
 
 @nodeview.route('/nodes/onus/', methods=['GET'])
 def onus():

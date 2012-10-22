@@ -18,14 +18,14 @@ from tango.models import  Category
 
 class NodeNewForm(FormPro):
     area_id         = AreaSelectField(u'所属区域', select_mode=1, validators=[required(message=u'必填')])
-    name            = TextField(u'名称', validators=[required(message=u'必填')])
-    alias           = TextField(u'别名', validators=[required(message=u'必填')])
+    name            = TextField(u'节点名称', validators=[required(message=u'必填')])
+    alias           = TextField(u'节点别名', validators=[required(message=u'必填')])
     category_id     = SelectFieldPro(u'节点类型',validators=[required(message=u'必填')],
         choices=lambda: [('', u'请选择节点类型')] + [(unicode(r.id), r.alias) for r in Category.query.filter(Category.obj=="node")])
     addr            = TextField(u'IP 地址', validators=[required(message=u'必填')])
-    location        = TextField(u'位置')
-    snmp_comm       = TextField(u'读团体名')
-    snmp_wcomm      = TextField(u'写团体名')
+    snmp_comm       = TextField(u'读团体名', validators=[required(message=u'必填')])
+    snmp_wcomm      = TextField(u'写团体名', validators=[required(message=u'必填')])
+    location        = TextAreaField(u'所在位置')
 
     class Meta():
         attrs = Attrs(

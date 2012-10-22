@@ -6,17 +6,6 @@
     {{ form.media.render() }}
 {% endblock %}
 
-{% block screen_meta %}
-
-<div id="screen-meta-links">
-    <div id="contextual-help-link-wrap" class="hide-if-no-js screen-meta-toggle">
-        <a href="#contextual-help-wrap" id="contextual-help-link"
-        class="show-settings">Help</a>
-    </div>
-</div>
-
-{% endblock %}
-
 {% block content %}
 
 <div class="row-fluid content">
@@ -32,13 +21,13 @@
             <hr/>
             {% from "_form_h.html" import render_field %}
             {{ form.hidden_tag() }}
-            {{ render_field(form.category_id, id="user-username", class="input-medium") }}
-            {{ render_field(form.name, class="input-medium") }}
+            {{ render_field(form.category_id, class="input-medium") }}
+            {{ render_field(form.name) }}
             {{ render_field(form.alias) }}
             {{ render_field(form.addr) }}
-            {{ render_field(form.location) }}
             {{ render_field(form.snmp_comm) }}
             {{ render_field(form.snmp_wcomm) }}
+            {{ render_field(form.location) }}
             <div class="form-actions span10">
                 <button type="submit" class="btn btn-primary btn-small">确定</button>
                 <button type="submit" class="btn btn-small">取消</button>
