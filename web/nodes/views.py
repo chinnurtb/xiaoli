@@ -17,7 +17,7 @@ from tango.ui import add_widget, Widget, tables
 from tango.login import current_user, login_required
 from tango.models import Profile, Category
 
-from .models import Node, Board, Port, Area, Vendor
+from .models import Node, Board, Port, Area, Vendor, NODE_STATUS_DICT
 from .forms import NodeNewForm, NodeSearchForm
 from .tables import NodeTable,PortTable,BoardTable,AreaTable,VendorTable,CategoryTable
 
@@ -93,16 +93,17 @@ from tango.ui.queries import NodeForm
 @login_required
 def nodes():
     form = NodeSearchForm()
-    query_form = NodeForm()
-    if request.method == 'POST':
-        print 'query_form.filters_str::', query_form.filters_str
-    
+
+    # 节点检索
     query = Node.query
     query = query.outerjoin(Area, Node.area_id==Area.id)
-
     query_dict = dict([(key, request.args.get(key))for key in form.data.keys()])
-    if query_dict.get("ip"): query=query.filter(Node.addr.like('%'+query_dict["ip"]+'%'))         # ilike
-    if query_dict.get("name"): query=query.filter(Node.name.like('%'+query_dict["name"]+'%'))     # ilike
+    if query_dict.get("name"):
+        query=query.filter(or_(
+            Node.name.like('%'+query_dict["name"]+'%'),
+            Node.alias.like('%'+query_dict["name"]+'%'),
+            Node.addr.like('%'+query_dict["name"]+'%')
+        ))
     if query_dict.get("area"):
         # 区域树查询，是直接用的前台传过来的值作为where条件，如果包含or，需加括号
         # 注意：值如（areas.cityid=1001 or areas.town=1006），areas 应与实际上生成的sql语句一致
@@ -112,10 +113,15 @@ def nodes():
     if query_dict.get("vendor_id"): query=query.filter(Node.vendor_id == query_dict["vendor_id"]) # ==
     if query_dict.get("model_id"): query=query.filter(Node.model_id == query_dict["model_id"])    # ==
     form.process(**query_dict)
-    if request.method == 'POST':
-        query = Node.query.filter(query_form.filters_str)
     table = make_table(query, NodeTable)
-    return render_template('nodes/index.html', table = table, form=form, query_form=query_form)
+
+    # 节点状态统计
+    status_statistcs = []
+    for status in NODE_STATUS_DICT.keys():
+        num = Node.query.filter(Node.status == status).count()
+        status_statistcs.append({"status": status, "number": num, "name": NODE_STATUS_DICT.get(status)})
+    return render_template('nodes/index.html', table = table, form=form, status_statistcs=status_statistcs)
+
 
 @nodeview.route('/nodes/<int:id>/', methods=['GET'])
 @login_required
@@ -147,7 +153,7 @@ def nodes_new():
     if request.method == 'POST' and form.validate_on_submit():
         node = Node()
         form.populate_obj(node)
-        node.status = 0
+        node.status = 1
         db.session.add(node)
         db.session.commit()
         flash(u'新建节点成功', 'info')
@@ -176,6 +182,62 @@ def nodes_edit(id):
 @nodeview.route('/users/delete/', methods=['POST'])
 def nodes_delete():
     if request.method == 'POST':
+        ids = request.form.getlist('id')
+        for id in ids:
+            node = Node.query.get(id)
+            db.session.delete(node)
+        db.session.commit()
+        flash(u'删除节点成功','info')
+        return redirect(url_for('nodes.nodes'))
+
+from .models import NodeOlt
+from .tables import OltTable
+from .forms import  OltSearchForm
+@nodeview.route('/nodes/olts/', methods=['POST', 'GET'])
+@login_required
+def olts():
+    form = OltSearchForm()
+    if request.method == 'POST':
+        print 'query_form.filters_str::', query_form.filters_str
+
+    query = NodeOlt.query
+    query = query.outerjoin(Area, NodeOlt.area_id==Area.id)
+
+    query_dict = dict([(key, request.args.get(key))for key in form.data.keys()])
+    if query_dict.get("ip"): query=query.filter(NodeOlt.addr.like('%'+query_dict["ip"]+'%'))         # ilike
+    if query_dict.get("name"): query=query.filter(NodeOlt.name.like('%'+query_dict["name"]+'%'))     # ilike
+    if query_dict.get("area"):
+        netloc = request.args.get('area_netloc')
+        if 'or' in netloc: netloc = '('+netloc+')'
+        query = query.filter(netloc)
+    if query_dict.get("vendor_id"): query=query.filter(NodeOlt.vendor_id == query_dict["vendor_id"]) # ==
+    if query_dict.get("model_id"): query=query.filter(NodeOlt.model_id == query_dict["model_id"])    # ==
+    form.process(**query_dict)
+    table = make_table(query, OltTable)
+    return render_template('nodes/olts/index.html', table = table, form=form)
+
+@nodeview.route('/nodes/olts/edit/<int:id>/', methods=['POST', 'GET'])
+@login_required
+def olt_edit(id):
+    form = NodeNewForm()
+    node = Node.query.get_or_404(id)
+    if request.method == 'POST' and form.validate_on_submit():
+        form.populate_obj(node)
+        db.session.add(node)
+        db.session.commit()
+        flash(u'修改节点成功','info')
+        return redirect(url_for('nodes.nodes'))
+    node.area_id = {
+        'area_value':node.area.name,
+        'netloc_value':area_type[node.area.area_type]+'='+str(node.area.id),
+        'selected_value':node.area.id
+    }
+    form.process(obj=node)
+    return render_template('/nodes/edit.html', node=node, form=form)
+
+@nodeview.route('/nodes/olts/delete/', methods=['POST'])
+def olt_delete():
+    if request.method == 'POST':
         ids = request.form.getlist('ids')
         for id in ids:
             node = Node.query.get(id)
@@ -183,6 +245,30 @@ def nodes_delete():
         db.session.commit()
         flash(u'删除节点成功','info')
         return redirect(url_for('nodes.nodes'))
+
+@nodeview.route('/nodes/olts/<int:id>/', methods=['GET'])
+@login_required
+def olt_show(id):
+    node = Node.query.get_or_404(id)
+    from tango.ui.charts.highcharts import LineTimeSeriesChart
+    traffic_chart = LineTimeSeriesChart()
+    traffic_chart.set_html_id("traffic")
+    traffic_chart["title"]["text"] = None
+    traffic_chart["subtitle"]["text"] = None
+    traffic_chart["yAxis"]["title"] = None
+    #traffic_chart.height = str(250)+"px"
+    traffic_chart.set_yformatter()
+
+    from tango.ui.charts.highcharts import PieBasicChart
+    alarm_chart = PieBasicChart()
+    alarm_chart.set_html_id("alarm")
+    alarm_chart["title"]["text"] = None
+    alarm_chart["plotOptions"]["pie"]["events"]["click"] = None
+    #alarm_chart.height = str(220)+"px"
+    #alarm_chart.width = str(220)+"px"
+    alarm_chart.min_width = str(220)+"px"
+    return render_template('nodes/show.html', node = node, traffic_chart = traffic_chart, alarm_chart = alarm_chart)
+
 
 @nodeview.route('/nodes/import', methods=['GET'])
 @login_required
