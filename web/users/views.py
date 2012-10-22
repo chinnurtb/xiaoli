@@ -1,17 +1,14 @@
 #!/usr/bin/env python 
 # coding: utf-8
 
-import ast
 from flask import json
-from flask import (Blueprint, request, url_for, make_response, send_file,
-                   redirect, render_template, flash)
+from flask import (Blueprint, request, url_for, redirect, render_template, flash)
 
 from tango import db
-from tango import user_profile
 from tango.base import NestedDict, make_table
 from tango.ui import menus, Menu
 from tango.login import logout_user, login_user, current_user
-from tango.models import Profile, QueryFilter 
+from tango.models import Profile
 
 from nodes.models import Area
 from .models import User, Role, Permission, Domain
@@ -158,6 +155,11 @@ def users_new():
             return redirect(url_for('users.users'))
     return render_template('users/new.html', form=form)
 
+
+@userview.route('/t-modal/<int:id>', methods=['POST', 'GET'])
+def test_modal(id):
+    return render_template('users/test-modal%d.html' % id)
+    
     
 @userview.route('/users/edit/<int:id>', methods=['POST', 'GET'])
 def users_edit(id):
