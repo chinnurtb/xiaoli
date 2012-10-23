@@ -30,8 +30,17 @@ class BoundRow(object):
     def items(self):
         for bound_column in self.table.columns:
             cellattrs = bound_column.column.cellattrs(bound_column, self.record)
-            # print 'cellattrs::', cellattrs
-            yield (bound_column, self[bound_column.name], cellattrs)
+            
+            cell = self[bound_column.name]
+            if (self.table._meta.group_by and
+                bound_column.column.accessor == self.table._meta.group_by):
+                group_name = A(self.table._meta.group_by).resolve(self.record)
+                if group_name not in self.table.groups:
+                    cell = ""
+                else:
+                    self.table.groups.remove(group_name)
+                    
+            yield (bound_column, cell, cellattrs)
 
 
     def __getitem__(self, name):
