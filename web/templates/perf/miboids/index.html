@@ -2,20 +2,20 @@
 
 {% set menuid = 'perf' %}
 
-{% set title = '阀值设置' %}
+{% set title = 'MIB管理' %}
 
 {% block head %} {% endblock %}
 
 {% block content %} 
     <div class="row-fluid content">
         <div class="span2">
-            {% set submenuid = 'thresholds' %}
+            {% set submenuid = 'miboids' %}
             {% include "perf/_sidebar.html" %}
         </div>
         <div class="span10">
-            <h1>阀值设置</h1>
-            <p> 数据库表: thresholds </p>
-            <p>参考: http://192.168.100.71:9000/thresholds </p>
+            <h1>MIB OIDS</h1>
+            <p> 数据库表: miboids </p>
+            <p>参考: http://192.168.100.71:3008/admin/oids </p>
         </div>
     </div>
 {% endblock %}
