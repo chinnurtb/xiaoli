@@ -101,7 +101,6 @@ class AlarmJournal(db.Model):
     title       = db.Column(db.String(200))
     summary     = db.Column(db.String(200))
     created_at  = db.Column(db.DateTime)
-    updated_at  = db.Column(db.DateTime)
 
     user        = db.relationship('User')
     alarm       = db.relationship('Alarm', backref=db.backref('journals', order_by=id))
@@ -114,8 +113,6 @@ class AlarmVar(db.Model):
     alarm_id    = db.Column(db.Integer, db.ForeignKey("alarms.id"))
     name        = db.Column(db.String(60))
     value       = db.Column(db.String(100))
-    created_at  = db.Column(db.DateTime)
-    updated_at  = db.Column(db.DateTime)
 
     alarm       = db.relationship('Alarm', backref=db.backref('vars', order_by=id))
 

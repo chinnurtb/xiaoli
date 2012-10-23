@@ -2,5 +2,7 @@
 {% from "tango/_sidebar_h.html" import render_sidebar %}
 
 {{ render_sidebar('性能设置', submenuid, [
-        ('thresholds','阀值设置', url_for('perf.thresholds'))])
+        ('thresholds','阀值设置', url_for('perf.thresholds')),
+        ('metrics','指标管理', url_for('perf.metrics')),
+        ('miboids','MIB管理', url_for('perf.miboids'))])
 }}

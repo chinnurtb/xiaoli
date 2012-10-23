@@ -33,8 +33,9 @@ h4.detail-title {
 
 .detail tr td[scope="col"] {
     color: #888;
-    background-color: #eee;
+    background-color: #f9f9f9; /*#eee;*/
     border-color: #ccc;
     text-align: right;
     white-space: nowrap;
 }
+
