@@ -228,6 +228,25 @@ class NodeMixin(object):
     def model(cls):
         return db.relationship("Model")
 
+    @hybrid_property
+    def cityid(self):
+        return self.area.cityid
+
+    @hybrid_property
+    def town(self):
+        return self.area.town
+
+    @hybrid_property
+    def branch(self):
+        return self.area.branch
+
+    @hybrid_property
+    def entrance(self):
+        return self.area.entrance
+
+    @hybrid_property
+    def status_name(self):
+        return NODE_STATUS_DICT.get(self.status,"")
 
     def __repr__(self):
         return '<Node %r>' % self.name
@@ -252,6 +271,25 @@ class NodeHost(NodeMixin, db.Model):
 class NodeOlt(NodeMixin,db.Model):
     """ OLT """
     __tablename__ = 'node_olts'
+
+    @property
+    def onu_count_plan(self):
+        return object_session(self).\
+        scalar(
+            select([func.count(NodeOnu.id)]).\
+            where(and_(NodeOnu.controller_id==self.id, NodeOnu.area_id != None))
+        )
+    @property
+    def onu_count_unplan(self):
+        return object_session(self).\
+        scalar(
+            select([func.count(NodeOnu.id)]).\
+            where(and_(NodeOnu.controller_id==self.id, NodeOnu.area_id == None))
+        )
+
+class NodeOnu(NodeMixin,db.Model):
+    """ ONU """
+    __tablename__ = 'node_onus'
 
 class Board(db.Model):
     """板卡"""

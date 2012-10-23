@@ -162,6 +162,13 @@ def page_not_found(e):
 def internal_error(e):
     return render_template('500.html'), 500
 
+@app.template_filter('ifnull')
+def ifnull(value, default=""):
+    if not value:
+        return default
+    else:
+        return value
+
 if __name__ == "__main__":
     app.run(host='0.0.0.0', debug=True)
 

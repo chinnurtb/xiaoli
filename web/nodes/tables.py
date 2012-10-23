@@ -10,8 +10,8 @@ from nodes import constants
 from .models import Node, NodeOlt, Board, Port, NodeHost, NODE_STATUS_DICT
 
 class NodeTable(tables.Table):
-    edit = tables.Action(name=u'编辑', endpoint='nodes.nodes_edit')
-    delete = tables.Action(name=u'删除', endpoint='nodes.nodes_delete',attrs=Attrs(a={"class": "delete"}))
+    edit = tables.Action(name=u'编辑', endpoint='nodes.node_edit')
+    delete = tables.Action(name=u'删除', endpoint='nodes.node_delete',attrs=Attrs(a={"class": "delete"}))
     check = tables.CheckBoxColumn()
     status = tables.EnumColumn(
         verbose_name=u'状态',
@@ -19,10 +19,10 @@ class NodeTable(tables.Table):
         enums=NODE_STATUS_DICT,
         orderable=True
     )
-    name = tables.LinkColumn(endpoint='nodes.olt_show',verbose_name=u'名称',orderable=True)
+    name = tables.LinkColumn(endpoint='nodes.node_show',verbose_name=u'名称',orderable=True)
     alias = tables.Column(verbose_name=u'别名',orderable=True,ifnull='')
-    vendor_name = tables.Column(verbose_name=u'厂商', orderable=True, accessor='vendor.alias')
-    model_name = tables.Column(verbose_name=u'型号', orderable=True, accessor='model.alias')
+    vendor_name = tables.Column(verbose_name=u'厂商', orderable=True, accessor='vendor.alias',ifnull='')
+    model_name = tables.Column(verbose_name=u'型号', orderable=True, accessor='model.alias',ifnull='')
     addr = tables.Column(verbose_name=u'IP', orderable=True, ifnull='')
     area_name = tables.Column(verbose_name=u'所属区域', orderable=True, accessor='area.full_name')
     last_check = tables.Column(verbose_name=u'上次同步',orderable=True,ifnull='')
@@ -40,17 +40,18 @@ class OltTable(tables.Table):
     status = tables.EnumColumn(
         verbose_name=u'状态',
         name='state',
-        enums={1: u'正常', 2: u'宕机', 3: u'不可达', 4: u'未监控'},
+        enums=NODE_STATUS_DICT,
         orderable=True
     )
     name = tables.LinkColumn(endpoint='nodes.olt_show',verbose_name=u'名称',orderable=True)
     alias = tables.Column(verbose_name=u'别名',orderable=True,ifnull='')
-    vendor_name = tables.Column(verbose_name=u'厂商', orderable=True, accessor='vendor.alias')
-    model_name = tables.Column(verbose_name=u'型号', orderable=True, accessor='model.alias')
+    vendor_name = tables.Column(verbose_name=u'厂商', orderable=True, accessor='vendor.alias',ifnull='')
+    model_name = tables.Column(verbose_name=u'型号', orderable=True, accessor='model.alias',ifnull='')
     addr = tables.Column(verbose_name=u'IP', orderable=True)
     area_name = tables.Column(verbose_name=u'所属区域', orderable=True, accessor='area.full_name')
     last_check = tables.Column(verbose_name=u'上次同步',orderable=True,ifnull='')
-    summary = tables.Column(verbose_name=u'状态信息',ifnull='')
+    onu_count_plan = tables.Column(verbose_name=u'已规划ONU',ifnull='')
+    onu_count_unplan = tables.Column(verbose_name=u'未规划ONU',ifnull='')
 
     class Meta():
         model = NodeOlt
