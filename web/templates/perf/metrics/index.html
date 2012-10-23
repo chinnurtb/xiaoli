@@ -1,0 +1,22 @@
+{% extends 'layout.html' %}
+
+{% set menuid = 'perf' %}
+
+{% set title = '指标管理' %}
+
+{% block head %} {% endblock %}
+
+{% block content %} 
+    <div class="row-fluid content">
+        <div class="span2">
+            {% set submenuid = 'metrics' %}
+            {% include "perf/_sidebar.html" %}
+        </div>
+        <div class="span10">
+            <h1>指标管理</h1>
+            <p>数据库表: metrics</p>
+        </div>
+    </div>
+{% endblock %}
+
+

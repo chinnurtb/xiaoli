@@ -12,8 +12,12 @@ perfview = Blueprint('perf', __name__, url_prefix="/perf")
 def index():
     return render_template("perf/index.html")
 
-@perfview.route('/thresholds')
+@perfview.route('/metrics/'
+def metrics():
+    return render_template('perf/metrics/index.html')
+
+@perfview.route('/thresholds/')
 def thresholds():
-    return render_template("perf/thresholds.html")
+    return render_template("perf/thresholds/index.html")
 
 menus.append(Menu('perf', u'性能', '/perf'))
