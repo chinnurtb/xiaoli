@@ -133,7 +133,6 @@ def node_show(id):
     traffic_chart["title"]["text"] = None
     traffic_chart["subtitle"]["text"] = None
     traffic_chart["yAxis"]["title"] = None
-    #traffic_chart.height = str(250)+"px"
     traffic_chart.set_yformatter()
 
     from tango.ui.charts.highcharts import PieBasicChart
@@ -141,16 +140,15 @@ def node_show(id):
     alarm_chart.set_html_id("alarm")
     alarm_chart["title"]["text"] = None
     alarm_chart["plotOptions"]["pie"]["events"]["click"] = None
-    #alarm_chart.height = str(220)+"px"
-    #alarm_chart.width = str(220)+"px"
-    alarm_chart.min_width = str(220)+"px"
     return render_template('nodes/show.html', node = node, traffic_chart = traffic_chart, alarm_chart = alarm_chart)
 
 @nodeview.route('/nodes/new/', methods=['GET','POST'])
 @login_required
-def nodes_new():
+def node_new():
     form = NodeNewForm()
     if request.method == 'POST' and form.validate_on_submit():
+        del form._fields["cityid"]
+        del form._fields["town"]
         node = Node()
         form.populate_obj(node)
         node.status = 1
@@ -162,25 +160,22 @@ def nodes_new():
 
 @nodeview.route('/nodes/edit/<int:id>/', methods=['POST', 'GET'])
 @login_required
-def nodes_edit(id):
+def node_edit(id):
     form = NodeNewForm()
     node = Node.query.get_or_404(id)
     if request.method == 'POST' and form.validate_on_submit():
+        del form._fields["cityid"]
+        del form._fields["town"]
         form.populate_obj(node)
         db.session.add(node)
         db.session.commit()
         flash(u'修改节点成功','info')
         return redirect(url_for('nodes.nodes'))
-    node.area_id = {
-        'area_value':node.area.name,
-        'netloc_value':area_type[node.area.area_type]+'='+str(node.area.id),
-        'selected_value':node.area.id
-    }
     form.process(obj=node)
     return render_template('/nodes/edit.html', node=node, form=form)
 
 @nodeview.route('/users/delete/', methods=['POST'])
-def nodes_delete():
+def node_delete():
     if request.method == 'POST':
         ids = request.form.getlist('id')
         for id in ids:
@@ -211,28 +206,48 @@ def olts():
     if query_dict.get("model_id"): query=query.filter(NodeOlt.model_id == query_dict["model_id"])    # ==
     form.process(**query_dict)
     table = make_table(query, OltTable)
-    return render_template('/nodes/olts/index.html', table = table, form=form)
 
-@nodeview.route('/nodes/olts/edit/<int:id>/', methods=['POST', 'GET'])
+    status_statistcs = []
+    for status in NODE_STATUS_DICT.keys():
+        num = NodeOlt.query.filter(NodeOlt.status == status).count()
+        status_statistcs.append({"status": status, "number": num, "name": NODE_STATUS_DICT.get(status)})
+    return render_template('/nodes/olts/index.html', table = table, form=form, status_statistcs=status_statistcs)
+
+from .forms import OltNewForm
+@nodeview.route('/nodes/olt/new/', methods=['GET','POST'])
+@login_required
+def olt_new():
+    form = OltNewForm()
+    if request.method == 'POST' and form.validate_on_submit():
+        del form._fields["cityid"]
+        del form._fields["town"]
+        node = NodeOlt()
+        form.populate_obj(node)
+        node.status = 1
+        node.category_id = 20
+        db.session.add(node)
+        db.session.commit()
+        flash(u'新建OLT成功', 'info')
+        return redirect(url_for('nodes.olts'))
+    return render_template('nodes/olts/new.html', form = form)
+
+@nodeview.route('/nodes/olt/edit/<int:id>/', methods=['POST', 'GET'])
 @login_required
 def olt_edit(id):
-    form = NodeNewForm()
-    node = Node.query.get_or_404(id)
+    form = OltNewForm()
+    node = NodeOlt.query.get_or_404(id)
     if request.method == 'POST' and form.validate_on_submit():
+        del form._fields["cityid"]
+        del form._fields["town"]
         form.populate_obj(node)
         db.session.add(node)
         db.session.commit()
-        flash(u'修改节点成功','info')
-        return redirect(url_for('nodes.nodes'))
-    node.area_id = {
-        'area_value':node.area.name,
-        'netloc_value':area_type[node.area.area_type]+'='+str(node.area.id),
-        'selected_value':node.area.id
-    }
+        flash(u'修改OLT成功','info')
+        return redirect(url_for('nodes.olts'))
     form.process(obj=node)
-    return render_template('/nodes/edit.html', node=node, form=form)
+    return render_template('/nodes/olts/edit.html', node=node, form=form)
 
-@nodeview.route('/nodes/olts/delete/', methods=['POST'])
+@nodeview.route('/nodes/olt/delete/', methods=['POST'])
 def olt_delete():
     if request.method == 'POST':
         ids = request.form.getlist('ids')
@@ -241,9 +256,9 @@ def olt_delete():
             db.session.delete(node)
         db.session.commit()
         flash(u'删除节点成功','info')
-        return redirect(url_for('nodes.nodes'))
+        return redirect(url_for('nodes.olts'))
 
-@nodeview.route('/nodes/olts/<int:id>/', methods=['GET'])
+@nodeview.route('/nodes/olt/<int:id>/', methods=['GET'])
 @login_required
 def olt_show(id):
     node = Node.query.get_or_404(id)
@@ -264,7 +279,7 @@ def olt_show(id):
     #alarm_chart.height = str(220)+"px"
     #alarm_chart.width = str(220)+"px"
     alarm_chart.min_width = str(220)+"px"
-    return render_template('nodes/show.html', node = node, traffic_chart = traffic_chart, alarm_chart = alarm_chart)
+    return render_template('nodes/olts/show.html', node = node, traffic_chart = traffic_chart, alarm_chart = alarm_chart)
 
 
 @nodeview.route('/nodes/import', methods=['GET'])
