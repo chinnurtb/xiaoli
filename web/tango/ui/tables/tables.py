@@ -16,17 +16,25 @@ class TableData(object):
         self.table = table
         self.queryset = data
 
-    def ordering(self, order_by):
-        if not order_by: return
+    def make_order_by_str(self, order_by):
         model = self.table._meta.model
         order = 'asc'
-        
+
         if order_by[0] == '-':
             order = 'desc'
             order_by = order_by[1:]
         a = A("%s.%s" % (order_by, order)) # i.e. "name.desc"
-        self.queryset = self.queryset.order_by(a.resolve(model))
-        
+        return a.resolve(model)
+
+    def ordering(self, order_by):
+        if order_by:
+            self.queryset = self.queryset.order_by(self.make_order_by_str(order_by))
+
+    def grouping(self):
+        """ 对表的数据进行分组 """
+        pass
+            
+            
     def paginate(self, page, per_page):
         if hasattr(self.queryset, 'paginate') and callable(self.queryset.paginate):
             self.page_obj = self.queryset.paginate(page=self.table.page,per_page=self.table.per_page)
@@ -34,6 +42,15 @@ class TableData(object):
             items = self.queryset.limit(per_page).offset((page - 1) * per_page).all()
             self.page_obj = Pagination(self, page, per_page, self.queryset.count(), items)
         self.list = self.page_obj.items
+        
+        if self.table._meta.group_by:
+            self.list.sort(lambda x, y: cmp(A(self.table._meta.group_by).resolve(x),
+                                            A(self.table._meta.group_by).resolve(y)))
+            for record in self.list:
+                current_group = A(self.table._meta.group_by).resolve(record)
+                if current_group not in self.table.groups:
+                    self.table.groups.append(current_group)
+                    
 
     def __iter__(self):
         return iter(self.list)
@@ -94,6 +111,7 @@ class TableOptions(object):
         super(TableOptions, self).__init__()
         if options:
             self._order_by = getattr(options, 'order_by', None)
+            self.group_by = getattr(options, 'group_by', None)
             self.model = getattr(options, 'model', None)
             if self.model is None:
                 raise ValueError("In %s's Meta class *model* is required!" % name)
@@ -130,8 +148,8 @@ class Table(object):
         self.data = self.TableDataClass(data=data, table=self)
         self.rows = BoundRows(self.data)
         self.template = template
-
-        # print 'self._sequence', self._sequence
+        self.groups = []
+        
 
     @property
     def order_by(self):
