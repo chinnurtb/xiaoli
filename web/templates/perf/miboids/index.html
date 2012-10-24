@@ -25,8 +25,30 @@
             {% include "perf/_sidebar.html" %}
         </div>
         <div class="span10">
-          {% include "_alert.html" %}
-          {{ render_table(table) }}
+          <div class="row-fluid content">
+            <div>
+              <div class="tabbable tabs-left">
+                <ul class="nav nav-tabs">
+                  {% for tmib in mibs %}
+                  {% set tmib = tmib[0] %}
+                  <li class="{% if mib == tmib %}active{% endif %}"><a href="#mib-{{ tmib }}" data-toggle="tab">{{ tmib }}</a></li>
+                  {% endfor %}
+                </ul>
+                <div class="tab-content">
+                  <div class="tab-pane active" id="mib-mib1">
+                    {% include "_alert.html" %}
+                    {{ render_table(table) }}
+                  </div>
+                  <div class="tab-pane" id="mib-mib2">
+                    <p>I'm in Section A.</p>
+                  </div>
+                  <div class="tab-pane" id="mib-mib3">
+                    <p>Howdy, I'm in Section B.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
             <!-- <h1>MIB OIDS</h1> -->
             <!-- <p> 数据库表: miboids </p> -->
             <!-- <p>参考: http://192.168.100.71:3008/admin/oids </p> -->

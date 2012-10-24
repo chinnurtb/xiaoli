@@ -107,19 +107,6 @@ class Vendor(db.Model):
             where(and_(Node.vendor_id==self.id, Node.status == 1))
         )
 
-class TimePeriod(db.Model):
-    """采集规则"""
-    __tablename__ = 'timeperiods'
-    id            = db.Column(db.Integer, primary_key=True)
-    name          = db.Column(db.String(100))
-    alias         = db.Column(db.String(100))
-    rule_format   = db.Column(db.String(100))
-    match_status  = db.Column(db.Integer)
-    other_status  = db.Column(db.Integer)
-    start_time    = db.Column(db.DateTime)
-    end_time      = db.Column(db.DateTime)
-    curr_status   = db.Column(db.Integer)
-
 class Model(db.Model):
     """设备型号"""
     __tablename__     = 'models'

@@ -1,12 +1,10 @@
 # coding: utf-8
 
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
-from flask_wtf import (Form, TextField, DateTimeField, SelectField, BooleanField,
+from flask_wtf import (Form, TextField, DateTimeField, SelectField,
                        TextAreaField, required )
 
 from tango.models import DictType
-from tango.form.fields import SelectFieldPro
-
 from users.models import User
 
 class SearchForm(Form):

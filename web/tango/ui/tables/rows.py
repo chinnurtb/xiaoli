@@ -32,11 +32,13 @@ class BoundRow(object):
             cellattrs = bound_column.column.cellattrs(bound_column, self.record)
             
             cell = self[bound_column.name]
+            name_or_accessor = bound_column.column.accessor \
+                               if bound_column.column.accessor else bound_column.name
             if (self.table._meta.group_by and
-                bound_column.column.accessor == self.table._meta.group_by):
+                self.table._meta.group_by == name_or_accessor):
                 group_name = A(self.table._meta.group_by).resolve(self.record)
                 if group_name not in self.table.groups:
-                    cell = ""
+                    cell = "..."
                 else:
                     self.table.groups.remove(group_name)
                     
