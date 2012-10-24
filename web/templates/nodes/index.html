@@ -29,7 +29,7 @@
                 var ids = getSelectBox();
                 if(ids.length > 0){
                     if(confirm("确认删除这些节点？")) {
-                        node_form.attr("action","{{url_for('nodes.node_delete')}}").submit();
+                        node_form.attr("action","{{url_for('nodes.nodes_delete')}}").submit();
                     }
                 }else{
                     alert("请选择节点");

@@ -5,6 +5,7 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy import select, func, and_
 from tango import db
+from datetime import datetime
 
 #0: 省
 AREA_PROVINCE=0
@@ -47,7 +48,7 @@ class Area(db.Model):
     city_name      = db.Column(db.String(50))
     remark         = db.Column(db.String(50)) 
     created_at     = db.Column(db.DateTime) 
-    updated_at     = db.Column(db.DateTime)
+    updated_at     = db.Column(db.DateTime, default=datetime.now)
 
     children = db.relation('Area',backref=backref("parent", remote_side=id),)
 
@@ -170,14 +171,14 @@ class NodeMixin(object):
     oid_idx       = db.Column(db.String(100))
     sysmodel      = db.Column(db.String(100))
     os_version    = db.Column(db.String(40))
-    controller_id = db.Column(db.Integer)
     agent         = db.Column(db.String(100))
     manager       = db.Column(db.String(100))
     extra         = db.Column(db.String(255))
     last_check    = db.Column(db.DateTime)
     next_check    = db.Column(db.DateTime)
     duration      = db.Column(db.Integer)
-    updated_at    = db.Column(db.DateTime)
+    created_at    = db.Column(db.DateTime, default=datetime.now)
+    updated_at    = db.Column(db.DateTime, default=datetime.now)
 
     #-- 20:olt 21:onu 30:dslam 50:eoc 2:switch 90:host
     @declared_attr
@@ -256,6 +257,10 @@ class Node(NodeMixin,db.Model):
     __tablename__ = 'nodes'
     __table_args__ = {'implicit_returning':False}
 
+class NodeSwitch(NodeMixin, db.Model):
+    """ Switchs """
+    __tablename__ = 'node_switchs'
+
 
 class NodeHost(NodeMixin, db.Model):
     """ Hosts """
@@ -271,6 +276,8 @@ class NodeHost(NodeMixin, db.Model):
 class NodeOlt(NodeMixin,db.Model):
     """ OLT """
     __tablename__ = 'node_olts'
+
+    onus = db.relationship("NodeOnu", backref="olt")
 
     @property
     def onu_count_plan(self):
@@ -290,6 +297,8 @@ class NodeOlt(NodeMixin,db.Model):
 class NodeOnu(NodeMixin,db.Model):
     """ ONU """
     __tablename__ = 'node_onus'
+
+    controller_id = db.Column(db.Integer, db.ForeignKey('node_olts.id'))
 
 class Board(db.Model):
     """板卡"""

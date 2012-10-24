@@ -1,0 +1,143 @@
+{% extends 'layout.html' %}
+
+{% set menuid = 'nodes' %}
+
+{% block head %}
+    <link rel="stylesheet" href="/static/css/detail.css" type="text/css" media="all">
+{% endblock %}
+
+{% block content %}
+<div class="row-fluid content">
+    <div class="span2">
+        {% set submenuid = 'switches' %}
+        {% include 'nodes/_sidebar.html' %}
+    </div>
+
+    <div class="span10">
+            <h5 class="detail-title pull-left">Switch：{{ node.name }} </h5>
+            <div class="btn-group pull-right">
+                <a class="btn btn-small" href="/nodes/switches/edit/{{ node.id }}"><i class="icon-pencil"></i>编辑</a>
+            </div>
+            <hr class="clear"/>
+            <div class="span8">
+                <div class="detail">
+                <table class="table">
+                    <tr>
+                        <td  width="17.5%" scope="col">Switch名称:</td>
+                        <td width="32.5%">{{ node.name }}</td>
+                        <td  width="17.5%" scope="col">所属接入点</td>
+                        <td>{{ node.area.name }}</td>
+                    </tr>
+
+                    <tr>
+                        <td  width="17.5%" scope="col">IP 地址</td>
+                        <td>{{ node.addr }}</td>
+                        <td  width="17.5%" scope="col">子网掩码</td>
+                        <td>{{ node.mask }}</td>
+                    </tr>
+                    <tr>
+                        <td  width="17.5%" scope="col">厂家</td>
+                        <td>{{ node.vendor.alias|ifnull }}</td>
+                        <td  width="17.5%" scope="col">型号</td>
+                        <td>{{ node.model.alias|ifnull }}</td>
+                    </tr>
+                    <tr>
+                        <td  width="17.5%" scope="col">读团体名</td>
+                        <td>{{ node.snmp_comm|ifnull }}</td>
+                        <td  width="17.5%" scope="col">写团体名</td>
+                        <td>{{ node.snmp_wcomm|ifnull }}</td>
+                    </tr>
+                    <tr>
+                        <td  width="17.5%" scope="col">所属区域:</td>
+                        <td>{{ node.area.full_name }}</td>
+                        <td  width="17.5%" scope="col">位置信息:</td>
+                        <td>{{ node.location }}</td>
+                    </tr>
+                    <tr>
+                        <td width="17.5%" scope="col">备注</td>
+                        <td>{{ node.remark|ifnull }}</td>
+                        <td width="17.5%" scope="col">是否验收</td>
+                        <td></td>
+                    </tr>
+                </table>
+              </div>
+            </div>
+            {% from "_chart_h.html" import render_highchart %}
+            <div class="span2">
+                {{ render_highchart(alarm_chart, height="220px", width="220px") }}
+            </div>
+            <div class="clear"></div>
+        <div style="height:20px"></div>
+        <div class="tabbable">
+            <ul class="nav nav-tabs">
+                <li class="active"><a href="#status_info" data-toggle="tab">设备状态信息</a></li>
+                <li><a href="#available_rate" data-toggle="tab">最近一周可用率</a></li>
+            </ul>
+            <div class="tab-content" >
+                <div class="tab-pane active detail" id="status_info">
+                    <table class="table">
+                        <tr>
+                            <td width="17.5%" scope="col">PING状态</td>
+                            <td></td>
+                            <td width="17.5%" scope="col">PING状态详细</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td width="17.5%" scope="col">SNMP状态</td>
+                            <td></td>
+                            <td width="17.5%" scope="col">SNMP状态详细</td>
+                            <td></td>
+                        </tr>
+                    </table>
+                </div>
+                <div id="available_rate" class="tab-pane" style="height: auto; ">
+                    <table class="table table-hover">
+                        <thead>
+                        <tr>
+                            <th>槽位</th>
+                            <th>板卡类型</th>
+                            <th>板卡状态</th>
+                            <th>CPU负载</th>
+                            <th>内存占用</th>
+                            <th>硬件版本</th>
+                            <th>软件版本</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>Mark</td>
+                            <td>Otto</td>
+                            <td>@mdo</td>
+                            <td>Otto</td>
+                            <td>@mdo</td>
+                            <td>@mdo</td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>Jacob</td>
+                            <td>Thornton</td>
+                            <td>@fat</td>
+                            <td>Otto</td>
+                            <td>@mdo</td>
+                            <td>@mdo</td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td>Larry the Bird</td>
+                            <td>@twitter</td>
+                            <td>Otto</td>
+                            <td>@mdo</td>
+                            <td>@mdo</td>
+                            <td>@mdo</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+

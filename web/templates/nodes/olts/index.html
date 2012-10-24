@@ -22,17 +22,17 @@
         )
         $("#advance_search").click(function() {
             search_form = $("#search_form");
-            search_form.attr("action","{{url_for('nodes.nodes')}}").submit();
+            search_form.attr("action","{{url_for('nodes.olts')}}").submit();
         })
         var node_form = $("#node_form");
         $("#delete_btn").click(function() {
             var ids = getSelectBox();
             if(ids.length > 0){
-                if(confirm("确认删除这些节点？")) {
-                    node_form.attr("action","{{url_for('nodes.node_delete')}}").submit();
+                if(confirm("确认删除这些OLT？")) {
+                    node_form.attr("action","{{url_for('nodes.olts_delete')}}").submit();
                 }
             }else{
-                alert("请选择节点");
+                alert("请选择OLT");
             }
         })
     })
@@ -62,13 +62,13 @@
                 <li class="status-{{ status.status }}">{{ status.name }}<span class="count">({{ status.number }})</span></li>
             {% endfor %}
         </ul>
-        <form class="form-horizontal" method="GET" action="{{url_for('nodes.nodes')}}" id="search_form">
+        <form class="form-horizontal" method="GET" action="{{url_for('nodes.olts')}}" id="search_form">
             <div class="tablenav top">
                 <div class="alignleft">
                     <input type="hidden" name="orderby" value="login">
                     <input type="hidden" name="order" value="asc">
                     <div class="alignleft btn-group">
-                        <a class="btn btn-small" href="{{ url_for('nodes.olt_new') }}"><i class="icon-plus"></i>添加</a>
+                        <a class="btn btn-small" href="{{ url_for('nodes.olts_new') }}"><i class="icon-plus"></i>添加</a>
                         <a class="btn btn-small" href="#" id="delete_btn"><i class="icon-remove"></i>删除</a>
                         <a class="btn btn-small" href="#"><i class="icon-file"></i>模版</a>
                         <a class="btn btn-small" href="#"><i class="icon-upload"></i>导入</a>

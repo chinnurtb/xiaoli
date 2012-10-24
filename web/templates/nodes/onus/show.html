@@ -9,14 +9,14 @@
 {% block content %}
 <div class="row-fluid content">
     <div class="span2">
-        {% set submenuid = 'nodes' %}
+        {% set submenuid = 'onus' %}
         {% include 'nodes/_sidebar.html' %}
     </div>
 
     <div class="span10">
-            <h5 class="detail-title pull-left">OLT：{{ node.name }} </h5>
+            <h5 class="detail-title pull-left">ONU：{{ node.name }} </h5>
             <div class="btn-group pull-right">
-                <a class="btn btn-small" href="/nodes/onus/?olt_id={{ node.id }}">查看ONU</a>
+                <a class="btn btn-small" href="/nodes/olts/{{ node.olt.id }}">所属OLT</a>
                 <a class="btn btn-small" href="/nodes/olts/edit/{{ node.id }}"><i class="icon-pencil"></i>编辑</a>
             </div>
             <hr class="clear"/>
@@ -114,10 +114,10 @@
                             <td></td>
                         </tr>
                         <tr>
-                            <td width="17.5%" scope="col">PON口数量</td>
+                            <td width="17.5%" scope="col">用户口数量</td>
                             <td></td>
-                            <td width="17.5%" scope="col">ONU数量</td>
-                            <td></td>
+                            <td width="17.5%" scope="col">所属OLT</td>
+                            <td>{{ node.olt.addr }}</td>
                         </tr>
                     </table>
                 </div>

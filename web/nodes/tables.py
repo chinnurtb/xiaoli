@@ -7,11 +7,11 @@ from tango.ui import tables
 from tango.ui.tables.utils import Attrs
 
 from nodes import constants
-from .models import Node, NodeOlt, Board, Port, NodeHost, NODE_STATUS_DICT
+from .models import Node, NodeSwitch, NodeOlt, NodeOnu, Board, Port, NodeHost, NODE_STATUS_DICT
 
 class NodeTable(tables.Table):
-    edit = tables.Action(name=u'编辑', endpoint='nodes.node_edit')
-    delete = tables.Action(name=u'删除', endpoint='nodes.node_delete',attrs=Attrs(a={"class": "delete"}))
+    edit = tables.Action(name=u'编辑', endpoint='nodes.nodes_edit')
+    delete = tables.Action(name=u'删除', endpoint='nodes.nodes_delete',attrs=Attrs(a={"class": "delete"}))
     check = tables.CheckBoxColumn()
     status = tables.EnumColumn(
         verbose_name=u'状态',
@@ -19,7 +19,7 @@ class NodeTable(tables.Table):
         enums=NODE_STATUS_DICT,
         orderable=True
     )
-    name = tables.LinkColumn(endpoint='nodes.node_show',verbose_name=u'名称',orderable=True)
+    name = tables.LinkColumn(endpoint='nodes.nodes_show',verbose_name=u'名称',orderable=True)
     alias = tables.Column(verbose_name=u'别名',orderable=True,ifnull='')
     vendor_name = tables.Column(verbose_name=u'厂商', orderable=True, accessor='vendor.alias',ifnull='')
     model_name = tables.Column(verbose_name=u'型号', orderable=True, accessor='model.alias',ifnull='')
@@ -34,8 +34,8 @@ class NodeTable(tables.Table):
         #url_makers = {'name': lambda record: url_for('nodes.nodes_edit', id=record.id)}
 
 class OltTable(tables.Table):
-    edit = tables.Action(name=u'编辑', endpoint='nodes.olt_edit')
-    delete = tables.Action(name=u'删除', endpoint='nodes.olt_delete')
+    edit = tables.Action(name=u'编辑', endpoint='nodes.olts_edit')
+    delete = tables.Action(name=u'删除', endpoint='nodes.olts_delete')
     check = tables.CheckBoxColumn()
     status = tables.EnumColumn(
         verbose_name=u'状态',
@@ -43,7 +43,7 @@ class OltTable(tables.Table):
         enums=NODE_STATUS_DICT,
         orderable=True
     )
-    name = tables.LinkColumn(endpoint='nodes.olt_show',verbose_name=u'名称',orderable=True)
+    name = tables.LinkColumn(endpoint='nodes.olts_show',verbose_name=u'名称',orderable=True)
     alias = tables.Column(verbose_name=u'别名',orderable=True,ifnull='')
     vendor_name = tables.Column(verbose_name=u'厂商', orderable=True, accessor='vendor.alias',ifnull='')
     model_name = tables.Column(verbose_name=u'型号', orderable=True, accessor='model.alias',ifnull='')
@@ -55,6 +55,51 @@ class OltTable(tables.Table):
 
     class Meta():
         model = NodeOlt
+        per_page = 30
+
+class SwitchTable(tables.Table):
+    edit = tables.Action(name=u'编辑', endpoint='nodes.switches_edit')
+    delete = tables.Action(name=u'删除', endpoint='nodes.switches_delete')
+    check = tables.CheckBoxColumn()
+    status = tables.EnumColumn(
+        verbose_name=u'状态',
+        name='state',
+        enums=NODE_STATUS_DICT,
+        orderable=True
+    )
+    name = tables.LinkColumn(endpoint='nodes.switches_show',verbose_name=u'名称',orderable=True)
+    addr = tables.Column(verbose_name=u'IP', orderable=True)
+    area_name = tables.Column(verbose_name=u'所属区域', orderable=True, accessor='area.full_name')
+    vendor_name = tables.Column(verbose_name=u'厂商', orderable=True, accessor='vendor.alias',ifnull='')
+    model_name = tables.Column(verbose_name=u'型号', orderable=True, accessor='model.alias',ifnull='')
+    last_check = tables.Column(verbose_name=u'上次同步',orderable=True,ifnull='')
+    location = tables.Column(verbose_name=u'位置',ifnull='')
+
+    class Meta():
+        model = NodeSwitch
+        per_page = 30
+
+class OnuTable(tables.Table):
+    edit = tables.Action(name=u'编辑', endpoint='nodes.onus_edit')
+    delete = tables.Action(name=u'删除', endpoint='nodes.onus_delete')
+    check = tables.CheckBoxColumn()
+    status = tables.EnumColumn(
+        verbose_name=u'状态',
+        name='state',
+        enums=NODE_STATUS_DICT,
+        orderable=True
+    )
+    name = tables.LinkColumn(endpoint='nodes.onus_show',verbose_name=u'名称',orderable=True)
+    addr = tables.Column(verbose_name=u'IP', orderable=True)
+    area_name = tables.Column(verbose_name=u'所属区域', orderable=True, accessor='area.full_name')
+    vendor_name = tables.Column(verbose_name=u'厂商', orderable=True, accessor='vendor.alias',ifnull='')
+    model_name = tables.Column(verbose_name=u'型号', orderable=True, accessor='model.alias',ifnull='')
+    mac = tables.Column(verbose_name=u'认证标识',orderable=True,ifnull='')
+    olt_border_no = tables.Column(verbose_name=u'OLT板位',ifnull='')
+    olt_name = tables.Column(verbose_name=u'所属OLT',ifnull='', accessor='olt.alias')
+
+    class Meta():
+        model = NodeOnu
         per_page = 30
 
 class NodeHostTable(tables.Table):
