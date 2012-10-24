@@ -1,0 +1,26 @@
+{% extends 'layout.html' %}
+
+{% set menuid = 'admin' %}
+
+{% set title = "供应商管理" %}
+
+{% block screen_meta %}
+    {% from "_table_h.html" import render_screen_meta %}
+    {{ render_screen_meta(table) }}
+{% endblock %}
+
+{% block content %}
+    
+    <div class="row-fluid content">
+        <div class="span2">
+            {% set submenuid = 'vendors' %}
+            {% include 'admin/_sidebar.html' %}
+        </div>
+        <div class="span10">
+            {% from "_table_h.html" import render_table %}
+            {{ render_table(table) }}
+        </div>
+    </div>
+
+{% endblock %}
+
