@@ -1,5 +1,5 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+# coding: utf-8
+
 from sqlalchemy.orm import object_session,backref
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.ext.declarative import declared_attr
@@ -125,7 +125,7 @@ class Model(db.Model):
     __tablename__     = 'models'
     id                = db.Column(db.Integer, primary_key=True)
     cityid            = db.Column(db.Integer)
-    category_id       = db.Column(db.Integer)
+    category_id       = db.Column(db.Integer, db.ForeignKey("categories.id"))
     object            = db.Column(db.String(100))
     name              = db.Column(db.String(100))
     alias             = db.Column(db.String(100))
@@ -136,6 +136,9 @@ class Model(db.Model):
     business_slot_num = db.Column(db.Integer)
     is_valid          = db.Column(db.Integer)
     remark            = db.Column(db.String(100))
+
+    category          = db.relation('Category')
+    vendor            = db.relation('Vendor')
 
 NODE_STATUS_DICT = {1: u'正常', 2: u'宕机', 3: u'不可达', 4: u'未监控'}
 
@@ -346,4 +349,19 @@ class Maintain(db.Model):
     remark      = db.Column(db.String(100))  
     created_at  = db.Column(db.DateTime)
     updated_at  = db.Column(db.DateTime) 
+
+class SysOid(db.Model):
+
+    """设备系统OID"""
+
+    __tablename__ = 'sysoids'
+    
+    id          = db.Column(db.Integer, primary_key=True)
+    sysoid      = db.Column(db.String(100))
+    model_id    = db.Column(db.Integer, db.ForeignKey('models.id'))
+    disco       = db.Column(db.String(20))
+    mib         = db.Column(db.String(20))
+    remark      = db.Column(db.String(100))
+
+    model       = db.relation('Model')
 
