@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # coding: utf-8
 
 from flask import Blueprint, request, session, url_for, \

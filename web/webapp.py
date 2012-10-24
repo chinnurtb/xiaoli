@@ -83,6 +83,7 @@ from perf.views import perfview
 from report.views import reportview
 from users.views import userview
 from system.views import sysview
+from admin.views import adminview
 
 blueprints = [tangoview,
               homeview,
@@ -92,7 +93,8 @@ blueprints = [tangoview,
               perfview,
               reportview,
               userview,
-              sysview]
+              sysview,
+              adminview]
 
 for bp in blueprints:
     app.register_blueprint(bp)
