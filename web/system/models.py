@@ -4,6 +4,27 @@ from tango import db
 from datetime import datetime
 from sqlalchemy.ext.hybrid import hybrid_property
 
+class TimePeriod(db.Model):
+    """采集规则"""
+    __tablename__ = 'timeperiods'
+    
+    id         = db.Column(db.Integer, primary_key=True)
+    name       = db.Column(db.String(100))
+    alias      = db.Column(db.String(100))
+    minute     = db.Column(db.String(100))
+    hour       = db.Column(db.String(60), default='*')
+    dayofmonth = db.Column(db.String(100), default='*')
+    month      = db.Column(db.String(40), default='*')
+    dayofweek  = db.Column(db.String(40), default='*')
+    start_at   = db.Column(db.DateTime)
+    end_at     = db.Column(db.DateTime)
+    state_in   = db.Column(db.Integer)
+    state_out  = db.Column(db.Integer)
+    status     = db.Column(db.Integer)
+    created_at = db.Column(db.DateTime)
+    updated_at = db.Column(db.DateTime)
+    
+
 class OperationLog(db.Model):
     __tablename__ = 'oplogs'
     id          = db.Column(db.Integer, primary_key=True)

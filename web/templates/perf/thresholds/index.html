@@ -2,9 +2,20 @@
 
 {% set menuid = 'perf' %}
 
-{% set title = '阀值设置' %}
+{% set title = '阀值管理' %}
 
-{% block head %} {% endblock %}
+{% block head %}
+
+{% from "_table_h.html" import render_table_profile %}
+<script type="text/javascript">
+  {{ render_table_profile(table) }}
+</script>
+
+{% endblock %}
+
+{% from "_table_h.html" import render_table, render_screen_meta, render_modal %}
+
+{% block screen_meta %} {{ render_screen_meta(table) }} {% endblock %}
 
 {% block content %} 
     <div class="row-fluid content">
@@ -13,9 +24,9 @@
             {% include "perf/_sidebar.html" %}
         </div>
         <div class="span10">
-            <h1>阀值设置</h1>
-            <p> 数据库表: thresholds </p>
-            <p>参考: http://192.168.100.71:9000/thresholds </p>
+          {% include "_alert.html" %}
+          {{ render_table(table) }}
+          <!-- <p>参考: http://192.168.100.71:9000/thresholds </p> -->
         </div>
     </div>
 {% endblock %}

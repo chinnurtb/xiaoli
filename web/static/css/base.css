@@ -1,4 +1,4 @@
-select {
+.auto-width {
     width: auto;
 }
 
@@ -510,4 +510,12 @@ label em {
     -moz-border-radius: 15px;
     border-radius: 15px;
 }
-<
+
+.accordion-toggle {
+    background: #F7F7F7;
+}
+
+.inner-menu {
+    margin: 5px 5px 15px 15px;
+}
+

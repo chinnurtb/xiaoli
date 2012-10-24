@@ -1,0 +1,60 @@
+{% extends "layout.html" %}
+
+{% block title %}Collapse 测试{% endblock title %}
+
+{% block content %}
+
+  <div class="row-fluid content">
+    <div class="span2">
+      <div class="accordion" id="accordion2">
+        {% for i in range(4)  %}
+        <div class="accordion-group">
+          <div class="accordion-heading">
+            <a class="accordion-toggle" data-toggle="collapse"
+               data-parent="#accordion2" href="#collapse-{{ i }}">
+               <strong>性能设置</strong>
+            </a>
+          </div>
+          <div id="collapse-{{ i }}" class="accordion-body collapse {% if loop.first %}in{% endif %}">
+            <ul class="bs-docs-sidenav inner-menu">
+              <li class="{% if loop.index == 3 %}active{% endif %}">
+                <a href="/perf/thresholds/"><i class="icon-chevron-right"></i> 阀值设置</a>
+              </li>
+              <li>
+                <a href="/perf/metrics/"><i class="icon-chevron-right"></i> 指标管理</a>
+              </li>
+              <li>
+                <a href="/perf/miboids/"><i class="icon-chevron-right"></i> MIB管理</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+        {% endfor %}
+        
+        <div class="accordion-group">
+          <div class="accordion-heading">
+            <a class="accordion-toggle" data-toggle="collapse"
+               data-parent="#accordion2" href="#collapseTwo">
+              <strong>其他设置</strong>
+            </a>
+          </div>
+          <div id="collapseTwo" class="accordion-body collapse">
+              <ul class="bs-docs-sidenav inner-menu">
+                <li class="active">
+                  <a href="/perf/thresholds/"><i class="icon-chevron-right"></i> 阀值设置</a>
+                </li>
+                <li>
+                  <a href="/perf/metrics/"><i class="icon-chevron-right"></i> 指标管理</a>
+                </li>
+                <li>
+                  <a href="/perf/miboids/"><i class="icon-chevron-right"></i> MIB管理</a>
+                </li>
+              </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="span10">_<div>
+  </div>
+
+{% endblock content %}

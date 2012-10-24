@@ -25,7 +25,7 @@ class DictCodeTable(tables.Table):
     helpdoc = u'查看系统字典'
     edit    = tables.Action(name=u'编辑', endpoint='system.dict_codes_edit')
     check   = tables.CheckBoxColumn()
-
+ 
     type_label = tables.Column(verbose_name=u'字典类型', orderable=True, accessor='type.type_label')
     code_label = tables.Column(verbose_name=u'字典值', orderable=True)
     is_valid   = tables.EnumColumn('is_valid', verbose_name=u'是否有效', enums={0: u'否', 1: u'是'})

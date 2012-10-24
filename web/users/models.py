@@ -11,6 +11,7 @@ from nodes.models import Area, AREA_CITY, AREA_TOWN, AREA_BRANCH, AREA_ENTRANCE
 
 from datetime import datetime
 
+
 class User(db.Model, UserMixin):
 
     """用户表"""
@@ -35,7 +36,7 @@ class User(db.Model, UserMixin):
     updated_at = db.Column(db.DateTime, default=datetime.now)
     expired_at = db.Column(db.DateTime, default=datetime.now)
 
-    role   = db.relation('Role')
+    role   = db.relation('Role', order_by='Role.name')
     domain = db.relation('Domain')
     # group  = db.relation('UserGroup')
 
