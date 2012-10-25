@@ -4,7 +4,7 @@ from tango.ui import tables as t
 
 from tango.models import Category
 
-from .models import Module, Monitor
+from .models import Module, Monitor, Miboid
 
 from nodes.models import Vendor, Model, SysOid
 
@@ -98,3 +98,15 @@ class MonitorTable(t.Table):
         model = Monitor
         order_by = 'id'
     
+
+class MiboidTable(t.Table):
+    grp      = t.Column(verbose_name=u'分组')
+    name     = t.Column(verbose_name=u'名称')
+    oid      = t.Column(verbose_name=u'oid')
+    alias    = t.Column(verbose_name=u'显示名')
+    is_valid = t.EnumColumn('is_valid', verbose_name=u'是否有效', enums={0: u'否', 1: u'是'})
+    remark   = t.Column(verbose_name=u'备注')
+
+    class Meta():
+        model = Miboid
+        group_by = 'grp'

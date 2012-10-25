@@ -19,17 +19,17 @@
 		<form class="form-horizontal" method="POST" id="test-wtf" action="{{url_for('users.users_new')}}">
 		    <fieldset>
 			{{ form.hidden_tag() }}
-			{{ render_field(form.username, id="user-username", class="input-medium") }}
-			{{ render_field(form.name, class="input-medium") }}
+			{{ render_field(form.username, id="user-username") }}
+			{{ render_field(form.name) }}
 			{{ render_field(form.password) }}
 			{{ render_field(form.password_confirm) }}
 			{{ render_field(form.role_id) }}
 			{{ render_field(form.domain_id) }}
 			{{ render_field(form.department) }}
 			{{ render_field(form.email) }}
-			{{ render_field(form.telephone, class="input-xlarge") }}
-			{{ render_field(form.mobile, class="input-xlarge") }}
-			{{ render_field(form.memo, rows=4, class="input-xlarge") }}
+			{{ render_field(form.telephone) }}
+			{{ render_field(form.mobile) }}
+			{{ render_field(form.memo, rows=4) }}
 			<div class="control-group">
 			    <div class="controls">
 				<button type="submit" class="btn btn-primary">确定</button>

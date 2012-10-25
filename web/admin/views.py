@@ -1,5 +1,6 @@
 # coding: utf-8
 
+from sqlalchemy import func
 from flask import (Blueprint, request, url_for, redirect, render_template, flash)
 
 from tango import db
@@ -10,10 +11,10 @@ from tango.models import Category
 
 from nodes.models import Vendor, SysOid, Model
 
-from .models import Module, Monitor
+from .models import Module, Monitor, Miboid
 
 from .tables import CategoryTable, VendorTable, ModuleTable, \
-    ModelTable, SysOidTable, MonitorTable
+    ModelTable, SysOidTable, MonitorTable, MiboidTable
 
 adminview = Blueprint('admin', __name__, url_prefix='/admin')
 
@@ -56,4 +57,13 @@ def monitors():
     table = make_table(Monitor.query, MonitorTable)
     return render_template('admin/monitors/index.html',
         table = table)
- 
+
+@adminview.route('/miboids/')
+def miboids():
+    mib = request.args.get('mib', '')
+    query = Miboid.query
+    if mib:
+        query = query.filter_by(mib=mib)
+    table = make_table(query, MiboidTable)
+    mibs = db.session.query(func.distinct(Miboid.mib)).all()
+    return render_template("admin/miboids/index.html", table=table, mibs=mibs, mib=mib)

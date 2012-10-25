@@ -1,6 +1,6 @@
 {% extends 'layout.html' %}
 
-{% set menuid = 'perf' %}
+{% set menuid = 'admin' %}
 
 {% set title = 'MIB管理' %}
 
@@ -22,7 +22,7 @@
     <div class="row-fluid content">
         <div class="span2">
             {% set submenuid = 'miboids' %}
-            {% include "perf/_sidebar.html" %}
+            {% include "admin/_sidebar.html" %}
         </div>
         <div class="span10">
           <div class="row-fluid content">
@@ -49,9 +49,6 @@
               </div>
             </div>
           </div>
-            <!-- <h1>MIB OIDS</h1> -->
-            <!-- <p> 数据库表: miboids </p> -->
-            <!-- <p>参考: http://192.168.100.71:3008/admin/oids </p> -->
         </div>
     </div>
 {% endblock %}
