@@ -150,7 +150,7 @@ class AreaSelectWidget(object):
             'netloc_value': netloc_value,
             'selected_value': selected_value
         }
-        return html
+        return Markup(html)
 
     def _get_media(self):
         media = Media(media={

@@ -151,4 +151,35 @@
         </div>
     </div>
 {% endmacro %}
+
+{% macro render_search_form() %}
+    <div style="margin: 0; display: none;" class="span12 well advance_search_form header">
+        <table>
+            <tbody>
+            {% for field in varargs %}
+                {% if loop.index is odd %}<tr>{% endif %}
+                <td style="padding: 8px;"><label for="{{ field.id }}">{{field.label.text}}</label></td>
+                <td>
+                    {{ field() }}
+                    {% if field.flags.required %}<strong><em>*</em></strong>{% endif %}
+                    {% if field.errors %}
+                        <span class="help-inline">
+              {{ field.errors[0]|e }}
+            </span>
+                    {% endif %}
+                </td>
+                {% if loop.index is even %}</tr>{% endif %}
+                {% if loop.last and loop.length is odd %}<td colspan="2"></td></tr>{% endif %}
+            {% endfor %}
+            <tr>
+                <td colspan="4">
+                    <div class="">
+                        <button type="submit" name="test" style="margin: 0 10px;" class="btn btn-small pull-right"><i class="icon-ok"></i>应用</button>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+{% endmacro %}
     
