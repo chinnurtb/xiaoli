@@ -4,7 +4,7 @@
 
 {% block head %} {% endblock %}
 
-{% from "_form_h.html" import render_field %}
+{% from "_form_h.html" import render_field, render_cron_rule %}
 
 {% block content %}
     
@@ -20,11 +20,7 @@
               {{ render_field(form.name) }}
               {{ render_field(form.alias) }}
               <legend>规则设置 (Cron)</legend>
-              {{ render_field(form.hour, class="auto-width") }}
-              {{ render_field(form.dayofmonth, class="auto-width") }}
-              {{ render_field(form.month, class="auto-width") }}
-              {{ render_field(form.dayofweek, class="auto-width") }}
-              </div>
+              {{ render_cron_rule([form.hour, form.dayofmonth, form.month, form.dayofweek]) }}
 	      <div class="control-group">
 		<div class="controls">
 		  <button type="submit" class="btn btn-primary">确定</button>
