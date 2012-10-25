@@ -1,4 +1,4 @@
-{% macro piechart(chartid, chartdata, height=200) %}
+{% macro pieChart(chartid, chartdata, height=200) %}
 
 <div id="{{chartid}}" style="height:{{height}}px;background-color:#ffffff"><svg></svg></div>
 
@@ -32,7 +32,7 @@ nv.addGraph(function() {
 {% endmacro %}
 
 
-{% macro barchart(chartid, chartdata, height=200) %}
+{% macro barChart(chartid, chartdata, height=200) %}
 
 <div id="{{chartid}}", style="height:{{height}}px;background-color:white"><svg></svg></div>
 
@@ -65,7 +65,7 @@ nv.addGraph(function() {
 {% endmacro %}
 
 
-{% macro multibarchart(chartid, chartdata, stacked=False, height=200) %}
+{% macro multiBarChart(chartid, chartdata, stacked=False, height=200) %}
 
 <div id="{{chartid}}" style="height:{{height}}px"><svg></svg></div>
 
@@ -90,6 +90,38 @@ nv.addGraph(function() {
 
     return chart;
 });
+
+</script>
+
+{% endmacro %}
+
+{% macro horizontalMultiBarChart(chartid, chartdata, stacked=False, height=200) %}
+
+<div id="{{chartid}}" style="height:{{height}}px"><svg></svg></div>
+
+<script type="text/javascript">
+
+nv.addGraph(function() {
+     var chart = nv.models.multiBarHorizontalChart()
+         .stacked({{stacked|tojson}})
+         .x(function(d) { return d.label })
+         .y(function(d) { return d.value })
+         .showValues(true)
+         .tooltips(false)
+         .showControls(false);
+ 
+     chart.yAxis
+         .tickFormat(d3.format(',d'));
+ 
+     d3.select('#{{chartid}} svg')
+        .datum({{ chartdata|tojson|safe }})
+        .transition().duration(500)
+        .call(chart);
+ 
+     nv.utils.windowResize(chart.update);
+ 
+     return chart;
+   });
 
 </script>
 
