@@ -64,14 +64,8 @@
                         <a class="btn btn-small" href="#" title="Excel导出"><i class="icon-download-alt"></i></a>
                     </div>
                 </div>
-                <div style="margin: 0; display: none;" class="span12 well advance_search_form header">
-                    {{ form.as_table(column=2) }}
-                    <table><tr><td>
-                        <button type="submit" class="btn btn-small btn_advance_sarch pull-right">
-                            <i class="icon-ok"></i> 应用
-                        </button>
-                    </td></tr></table>
-                </div>
+                {% from "_form_h.html" import render_search_form %}
+                {{ render_search_form(form.area, form.vendor_id, form.model_id) }}
             </form>
             <form action="" method="POST" id="node_form">
                 {{ render_table(table) }}
