@@ -7,7 +7,7 @@ from wtforms import BooleanField
 from wtforms import validators as v
 from .models import Node, NodeOlt, Board, Port, Area, Vendor, Model
 
-from flask_wtf import (Form, TextField, PasswordField, IntegerField,NumberRange,
+from flask_wtf import (Form, TextField, PasswordField, IntegerField,NumberRange,SubmitField,
                        TextAreaField, ValidationError, required, equal_to, email)
 
 from tango.form.forms import FormPro

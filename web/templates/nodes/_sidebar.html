@@ -1,7 +1,11 @@
 {% from "tango/_sidebar_h.html" import render_sidebar %}
 
-{{ render_sidebar('节点管理', submenuid, [
+{{ render_sidebar('节点浏览', submenuid, [
         ('nodes','所有节点', '/nodes'),
+        ('areas','区域导航', '/areas')])
+}}
+
+{{ render_sidebar('节点管理', submenuid, [
         ('switches', 'Switch', '/nodes/switches/'),
         ('olts', 'OLT', '/nodes/olts/'),
         ('onus', 'ONU', '/nodes/onus/'),

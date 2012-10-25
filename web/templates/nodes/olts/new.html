@@ -17,7 +17,7 @@
     <div class="span10">
         {% from "_form_h.html" import render_field %}
         <form class="form-horizontal" method="POST" action="{{url_for('nodes.olts_new')}}">
-            <h5><i class="icon-pencil"></i> 添加OLT</h5>
+            <h5><i class="icon-plus"></i>添加OLT</h5>
             <hr/>
             {% from "_form_h.html" import render_field %}
             {{ form.hidden_tag() }}
