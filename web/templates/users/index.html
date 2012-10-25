@@ -34,17 +34,16 @@
           <input type="hidden" name="orderby" value="login">
           <input type="hidden" name="order" value="asc">
           <div class="alignleft btn-group">
-            <a class="btn" href="{{url_for('users.users_new')}}">新建用户</a>
+            <a class="btn btn-small" href="{{url_for('users.users_new')}}"><i class="icon-plus"></i>新建</a>
             <!-- <button class="btn">重置密码</button> -->
-            <a class="btn" role="button" href="#myModal" data-toggle="modal">删除用户</a>
-            <br class="clear">
+            <a class="btn btn-small" role="button" href="#myModal" data-toggle="modal"><i class="icon-remove"></i>删除</a>
           </div>
         </form>
       </div>
       <form class="form-inline" style="margin:0px;" action="" method="GET">
-        <div class="alignleft actions">
-          <input type="text" name="keyword" value="{{ keyword }}" placeholder="关键词" />
-          <button type="submit" class="btn">检索</button>
+        <div class="alignleft actions input-append">
+          <input type="text" name="keyword" value="{{ keyword }}" placeholder="关键词" class="input-low"/>
+          <button type="submit" class="btn btn-small">检索</button>
         </div>
       </form>
         <div class="alignright actions">

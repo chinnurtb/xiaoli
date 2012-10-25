@@ -5,9 +5,9 @@ import re
 
 from wtforms import BooleanField 
 from wtforms import validators as v
-from .models import Node, NodeOlt, Board, Port, Area, Vendor, Model
+from .models import Node, NodeOlt, Board, Port, Area, Vendor, Model,SNMP_VER_DICT
 
-from flask_wtf import (Form, TextField, PasswordField, IntegerField,NumberRange,
+from flask_wtf import (Form, TextField, PasswordField, IntegerField,NumberRange,SubmitField,
                        TextAreaField, ValidationError, required, equal_to, email)
 
 from tango.form.forms import FormPro
@@ -17,11 +17,11 @@ from tango.ui.tables.utils import Attrs
 from tango.models import  Category
 
 class NodeNewForm(FormPro):
-    cityid          = SelectFieldPro(u'所属区域', validators=[required(message=u'必填')],
+    cityid          = SelectFieldPro(u'所属地市', validators=[required(message=u'必填')],
         choices=lambda: [('', u'请选择地市')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==1)])
     town         = SelectFieldPro(u'', validators=[required(message=u'必填')],
         choices=lambda: [('', u'请选择区县')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==2)])
-    area_id         = SelectFieldPro(u'', validators=[required(message=u'必填')],
+    area_id         = SelectFieldPro(u'所属区域', validators=[required(message=u'必填')],
         choices=lambda: [('', u'请选择分局')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==3)])
     name            = TextField(u'节点名称', validators=[required(message=u'必填')])
     alias           = TextField(u'节点别名', validators=[required(message=u'必填')])
@@ -30,7 +30,10 @@ class NodeNewForm(FormPro):
     addr            = TextField(u'IP 地址', validators=[required(message=u'必填')])
     snmp_comm       = TextField(u'读团体名', validators=[required(message=u'必填')])
     snmp_wcomm      = TextField(u'写团体名', validators=[required(message=u'必填')])
-    location        = TextAreaField(u'所在位置')
+    snmp_ver       = SelectFieldPro(u'SNMP版本', validators=[required(message=u'必填')],
+        choices=lambda: [('', u'请选择SNMP版本')] + [(value, name) for value, name in SNMP_VER_DICT.items()])
+    location        = TextField(u'位置')
+    remark          = TextAreaField(u'备注信息')
 
     class Meta():
         attrs = Attrs(
@@ -55,21 +58,25 @@ class NodeSearchForm(FormPro):
         list_display = ('area','vendor_id','model_id')
 
 class OltNewForm(FormPro):
-    cityid          = SelectFieldPro(u'所属区域', validators=[required(message=u'必填')],
+    cityid          = SelectFieldPro(u'所属地市', validators=[required(message=u'必填')],
         choices=lambda: [('', u'请选择地市')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==1)])
     town         = SelectFieldPro(u'', validators=[required(message=u'必填')],
         choices=lambda: [('', u'请选择区县')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==2)])
-    area_id         = SelectFieldPro(u'', validators=[required(message=u'必填')],
+    area_id         = SelectFieldPro(u'所属区域', validators=[required(message=u'必填')],
         choices=lambda: [('', u'请选择分局')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==3)])
     name            = TextField(u'OLT名称', validators=[required(message=u'必填')])
     alias           = TextField(u'OLT别名', validators=[required(message=u'必填')])
     addr            = TextField(u'IP 地址', validators=[required(message=u'必填')])
     snmp_comm       = TextField(u'读团体名', validators=[required(message=u'必填')])
     snmp_wcomm      = TextField(u'写团体名', validators=[required(message=u'必填')])
+    snmp_ver       = SelectFieldPro(u'SNMP版本', validators=[required(message=u'必填')],
+        choices=lambda: [('', u'请选择SNMP版本')] + [(value, name) for value, name in SNMP_VER_DICT.items()])
     vendor_id       = SelectFieldPro(u'OLT厂商', validators=[required(message=u'必填')],
         choices=lambda: [('', u'请选择厂商')] + [(unicode(r.id), r.alias) for r in Vendor.query.filter(Vendor.is_valid==1)])
     model_id        = SelectFieldPro(u'OLT型号', validators=[required(message=u'必填')],
         choices=lambda: [('', u'请选择型号')] + [(unicode(r.id), r.alias) for r in Model.query.filter(Model.is_valid==1).filter(Model.category_id==20)])
+    location        = TextField(u'位置')
+    remark          = TextAreaField(u'备注信息')
 
     class Meta():
         attrs = Attrs(
@@ -78,17 +85,21 @@ class OltNewForm(FormPro):
         )
 
 class SwitchNewForm(FormPro):
-    cityid          = SelectFieldPro(u'所属区域', validators=[required(message=u'必填')],
+    cityid          = SelectFieldPro(u'所属地市', validators=[required(message=u'必填')],
         choices=lambda: [('', u'请选择地市')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==1)])
     town         = SelectFieldPro(u'', validators=[required(message=u'必填')],
         choices=lambda: [('', u'请选择区县')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==2)])
-    area_id         = SelectFieldPro(u'', validators=[required(message=u'必填')],
+    area_id         = SelectFieldPro(u'所属区域', validators=[required(message=u'必填')],
         choices=lambda: [('', u'请选择接入点')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==4)])
     name            = TextField(u'Switch名称', validators=[required(message=u'必填')])
+    alias           = TextField(u'Switch别名', validators=[required(message=u'必填')])
     addr            = TextField(u'IP 地址', validators=[required(message=u'必填')])
     snmp_comm       = TextField(u'读团体名', validators=[required(message=u'必填')])
+    snmp_wcomm       = TextField(u'写团体名', validators=[required(message=u'必填')])
+    snmp_ver       = SelectFieldPro(u'SNMP版本', validators=[required(message=u'必填')],
+        choices=lambda: [('', u'请选择SNMP版本')] + [(value, name) for value, name in SNMP_VER_DICT.items()])
     mask            = TextField(u'子网掩码')
-    location        = TextField(u'位置位置')
+    location        = TextField(u'位置')
     remark          = TextAreaField(u'备注信息')
 
     class Meta():
@@ -103,13 +114,18 @@ class OnuNewForm(FormPro):
     area_id         = SelectFieldPro(u'接入点', validators=[required(message=u'必填')],
         choices=lambda: [('', u'请选择接入点')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==4)])
     name            = TextField(u'ONU名称', validators=[required(message=u'必填')])
+    alias           = TextField(u'ONU别名', validators=[required(message=u'必填')])
     addr            = TextField(u'IP 地址', validators=[required(message=u'必填')])
     snmp_comm       = TextField(u'读团体名', validators=[required(message=u'必填')])
     snmp_wcomm      = TextField(u'写团体名', validators=[required(message=u'必填')])
+    snmp_ver       = SelectFieldPro(u'SNMP版本', validators=[required(message=u'必填')],
+        choices=lambda: [('', u'请选择SNMP版本')] + [(value, name) for value, name in SNMP_VER_DICT.items()])
     vendor_id       = SelectFieldPro(u'ONU厂商', validators=[required(message=u'必填')],
         choices=lambda: [('', u'请选择厂商')] + [(unicode(r.id), r.alias) for r in Vendor.query.filter(Vendor.is_valid==1)])
     model_id        = SelectFieldPro(u'ONU型号', validators=[required(message=u'必填')],
         choices=lambda: [('', u'请选择型号')] + [(unicode(r.id), r.alias) for r in Model.query.filter(Model.is_valid==1).filter(Model.category_id==21)])
+    location        = TextField(u'位置')
+    remark          = TextAreaField(u'备注信息')
 
     class Meta():
         attrs = Attrs(

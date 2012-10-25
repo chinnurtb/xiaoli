@@ -23,12 +23,12 @@
             <div class="tablenav top">
                 <div class="alignleft actions">
                     <div class="alignleft btn-group">
-                        <a class="btn" href="{{url_for('alarms.knowledges_new')}}">创建</a>
+                        <a class="btn btn-small" href="{{url_for('alarms.knowledges_new')}}">创建</a>
                     </div>
                 </div>
-                <div class="alignleft filters">
-                    <input type="text" name="keyword" placeholder="名称" {% if keyword %} value="{{ keyword }}" {% endif %}>
-                    <button type="submit" class="btn">检索</button>
+                <div class="alignleft filters input-append">
+                    <input class="input-low" type="text" name="keyword" placeholder="名称" {% if keyword %} value="{{ keyword }}" {% endif %}>
+                    <button type="submit" class="btn btn-small">检索</button>
                 </div>
             </div>
             {{ render_table(table) }}

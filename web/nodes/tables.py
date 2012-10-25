@@ -9,8 +9,21 @@ from tango.ui.tables.utils import Attrs
 from nodes import constants
 from .models import Node, NodeSwitch, NodeOlt, NodeOnu, Board, Port, NodeHost, NODE_STATUS_DICT
 
+redirct_dict = {
+    2: "switches",
+    20: "olts",
+    21: "onus",
+    50: "eocs"
+}
+
+def redirect_node_show(record):
+    return u'/nodes/%s/%s/' % (redirct_dict.get(record.category_id), record.id)
+
+def redirect_node_edit(record):
+    return u'/nodes/%s/edit/%s/' % (redirct_dict.get(record.category_id), record.id)
+
 class NodeTable(tables.Table):
-    edit = tables.Action(name=u'编辑', endpoint='nodes.nodes_edit')
+    edit = tables.Action(name=u'编辑',url=lambda record: redirect_node_edit(record))
     delete = tables.Action(name=u'删除', endpoint='nodes.nodes_delete',attrs=Attrs(a={"class": "delete"}))
     check = tables.CheckBoxColumn()
     status = tables.EnumColumn(
@@ -19,8 +32,9 @@ class NodeTable(tables.Table):
         enums=NODE_STATUS_DICT,
         orderable=True
     )
-    name = tables.LinkColumn(endpoint='nodes.nodes_show',verbose_name=u'名称',orderable=True)
+    name = tables.LinkColumn(verbose_name=u'名称',orderable=True)
     alias = tables.Column(verbose_name=u'别名',orderable=True,ifnull='')
+    category = tables.Column(verbose_name=u'节点类型',orderable=True, accessor='category.alias')
     vendor_name = tables.Column(verbose_name=u'厂商', orderable=True, accessor='vendor.alias',ifnull='')
     model_name = tables.Column(verbose_name=u'型号', orderable=True, accessor='model.alias',ifnull='')
     addr = tables.Column(verbose_name=u'IP', orderable=True, ifnull='')
@@ -31,7 +45,10 @@ class NodeTable(tables.Table):
     class Meta():
         model = Node
         per_page = 30
-        #url_makers = {'name': lambda record: url_for('nodes.nodes_edit', id=record.id)}
+        url_makers = {
+            'name': lambda record: redirect_node_show(record),
+            'edit': lambda record: redirect_node_show(record)
+        }
 
 class OltTable(tables.Table):
     edit = tables.Action(name=u'编辑', endpoint='nodes.olts_edit')

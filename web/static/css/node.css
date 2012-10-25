@@ -41,3 +41,10 @@
 select#area_chosen {
     width: 166px;
 }
+
+legend {
+    font-size: 12px;
+    font-weight: bold;
+    width: 82%;
+    margin-left: 3%;
+}
