@@ -19,6 +19,36 @@
 {% endmacro %}
 
 
+<!-- 渲染采集规则表单中的多选框 -->
+{% macro render_cron_rule(fields) %}
+
+{% for field in fields %}
+  {% if field.errors %}
+    {% set has_error = True %}
+  {% endif %}
+{% endfor %}
+
+<div class="control-group {% if has_error is defined %}error{% endif %}">
+    <div class="controls">
+      <div class="row-fluid">
+          {% for field in fields %}
+          <div class="pull-left" style="margin:5px 20px 10px 5px;">
+            <label style="margin-bottom: 5px">{{ field.label.text }}:
+              {% if field.errors %}
+              <span class="help-inline">
+	        {{ field.errors[0]|e }}
+	      </span>
+              {% endif %}
+            </label>
+            {{ field(style="width: 100px;height:160px;", **kwargs) }}
+          </div>
+          {% endfor %}
+      </div>
+    </div>
+</div>
+{% endmacro %}
+
+
 {% macro render_field(field) %}
 <div class="control-group {% if field.errors %}error{% endif %}">
     <label class="control-label" for="{{ field.id }}">{{field.label.text}}</label>

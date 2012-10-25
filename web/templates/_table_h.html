@@ -104,10 +104,10 @@
               </div>
             </div>
             {% endif %}
-            {{ cell }}
+            {{ cell | ifnull }}
             </th>
 	    {% else %}
-            <td {{ column.attrs.td.as_html(**cellattrs) }}>{{ cell }}</td>
+            <td {{ column.attrs.td.as_html(**cellattrs) }}>{{ cell | ifnull }}</td>
 	    {% endif %}
 	    {% endfor %}
 	</tr>

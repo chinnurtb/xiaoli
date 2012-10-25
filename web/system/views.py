@@ -13,11 +13,11 @@ from nodes.models import NodeHost
 from nodes.tables import NodeHostTable
 from users.models import User
 
-from .models import OperationLog, SecurityLog, SubSystem
+from .models import OperationLog, SecurityLog, SubSystem, TimePeriod
 from .tables import (SettingTable, OperationLogTable, SecurityLogTable,
-                     DictCodeTable, SubSystemTable)
+                     DictCodeTable, SubSystemTable, TimePeriodTable)
 from .forms import (SettingEditForm, SearchForm, OplogFilterForm, DictCodeFilterForm,
-                    DictCodeNewEditForm, NodeHostEditForm)
+                    DictCodeNewEditForm, NodeHostEditForm, TimePeriodNewEditForm)
 
 sysview = Blueprint('system', __name__)
 
@@ -89,13 +89,38 @@ def dict_codes_edit(id):
     
 @sysview.route('/timeperiods/')
 def timeperiods():
-    # :HOLD
-    return render_template('/system/timeperiods/index.html')
+    table = make_table(TimePeriod.query, TimePeriodTable)
+    return render_template('/system/timeperiods/index.html', table=table)
 
-@sysview.route('/timeperiods/new')
+
+@sysview.route('/timeperiods/new', methods=['GET', 'POST'])
 def timeperiods_new():
-    # :HOLD
-    return render_template('/system/timeperiods/new.html')
+    form = TimePeriodNewEditForm()
+    if form.is_submitted and form.validate_on_submit():
+        timeperiod = TimePeriod()
+        form.populate_obj(timeperiod)
+        db.session.add(timeperiod)
+        db.session.commit()
+        flash(u'规则添加成功!', 'success')
+        return redirect(url_for('system.timeperiods'))
+        
+    return render_template('/system/timeperiods/new-edit.html', form=form,
+                           action=url_for('system.timeperiods_new'), title=u'添加规则')
+
+    
+@sysview.route('/timeperiods/edit/<int:id>', methods=['GET', 'POST'])
+def timeperiods_edit(id):
+    form = TimePeriodNewEditForm()
+    timeperiod = TimePeriod.query.get_or_404(id)
+    if form.is_submitted and form.validate_on_submit():
+        form.populate_obj(timeperiod)
+        db.session.commit()
+        flash(u'编辑成功!', 'success')
+        return redirect(url_for('system.timeperiods'))
+        
+    form.process(obj=timeperiod)
+    return render_template('/system/timeperiods/new-edit.html', form=form,
+                           action=url_for('system.timeperiods_edit', id=id), title=u'编辑规则')
 
 
 ##  Hosts

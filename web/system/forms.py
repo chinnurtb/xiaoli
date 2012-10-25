@@ -1,7 +1,7 @@
 # coding: utf-8
 
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
-from flask_wtf import (Form, TextField, DateTimeField, SelectField,
+from flask_wtf import (Form, TextField, DateTimeField, SelectField, SelectMultipleField,
                        TextAreaField, required )
 
 from tango.models import DictType
@@ -28,6 +28,17 @@ class DictCodeFilterForm(Form):
                                  get_label='type_label', allow_blank=True, blank_text=u'选择字典类型')
     is_valid  = SelectField(u'有效性', choices=[(u'', u'选择有效性'), (u'0', u'无效'), (u'1', u'有效')],
                             filters=(lambda data: data if data != u'None' else '',))
+
+    
+WEEK = (u'星期日', u'星期一', u'星期二', u'星期三', u'星期四', u'星期五', u'星期六')
+class TimePeriodNewEditForm(Form):
+    name       = TextField(u'名称', [required(message=u'必填'),])
+    alias      = TextField(u'显示名')
+    hour       = SelectMultipleField(u'小时', choices=[(u'*', u'所有')] + [(unicode(i), u'%d : 00' % i) for i in range(24)])
+    dayofmonth = SelectMultipleField(u'日期', choices=[(u'*', u'所有')] + [(unicode(i), unicode(i)) for i in range(1, 32)])
+    month      = SelectMultipleField(u'月份', choices=[(u'*', u'所有')] + [(unicode(i), unicode(i)) for i in range(1, 13)])
+    dayofweek  = SelectMultipleField(u'星期', choices=[(u'*', u'所有')] + [(unicode(i), WEEK[i]) for i in range(7)])
+
     
 class OplogFilterForm(Form):
     uid         = QuerySelectField(query_factory=lambda: User.query, allow_blank=True, blank_text=u'选择用户')

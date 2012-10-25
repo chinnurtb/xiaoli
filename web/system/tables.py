@@ -5,7 +5,7 @@ from tango.ui import tables
 from tango.models import Setting, DictCode
 
 from nodes import constants
-from .models import OperationLog, SecurityLog, SubSystem
+from .models import OperationLog, SecurityLog, SubSystem, TimePeriod
 
 class SettingTable(tables.Table):
     helpdoc = u'查看系统设置参数'
@@ -32,7 +32,26 @@ class DictCodeTable(tables.Table):
 
     class Meta():
         model = DictCode
+
+
+class TimePeriodTable(tables.Table):
+    helpdoc = u'采集规则'
+    edit    = tables.Action(name=u'编辑', endpoint='system.timeperiods_edit')
+    check   = tables.CheckBoxColumn()
+
+    name       = tables.Column(verbose_name=u'名称')
+    alias      = tables.Column(verbose_name=u'显示名')
+    _hour       = tables.Column(verbose_name=u'小时')
+    _dayofmonth = tables.Column(verbose_name=u'日期')
+    _month      = tables.Column(verbose_name=u'月份')
+    _dayofweek  = tables.Column(verbose_name=u'星期')
+    status     = tables.Column(verbose_name=u'状态')
+    created_at = tables.Column(verbose_name=u'创建日期')
+
+    class Meta:
+        model = TimePeriod
     
+            
 class OperationLogTable(tables.Table):
     helpdoc     = u'查看系统操作日志'
 

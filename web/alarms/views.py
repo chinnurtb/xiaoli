@@ -2,6 +2,8 @@
 
 from datetime import datetime
 
+from flask import json
+
 from sqlalchemy import desc, func 
 
 from jinja2 import Markup
@@ -133,33 +135,28 @@ def histories():
 #======================================================
 @alarmview.route('/alarms/console/')
 def alarms_console():
+
+    severities = AlarmSeverity.query.all()
     
+    #TODO: FIX ME later
     from datetime import datetime, timedelta
     today = datetime.today()
     dates = [today - timedelta(hours=i) for i in range(12)]
     hours = [str(d.hour) for d in reversed(dates)]
-    data =  [{'name': u'严重',
-              'color': '#ED4D5A',
-              'data': [49, 71, 106, 129, 144, 176, 135, 148, 216, 194, 95, 54]
-            }, {
-               'name': u'重要',
-               'color': '#F6983E',
-               'data': [83, 78, 98, 93, 106, 84, 105, 104, 91, 83, 106, 92]
-            }, {
-                'name': u'次要',
-                'color': '#E6F940',
-                'data': [48, 38, 39, 41, 47, 48, 59, 59, 52, 65, 59, 51]
-            }, {
-                'name': u'警告',
-                'color': '#43D5FA',
-                'data': [42, 33, 34, 39, 52, 75, 57, 60, 47, 39, 46, 51]
-            }] 
-    from tango.ui.charts.highcharts import ColumnBasicChart 
-    chart = ColumnBasicChart()
-    chart.set_html_id("console_demo_chart")
-    chart["title"]["text"] = u'最近12小时接收告警'
-    chart['xAiax']['categories'] = hours 
-    chart['series'] = data
+
+    from random import random
+    def series(severity):
+        values = [{'series': severity.name, 
+                   'x': str(h)+u'点',
+                   'y': int(random()*(severity.id+1)*100)}
+                   for h in hours]
+        return {'key': severity.alias,
+                'color': severity.color,
+                'values': values}
+
+    data = [series(severity) for severity in severities]
+
+    title = u'最近12小时接收告警'
 
     widgets = [Widget('alarms_console_all', u'全部告警', url = url_for('alarms.console_all')),
                 Widget('alarms_console_lasthour', u'最近1小时告警', url = url_for('alarms.console_lasthour'), column='side'),
@@ -168,7 +165,10 @@ def alarms_console():
                 Widget('alarms_console_system', u'网管自身告警', url=url_for('alarms.console_category_system'))]
     board = Dashboard(widgets)
     board.configure({})
-    return render_template('alarms/console/index.html', chart = chart, dashboard = board)
+    return render_template('alarms/console/index.html',
+                            chartid = "alarm_demo_console",
+                            chartdata = data,
+                            dashboard = board)
 
 @alarmview.route('/alarms/console/all')
 def console_all():
@@ -210,18 +210,13 @@ def _console_category_query(cid):
 
 def render_console_chart(id, query):
     severities = AlarmSeverity.query.order_by(AlarmSeverity.id.desc()).all()
-    columns = [severity.alias for severity in severities]
     counts = dict(query.all())
-    data = [{'color': severity.color, 'y': counts.get(severity.id, 0)}
-                for severity in severities]
-    from tango.ui.charts.highcharts import ColumnBasicChart
-    chart = ColumnBasicChart()
-    chart.set_html_id(id)
-    chart['title']['text'] = None
-    chart['xAxis']['categories'] = columns
-    chart['series'] = [{'name': u'告警', 'data': data}]
-
-    return render_template('alarms/console/_chart.html', chart = chart)
+    data = [{'label': severity.alias, 
+             'color': severity.color,
+             'value': counts.get(severity.id, 0)}
+              for severity in severities]
+    return render_template('alarms/console/_chart.html',
+                           chartid = id, chartdata = data)
 
 @alarmview.route('/alarms/stats/current')
 def stats_current():
@@ -325,14 +320,8 @@ def stats_by_severity():
     q = db.session.query(AlarmSeverity, func.count(Alarm.id).label('count'))
     q = q.outerjoin(Alarm, AlarmSeverity.id == Alarm.severity)
     q = q.group_by(AlarmSeverity).order_by(AlarmSeverity.id.desc())
-    data = [{'name': s.alias, 'color': s.color, 'y': c} for s,c in q.all()]
-    from tango.ui.charts.highcharts import PieBasicChart
-    chart = PieBasicChart()
-    chart.set_html_id('alarms_stats_by_severity')
-    chart['title']['text'] = None
-    chart['plotOptions']['pie']['events']['click'] = None
-    chart['series'] = [{'type': 'pie', 'data': data}]
-    return render_template('alarms/stats/by_severity.html', chart=chart)
+    data = [{'label': s.alias, 'color': s.color, 'value': c} for s,c in q.all()]
+    return render_template('alarms/stats/by_severity.html', chartdata=data)
 
 @alarmview.route('/alarms/stats/by_category')
 def stats_by_category():
@@ -366,6 +355,14 @@ def stats_by_node_vendor():
     q = q.group_by(Vendor.id, Vendor.alias).order_by(Vendor.id)
     return render_template('alarms/stats/by_node_vendor.html', data=q.all())
 
+
+@alarmview.route('/nvd3/')
+def nvd3_demo():
+    data = [{'label': u'严重', 'value': 10},
+            {'label': u'清除', 'value': 20}]
+    return render_template('alarms/nvd3_demo.html', data=data)
+
+    
 menus.append(Menu('alarms', u'故障', '/alarms'))
 
 add_widget(Widget('alarms_stats_by_severity', u'告警概况', url = '/alarms/stats/by_severity'))
