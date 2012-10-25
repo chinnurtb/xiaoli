@@ -39,18 +39,17 @@
                 <input type="hidden" name="orderby" value="login">
                 <input type="hidden" name="order" value="asc">
                 <div class="alignleft btn-group">
-                    <a class="btn"
-                    href="{{url_for('users.roles_new')}}">新建角色</a>
-                    <button class="btn">删除角色</button>
-                    <br class="clear">
+                    <a class="btn btn-small"
+                    href="{{url_for('users.roles_new')}}"><i class="icon-plus"></i>新建</a>
+                    <button class="btn btn-small"><i class="icon-remove"></i>删除</button>
                 </div>
                 </form>
             </div>
 
-            <div class="alignleft actions">
+            <div class="alignleft actions input-append">
                 <form class="form-inline" style="margin:0px;" action="" method="GET">
-                <input type="text" name="keyword" value="{{keyword}}" class="input-small" placeholder="关键词">
-                <button type="submit" class="btn">Filter</button>
+                <input type="text" name="keyword" value="{{keyword}}" class="input-medium input-low" placeholder="关键词">
+                <button type="submit" class="btn btn-small">Filter</button>
                 </form>
             </div>
 

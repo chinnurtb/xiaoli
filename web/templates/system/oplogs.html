@@ -30,12 +30,12 @@
             <div class="tablenav top">
                 <div class="alignleft actions">
                     <form class="form-inline" style="margin:0px;" action="" method="GET">
-                        {{ filterForm.uid() }}
-                        {{ filterForm.start_date(class="input-small datepicker", placeholder="开始日期") }}
+                        {{ filterForm.uid(class="input-low input-medium") }}
+                        {{ filterForm.start_date(class="input-small datepicker input-low", placeholder="开始日期", style="margin-bottom:1px;") }}
                         <label for='end_date'>-</label>
-                        {{ filterForm.end_date(class="input-small datepicker", placeholder="结束日期") }}
-                        {{ filterForm.keyword(placeholder="详细信息") }}
-                        <button class="btn" type="submit">检索</button>
+                        {{ filterForm.end_date(class="input-small datepicker input-low", placeholder="结束日期", style="margin-bottom:1px;") }}
+                        {{ filterForm.keyword(placeholder="详细信息",class='input-low') }}
+                        <button class="btn btn-small" type="submit">检索</button>
                     </form>
                 </div>
             </div>
