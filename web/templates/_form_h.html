@@ -145,11 +145,17 @@
             {% if field.flags.required %}<strong><em>*</em></strong>{% endif %}
             {% if field.errors %}
                 <span class="help-inline">
-	    {{ field.errors[0]|e }}
-	</span>
+                    {{ field.errors[0]|e }}
+                </span>
             {% endif %}
         </div>
     </div>
+
+    <script type="text/javascript">
+        $(function() {
+
+        })
+    </script>
 {% endmacro %}
 
 {% macro render_search_form() %}
@@ -164,8 +170,8 @@
                     {% if field.flags.required %}<strong><em>*</em></strong>{% endif %}
                     {% if field.errors %}
                         <span class="help-inline">
-              {{ field.errors[0]|e }}
-            </span>
+                          {{ field.errors[0]|e }}
+                        </span>
                     {% endif %}
                 </td>
                 {% if loop.index is even %}</tr>{% endif %}

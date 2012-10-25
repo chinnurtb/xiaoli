@@ -106,9 +106,9 @@ def onus_show(id):
     alarm_chart.min_width = str(220)+"px"
     return render_template('nodes/onus/show.html', node = node, traffic_chart = traffic_chart, alarm_chart = alarm_chart)
 
-@nodeview.route('/ajax_entrances_for_olt', methods=['GET'])
+@nodeview.route('/nodes/onus/ajax_entrances_for_olt', methods=['GET'])
 def ajax_entrances_for_olt():
-    olt_id = request.args.get('olt_id')
+    olt_id = request.args.get('key')
     olt = NodeOlt.query.get(olt_id)
     entrances = Area.query.filter(Area.parent_id==olt.area_id)
     return json.dumps([{'value':entrance.id, 'name':entrance.alias} for entrance in entrances])
