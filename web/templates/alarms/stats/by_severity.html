@@ -1,5 +1,5 @@
 
-{% from "_chart_h.html" import render_highchart %}
+{% from "_nvd3_chart.html" import piechart %}
 
-{{ render_highchart(chart, height='220px') }}
+{{ piechart("alarms_stats_by_severity", chartdata) }}
 

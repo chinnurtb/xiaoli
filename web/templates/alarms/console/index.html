@@ -4,7 +4,11 @@
 
 {% set title = "告警监视面板" %}
 
-{% block head %} {% endblock %}
+{% block head %} 
+    <link rel="stylesheet" href="/static/css/nv.d3.css" type="text/css" media="all">
+    <script type="text/javascript" src="/static/js/nvd3/d3.v2.min.js"></script>
+    <script type="text/javascript" src="/static/js/nvd3/nv.d3.min.js"></script>
+{% endblock %}
 
 {% block content %}
     
@@ -17,8 +21,8 @@
         <div class="span10">
 
             <div style="padding:0px; border: 1px solid #E3E3E3; border-radius: 3px 3px 3px 3px;">
-            {% from "_chart_h.html" import render_highchart %}
-            {{ render_highchart(chart, height='240px') }}
+                {% from "_nvd3_chart.html" import multibarchart %}
+                {{ multibarchart(chartid, chartdata, height=180) }}
             </div>
 
             {% from '_dashboard_h.html' import render_dashboard %}

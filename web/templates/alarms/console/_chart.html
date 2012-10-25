@@ -1,4 +1,3 @@
+{% from "_nvd3_chart.html" import barchart %}
 
-{% from "_chart_h.html" import render_highchart %}
-
-{{ render_highchart(chart, height='220px', width="200px") }}
+{{ barchart(chartid, chartdata, height=160) }}

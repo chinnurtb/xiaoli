@@ -1,0 +1,97 @@
+{% macro piechart(chartid, chartdata, height=200) %}
+
+<div id="{{chartid}}" style="height:{{height}}px;background-color:#ffffff"><svg></svg></div>
+
+<script type="text/javascript">
+
+nv.addGraph(function() {
+
+    var chart = nv.models.pieChart()
+        .height({{height}})
+        .x(function(d) { return d.label })
+        .y(function(d) { return d.value })
+        .color(function(d) { return d.data.color })
+        .tooltipContent(function(key, y, e, graph) {return '<span>' + key + ':' + y + '</span>'})
+        .values(function(d) { return d })
+        .showLabels(false);
+
+    chart.valueFormat(d3.format(',d'));
+
+    d3.select("#{{chartid}} svg")
+        .datum([{{ chartdata|tojson|safe }}])
+        .transition().duration(1200)
+        .call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+});
+
+</script>
+
+{% endmacro %}
+
+
+{% macro barchart(chartid, chartdata, height=200) %}
+
+<div id="{{chartid}}", style="height:{{height}}px;background-color:white"><svg></svg></div>
+
+<script type="text/javascript">
+
+nv.addGraph(function() {  
+    var chart = nv.models.discreteBarChart()
+        .height({{height}})
+        .x(function(d) { return d.label })
+        .y(function(d) { return d.value })
+        .staggerLabels(true)
+        .tooltips(true)
+        .showValues(false);
+
+    chart.yAxis.tickFormat(d3.format(',d'));
+
+    d3.select('#{{chartid}} svg')
+        .datum([{values: {{chartdata|tojson|safe}} }])
+        .transition().duration(500)
+        .call(chart);
+
+  nv.utils.windowResize(chart.update);
+
+  return chart;
+
+});
+
+</script>
+
+{% endmacro %}
+
+
+{% macro multibarchart(chartid, chartdata, stacked=False, height=200) %}
+
+<div id="{{chartid}}" style="height:{{height}}px"><svg></svg></div>
+
+<script type="text/javascript">
+
+nv.addGraph(function() {
+    var chart = nv.models.multiBarChart()
+        .stacked({{stacked|tojson}})
+        .height({{height}})
+        .showControls(false)
+        .tooltip(function(key, x, y, e, graph) {
+            return '<p>' + key + ':' + y + '</p>';
+        });
+    chart.yAxis
+     .tickFormat(d3.format(',d'));
+    d3.select('#{{chartid}} svg')
+    .datum({{chartdata|tojson|safe}})
+    .transition().duration(500)
+    .call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+});
+
+</script>
+
+{% endmacro %}
+
