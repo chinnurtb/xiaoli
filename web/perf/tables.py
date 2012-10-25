@@ -11,7 +11,7 @@ class ThresholdTable(tables.Table):
 
     alias         = tables.Column(verbose_name=u'阀值')
     summary       = tables.Column(verbose_name=u'描述')
-    category_name = tables.Column(verbose_name=u'设备', accessor='category.name')
+    category_name = tables.Column(verbose_name=u'设备', accessor='category.alias')
     
     occur_cond1   = tables.Column(verbose_name=u'一级产生条件')
     restore_cond1 = tables.Column(verbose_name=u'一级恢复条件')
