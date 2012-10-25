@@ -119,7 +119,7 @@ class TableOptions(object):
             self.profile = '.'.join(['table', self.model.__tablename__])
             self.profile_hiddens_key = '.'.join([self.profile, 'hiddens'])
             self.profile_perpage_key = '.'.join([self.profile, 'perpage'])
-            self.url_makers = getattr(options, 'url_makers', None)
+            self.url_makers = getattr(options, 'url_makers', None) # 只对 LinkColumn 起作用
         # print '(TableOptions)self.per_page::', self.per_page
 
 
