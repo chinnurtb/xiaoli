@@ -19,17 +19,47 @@
 {% endmacro %}
 
 
+<!-- 渲染采集规则表单中的多选框 -->
+{% macro render_cron_rule(fields) %}
+
+{% for field in fields %}
+  {% if field.errors %}
+    {% set has_error = True %}
+  {% endif %}
+{% endfor %}
+
+<div class="control-group {% if has_error is defined %}error{% endif %}">
+    <div class="controls">
+      <div class="row-fluid">
+          {% for field in fields %}
+          <div class="pull-left" style="margin:5px 20px 10px 5px;">
+            <label style="margin-bottom: 5px">{{ field.label.text }}:
+              {% if field.errors %}
+              <span class="help-inline">
+	        {{ field.errors[0]|e }}
+	      </span>
+              {% endif %}
+            </label>
+            {{ field(style="width: 100px;height:160px;", **kwargs) }}
+          </div>
+          {% endfor %}
+      </div>
+    </div>
+</div>
+{% endmacro %}
+
+
 {% macro render_field(field) %}
 <div class="control-group {% if field.errors %}error{% endif %}">
-  <label class="control-label" for="{{ field.id }}">{{field.label.text}}</label>
+    <label class="control-label" for="{{ field.id }}">{{field.label.text}}</label>
     <div class="controls">
-	{{ field(**kwargs) }}
+        {{ field(**kwargs) }}
         {% if field.flags.required %}<strong><em>*</em></strong>{% endif %}
-	{% if field.errors %}
-	<span class="help-inline">
+        {% if field.errors %}
+            <span class="help-inline">
 	    {{ field.errors[0]|e }}
 	</span>
-	{% endif %}
+        {% endif %}
     </div>
 </div>
 {% endmacro %}
@@ -132,5 +162,54 @@
       </tbody>
   </table>
 </div>
+{% endmacro %}
+
+{% macro render_areas() %}
+    {% set field = varargs|last %}
+    <div class="control-group {% if field.errors %}error{% endif %}">
+        <label class="control-label" for="{{ field.id }}">{{field.label.text}}</label>
+        <div class="controls">
+            {% for arg in varargs %}
+                {{ arg(**kwargs) }}
+            {% endfor %}
+            {% if field.flags.required %}<strong><em>*</em></strong>{% endif %}
+            {% if field.errors %}
+                <span class="help-inline">
+	    {{ field.errors[0]|e }}
+	</span>
+            {% endif %}
+        </div>
+    </div>
+{% endmacro %}
+
+{% macro render_search_form() %}
+    <div style="margin: 0; display: none;" class="span12 well advance_search_form header">
+        <table>
+            <tbody>
+            {% for field in varargs %}
+                {% if loop.index is odd %}<tr>{% endif %}
+                <td style="padding: 8px;"><label for="{{ field.id }}">{{field.label.text}}</label></td>
+                <td>
+                    {{ field() }}
+                    {% if field.flags.required %}<strong><em>*</em></strong>{% endif %}
+                    {% if field.errors %}
+                        <span class="help-inline">
+              {{ field.errors[0]|e }}
+            </span>
+                    {% endif %}
+                </td>
+                {% if loop.index is even %}</tr>{% endif %}
+                {% if loop.last and loop.length is odd %}<td colspan="2"></td></tr>{% endif %}
+            {% endfor %}
+            <tr>
+                <td colspan="4">
+                    <div class="">
+                        <button type="submit" name="test" style="margin: 0 10px;" class="btn btn-small pull-right"><i class="icon-ok"></i>应用</button>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
 {% endmacro %}
     

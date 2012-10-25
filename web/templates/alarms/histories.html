@@ -38,12 +38,12 @@
         <form id="history-query-form" class="form-inline" action="{{ url_for('alarms.histories') }}" method="GET">
         <div class="tablenav top">
             <div class="alignleft filters">
-                {{ filterForm.alarm_class(class="input-small") }}
-                {{ filterForm.start_date(class="input-small datepicker", placeholder="开始日期") }}
+                {{ filterForm.alarm_class(class="input-small input-low") }}
+                {{ filterForm.start_date(class="input-small datepicker input-low", placeholder="开始日期",style="margin-bottom:1px;") }}
                 <label for='end_date'>-</label>
-                {{ filterForm.end_date(class="input-small datepicker", placeholder="结束日期") }}
-                {{ filterForm.keyword(placeholder='告警或节点名称') }}
-                <button type="submit" class="btn">检索</button>
+                {{ filterForm.end_date(class="input-small datepicker input-low", placeholder="结束日期",style="margin-bottom:1px;") }}
+                {{ filterForm.keyword(placeholder='告警或节点名称', class="input-low") }}
+                <button type="submit" class="btn btn-small">检索</button>
             </div>
         </div>
         {{ render_table(table) }}

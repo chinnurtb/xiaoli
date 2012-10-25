@@ -25,8 +25,26 @@
         </div>
         <div class="span10">
           {% include "_alert.html" %}
+          <form class="form-horizontal" method="GET" action="{{url_for('perf.thresholds')}}" id="search_form">
+            <div class="tablenav top">
+              <div class="">
+                <input type="hidden" name="orderby" value="login">
+                <input type="hidden" name="order" value="asc">
+                <div class="pull-left btn-group">
+                  <a class="btn btn-small" href="/perf/thresholds/new"><i class="icon-plus"></i>添加</a>
+                </div>
+              </div>
+              <div class="pull-left" style="height: 26px;">
+                <div class="input-append pull-left" style="margin-left: 20px;">
+                  <input type="text" name="keyword" class="input-low"
+                  value="{{ keyword }}" />
+                  <button id="advance_sarch" class="btn btn-small">检索</button>
+                </div>
+              </div>
+            </div>
+          </form>
+
           {{ render_table(table) }}
-          <!-- <p>参考: http://192.168.100.71:9000/thresholds </p> -->
         </div>
     </div>
 {% endblock %}

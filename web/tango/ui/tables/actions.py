@@ -13,10 +13,11 @@ __all__ = ['Action']
 class Action(object):
     creation_counter = 0
 
-    def __init__(self, name, endpoint, icon=None, attrs=None):
+    def __init__(self, name, endpoint=None, icon=None, attrs=None, url=None):
         self.name = name
         self.endpoint = endpoint
         self.icon = icon
+        self.url = url
 
         default_attrs = Attrs(a={'class': 'btn btn-small'})
         attrs = attrs or Attrs()
@@ -34,7 +35,10 @@ class Action(object):
     
     def render(self, record):
         attrs = AttributeDict(self.attrs.get('a', {}))
-        uri = url_for(self.endpoint, id=getattr(record, 'id', None))
+        if self.url:
+            uri = self.url(record)
+        else:
+            uri = url_for(self.endpoint, id=getattr(record, 'id', None))
         text = u'<a %s href="%s">%s</a>' % (attrs.as_html(), uri, self.name)
         return Markup(text)
 

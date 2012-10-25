@@ -74,7 +74,7 @@
                         <a class="btn btn-small" href="#"><i class="icon-upload"></i>导入</a>
                     </div>
                 </div>
-                <div class="alignleft form-search" style="height: 26px;">
+                <div class="alignleft" style="height: 26px;">
                         {% set keyword = '名称、别名或IP' %}
                         <div class="input-append alignleft" style="margin-left: 20px;">
                             {{ form.name(placeholder=keyword,class="input-low input-medium") }}
@@ -86,9 +86,8 @@
                     <a class="btn btn-small" href="#" title="Excel导出"><i class="icon-download-alt"></i></a>
                 </div>
             </div>
-            <div style="margin: 0; display: none;" class="span12 well advance_search_form header">
-                {{ form.as_table(column=2) }}
-            </div>
+            {% from "_form_h.html" import render_search_form %}
+            {{ render_search_form(form.area, form.vendor_id, form.model_id) }}
         </form>
         <form action="" method="POST" id="node_form">
         {{ render_table(table) }}

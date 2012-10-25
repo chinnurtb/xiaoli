@@ -19,12 +19,10 @@
         <form class="form-horizontal" method="POST" action="{{url_for('nodes.nodes_edit', id=node.id)}}">
             <h5><i class="icon-pencil"></i> 修改节点</h5>
             <hr/>
-            {% from "_form_h.html" import render_field %}
+            {% from "_form_h.html" import render_field,render_areas %}
             {{ form.hidden_tag() }}
             {{ render_field(form.category_id, class="input-medium") }}
-            {{ render_field(form.cityid, class="input-medium") }}
-            {{ render_field(form.town, class="input-medium") }}
-            {{ render_field(form.area_id, class="input-medium") }}
+            {{ render_areas(form.cityid, form.town,form.area_id, class="input-small") }}
             {{ render_field(form.name) }}
             {{ render_field(form.alias) }}
             {{ render_field(form.addr) }}

@@ -12,10 +12,10 @@ class TimePeriod(db.Model):
     name       = db.Column(db.String(100))
     alias      = db.Column(db.String(100))
     minute     = db.Column(db.String(100))
-    hour       = db.Column(db.String(60), default='*')
-    dayofmonth = db.Column(db.String(100), default='*')
-    month      = db.Column(db.String(40), default='*')
-    dayofweek  = db.Column(db.String(40), default='*')
+    _hour       = db.Column('hour', db.String(60), default='*')
+    _dayofmonth = db.Column('dayofmonth', db.String(100), default='*')
+    _month      = db.Column('month', db.String(40), default='*')
+    _dayofweek  = db.Column('dayofweek', db.String(40), default='*')
     start_at   = db.Column(db.DateTime)
     end_at     = db.Column(db.DateTime)
     state_in   = db.Column(db.Integer)
@@ -23,8 +23,41 @@ class TimePeriod(db.Model):
     status     = db.Column(db.Integer)
     created_at = db.Column(db.DateTime)
     updated_at = db.Column(db.DateTime)
-    
 
+    
+    @property
+    def hour(self):
+        return self._hour.split(',')
+
+    @hour.setter
+    def hour(self, lst):
+        self._hour = ','.join(lst)
+
+    @property
+    def dayofmonth(self):
+        return self._dayofmonth.split(',')
+
+    @dayofmonth.setter
+    def dayofmonth(self, lst):
+        self._dayofmonth = ','.join(lst)
+
+    @property
+    def month(self):
+        return self._month.split(',')
+
+    @month.setter
+    def month(self, lst):
+        self._month = ','.join(lst)
+
+    @property
+    def dayofweek(self):
+        return self._dayofweek.split(',')
+
+    @dayofweek.setter
+    def dayofweek(self, lst):
+        self._dayofweek = ','.join(lst)
+        
+        
 class OperationLog(db.Model):
     __tablename__ = 'oplogs'
     id          = db.Column(db.Integer, primary_key=True)
