@@ -21,15 +21,15 @@
 
 {% macro render_field(field) %}
 <div class="control-group {% if field.errors %}error{% endif %}">
-  <label class="control-label" for="{{ field.id }}">{{field.label.text}}</label>
+    <label class="control-label" for="{{ field.id }}">{{field.label.text}}</label>
     <div class="controls">
-	{{ field(**kwargs) }}
+        {{ field(**kwargs) }}
         {% if field.flags.required %}<strong><em>*</em></strong>{% endif %}
-	{% if field.errors %}
-	<span class="help-inline">
+        {% if field.errors %}
+            <span class="help-inline">
 	    {{ field.errors[0]|e }}
 	</span>
-	{% endif %}
+        {% endif %}
     </div>
 </div>
 {% endmacro %}
@@ -132,5 +132,23 @@
       </tbody>
   </table>
 </div>
+{% endmacro %}
+
+{% macro render_areas() %}
+    {% set field = varargs|last %}
+    <div class="control-group {% if field.errors %}error{% endif %}">
+        <label class="control-label" for="{{ field.id }}">{{field.label.text}}</label>
+        <div class="controls">
+            {% for arg in varargs %}
+                {{ arg(**kwargs) }}
+            {% endfor %}
+            {% if field.flags.required %}<strong><em>*</em></strong>{% endif %}
+            {% if field.errors %}
+                <span class="help-inline">
+	    {{ field.errors[0]|e }}
+	</span>
+            {% endif %}
+        </div>
+    </div>
 {% endmacro %}
     

@@ -3,6 +3,7 @@
 {% set menuid = 'nodes' %}
 
 {% block head %}
+    <link rel="stylesheet" href="/static/css/node.css" type="text/css" media="screen" />
     {{ form.media.render() }}
     <script type="text/javascript">
         var make_option = function(value, name) {
@@ -43,11 +44,18 @@
             {{ render_field(form.controller_id, class="input-large") }}
             {{ render_field(form.area_id, class="input-large") }}
             {{ render_field(form.name) }}
+            {{ render_field(form.alias) }}
             {{ render_field(form.addr) }}
-            {{ render_field(form.snmp_comm) }}
-            {{ render_field(form.snmp_wcomm) }}
             {{ render_field(form.vendor_id, class="input-large") }}
             {{ render_field(form.model_id, class="input-large") }}
+            <legend>SNMP信息</legend>
+            {{ render_field(form.snmp_comm) }}
+            {{ render_field(form.snmp_wcomm) }}
+            {{ render_field(form.snmp_ver) }}
+            <legend>其他</legend>
+            {{ render_field(form.location) }}
+            {{ render_field(form.remark) }}
+
             <div class="form-actions span10">
                 <button type="submit" class="btn btn-primary btn-small">确定</button>
                 <button type="submit" class="btn btn-small">取消</button>

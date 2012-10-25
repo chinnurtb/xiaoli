@@ -129,6 +129,7 @@ class Model(db.Model):
     vendor            = db.relation('Vendor')
 
 NODE_STATUS_DICT = {1: u'正常', 2: u'宕机', 3: u'不可达', 4: u'未监控'}
+SNMP_VER_DICT = {"v1":'v1',"v2c":'v2c'}
 
 class NodeMixin(object):
     id            = db.Column(db.Integer, primary_key=True)

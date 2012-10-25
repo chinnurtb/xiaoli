@@ -3,6 +3,7 @@
 {% set menuid = 'nodes' %}
 
 {% block head %}
+    <link rel="stylesheet" href="/static/css/node.css" type="text/css" media="screen" />
     {{ form.media.render() }}
 {% endblock %}
 
@@ -19,18 +20,22 @@
         <form class="form-horizontal" method="POST" action="{{url_for('nodes.olts_new')}}">
             <h5><i class="icon-plus"></i>添加OLT</h5>
             <hr/>
-            {% from "_form_h.html" import render_field %}
+            {% from "_form_h.html" import render_field,render_areas %}
             {{ form.hidden_tag() }}
-            {{ render_field(form.cityid, class="input-medium") }}
-            {{ render_field(form.town, class="input-medium") }}
-            {{ render_field(form.area_id, class="input-medium") }}
+            {{ render_areas(form.cityid, form.town, form.area_id, class="input-small") }}
             {{ render_field(form.name) }}
             {{ render_field(form.alias) }}
             {{ render_field(form.addr) }}
-            {{ render_field(form.snmp_comm) }}
-            {{ render_field(form.snmp_wcomm) }}
             {{ render_field(form.vendor_id, class="input-large") }}
             {{ render_field(form.model_id, class="input-large") }}
+            <legend>SNMP信息</legend>
+            {{ render_field(form.snmp_comm) }}
+            {{ render_field(form.snmp_wcomm) }}
+            {{ render_field(form.snmp_ver) }}
+            <legend>其他</legend>
+            {{ render_field(form.location) }}
+            {{ render_field(form.remark) }}
+
             <div class="form-actions span10">
                 <button type="submit" class="btn btn-primary btn-small">确定</button>
                 <button type="submit" class="btn btn-small">取消</button>
