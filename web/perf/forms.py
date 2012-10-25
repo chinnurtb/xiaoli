@@ -33,3 +33,4 @@ class ThresholdNewForm(ThresholdEditForm):
     enabled = SelectField(u'有效性', choices=[(u'0', u'无效'),(u'1', u'有效')])
     occur_count = IntegerField(u'产生数量')
     summary = TextAreaField(u'摘要')
+

@@ -39,5 +39,3 @@ class Threshold(db.Model):
     category    = db.relationship('Category')
     metric      = db.relationship('Metric')
     alarm_class = db.relationship('AlarmClass')
-
-
