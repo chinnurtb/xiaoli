@@ -1,7 +1,5 @@
 {% extends "layout.html" %}
 
-{% set menuid = 'nodes' %}
-
 {% block head %}
     <link rel="stylesheet" href="/static/css/node.css" type="text/css" media="screen" />
     {{ form.media.render() }}
@@ -29,7 +27,7 @@
 
 <div class="row-fluid content">
     <div class="span2">
-        {% set submenuid = 'switches' %}
+        {% set menuid = 'switches' %}
         {% include 'nodes/_sidebar.html' %}
     </div>
 

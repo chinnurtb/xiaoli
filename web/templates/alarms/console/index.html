@@ -1,7 +1,5 @@
 {% extends 'layout.html' %}
 
-{% set menuid = 'alarms' %}
-
 {% set title = "告警监视面板" %}
 
 {% block head %} 
@@ -14,7 +12,7 @@
     
     <div class="row-fluid content">
         <div class="span2">
-            {% set submenuid = 'alarms_console' %}
+            {% set menuid = 'alarms_console' %}
             {% include 'alarms/_sidebar.html' %}
         </div>
 

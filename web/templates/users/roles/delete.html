@@ -1,7 +1,5 @@
 {% extends 'layout.html' %}
 
-{% set menuid = 'roles' %}
-
 {% set title = '删除角色' %}
 
 {% from "_form_h.html" import render_field %}
@@ -10,7 +8,7 @@
 
 <div class="row-fluid content">
   <div class="span2">
-    {% set submenuid = 'roles' %}
+    {% set menuid = 'roles' %}
     {% include 'users/_sidebar.html' %}
   </div>
   <div class="span10">

@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+# coding: utf-8
 
 from flask import (Blueprint, request, url_for, redirect,
                    render_template, flash)
@@ -7,7 +6,7 @@ from flask import (Blueprint, request, url_for, redirect,
 from tango import db
 from tango.base import make_table
 from tango.models import Setting, DictCode
-from tango.ui import menus, Menu
+from tango.ui import navbar
 
 from nodes.models import NodeHost
 from nodes.tables import NodeHostTable
@@ -20,6 +19,10 @@ from .forms import (SettingEditForm, SearchForm, OplogFilterForm, DictCodeFilter
                     DictCodeNewEditForm, NodeHostEditForm, TimePeriodNewEditForm)
 
 sysview = Blueprint('system', __name__)
+
+@sysview.context_processor
+def inject_navid():
+    return dict(navid = 'system')
 
 @sysview.route('/system/')
 @sysview.route('/system/settings/')
@@ -192,5 +195,5 @@ def seclogs():
     return render_template('/system/seclogs.html', 
         table=table, searchForm = searchForm)
 
-menus.append(Menu('system', u'系统', '/system'))
+navbar.add('system', u'系统', '/system')
 

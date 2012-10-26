@@ -1,7 +1,5 @@
 {% extends 'layout.html' %}
 
-{% set menuid = 'system' %}
-
 {% set title = '修改主机信息' %}
 
 {% from "_form_h.html" import render_field %}
@@ -9,7 +7,7 @@
 {% block content %}
 <div class="row-fluid" style="margin-top:20px">
     <div class="span2">
-      {% set submenuid = 'hosts' %}
+      {% set menuid = 'hosts' %}
       {% include "system/_sidebar.html" %}
     </div>
     

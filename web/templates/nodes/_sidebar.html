@@ -1,20 +1,20 @@
 {% from "tango/_sidebar_h.html" import render_sidebar %}
 
-{{ render_sidebar('资源浏览', submenuid, [
-        ('nodes','所有节点', '/nodes'),
-        ('areas','区域导航', '/areas')])
+{{ render_sidebar('资源浏览', menuid, [
+    ('nodes','所有节点', '/nodes'),
+    ('areas','区域导航', '/areas')])
 }}
 
-{{ render_sidebar('资源管理', submenuid, [
-        ('switches', 'Switch', '/nodes/switches/'),
-        ('olts', 'OLT', '/nodes/olts/'),
-        ('onus', 'ONU', '/nodes/onus/'),
-        ('eocs', 'EOC', '/nodes/eocs/')])
+{{ render_sidebar('资源管理', menuid, [
+    ('switches', 'Switch', '/nodes/switches/'),
+    ('olts', 'OLT', '/nodes/olts/'),
+    ('onus', 'ONU', '/nodes/onus/'),
+    ('eocs', 'EOC', '/nodes/eocs/')])
 }}
 
-{{ render_sidebar('资源统计', submenuid, [
-        ('categories','分类统计', '/categories'),
-        ('vendors','厂商统计', '/vendors'),
-        ('areas','区域统计', '/areas')])
+{{ render_sidebar('资源统计', menuid, [
+    ('categories','分类统计', '/categories'),
+    ('vendors','厂商统计', '/vendors'),
+    ('areas','区域统计', '/areas')])
 }}
 

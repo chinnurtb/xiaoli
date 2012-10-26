@@ -1,13 +1,10 @@
-
-{% set menuid = 'topo' %}
-
 {% extends 'layout.html' %}
 
 {% block content %} 
 
     <div class="row-fluid content">
         <div class="span2">
-            {% set submenuid = 'topo/system' %}
+            {% set menuid = 'topo/system' %}
             {% include 'topo/_sidebar.html' %}
         </div>
 

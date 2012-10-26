@@ -1,7 +1,5 @@
 {% extends 'layout.html' %}
 
-{% set menuid = 'system' %}
-
 {% set title = '操作日志' %}
 
 {% block head %} 
@@ -23,7 +21,7 @@
 {% block content %} 
     <div class="row-fluid content">
         <div class="span2">
-            {% set submenuid = 'oplogs' %}
+            {% set menuid = 'oplogs' %}
             {% include 'system/_sidebar.html' %}
         </div>
         <div class="span10">

@@ -3,8 +3,7 @@
 from flask import Blueprint, request, url_for, \
     redirect, render_template, flash
 
-
-from tango.ui import menus, Menu
+from tango.ui import navbar
 from tango.models import db, Category
 from tango.base import make_table
 
@@ -15,11 +14,37 @@ from .forms import ThresholdEditForm, ThresholdNewForm
 
 perfview = Blueprint('perf', __name__, url_prefix="/perf")
 
+@perfview.context_processor
+def inject_navid():
+    return dict(navid = 'perf')
 
 @perfview.route('/t-collapse')
 def test_collapse():
     return render_template('perf/test-collapse.html')
 
+@perfview.route('/switches')
+def switches():
+    return render_template('/perf/switches/index.html')
+
+@perfview.route('/olts/')
+def olts():
+    return render_template('perf/olts/index.html')
+
+@perfview.route('/onus/')
+def onus():
+    return render_template('perf/onus/index.html')
+
+@perfview.route('/eocs')
+def eocs():
+    return render_template('/perf/eocs/index.html')
+
+@perfview.route('/boards/')
+def boards():
+    return render_template('/perf/boards/index.html')
+
+@perfview.route('/pon/')
+def pon():
+    return render_template('/perf/pon/index.html')
 
 # ==============================================================================
 #  阀值管理
@@ -89,4 +114,5 @@ def metrics_new():
 def metrics_edit():
     return render_template('')
 
-menus.append(Menu('perf', u'性能', '/perf'))
+navbar.add('perf', u'性能', '/perf')
+

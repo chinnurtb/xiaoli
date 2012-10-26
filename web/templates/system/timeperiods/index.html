@@ -1,7 +1,5 @@
 {% extends "layout.html" %}
 
-{% set menuid = 'system' %}
-
 {% set title = '采集规则' %}
 
 {% block head %}
@@ -21,7 +19,7 @@
 {% block content %}
     <div class="row-fluid content">
         <div class="span2">
-            {% set submenuid = 'timeperiods' %}
+            {% set menuid = 'timeperiods' %}
             {% include 'system/_sidebar.html' %}
         </div>
         <div class="span10">

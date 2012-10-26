@@ -9,8 +9,6 @@ from flask import json
 from tango import db
 from tango import user_profile
 from tango.base import make_table
-from tango.ui import menus, Menu
-from tango.ui import add_widget, Widget, tables
 from tango.login import current_user, login_required
 from tango.models import Profile, Category
 

@@ -1,7 +1,5 @@
 {% extends 'layout.html' %}
 
-{% set menuid = 'users' %}
-
 {% set title = '添加用户' %}
 
 {% from "_form_h.html" import render_field, render_form_title %}
@@ -9,7 +7,7 @@
 {% block content %}
 <div class="row-fluid" style="margin-top:20px">
     <div class="span2">
-      {% set submenuid = 'users-new' %}
+      {% set menuid = 'users-new' %}
       {% include "users/_sidebar.html" %}
     </div>
     

@@ -1,18 +1,18 @@
 {% from "tango/_sidebar_h.html" import render_sidebar %}
 
-{{ render_sidebar('告警管理', submenuid, [
-        ('alarms_console',  '监视面板',     url_for('alarms.alarms_console')),
-        ('alarms',          '当前告警',     url_for('alarms.index')),
-        ('histories',       '历史告警',     url_for('alarms.histories'))])
+{{ render_sidebar('告警管理', menuid, [
+    ('alarms_console',  '监视面板',     url_for('alarms.alarms_console')),
+    ('alarms',          '当前告警',     url_for('alarms.index')),
+    ('histories',       '历史告警',     url_for('alarms.histories'))])
 }}
 
-{{ render_sidebar('告警统计', submenuid, [
-        ('alarms_stats_current',  '实时统计', url_for('alarms.stats_current')),
-        ('alarms_stats_history', '历史统计', url_for('alarms.stats_history'))])
+{{ render_sidebar('告警统计', menuid, [
+    ('alarms_stats_current',  '实时统计', url_for('alarms.stats_current')),
+    ('alarms_stats_history', '历史统计', url_for('alarms.stats_history'))])
 }}
 
-{{ render_sidebar('告警设置', submenuid, [
-        ('alarms_settings',   '基本设置',     url_for('alarms.settings')),
-        ('alarms_classes',     '告警类型',     url_for('alarms.classes')),
-        ('alarms_knowledges',      '告警知识库',   url_for('alarms.knowledges'))])
+{{ render_sidebar('告警设置', menuid, [
+    ('alarms_settings',   '基本设置',     url_for('alarms.settings')),
+    ('alarms_classes',     '告警类型',     url_for('alarms.classes')),
+    ('alarms_knowledges',      '告警知识库',   url_for('alarms.knowledges'))])
 }}
