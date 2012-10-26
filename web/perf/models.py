@@ -4,6 +4,8 @@
 from tango import db
 
 class Metric(db.Model):
+    ''' 指标管理 '''
+    
     __tablename__ = 'metrics'
     id     = db.Column(db.Integer, primary_key=True)
     grp    = db.Column(db.String(60))

@@ -2,7 +2,7 @@
 #coding=utf-8
 
 from tango.ui import tables
-from .models import Threshold
+from .models import Threshold, Metric
 
 class ThresholdTable(tables.Table):
     helpdoc = u'阀值设置'
@@ -24,3 +24,18 @@ class ThresholdTable(tables.Table):
 
     class Meta():
         model = Threshold
+
+
+class MetricTable(tables.Table):
+    helpdoc = u'指标管理'
+    
+    grp    = tables.Column(verbose_name=u'分组')
+    name   = tables.Column(verbose_name=u'名称')
+    alias  = tables.Column(verbose_name=u'显示名')
+    calc   = tables.Column(verbose_name=u'计算')
+    unit   = tables.Column(verbose_name=u'单位')
+    format = tables.Column(verbose_name=u'格式')
+    descr  = tables.Column(verbose_name=u'说明')
+    
+    class Meta():
+        model = Metric

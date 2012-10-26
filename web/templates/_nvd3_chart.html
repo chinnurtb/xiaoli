@@ -1,10 +1,30 @@
-{% macro pieChart(chartid, chartdata, height=200) %}
+{% macro _render_chart(chartid, chartdata, height) %}
 
-<div id="{{chartid}}" style="height:{{height}}px;background-color:#ffffff"><svg></svg></div>
+    <div id="{{chartid}}" style="height:{{height}}px; background-color:#ffffff"><svg></svg></div>
 
-<script type="text/javascript">
+    <script type="text/javascript">
 
-nv.addGraph(function() {
+    nv.addGraph(function() {
+
+        {{ caller() }}
+
+        d3.select("#{{chartid}} svg")
+            .datum({{ chartdata|tojson|safe }})
+            .transition().duration(500)
+            .call(chart);
+
+        nv.utils.windowResize(chart.update);
+
+        return chart;
+    });
+
+    </script>
+
+{% endmacro %}
+
+{% macro pie_chart(chartid, chartdata, height=200) %}
+    
+    {% call _render_chart(chartid, chartdata, height) %}
 
     var chart = nv.models.pieChart()
         .height({{height}})
@@ -12,33 +32,17 @@ nv.addGraph(function() {
         .y(function(d) { return d.value })
         .color(function(d) { return d.data.color })
         .tooltipContent(function(key, y, e, graph) {return '<span>' + key + ':' + y + '</span>'})
-        .values(function(d) { return d })
         .showLabels(false);
-
     chart.valueFormat(d3.format(',d'));
 
-    d3.select("#{{chartid}} svg")
-        .datum([{{ chartdata|tojson|safe }}])
-        .transition().duration(1200)
-        .call(chart);
-
-    nv.utils.windowResize(chart.update);
-
-    return chart;
-});
-
-</script>
+    {% endcall %}
 
 {% endmacro %}
 
+{% macro bar_chart(chartid, chartdata, height=200) %}
 
-{% macro barChart(chartid, chartdata, height=200) %}
+    {% call _render_chart(chartid, chartdata, height) %}
 
-<div id="{{chartid}}", style="height:{{height}}px;background-color:white"><svg></svg></div>
-
-<script type="text/javascript">
-
-nv.addGraph(function() {  
     var chart = nv.models.discreteBarChart()
         .height({{height}})
         .x(function(d) { return d.label })
@@ -49,29 +53,14 @@ nv.addGraph(function() {
 
     chart.yAxis.tickFormat(d3.format(',d'));
 
-    d3.select('#{{chartid}} svg')
-        .datum([{values: {{chartdata|tojson|safe}} }])
-        .transition().duration(500)
-        .call(chart);
-
-  nv.utils.windowResize(chart.update);
-
-  return chart;
-
-});
-
-</script>
+    {% endcall %}
 
 {% endmacro %}
 
+{% macro multi_bar_chart(chartid, chartdata, stacked=False, height=200) %}
 
-{% macro multiBarChart(chartid, chartdata, stacked=False, height=200) %}
+    {% call _render_chart(chartid, chartdata, height) %}
 
-<div id="{{chartid}}" style="height:{{height}}px"><svg></svg></div>
-
-<script type="text/javascript">
-
-nv.addGraph(function() {
     var chart = nv.models.multiBarChart()
         .stacked({{stacked|tojson}})
         .height({{height}})
@@ -79,29 +68,16 @@ nv.addGraph(function() {
         .tooltip(function(key, x, y, e, graph) {
             return '<p>' + key + ':' + y + '</p>';
         });
-    chart.yAxis
-     .tickFormat(d3.format(',d'));
-    d3.select('#{{chartid}} svg')
-    .datum({{chartdata|tojson|safe}})
-    .transition().duration(500)
-    .call(chart);
+    chart.yAxis.tickFormat(d3.format(',d'));
 
-    nv.utils.windowResize(chart.update);
-
-    return chart;
-});
-
-</script>
+    {% endcall %}
 
 {% endmacro %}
 
-{% macro horizontalMultiBarChart(chartid, chartdata, stacked=False, height=200) %}
+{% macro horizontal_multi_bar_chart(chartid, chartdata, stacked=False, height=200) %}
 
-<div id="{{chartid}}" style="height:{{height}}px"><svg></svg></div>
+    {% call _render_chart(chartid, chartdata, height) %}
 
-<script type="text/javascript">
-
-nv.addGraph(function() {
      var chart = nv.models.multiBarHorizontalChart()
          .stacked({{stacked|tojson}})
          .x(function(d) { return d.label })
@@ -110,20 +86,9 @@ nv.addGraph(function() {
          .tooltips(false)
          .showControls(false);
  
-     chart.yAxis
-         .tickFormat(d3.format(',d'));
+     chart.yAxis.tickFormat(d3.format(',d'));
+    
+    {% endcall %}
  
-     d3.select('#{{chartid}} svg')
-        .datum({{ chartdata|tojson|safe }})
-        .transition().duration(500)
-        .call(chart);
- 
-     nv.utils.windowResize(chart.update);
- 
-     return chart;
-   });
-
-</script>
-
 {% endmacro %}
 

@@ -25,8 +25,8 @@
         </div>
         <div class="span10">
           {% include "_alert.html" %}
-          <form class="form-horizontal" method="GET" action="{{url_for('perf.thresholds')}}" id="search_form">
-            <div class="tablenav top">
+          <div class="tablenav top">
+            <form class="form-horizontal" method="GET" style="margin:0" action="{{url_for('perf.thresholds')}}" id="search_form">
               <div class="">
                 <input type="hidden" name="orderby" value="login">
                 <input type="hidden" name="order" value="asc">
@@ -37,12 +37,12 @@
               <div class="pull-left" style="height: 26px;">
                 <div class="input-append pull-left" style="margin-left: 20px;">
                   <input type="text" name="keyword" class="input-low"
-                  value="{{ keyword }}" />
+                         value="{{ keyword }}" />
                   <button id="advance_sarch" class="btn btn-small">检索</button>
                 </div>
               </div>
-            </div>
-          </form>
+            </form>
+          </div>
 
           {{ render_table(table) }}
         </div>

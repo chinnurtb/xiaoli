@@ -349,7 +349,7 @@ class BoundColumns(object):                   # dict
                 if bound_column.name == index:
                     return bound_column
             raise KeyError("Column with name '%s' does not exist; "
-                           "choices are: %s" % (index, self.names()))
+                           "choices are: %s" % (index, self.table.sequence))
         else:
             raise TypeError(u'row indices must be integers or str, not %s'
                             % type(index).__name__)
