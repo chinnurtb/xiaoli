@@ -19,8 +19,8 @@ class UserTable(tables.Table):
     
     username       = tables.Column(verbose_name=u'用户名', orderable=True)
     name           = tables.Column(verbose_name=u'真实姓名')
-    role_name      = tables.Column(verbose_name=u'角色名称', accessor='role.name')
-    domain         = tables.Column(verbose_name=u'管理域', accessor='domain.name')
+    role_name      = tables.Column(verbose_name=u'角色名称', orderable=True, accessor='role.name')
+    domain         = tables.Column(verbose_name=u'管理域', orderable=True, accessor='domain.name')
     email          = tables.EmailColumn(verbose_name=u'邮箱')
     department     = tables.Column(verbose_name=u'部门')
     telephone      = tables.Column(verbose_name=u'电话')

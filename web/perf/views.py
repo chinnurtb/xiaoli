@@ -9,8 +9,8 @@ from tango.models import db, Category
 from tango.base import make_table
 
 from alarms.models import AlarmSeverity
-from .models import Threshold
-from .tables import ThresholdTable
+from .models import Threshold, Metric
+from .tables import ThresholdTable, MetricTable
 from .forms import ThresholdEditForm, ThresholdNewForm
 
 perfview = Blueprint('perf', __name__, url_prefix="/perf")
@@ -78,8 +78,15 @@ def thresholds_new():
     
 @perfview.route('/metrics/')
 def metrics():
-    return render_template('perf/metrics/index.html')
+    table = make_table(Metric.query, MetricTable)
+    return render_template('perf/metrics/index.html', table=table)
 
-    
+@perfview.route('/metrics/new', methods=['GET', 'POST'])
+def metrics_new():
+    pass
+
+@perfview.route('/metrics/edit', methods=['GET', 'POST'])
+def metrics_edit():
+    return render_template('')
 
 menus.append(Menu('perf', u'性能', '/perf'))

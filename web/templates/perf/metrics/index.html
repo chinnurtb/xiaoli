@@ -4,7 +4,18 @@
 
 {% set title = '指标管理' %}
 
-{% block head %} {% endblock %}
+{% block head %}
+
+{% from "_table_h.html" import render_table_profile %}
+<script type="text/javascript">
+  {{ render_table_profile(table) }}
+</script>
+
+{% endblock %}
+
+{% from "_table_h.html" import render_table, render_screen_meta %}
+
+{% block screen_meta %} {{ render_screen_meta(table) }} {% endblock %}
 
 {% block content %} 
     <div class="row-fluid content">
@@ -13,8 +24,8 @@
             {% include "perf/_sidebar.html" %}
         </div>
         <div class="span10">
-            <h1>指标管理</h1>
-            <p>数据库表: metrics</p>
+          {% include "_alert.html" %}
+          {{ render_table(table) }}
         </div>
     </div>
 {% endblock %}

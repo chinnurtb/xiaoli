@@ -1,3 +1,7 @@
+{% macro render_form_title(request, title) %}
+<h5><i class="icon-{% if request.endpoint.find('_edit') > -1 %}pencil{% else %}plus{% endif %}"></i> {{ title }}</h5><hr>
+{% endmacro %}
+
 {% macro render_errors(field) %}
 {% if field.errors %}
 <ul class="errors">

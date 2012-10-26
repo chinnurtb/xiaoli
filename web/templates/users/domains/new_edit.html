@@ -62,7 +62,7 @@ $(document).ready(function(){
 </script>
 {% endblock %}
 
-{% from "_form_h.html" import render_field %}
+{% from "_form_h.html" import render_field, render_form_title %}
 
 {% block content %}
 <div class="row-fluid" style="margin-top:20px">
@@ -77,7 +77,8 @@ $(document).ready(function(){
 	<div class="row-fluid">
 	    <div class="">
 		<form class="form-horizontal" method="POST" id="test-wtf" action="{{action}}">
-		    <fieldset>
+                  {{ render_form_title(request, title) }}
+		  <fieldset>
 			{{ form.hidden_tag() }}
 			{{ render_field(form.name) }}
                         <div  class="control-group">
@@ -90,7 +91,7 @@ $(document).ready(function(){
                           </div>
                         </div>
                         {{ render_field(form.description) }}
-			<div class="control-group">
+			<div class="form-actions span10">
 			    <div class="controls">
 				<button type="submit" class="btn btn-primary">确定</button>
 				<a href="#" class="btn">取消</a>

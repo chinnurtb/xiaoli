@@ -5,7 +5,7 @@
 
 {% set title = '编辑角色' %}
 
-{% from "_form_h.html" import render_field %}
+{% from "_form_h.html" import render_field, render_form_title %}
 
 {% block content %}
 <div class="row-fluid" style="margin-top:20px">
@@ -22,6 +22,7 @@
     <div class="row-fluid">
       <div class="">
 	<form class="form-horizontal" method="POST" id="test-wtf" action="{{action}}">
+          {{ render_form_title(request, title) }}
 	  <fieldset>
             {{ form.hidden_tag() }}
             {{ render_field(form.name) }}

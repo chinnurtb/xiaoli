@@ -35,9 +35,10 @@ class TableData(object):
         if order_by[0] == '-':
             order = 'desc'
             order_by = order_by[1:]
-            
-        accessor = self.table.columns[order_by].accessor
-        if accessor: order_by = accessor
+
+        if order_by in self.table.sequence:
+            accessor = self.table.columns[order_by].accessor
+            if accessor: order_by = accessor
         
         if order_by.find('.') > -1:
              cls, order_str = self.get_cls_order(model, order_by, order)
