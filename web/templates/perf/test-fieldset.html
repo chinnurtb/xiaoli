@@ -11,9 +11,9 @@
         <div class="span2"> </div>
         <div class="span10" style="">
           <form class="form-horizontal" id="" method="POST" action="">
-            {% for i in range(3) %}
+            {% for i in range(4) %}
             <fieldset>
-              <legend>第一个 Fieldset</legend>
+              <legend>第 {{ i+1 }} 个 Fieldset</legend>
               {% for item in ('Name', 'Email', 'Information') %}
               <div class="control-group">
                 <label class="control-label" for="input{{item}}">{{item}}</label>

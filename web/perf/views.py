@@ -6,7 +6,7 @@ from flask import Blueprint, request, url_for, \
 
 from tango.ui import menus, Menu
 from tango.models import db, Category
-from tango.base import make_table
+from tango.ui.tables import make_table
 
 from alarms.models import AlarmSeverity
 from .models import Threshold, Metric

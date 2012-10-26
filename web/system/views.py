@@ -5,7 +5,7 @@ from flask import (Blueprint, request, url_for, redirect,
                    render_template, flash)
 
 from tango import db
-from tango.base import make_table
+from tango.ui.tables import make_table
 from tango.models import Setting, DictCode
 from tango.ui import menus, Menu
 
