@@ -14,12 +14,7 @@ from .tables import ThresholdTable, MetricTable
 from .forms import ThresholdEditForm, ThresholdNewForm, MetricNewEditForm
 
 perfview = Blueprint('perf', __name__, url_prefix="/perf")
-
-
-@perfview.route('/t-collapse')
-def test_collapse():
-    return render_template('perf/test-collapse.html')
-
+    
 
 # ==============================================================================
 #  阀值管理
@@ -73,7 +68,7 @@ def thresholds_new():
         flash(u'阀值 %s 添加成功' % threshold.name, 'success')
         return redirect(url_for('perf.thresholds'))
         
-    return render_template("perf/thresholds/new.html", form=form)
+    return render_template("perf/thresholds/new.html", form=form, )
 
 
 # ==============================================================================
@@ -115,4 +110,18 @@ def metrics_edit(id):
                            action=url_for('perf.metrics_edit', id=id), title=u'编辑指标')
 
     
+
+# ==============================================================================
+#  Test
+# ==============================================================================
+@perfview.route('/t-collapse')
+def test_collapse():
+    return render_template('perf/test-collapse.html')
+
+
+@perfview.route('/t-fieldset')
+def test_fieldset():
+    return render_template('perf/test-fieldset.html')
+
+
 menus.append(Menu('perf', u'性能', '/perf'))

@@ -4,7 +4,7 @@
 
 {% block head %} {% endblock %}
 
-{% from "_form_h.html" import render_field, render_cron_rule %}
+{% from "_form_h.html" import render_field, render_form_title, render_cron_rule %}
 
 {% block content %}
     
@@ -14,19 +14,19 @@
             {% include 'system/_sidebar.html' %}
         </div>
         <div class="span10">
-	  <form class="form-horizontal" method="POST"
-                action="{{ action }}">
-	      {{ form.hidden_tag() }}
-              {{ render_field(form.name) }}
-              {{ render_field(form.alias) }}
-              <legend>规则设置 (Cron)</legend>
-              {{ render_cron_rule([form.hour, form.dayofmonth, form.month, form.dayofweek]) }}
-              <hr/>
-              {{ render_field(form.remark) }}
-	      <div class="form-actions">
-		<button type="submit" class="btn btn-primary">确定</button>
-		<a href="#" class="btn">取消</a>
-	      </div>
+	  <form class="form-horizontal" method="POST" action="{{ action }}">
+            {{ render_form_title(request, title) }}
+	    {{ form.hidden_tag() }}
+            {{ render_field(form.name) }}
+            {{ render_field(form.alias) }}
+            <legend>规则设置 (Cron)</legend>
+            {{ render_cron_rule([form.hour, form.dayofmonth, form.month, form.dayofweek]) }}
+            <hr/>
+            {{ render_field(form.remark) }}
+	    <div class="form-actions">
+	      <button type="submit" class="btn btn-primary">确定</button>
+	      <a href="#" class="btn">取消</a>
+	    </div>
 	  </form>
         <div>
     </div>

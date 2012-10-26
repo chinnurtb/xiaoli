@@ -14,32 +14,27 @@
     </div>
     
     <div class="span10">
-	<div class="row-fluid">
-	    <div class="">
-		<form class="form-horizontal" method="POST" id="test-wtf" action="{{url_for('users.users_new')}}">
-                  {{ render_form_title(request, title) }}
-                  <fieldset>
-			{{ form.hidden_tag() }}
-			{{ render_field(form.username, id="user-username") }}
-			{{ render_field(form.name) }}
-			{{ render_field(form.password) }}
-			{{ render_field(form.password_confirm) }}
-			{{ render_field(form.role_id) }}
-			{{ render_field(form.domain_id) }}
-			{{ render_field(form.department) }}
-			{{ render_field(form.email) }}
-			{{ render_field(form.telephone) }}
-			{{ render_field(form.mobile) }}
-			{{ render_field(form.memo, rows=4) }}
-			<div class="form-actions">
-			  <button type="submit" class="btn btn-primary">确定</button>
-			  <a href="#" class="btn">取消</a>
-			</div>
-		    </fieldset>		    
-		</form>
-	    </div>
-	</div>
-        <br class="clear">
+      <form class="form-horizontal" method="POST" id="test-wtf" action="{{url_for('users.users_new')}}">
+        {{ render_form_title(request, title) }}
+        <fieldset>
+	  {{ form.hidden_tag() }}
+	  {{ render_field(form.username, id="user-username") }}
+	  {{ render_field(form.name) }}
+	  {{ render_field(form.password) }}
+	  {{ render_field(form.password_confirm) }}
+	  {{ render_field(form.role_id) }}
+	  {{ render_field(form.domain_id) }}
+	  {{ render_field(form.department) }}
+	  {{ render_field(form.email) }}
+	  {{ render_field(form.telephone) }}
+	  {{ render_field(form.mobile) }}
+	  {{ render_field(form.memo, rows=4) }}
+	  <div class="form-actions">
+	    <button type="submit" class="btn btn-primary">确定</button>
+	    <a href="#" class="btn">取消</a>
+	  </div>
+	</fieldset>		    
+      </form>
     </div>
 </div>
 
