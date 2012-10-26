@@ -105,8 +105,5 @@ def switches_show(id):
     alarm_chart["title"]["text"] = u'最近24小时可用率'
     alarm_chart["plotOptions"]["pie"]["events"]["click"] = None
     alarm_chart.min_width = str(220)+"px"
-<<<<<<< HEAD
-=======
     alarm_chart["series"][0]["data"] = [{'name': u'完全故障', 'y':1},{'name': u'部分故障', 'y':2},{'name': u'完全正常', 'y':19},{'name': u'数据缺失', 'y':2}]
->>>>>>> 89e1441fbaee39d2c8d170ade46de2638e651b7a
     return render_template('nodes/switches/show.html', node = node, traffic_chart = traffic_chart, alarm_chart = alarm_chart)
