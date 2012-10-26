@@ -91,7 +91,7 @@
     <tbody id="the-list" >
 	{% for row in table.rows %}
         
-	<tr class="{{ loop.cycle('', 'alternate-white') }}">
+	<tr class="{{ loop.cycle('alternate-white', '') }}">
 	    {% for column, cell, cellattrs in row.items %}
 	    {% if column.is_checkbox %}
             <th {{ column.attrs.th.as_html(scope="row") }} >

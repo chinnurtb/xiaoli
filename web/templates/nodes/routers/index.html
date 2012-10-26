@@ -1,6 +1,8 @@
 {% extends 'layout.html' %}
 
-{% set title = 'EOC管理' %}
+{% set menuid = 'eocs' %}
+
+{% set title = '路由器管理' %}
 
 {% block head %}
 <link rel="stylesheet" href="/static/css/node.css" type="text/css" media="screen" />
@@ -10,7 +12,7 @@
 
 <div class="row-fluid content">
     <div class="span2">
-        {% set menuid = 'eocs' %}
+        {% set submenuid = 'routers' %}
         {% include 'nodes/_sidebar.html' %}
     </div>
     <div class="span10">
@@ -18,7 +20,7 @@
             <div class="alignleft actions">
                 <input type="hidden" name="order_by" value="asc">
                 <div class="alignleft btn-group">
-                    <a class="btn" href="/eocs/new">添加EOC</a>
+                    <a class="btn" href="/eocs/new">添加路由器</a>
                 </div>
             </div>
             <div class="alignleft actions">
@@ -27,7 +29,7 @@
             </div>
         </div>
         <form action="" method="POST" id="eocs_form">
-            <div> EOC列表 </div>
+            <div> 路由器列表 </div>
         </form>
         <br class="clear">
     </div>

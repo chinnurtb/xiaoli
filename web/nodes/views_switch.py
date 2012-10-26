@@ -8,7 +8,7 @@ from flask import json
 
 from tango import db
 from tango import user_profile
-from tango.base import make_table
+from tango.ui.tables import make_table
 from tango.login import current_user, login_required
 from tango.models import Profile, Category
 
@@ -55,7 +55,7 @@ def switches_new():
         node.category_id = 2
         db.session.add(node)
         db.session.commit()
-        flash(u'新建Switch成功', 'info')
+        flash(u'新建交换机成功', 'info')
         return redirect(url_for('nodes.switches'))
     return render_template('nodes/switches/new.html', form = form)
 
@@ -71,7 +71,7 @@ def switches_edit(id):
         node.updated_at = datetime.now()
         db.session.add(node)
         db.session.commit()
-        flash(u'修改Switch成功','info')
+        flash(u'修改交换机成功','info')
         return redirect(url_for('nodes.switches'))
     form.process(obj=node)
     return render_template('/nodes/switches/edit.html', node=node, form=form)
@@ -84,7 +84,7 @@ def switches_delete():
             node = NodeSwitch.query.get(id)
             db.session.delete(node)
         db.session.commit()
-        flash(u'删除Switch成功','info')
+        flash(u'删除交换机成功','info')
         return redirect(url_for('nodes.switches'))
 
 @nodeview.route('/nodes/switches/<int:id>/', methods=['GET'])
@@ -102,7 +102,11 @@ def switches_show(id):
     from tango.ui.charts.highcharts import PieBasicChart
     alarm_chart = PieBasicChart()
     alarm_chart.set_html_id("alarm")
-    alarm_chart["title"]["text"] = None
+    alarm_chart["title"]["text"] = u'最近24小时可用率'
     alarm_chart["plotOptions"]["pie"]["events"]["click"] = None
     alarm_chart.min_width = str(220)+"px"
+<<<<<<< HEAD
+=======
+    alarm_chart["series"][0]["data"] = [{'name': u'完全故障', 'y':1},{'name': u'部分故障', 'y':2},{'name': u'完全正常', 'y':19},{'name': u'数据缺失', 'y':2}]
+>>>>>>> 89e1441fbaee39d2c8d170ade46de2638e651b7a
     return render_template('nodes/switches/show.html', node = node, traffic_chart = traffic_chart, alarm_chart = alarm_chart)

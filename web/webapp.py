@@ -166,7 +166,7 @@ def internal_error(e):
 
 @app.template_filter('ifnull')
 def ifnull(value, default=""):
-    if not value:
+    if value == None:
         return default
     else:
         return value

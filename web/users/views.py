@@ -6,10 +6,9 @@ from flask import (Blueprint, request, url_for, redirect, render_template, flash
 
 from tango import db
 
-from tango.base import NestedDict, make_table
-
 from tango.ui import navbar
-
+from tango.base import NestedDict
+from tango.ui.tables import make_table
 from tango.login import logout_user, login_user, current_user
 from tango.models import Profile
 

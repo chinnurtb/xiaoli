@@ -40,21 +40,28 @@
         <form class="form-horizontal" method="POST" action="{{url_for('nodes.olts_edit', id=node.id)}}">
             <h5><i class="icon-pencil"></i> 修改OLT</h5>
             <hr/>
-            {% from "_form_h.html" import render_field,render_areas %}
+            {% from "_form_h.html" import render_field,render_areas,render_radio %}
             {{ form.hidden_tag() }}
-            {{ render_areas(form.cityid, form.town, form.area_id, class="input-small") }}
-            {{ render_field(form.name) }}
-            {{ render_field(form.alias) }}
-            {{ render_field(form.addr) }}
-            {{ render_field(form.vendor_id, class="input-large") }}
-            {{ render_field(form.model_id, class="input-large") }}
-            <legend>SNMP信息</legend>
-            {{ render_field(form.snmp_comm) }}
-            {{ render_field(form.snmp_wcomm) }}
-            {{ render_field(form.snmp_ver) }}
-            <legend>其他</legend>
-            {{ render_field(form.location) }}
-            {{ render_field(form.remark) }}
+            <fieldset>
+              {{ render_areas(form.cityid, form.town, form.area_id, class="input-small") }}
+              {{ render_field(form.name) }}
+              {{ render_field(form.alias) }}
+              {{ render_field(form.addr) }}
+              {{ render_field(form.vendor_id, class="input-large") }}
+              {{ render_field(form.model_id, class="input-large") }}
+              {{ render_field(form.mask) }}
+            </fieldset>
+              <fieldset>
+              <legend>SNMP信息</legend>
+              {{ render_field(form.snmp_comm) }}
+              {{ render_field(form.snmp_wcomm) }}
+              {{ render_radio(form.snmp_ver) }}
+            </fieldset>
+            <fieldset>
+              <legend>其他</legend>
+              {{ render_field(form.location) }}
+              {{ render_field(form.remark) }}
+            </fieldset>
 
             <div class="form-actions span10">
                 <button type="submit" class="btn btn-primary btn-small">确定</button>

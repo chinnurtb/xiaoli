@@ -17,7 +17,7 @@ from jinja2 import Markup
 
 from tango import user_profile
 
-from tango.base import make_table
+from tango.ui.tables import make_table
 
 from tango.login import login_required, current_user
 

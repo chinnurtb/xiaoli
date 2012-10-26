@@ -41,7 +41,7 @@
         <form class="form-horizontal" method="POST" action="{{url_for('nodes.olts_new')}}">
             <h5><i class="icon-plus"></i>添加OLT</h5>
             <hr/>
-            {% from "_form_h.html" import render_field,render_areas %}
+            {% from "_form_h.html" import render_field,render_areas,render_radio %}
             {{ form.hidden_tag() }}
             {{ render_areas(form.cityid, form.town, form.area_id, class="input-small") }}
             {{ render_field(form.name) }}
@@ -49,10 +49,11 @@
             {{ render_field(form.addr) }}
             {{ render_field(form.vendor_id, class="input-large") }}
             {{ render_field(form.model_id, class="input-large") }}
+            {{ render_field(form.mask) }}
             <legend>SNMP信息</legend>
             {{ render_field(form.snmp_comm) }}
             {{ render_field(form.snmp_wcomm) }}
-            {{ render_field(form.snmp_ver) }}
+            {{ render_radio(form.snmp_ver) }}
             <legend>其他</legend>
             {{ render_field(form.location) }}
             {{ render_field(form.remark) }}
