@@ -1,6 +1,6 @@
 {% extends 'layout.html' %}
 
-{% set menuid = 'admin' %}
+{% set navid = 'admin' %}
 
 {% set title = "型号管理" %}
 
@@ -13,7 +13,7 @@
     
     <div class="row-fluid content">
         <div class="span2">
-            {% set submenuid = 'models' %}
+            {% set menuid = 'models' %}
             {% include 'admin/_sidebar.html' %}
         </div>
         <div class="span10">

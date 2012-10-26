@@ -10,3 +10,4 @@ Flask-Login
 MySQL_python
 psycopg2
 pydot
+simplejson

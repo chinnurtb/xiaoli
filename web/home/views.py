@@ -7,17 +7,19 @@ from tango import db
 
 from flask import Blueprint, request, render_template
 
-from tango.ui import menus, Menu
+from tango import user_profile
 
-from tango.ui import Dashboard, Widget, add_widget, widgets
+from tango.ui import navbar, dashboard
 
 from tango.login import login_required, current_user
-
-from alarms import Alarm
 
 from tango.models import Profile
 
 homeview = Blueprint('home', __name__)
+
+@homeview.context_processor
+def inject_navid():
+    return dict(navid = 'home')
 
 def nested_dict(name, form):
     dict = {}
@@ -28,16 +30,12 @@ def nested_dict(name, form):
             dict[m.group(1)] = form[key]
     return dict
 
-@homeview.route('/dashboard')
-@login_required
-def dashboard():
-    uid = current_user.id
-    board = Dashboard(widgets)
-    board.configure(Profile.load(uid, 'dashboard'))
-    return render_template('/dashboard.html', dashboard = board)
+@homeview.route('/')
+def index():
+    dashboard.configure(user_profile('dashboard'))
+    return render_template('/index.html', dashboard = dashboard)
 
 @homeview.route('/dashboard/settings', methods = ['POST'])
-@login_required
 def setting():
     form = request.form
     uid = current_user.id
@@ -58,15 +56,8 @@ def setting():
     return '0'
 
 @homeview.route('/timeline')
-@login_required
 def timeline():
-    events = get_events(current_user)
-    return render_template('/timeline.html', events=events)
+    return render_template('/timeline.html', events=[])
 
-def get_events(user):
-    nids = [node.id for node in user.nodes]
-    q = Alarm.query.filter(Alarm.node_id.in_(nids))
-    return q.order_by("raised_at desc").limit(50).all()
-
-menus.append(Menu('dashboard', u'首页', '/dashboard'))
+navbar.add('home', u'首页', '/')
 

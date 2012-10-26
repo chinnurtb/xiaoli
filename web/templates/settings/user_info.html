@@ -1,8 +1,8 @@
 {% extends 'layout.html' %}
 
-{% set title = '用户信息' %}
+{% set title = '编辑用户信息' %}
 
-{% from "_form_h.html" import render_field %}
+{% from "_form_h.html" import render_field, render_form_title %}
 
 {% block screen_meta %} {% endblock %}
 
@@ -15,28 +15,21 @@
     
     <div class="span10">
       {% include "_alert.html" %}
-	<div class="row-fluid">
-	    <div class="">
-              {% from "_form_h.html" import  render_field %}
-		<form class="form-horizontal" method="POST" id="test-wtf" action="{{url_for('users.user_info')}}">
-		    <fieldset>
-			{{ form.hidden_tag() }}
-                        {{ render_field(form.name, class="input-medium") }}
-                        {{ render_field(form.role_name, disabled="disabled") }}
-                        {{ render_field(form.domain_name, disabled="disabled") }}
-                        {{ render_field(form.department) }}
-                        {{ render_field(form.email) }}
-                        {{ render_field(form.telephone, class="input-xlarge") }}
-                        {{ render_field(form.mobile, class="input-xlarge") }}
-                        {{ render_field(form.memo, rows=4, class="input-xlarge") }}
-			<div class="form-actions">
-			  <button type="submit" class="btn btn-primary">保存修改</button>
-			</div>
-		    </fieldset>		    
-		</form>
-	    </div>
+      <form class="form-horizontal" method="POST" id="test-wtf" action="{{url_for('users.user_info')}}">
+        {{ render_form_title(request, title) }}
+	{{ form.hidden_tag() }}
+        {{ render_field(form.name, class="input-medium") }}
+        {{ render_field(form.role_name, disabled="disabled") }}
+        {{ render_field(form.domain_name, disabled="disabled") }}
+        {{ render_field(form.department) }}
+        {{ render_field(form.email) }}
+        {{ render_field(form.telephone, class="input-xlarge") }}
+        {{ render_field(form.mobile, class="input-xlarge") }}
+        {{ render_field(form.memo, rows=4, class="input-xlarge") }}
+	<div class="form-actions">
+	  <button type="submit" class="btn btn-primary">保存修改</button>
 	</div>
-        <br class="clear">
+      </form>
     </div>
 </div>
 

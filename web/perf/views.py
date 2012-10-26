@@ -3,10 +3,9 @@
 from flask import Blueprint, request, url_for, \
     redirect, render_template, flash
 
-
-from tango.ui import menus, Menu
+from tango.ui import navbar
 from tango.models import db, Category
-from tango.base import make_table
+from tango.ui.tables import make_table
 
 from alarms.models import AlarmSeverity
 from .models import Threshold, Metric
@@ -15,11 +14,37 @@ from .forms import ThresholdEditForm, ThresholdNewForm, MetricNewEditForm
 
 perfview = Blueprint('perf', __name__, url_prefix="/perf")
 
+@perfview.context_processor
+def inject_navid():
+    return dict(navid = 'perf')
 
 @perfview.route('/t-collapse')
 def test_collapse():
     return render_template('perf/test-collapse.html')
 
+@perfview.route('/switches')
+def switches():
+    return render_template('/perf/switches/index.html')
+
+@perfview.route('/olts/')
+def olts():
+    return render_template('perf/olts/index.html')
+
+@perfview.route('/onus/')
+def onus():
+    return render_template('perf/onus/index.html')
+
+@perfview.route('/eocs')
+def eocs():
+    return render_template('/perf/eocs/index.html')
+
+@perfview.route('/boards/')
+def boards():
+    return render_template('/perf/boards/index.html')
+
+@perfview.route('/pon/')
+def pon():
+    return render_template('/perf/pon/index.html')
 
 # ==============================================================================
 #  阀值管理
@@ -73,7 +98,7 @@ def thresholds_new():
         flash(u'阀值 %s 添加成功' % threshold.name, 'success')
         return redirect(url_for('perf.thresholds'))
         
-    return render_template("perf/thresholds/new.html", form=form)
+    return render_template("perf/thresholds/new.html", form=form, )
 
 
 # ==============================================================================
@@ -115,4 +140,19 @@ def metrics_edit(id):
                            action=url_for('perf.metrics_edit', id=id), title=u'编辑指标')
 
     
-menus.append(Menu('perf', u'性能', '/perf'))
+
+# ==============================================================================
+#  Test
+# ==============================================================================
+@perfview.route('/t-collapse')
+def test_collapse():
+    return render_template('perf/test-collapse.html')
+
+
+@perfview.route('/t-fieldset')
+def test_fieldset():
+    return render_template('perf/test-fieldset.html')
+
+
+navbar.add('perf', u'性能', '/perf')
+

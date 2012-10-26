@@ -1,5 +1,3 @@
-{% set menuid = 'topo' %}
-
 {% extends 'layout.html' %}
 
 {% block content %} 
@@ -7,7 +5,7 @@
 <div class="row-fluid content">
 
     <div class="span2">
-      {% set submenuid = 'topo/network' %}
+      {% set menuid = 'topo/network' %}
       {% include 'topo/_sidebar.html' %}
       <div class="well">
         <form method="GET" action="{{url_for('topo.network')}}">

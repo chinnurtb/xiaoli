@@ -1,5 +1,3 @@
-{% set menuid = 'users' %}
-
 {% extends 'layout.html' %} 
 
 {% set title = '用户管理' %}
@@ -22,7 +20,7 @@
 <div class="row-fluid" style="margin-top:20px">
 
   <div class="span2">
-    {% set submenuid = 'users' %}
+    {% set menuid = 'users' %}
     {% include "users/_sidebar.html" %}
   </div>
 

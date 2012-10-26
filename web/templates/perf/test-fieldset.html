@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/css/bootstrap.css"/>
+  </head>
+  <body>
+    <div class="content-fluid">
+      <div class="row-fluid content">
+        <div class="span2"> </div>
+        <div class="span10" style="">
+          <form class="form-horizontal" id="" method="POST" action="">
+            {% for i in range(4) %}
+            <fieldset>
+              <legend>第 {{ i+1 }} 个 Fieldset</legend>
+              {% for item in ('Name', 'Email', 'Information') %}
+              <div class="control-group">
+                <label class="control-label" for="input{{item}}">{{item}}</label>
+                <div class="controls">
+                  <input type="text" id="input{{item}}" placeholder="{{item}}">
+                </div>
+              </div>
+              {% endfor %}
+            </fieldset>
+            {% endfor %}
+          </form>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
+
+
+

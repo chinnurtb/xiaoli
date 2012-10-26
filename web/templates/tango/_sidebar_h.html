@@ -1,4 +1,4 @@
-{% macro render_sidebar(title, submenuid, items) %}
+{% macro render_sidebar(title, current_menuid, items) %}
     <ul class="nav bs-docs-sidenav">
         {% if title != '' %}
             <li class="nav-header popover-title">{{ title }}</li>
@@ -7,7 +7,7 @@
             {% if id == '#divider' %}
                 <li class="divider"></li>
             {% else %}
-                <li {% if submenuid and submenuid == id %} class="active" {% endif %}>
+                <li {% if current_menuid and current_menuid == id %} class="active" {% endif %}>
                 <a href="{{ href }}"><i class="icon-chevron-right"></i> {{ text }}</a>
                 </li>
             {% endif %}

@@ -1,7 +1,5 @@
 {% extends 'layout.html' %}
 
-{% set menuid = 'nodes' %}
-
 {% set title = '所有板卡' %}
 
 {% block head %} {% endblock %}
@@ -13,7 +11,7 @@
 <div class="row-fluid content">
 
     <div class="span2">
-        {% set submenuid = 'boards' %}
+        {% set menuid = 'boards' %}
         {% include 'nodes/_sidebar.html' %}
     </div>
 

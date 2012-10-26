@@ -1,13 +1,18 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#coding: utf-8
 
 import pydot
+
 from flask import Blueprint, request, url_for, render_template
 
-from tango.ui import menus, Menu
+from tango.ui import navbar
+
 from nodes.models import Node, Area, AREA_PROVINCE
 
 topoview = Blueprint('topo', __name__)
+
+@topoview.context_processor
+def inject_navid():
+    return dict(navid = 'topo')
 
 area_style = {
     'shape' : 'polygon',
@@ -268,4 +273,5 @@ def view_all():
         
     return render_template("topo/index.html", svg=svg, menuid = 'topo')
 
-menus.append(Menu('topo', u'拓扑', '/topo'))
+navbar.add('topo', u'拓扑', '/topo')
+

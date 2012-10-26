@@ -4,11 +4,13 @@
 from flask import Blueprint, request, session, url_for, \
     redirect, render_template, g, flash
 
-from tango.ui import menus, Menu
-
-from tango.ui import add_widget, Widget
+from tango.ui import navbar
 
 reportview = Blueprint('report', __name__, url_prefix='/report')
+
+@reportview.context_processor
+def inject_navid():
+    return dict(navid = 'report')
 
 @reportview.route('/')
 def index():
@@ -30,10 +32,5 @@ def alarms_report():
     #TODO:
     return render_template('report/index.html')
 
-menus.append(Menu('report', u'报表', '/report'))
-
-#col3
-#add_widget(Widget('dashboard6', 'Dashboard6', content='<div style="height:100px">Dashboard6</div>', column = 'column3'))
-#add_widget(Widget('dashboard7', 'Dashboard7', content='<div style="height:100px">Dashboard7</div>', column = 'column3'))
-#add_widget(Widget('dashboard8', 'Dashboard8', content='<div style="height:100px">Dashboard8</div>', column = 'column3'))
+navbar.add('report', u'报表', '/report')
 

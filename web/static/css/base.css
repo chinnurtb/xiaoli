@@ -371,6 +371,15 @@ form fieldset legend {
     border: none;
 }
 
+
+form legend {
+    font-size: 12px;
+    font-weight: bold;
+    width: 82%;
+    margin-left: 3%;
+}
+
+
 tr {
     display: table-row;
     position: relative;
@@ -527,3 +536,4 @@ label em {
 table tr:hover {
     background-color: #D9EDF7;
 }
+

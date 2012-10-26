@@ -1,4 +1,3 @@
-
 {% from "tango/_sidebar_h.html" import render_sidebar %}
 
 {{ render_sidebar('系统管理', submenuid, [
@@ -8,15 +7,13 @@
         ])
 }}
 
-<!-- ('timeperiods_new', '添加规则', url_for('system.timeperiods_new')) -->
-<!-- ('dict_codes_new', '添加字典', url_for('system.dict_codes_new')), -->
-
-{{ render_sidebar('日志管理', submenuid, [
+{{ render_sidebar('日志管理', menuid, [
         ('seclogs', '安全日志', url_for('system.seclogs')),
         ('oplogs', '操作日志', url_for('system.oplogs'))])
 }}
 
-{{ render_sidebar('网管系统', submenuid, [
-        ('hosts','所有服务器', '/hosts'),
-        ('subsystems','所有子系统', '/subsystems')])
+{{ render_sidebar('网管系统', menuid, [
+    ('hosts','所有服务器', '/hosts'),
+    ('subsystems','所有子系统', '/subsystems')])
 }}
+

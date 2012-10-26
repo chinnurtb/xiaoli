@@ -1,39 +1,32 @@
 {% extends 'layout.html' %}
 
-{% set menuid = 'system' %}
-
 {% set title = '修改主机信息' %}
 
-{% from "_form_h.html" import render_field %}
+{% from "_form_h.html" import render_field, render_form_title %}
 
 {% block content %}
 <div class="row-fluid" style="margin-top:20px">
-    <div class="span2">
-      {% set submenuid = 'hosts' %}
-      {% include "system/_sidebar.html" %}
-    </div>
-    
-    <div class="span10">
-	<div class="row-fluid">
-	    <div class="">
-		<form class="form-horizontal" method="POST"
-                       action="{{ url_for('system.hosts_edit', id=host.id) }}">
-		    <fieldset>
-			{{ form.hidden_tag() }}
-                        {{ render_field(form.name, disabled="disabled") }}
-                        {{ render_field(form.alias) }}
-                        {{ render_field(form.ifaces, disabled="disabled") }}
-                        {{ render_field(form.remark) }}
-			<div class="form-actions">
-			  <button type="submit" class="btn btn-primary">确定</button>
-			  <a href="#" class="btn">取消</a>
-			</div>
-		    </fieldset>		    
-		</form>
-	    </div>
+  <div class="span2">
+    {% set menuid = 'hosts' %}
+    {% include "system/_sidebar.html" %}
+  </div>
+  
+  <div class="span10">
+    <form class="form-horizontal" method="POST" action="{{ url_for('system.hosts_edit', id=host.id) }}">
+      {{ render_form_title(request, title) }}
+      <fieldset>
+	{{ form.hidden_tag() }}
+        {{ render_field(form.name, disabled="disabled") }}
+        {{ render_field(form.alias) }}
+        {{ render_field(form.ifaces, disabled="disabled") }}
+        {{ render_field(form.remark) }}
+	<div class="form-actions">
+	  <button type="submit" class="btn btn-primary">确定</button>
+	  <a href="#" class="btn">取消</a>
 	</div>
-        <br class="clear">
-    </div>
+      </fieldset>		    
+    </form>
+  </div>
 </div>
 
 {% endblock %}

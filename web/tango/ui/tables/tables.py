@@ -7,6 +7,7 @@ from flask_sqlalchemy import Pagination
 
 from .columns import *
 from .rows import *
+from .config import TableConfig
 from .utils import *
 from .actions import Action
 
@@ -238,6 +239,16 @@ class Table(object):
         from flask import  render_template
         return render_template(template, table=self)
 
+
+def make_table(query, table_cls, profile=None):
+    """ 一个方便使用 Table 的函数 """
+    from tango.base import user_profile
+    if profile is None:
+        profile = user_profile(table_cls._meta.profile)
+    table = table_cls(query)
+    TableConfig(request, profile).configure(table)
+    return table
+    
 
 if __name__ == '__main__':
     from flask_sqlalchemy import SQLAlchemy

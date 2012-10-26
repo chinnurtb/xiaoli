@@ -1,7 +1,5 @@
 {% extends 'layout.html' %}
 
-{% set menuid = 'nodes' %}
-
 {% block head %}
     <link rel="stylesheet" href="/static/css/detail.css" type="text/css" media="all">
 {% endblock %}
@@ -9,7 +7,7 @@
 {% block content %}
 <div class="row-fluid content">
     <div class="span2">
-        {% set submenuid = 'nodes' %}
+        {% set menuid = 'nodes' %}
         {% include 'nodes/_sidebar.html' %}
     </div>
 

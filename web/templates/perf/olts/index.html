@@ -1,0 +1,15 @@
+{% extends 'layout.html' %}
+
+{% set title = 'OLT性能' %}
+
+{% block content %}
+    <div class="row-fluid content">
+        <div class="span2">
+            {% set menuid = 'olts' %}
+            {% include "perf/_sidebar.html" %}
+        </div>
+        <div class="span10">
+            <h1>OLT性能</h1>
+        </div>
+    </div>
+{% endblock %}

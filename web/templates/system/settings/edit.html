@@ -1,37 +1,30 @@
 {% extends 'layout.html' %}
 
-{% set menuid = 'system' %}
-
 {% set title = '系统设置' %}
 
-{% from "_form_h.html" import render_field %}
+{% from "_form_h.html" import render_field, render_form_title %}
 
 {% block content %}
 <div class="row-fluid" style="margin-top:20px">
     <div class="span2">
-      {% set submenuid = 'settings' %}
+      {% set menuid = 'settings' %}
       {% include "system/_sidebar.html" %}
     </div>
     
     <div class="span10">
-	<div class="row-fluid">
-	    <div class="">
-		<form class="form-horizontal" method="POST"
-                       action="{{ url_for('system.settings_edit',id=setting.id) }}">
-		    <fieldset>
-			{{ form.hidden_tag() }}
-                        {{ render_field(form.name, disabled="disabled") }}
-                        {{ render_field(form.alias, disabled="disabled", class="input-xxlarge") }}
-                        {{ render_field(form.value) }}
-			<div class="form-actions">
-			  <button type="submit" class="btn btn-primary">确定</button>
-			  <a href="#" class="btn">取消</a>
-			</div>
-		    </fieldset>		    
-		</form>
-	    </div>
-	</div>
-        <br class="clear">
+      <form class="form-horizontal" method="POST" action="{{ url_for('system.settings_edit',id=setting.id) }}">
+        {{ render_form_title(request, title) }}
+	<fieldset>
+	  {{ form.hidden_tag() }}
+          {{ render_field(form.name, disabled="disabled") }}
+          {{ render_field(form.alias, disabled="disabled", class="input-xxlarge") }}
+          {{ render_field(form.value) }}
+	  <div class="form-actions">
+	    <button type="submit" class="btn btn-primary">确定</button>
+	    <a href="#" class="btn">取消</a>
+	  </div>
+	</fieldset>		    
+      </form>
     </div>
 </div>
 

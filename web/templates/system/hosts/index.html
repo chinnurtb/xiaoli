@@ -1,7 +1,5 @@
 {% extends "layout.html" %}
 
-{% set menuid = 'system' %}
-
 {% set title = '所有主机' %}
 
 {% block head %}
@@ -23,7 +21,7 @@
     
     <div class="row-fluid content">
         <div class="span2">
-            {% set submenuid = 'hosts' %}
+            {% set menuid = 'hosts' %}
             {% include 'system/_sidebar.html' %}
         </div>
         <div class="span10">

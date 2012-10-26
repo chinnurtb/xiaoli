@@ -1,7 +1,5 @@
 {% extends "layout.html" %}
 
-{% set menuid = 'nodes' %}
-
 {% set title = '所有管理器' %}
 
 {% block head %} {% endblock %}
@@ -10,7 +8,7 @@
     
     <div class="row-fluid content">
         <div class="span2">
-            {% set submenuid = 'managers' %}
+            {% set menuid = 'managers' %}
             {% include 'nodes/_sidebar.html' %}
         </div>
         <div class="span10">

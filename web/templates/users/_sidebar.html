@@ -1,17 +1,17 @@
 {% from "tango/_sidebar_h.html" import render_sidebar %}
 
-{{ render_sidebar('用户管理', submenuid, [
-        ('users','所有用户', '/users'),
-        ('users-new','新建用户', '/users/new')])
+{{ render_sidebar('用户管理', menuid, [
+    ('users','所有用户', '/users'),
+    ('users-new','新建用户', '/users/new')])
 }}
 
-{{ render_sidebar('角色管理', submenuid, [
-        ('roles','所有角色', '/roles'),
-        ('roles-new', '新建角色', '/roles/new')])
+{{ render_sidebar('角色管理', menuid, [
+    ('roles','所有角色', '/roles'),
+    ('roles-new', '新建角色', '/roles/new')])
 }}
 
-{{ render_sidebar('管理域设置', submenuid, [
-        ('domains','所有管理域', '/domains'),
-        ('domains-new','新建管理域', '/domains/new')])
+{{ render_sidebar('管理域设置', menuid, [
+    ('domains','所有管理域', '/domains'),
+    ('domains-new','新建管理域', '/domains/new')])
 }}
 

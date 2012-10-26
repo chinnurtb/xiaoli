@@ -1,7 +1,5 @@
 {% extends 'layout.html' %}
 
-{% set menuid = 'perf' %}
-
 {% set title = '指标管理' %}
 
 {% block head %}
@@ -20,7 +18,7 @@
 {% block content %} 
     <div class="row-fluid content">
         <div class="span2">
-            {% set submenuid = 'metrics' %}
+            {% set menuid = 'metrics' %}
             {% include "perf/_sidebar.html" %}
         </div>
         <div class="span10">

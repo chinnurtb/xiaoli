@@ -1,4 +1,5 @@
 # coding: utf-8
+
 from datetime import datetime
 
 from flask import Blueprint, request, session, url_for, \
@@ -10,18 +11,28 @@ from sqlalchemy import or_
 from sqlalchemy.orm import aliased
 
 from tango import db
+
 from tango import user_profile
-from tango.base import make_table
-from tango.ui import menus, Menu
-from tango.ui import add_widget, Widget, tables
+
+from tango.ui import navbar, dashboard
+
+from tango.ui.tables import make_table
+
 from tango.login import current_user, login_required
 from tango.models import Profile, Category
 
 from .models import Node, Board, Port, Area, Vendor, NODE_STATUS_DICT, Model
+
 from .forms import NodeNewForm, NodeSearchForm
+
 from .tables import NodeTable,PortTable,BoardTable,AreaTable,VendorTable,CategoryTable
 
 nodeview = Blueprint('nodes', __name__)
+
+@nodeview.context_processor
+def inject_navid():
+    return dict(navid = 'nodes')
+
 from .views_switch import switches, switches_new, switches_edit, switches_show, switches_delete
 from .views_olt import olts, olts_new, olts_edit, olts_delete, olts_show
 from .views_onu import onus, onus_new, onus_edit, onus_delete, onus_show
@@ -376,9 +387,9 @@ def categories():
         chart.height = str(len(xAxis_categories)*50 + 100)+"px"
         return render_template('nodes/category_statistics.html', table = table, chart = chart)
 
-menus.append(Menu('nodes', u'资源', '/nodes'))
+navbar.add('nodes', u'资源', '/nodes')
 
-#col2
-add_widget(Widget('category_statistic', u'分类统计', url='/categories/?dashboard=true', column = 'side'))
-add_widget(Widget('vendor_statistic', u'厂商统计', url='/vendors/?dashboard=true', column = 'side'))
-add_widget(Widget('area_statistic', u'区域统计',url='/areas/?dashboard=true', column = 'side'))
+dashboard.add_widget('category_statistic', u'分类统计', url='/categories/?dashboard=true', column = 'side')
+dashboard.add_widget('vendor_statistic', u'厂商统计', url='/vendors/?dashboard=true', column = 'side')
+dashboard.add_widget('area_statistic', u'区域统计',url='/areas/?dashboard=true', column = 'side')
+

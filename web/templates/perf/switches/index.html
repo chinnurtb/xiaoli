@@ -1,0 +1,15 @@
+{% extends 'layout.html' %}
+
+{% set title = '交换机性能' %}
+
+{% block content %}
+    <div class="row-fluid content">
+        <div class="span2">
+            {% set menuid = 'switches' %}
+            {% include "perf/_sidebar.html" %}
+        </div>
+        <div class="span10">
+            <h1>交换机性能</h1>
+        </div>
+    </div>
+{% endblock %}

@@ -4,13 +4,10 @@ if __name__ == '__main__':
     import sys
     sys.path.insert(0, '..')
 
-import copy
-
-from flask import Flask, Blueprint, request
+from flask import Flask, Blueprint
 
 from .models import Profile
 from .login import current_user
-from tango.ui.tables import TableConfig
 from tango.ui.tables.utils import SortedDict
 
 
@@ -18,13 +15,6 @@ def user_profile(grp):
     """ Get current user's profile. """
     return Profile.load(current_user.id, grp)
 
-def make_table(query, table_cls, profile=None):
-    if profile is None:
-        profile = user_profile(table_cls._meta.profile)
-    table = table_cls(query)
-    TableConfig(request, profile).configure(table)
-    return table
-    
 
 class Tango(Flask):
     #TODO:

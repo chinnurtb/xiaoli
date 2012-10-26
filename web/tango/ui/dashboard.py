@@ -1,20 +1,4 @@
-# dashboard
-widgets = []
-
-def add_widget(widget):
-    widgets.append(widget)     
-
-class Widget(object):
-
-    def __init__(self, id, title, content=None, url=None, column='normal'):
-        self.id = id
-        self.url = url
-        self.title = title
-        self.content = content
-        self.column = column
-
-    def __repr__(self):
-        return "Widget(id = '%s', title = '%s', url = '%s')" % (self.id, self.title, self.url)
+# coding: utf-8
 
 class Dashboard(object):
     
@@ -28,13 +12,17 @@ class Dashboard(object):
 
     welcome_meta = 'dashboard.welcome.panel'
 
-    def __init__(self, widgets):
-        self.widgets = widgets
+    def __init__(self, id='dashboard'):
+        self.id = id
+        self.widgets = [] 
         self.layout = 2
         self.order = {}
         self.closed = []
         self.hidden = []
         self.welcome = '1'
+
+    def add_widget(self, id, title, content=None, url=None, column='normal'):
+        self.widgets.append(Widget(id, title, content, url, column)) 
 
     def configure(self, profile):
         self.layout = int(profile.get(Dashboard.layout_meta, '2'))
@@ -67,3 +55,16 @@ class Dashboard(object):
         for l in self.order.values(): 
             if wid in l: return True
         return False 
+
+class Widget(object):
+
+    def __init__(self, id, title, content=None, url=None, column='normal'):
+        self.id = id
+        self.url = url
+        self.title = title
+        self.content = content
+        self.column = column
+
+    def __repr__(self):
+        return "Widget(id = '%s', title = '%s', url = '%s')" % (self.id, self.title, self.url)
+

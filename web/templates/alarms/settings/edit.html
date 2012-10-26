@@ -1,7 +1,5 @@
 {% extends 'layout.html' %}
 
-{% set menuid = 'alarms' %}
-
 {% set title = '告警设置' %}
 
 {% from "_form_h.html" import render_field %}
@@ -9,7 +7,7 @@
 {% block content %}
 <div class="row-fluid" style="margin-top:20px">
     <div class="span2">
-      {% set submenuid = 'alarms_settings' %}
+      {% set menuid = 'alarms_settings' %}
       {% include "alarms/_sidebar.html" %}
     </div>
     
