@@ -160,17 +160,12 @@ def alarms_console():
 
     data = [series(severity) for severity in severities]
     title = u'最近12小时接收告警'
-    board = Dashboard('alarmconsole')
-    board.add_widget('alarms_console_all', u'全部告警', url = url_for('alarms.console_all'))
-    board.add_widget('alarms_console_lasthour', u'最近1小时告警', url = url_for('alarms.console_lasthour'), column='side')
-    board.add_widget('alarms_console_status', u'状态告警', url=url_for('alarms.console_category_status'))
-    board.add_widget('alarms_console_perf', u'性能告警', url=url_for('alarms.console_category_perf'), column='side')
-    board.add_widget('alarms_console_system', u'网管自身告警', url=url_for('alarms.console_category_system'))
-    board.configure({})
+
+    alarmconsole.configure(user_profile('alarmconsole'))
     return render_template('alarms/console/index.html',
-                            chartid = "alarm_demo_console",
-                            chartdata = data,
-                            dashboard = board)
+                           chartid = "alarm_demo_console",
+                           chartdata = data,
+                           dashboard = alarmconsole)
 
 @alarmview.route('/alarms/console/all')
 def console_all():
@@ -370,11 +365,18 @@ def nvd3_demo():
     
 navbar.add('alarms', u'故障', '/alarms/console/')
 
-dashboard.add_widget('alarms_stats_by_severity', u'告警概况', url = '/alarms/stats/by_severity')
-dashboard.add_widget('alarms_stats_by_category', u'告警分类', url = '/alarms/stats/by_category')
+dashboard.add_widget('alarms_stats_by_severity', u'告警概况', url='/alarms/stats/by_severity')
+dashboard.add_widget('alarms_stats_by_category', u'告警分类', url='/alarms/stats/by_category')
 
-dashboard.add_widget('alarms_stats_by_class', u'告警类型', url = '/alarms/stats/by_class')
-dashboard.add_widget('alarms_stats_by_node_category', u'设备告警', url = '/alarms/stats/by_node_category')
-dashboard.add_widget('alarms_stats_by_node_vendor', u'厂商告警', url = '/alarms/stats/by_node_vendor')
+dashboard.add_widget('alarms_stats_by_class', u'告警类型', url='/alarms/stats/by_class')
+dashboard.add_widget('alarms_stats_by_node_category', u'设备告警', url='/alarms/stats/by_node_category')
+dashboard.add_widget('alarms_stats_by_node_vendor', u'厂商告警', url='/alarms/stats/by_node_vendor')
+
+alarmconsole = Dashboard('alarmconsole')
+alarmconsole.add_widget('alarms_console_all', u'全部告警', url='all')
+alarmconsole.add_widget('alarms_console_lasthour', u'最近1小时告警', url='lasthour', column='side')
+alarmconsole.add_widget('alarms_console_status', u'状态告警', url='category_status')
+alarmconsole.add_widget('alarms_console_perf', u'性能告警', url='category_perf', column='side')
+alarmconsole.add_widget('alarms_console_system', u'网管自身告警', url='category_system')
 
 
