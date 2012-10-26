@@ -521,5 +521,9 @@ label em {
 }
 
 .alternate-white {
-    background-color: #FEFEFC;
+    background-color: #FFF;
+}
+
+table tr:hover {
+    background-color: #D9EDF7;
 }
