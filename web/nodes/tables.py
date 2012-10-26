@@ -33,14 +33,14 @@ class NodeTable(tables.Table):
         orderable=True
     )
     name = tables.LinkColumn(verbose_name=u'名称',orderable=True)
-    alias = tables.Column(verbose_name=u'别名',orderable=True,ifnull='')
+    alias = tables.Column(verbose_name=u'别名',orderable=True)
     category = tables.Column(verbose_name=u'节点类型',orderable=True, accessor='category.alias')
-    vendor_name = tables.Column(verbose_name=u'厂商', orderable=True, accessor='vendor.alias',ifnull='')
-    model_name = tables.Column(verbose_name=u'型号', orderable=True, accessor='model.alias',ifnull='')
-    addr = tables.Column(verbose_name=u'IP', orderable=True, ifnull='')
+    vendor_name = tables.Column(verbose_name=u'厂商', orderable=True, accessor='vendor.alias')
+    model_name = tables.Column(verbose_name=u'型号', orderable=True, accessor='model.alias')
+    addr = tables.Column(verbose_name=u'IP', orderable=True)
     area_name = tables.Column(verbose_name=u'所属区域', orderable=True, accessor='area.full_name')
-    last_check = tables.Column(verbose_name=u'上次同步',orderable=True,ifnull='')
-    summary = tables.Column(verbose_name=u'状态信息',ifnull='')
+    last_check = tables.Column(verbose_name=u'上次同步',orderable=True)
+    summary = tables.Column(verbose_name=u'状态信息')
 
     class Meta():
         model = Node
@@ -61,14 +61,14 @@ class OltTable(tables.Table):
         orderable=True
     )
     name = tables.LinkColumn(endpoint='nodes.olts_show',verbose_name=u'名称',orderable=True)
-    alias = tables.Column(verbose_name=u'别名',orderable=True,ifnull='')
-    vendor_name = tables.Column(verbose_name=u'厂商', orderable=True, accessor='vendor.alias',ifnull='')
-    model_name = tables.Column(verbose_name=u'型号', orderable=True, accessor='model.alias',ifnull='')
+    alias = tables.Column(verbose_name=u'别名',orderable=True)
+    vendor_name = tables.Column(verbose_name=u'厂商', orderable=True, accessor='vendor.alias')
+    model_name = tables.Column(verbose_name=u'型号', orderable=True, accessor='model.alias')
     addr = tables.Column(verbose_name=u'IP', orderable=True)
     area_name = tables.Column(verbose_name=u'所属区域', orderable=True, accessor='area.full_name')
-    last_check = tables.Column(verbose_name=u'上次同步',orderable=True,ifnull='')
-    onu_count_plan = tables.Column(verbose_name=u'已规划ONU',ifnull='')
-    onu_count_unplan = tables.Column(verbose_name=u'未规划ONU',ifnull='')
+    last_check = tables.Column(verbose_name=u'上次同步',orderable=True)
+    onu_count_plan = tables.Column(verbose_name=u'已规划ONU')
+    onu_count_unplan = tables.Column(verbose_name=u'未规划ONU')
 
     class Meta():
         model = NodeOlt
@@ -87,10 +87,10 @@ class SwitchTable(tables.Table):
     name = tables.LinkColumn(endpoint='nodes.switches_show',verbose_name=u'名称',orderable=True)
     addr = tables.Column(verbose_name=u'IP', orderable=True)
     area_name = tables.Column(verbose_name=u'所属区域', orderable=True, accessor='area.full_name')
-    vendor_name = tables.Column(verbose_name=u'厂商', orderable=True, accessor='vendor.alias',ifnull='')
-    model_name = tables.Column(verbose_name=u'型号', orderable=True, accessor='model.alias',ifnull='')
-    last_check = tables.Column(verbose_name=u'上次同步',orderable=True,ifnull='')
-    location = tables.Column(verbose_name=u'位置',ifnull='')
+    vendor_name = tables.Column(verbose_name=u'厂商', orderable=True, accessor='vendor.alias')
+    model_name = tables.Column(verbose_name=u'型号', orderable=True, accessor='model.alias')
+    last_check = tables.Column(verbose_name=u'上次同步',orderable=True)
+    location = tables.Column(verbose_name=u'位置')
 
     class Meta():
         model = NodeSwitch
@@ -109,11 +109,11 @@ class OnuTable(tables.Table):
     name = tables.LinkColumn(endpoint='nodes.onus_show',verbose_name=u'名称',orderable=True)
     addr = tables.Column(verbose_name=u'IP', orderable=True)
     area_name = tables.Column(verbose_name=u'所属区域', orderable=True, accessor='area.full_name')
-    vendor_name = tables.Column(verbose_name=u'厂商', orderable=True, accessor='vendor.alias',ifnull='')
-    model_name = tables.Column(verbose_name=u'型号', orderable=True, accessor='model.alias',ifnull='')
-    mac = tables.Column(verbose_name=u'认证标识',orderable=True,ifnull='')
-    olt_border_no = tables.Column(verbose_name=u'OLT板位',ifnull='')
-    olt_name = tables.Column(verbose_name=u'所属OLT',ifnull='', accessor='olt.alias')
+    vendor_name = tables.Column(verbose_name=u'厂商', orderable=True, accessor='vendor.alias')
+    model_name = tables.Column(verbose_name=u'型号', orderable=True, accessor='model.alias')
+    mac = tables.Column(verbose_name=u'认证标识',orderable=True)
+    olt_border_no = tables.Column(verbose_name=u'OLT板位')
+    olt_name = tables.Column(verbose_name=u'所属OLT', accessor='olt.alias')
 
     class Meta():
         model = NodeOnu
@@ -162,12 +162,12 @@ class AreaTable(tables.Table):
     town_count      = tables.LinkColumn(verbose_name=u'区县')
     branch_count     = tables.LinkColumn(verbose_name=u'分局')
     entrance_count     = tables.LinkColumn(verbose_name=u'接入点')
-    total_count     = tables.Column(verbose_name=u'节点数')
-    olt_count     = tables.Column(verbose_name=u'OLT数')
-    onu_count     = tables.Column(verbose_name=u'ONU数')
-    dslam_count     = tables.Column(verbose_name=u'DSLAM数')
-    eoc_count     = tables.Column(verbose_name=u'EOC数')
-    switch_count     = tables.Column(verbose_name=u'Switch数')
+    total_count     = tables.Column(verbose_name=u'节点')
+    olt_count     = tables.Column(verbose_name=u'OLT')
+    onu_count     = tables.Column(verbose_name=u'ONU')
+    dslam_count     = tables.Column(verbose_name=u'DSLAM')
+    eoc_count     = tables.Column(verbose_name=u'EOC')
+    switch_count     = tables.Column(verbose_name=u'Switch')
 
     # 根据节点类型决定 name是否有链接，接入点没有链接
     def render_name(self, value, record, bound_column):

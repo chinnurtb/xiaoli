@@ -105,9 +105,8 @@ def olts_show(id):
     from tango.ui.charts.highcharts import PieBasicChart
     alarm_chart = PieBasicChart()
     alarm_chart.set_html_id("alarm")
-    alarm_chart["title"]["text"] = None
+    alarm_chart["title"]["text"] = u'最近24小时可用率'
     alarm_chart["plotOptions"]["pie"]["events"]["click"] = None
-    #alarm_chart.height = str(220)+"px"
-    #alarm_chart.width = str(220)+"px"
     alarm_chart.min_width = str(220)+"px"
+    alarm_chart["series"][0]["data"] = [{'name': u'完全故障', 'y':1},{'name': u'部分故障', 'y':2},{'name': u'完全正常', 'y':19},{'name': u'数据缺失', 'y':2}]
     return render_template('nodes/olts/show.html', node = node, traffic_chart = traffic_chart, alarm_chart = alarm_chart)
