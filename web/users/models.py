@@ -22,7 +22,7 @@ class User(db.Model, UserMixin):
     username   = db.Column(db.String(40), unique=True)
     name       = db.Column(db.String(40))
     email      = db.Column(db.String(60), unique=True)
-    _password   = db.Column('password', db.String(60))
+    _password  = db.Column('password', db.String(60))
     signup_on  = db.Column(db.DateTime)
     role_id    = db.Column(db.Integer, db.ForeignKey('roles.id'))
     domain_id  = db.Column(db.Integer, db.ForeignKey('domains.id'))
