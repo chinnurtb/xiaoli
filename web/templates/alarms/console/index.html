@@ -20,8 +20,8 @@
 
         <div class="span10">
             <div style="padding:0px; border: 1px solid #E3E3E3; border-radius: 3px 3px 3px 3px;">
-                {% from "_nvd3_chart.html" import multiBarChart %}
-                {{ multiBarChart(chartid, chartdata, height=180) }}
+                {% from "_nvd3_chart.html" import multi_bar_chart %}
+                {{ multi_bar_chart(chartid, chartdata, height=180) }}
             </div>
 
             {% from '_dashboard_h.html' import render_dashboard %}

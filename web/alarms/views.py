@@ -215,8 +215,9 @@ def render_console_chart(id, query):
              'color': severity.color,
              'value': counts.get(severity.id, 0)}
               for severity in severities]
+    chartdata = [{'values': data}]
     return render_template('alarms/console/_chart.html',
-                           chartid = id, chartdata = data)
+                           chartid = id, chartdata = chartdata)
 
 @alarmview.route('/alarms/stats/current')
 def stats_current():
@@ -321,7 +322,9 @@ def stats_by_severity():
     q = q.outerjoin(Alarm, AlarmSeverity.id == Alarm.severity)
     q = q.group_by(AlarmSeverity).order_by(AlarmSeverity.id.desc())
     data = [{'label': s.alias, 'color': s.color, 'value': c} for s,c in q.all()]
-    return render_template('alarms/stats/by_severity.html', chartdata=data)
+    chartdata = [{'values': data}]
+    return render_template('alarms/stats/by_severity.html',
+        chartdata=chartdata)
 
 @alarmview.route('/alarms/stats/by_category')
 def stats_by_category():
@@ -363,7 +366,7 @@ def nvd3_demo():
     return render_template('alarms/nvd3_demo.html', data=data)
 
     
-menus.append(Menu('alarms', u'故障', '/alarms'))
+menus.append(Menu('alarms', u'故障', '/alarms/console/'))
 
 add_widget(Widget('alarms_stats_by_severity', u'告警概况', url = '/alarms/stats/by_severity'))
 add_widget(Widget('alarms_stats_by_category', u'告警分类', url = '/alarms/stats/by_category'))
