@@ -16,20 +16,37 @@ class TableData(object):
         self.table = table
         self.queryset = data
 
-    def make_order_by_str(self, order_by):
+
+    def get_cls_order(self, model, order_by, order='asc'):
+        # help method for ordering
+        chains = order_by.split('.')[-2:]
+        accessor = A(chains[0]).resolve(model)
+        cls = accessor.comparator.property.argument()
+        attr = getattr(cls, chains[1])
+        order_func = getattr(attr, order)
+        return cls, order_func()
+
+
+    def ordering(self, order_by):
+        if order_by is None or order_by == '': return
+        
         model = self.table._meta.model
         order = 'asc'
-
         if order_by[0] == '-':
             order = 'desc'
             order_by = order_by[1:]
-        a = A("%s.%s" % (order_by, order)) # i.e. "name.desc"
-        return a.resolve(model)
+            
+        accessor = self.table.columns[order_by].accessor
+        if accessor: order_by = accessor
+        
+        if order_by.find('.') > -1:
+             cls, order_str = self.get_cls_order(model, order_by, order)
+             self.queryset = self.queryset.join(cls).order_by(order_str)
+        else:
+             a = A("%s.%s" % (order_by, order)) # i.e. "name.desc"
+             self.queryset = self.queryset.order_by(a.resolve(model))
 
-    def ordering(self, order_by):
-        if order_by:
-            self.queryset = self.queryset.order_by(self.make_order_by_str(order_by))
-
+             
     def grouping(self):
         """ 对表的数据进行分组 """
         pass
