@@ -17,7 +17,7 @@ from tango.ui import add_widget, Widget, tables
 from tango.login import current_user, login_required
 from tango.models import Profile, Category
 
-from .models import Node, Board, Port, Area, Vendor, NODE_STATUS_DICT
+from .models import Node, Board, Port, Area, Vendor, NODE_STATUS_DICT, Model
 from .forms import NodeNewForm, NodeSearchForm
 from .tables import NodeTable,PortTable,BoardTable,AreaTable,VendorTable,CategoryTable
 
@@ -188,6 +188,36 @@ def nodes_delete():
         db.session.commit()
         flash(u'删除节点成功','info')
         return redirect(url_for('nodes.nodes'))
+
+@nodeview.route('/nodes/ajax_models_for_vendor', methods=['GET'])
+def ajax_models_for_vendor():
+    vendor_id = request.args.get('key')
+    models = Vendor.query.get(vendor_id).models
+    return json.dumps([{'value':model.id, 'name':model.alias} for model in models])
+
+@nodeview.route('/nodes/ajax_towns_for_city', methods=['GET'])
+def ajax_towns_for_city():
+    cityid = request.args.get('key')
+    towns = Area.query.filter(Area.cityid==cityid).filter(Area.area_type==2)
+    return json.dumps([{'value':town.id, 'name':town.alias} for town in towns])
+
+@nodeview.route('/nodes/ajax_branches_for_town', methods=['GET'])
+def ajax_branches_for_town():
+    town = request.args.get('key')
+    branches = Area.query.filter(Area.town==town).filter(Area.area_type==3)
+    return json.dumps([{'value':branch.id, 'name':branch.alias} for branch in branches])
+
+@nodeview.route('/nodes/ajax_entrances_for_branch', methods=['GET'])
+def ajax_entrances_for_branch():
+    branch = request.args.get('key')
+    entrances = Area.query.filter(Area.branch==branch).filter(Area.area_type==4)
+    return json.dumps([{'value':entrance.id, 'name':entrance.alias} for entrance in entrances])
+
+@nodeview.route('/nodes/ajax_entrances_for_town', methods=['GET'])
+def ajax_entrances_for_town():
+    town = request.args.get('key')
+    entrances = Area.query.filter(Area.town==town).filter(Area.area_type==4)
+    return json.dumps([{'value':entrance.id, 'name':entrance.alias} for entrance in entrances])
 
 
 @nodeview.route('/nodes/import', methods=['GET'])

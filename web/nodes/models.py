@@ -86,6 +86,8 @@ class Vendor(db.Model):
     url      = db.Column(db.String(100))
     is_valid = db.Column(db.Integer)
 
+    models = db.relationship("Model", backref="vendor")
+
     @property
     def node_count(self):
         return object_session(self).\
@@ -126,7 +128,6 @@ class Model(db.Model):
     remark            = db.Column(db.String(100))
 
     category          = db.relation('Category')
-    vendor            = db.relation('Vendor')
 
 NODE_STATUS_DICT = {1: u'正常', 2: u'宕机', 3: u'不可达', 4: u'未监控'}
 SNMP_VER_DICT = {"v1":'v1',"v2c":'v2c'}

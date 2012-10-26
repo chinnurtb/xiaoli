@@ -5,23 +5,20 @@
 {% block head %}
     <link rel="stylesheet" href="/static/css/node.css" type="text/css" media="screen" />
     {{ form.media.render() }}
+    <script type="text/javascript" src="/static/js/node.js"></script>
+
     <script type="text/javascript">
-        var make_option = function(value, name) {
-            return '<option value="'+value+'">'+name+'</option>';
-        }
         $(function() {
-            $("#control_id").change(function() {
-                var olt_id = $(this).val()
-                if(olt_id=="") return;
-                $.get("/ajax_entrances_for_olt", {olt_id: olt_id},function(data) {
-                    var data = eval("("+data+")");
-                    var options = [make_option('','请选择接入点')];
-                    for(var i=0; i< data.length; i++) {
-                        options.push(make_option(data[i].value,data[i].name))
-                    }
-                    $("#area_id").html(options.join(""));
-                })
-            })
+            select_change_ajax("vendor_id", {
+                id: "model_id",
+                url: "{{ url_for('nodes.ajax_models_for_vendor') }}",
+                option: "请选择型号"
+            });
+            select_change_ajax("controller_id", {
+                id: "area_id",
+                url: "{{ url_for('nodes.ajax_entrances_for_olt') }}",
+                option: "请选择接入点"
+            });
         })
     </script>
 {% endblock %}

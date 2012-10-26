@@ -5,6 +5,24 @@
 {% block head %}
     <link rel="stylesheet" href="/static/css/node.css" type="text/css" media="screen" />
     {{ form.media.render() }}
+
+    <script type="text/javascript" src="/static/js/node.js"></script>
+
+    <script type="text/javascript">
+        $(function() {
+            select_change_ajax("cityid", {
+                id: "town",
+                url: "{{ url_for('nodes.ajax_towns_for_city') }}",
+                option: "请选择区县",
+                empty: ["area_id"]
+            });
+            select_change_ajax("town", {
+                id: "area_id",
+                url: "{{ url_for('nodes.ajax_entrances_for_town') }}",
+                option: "请选择接入点"
+            });
+        })
+    </script>
 {% endblock %}
 
 {% block content %}
