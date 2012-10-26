@@ -39,18 +39,18 @@ def index():
 def setting():
     form = request.form
     uid = current_user.id
-    if form['action'] == 'meta-box-order' and form['page'] == 'dashboard':
+    if form['action'] == 'meta-box-order': # and form['page'] == 'dashboard':
         order = nested_dict('order', form)
         layout = form['page_columns']
-        Profile(uid, 'dashboard', 'dashboard.box.order', str(order)).update()
-        Profile(uid, 'dashboard', 'dashboard.screen.layout', layout).update()
+        Profile(uid, form['page'], 'box.order', str(order)).update()
+        Profile(uid, form['page'], 'screen.layout', layout).update()
         db.session.commit()
-    elif form['action'] == 'closed-postboxes' and form['page'] == 'dashboard':
-        Profile(uid, 'dashboard', 'dashboard.closedbox', form['closed']).update()
-        Profile(uid, 'dashboard', 'dashboard.metaboxhidden', form['hidden']).update()
+    elif form['action'] == 'closed-postboxes': # and form['page'] == 'dashboard':
+        Profile(uid, form['page'], 'closedbox', form['closed']).update()
+        Profile(uid, form['page'], 'metaboxhidden', form['hidden']).update()
         db.session.commit()
     elif form['action'] == 'update-welcome-panel':
-        Profile(uid, 'dashboard', 'dashboard.welcome.panel', form['visible']).update()
+        Profile(uid, form['page'], 'welcome.panel', form['visible']).update()
         db.session.commit()
 
     return '0'
