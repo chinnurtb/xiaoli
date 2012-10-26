@@ -109,9 +109,9 @@
 {%- endmacro %}
 
 {%- macro render_submit(submit_title, cancel_title="", class="btn-primary") -%}
-<div class="form-actions">
-    <button class="btn {{ class }}" type="submit">{{ submit_title }}</button>                    
-</div>
+    <div class="form-actions">
+        <button class="btn {{ class }}" type="submit">{{ submit_title }}</button>
+    </div>
 {%- endmacro -%}
 
 {%- macro render_fields(fields, submit_title, class=None, legend=None) -%}
@@ -232,5 +232,24 @@
             </tbody>
         </table>
     </div>
+{% endmacro %}
+
+{% macro render_toolbar_button(url,id="delete_btn", form_id="node_form", confirm="确认删除？",class="btn btn-small",icon="icon-remove") %}
+    <a class="{{ class }}" href="{{ url }}" id="{{ id }}"><i class="{{ icon-remove }}"></i>删除</a>
+    <script type="text/javascript">
+        $(function(){
+            var node_form = $("#{ form_id }}");
+            $("#delete_btn").click(function() {
+                var ids = $("#node_form").find("input[name^=id]:checked");;
+                if(ids.length > 0){
+                    if(confirm("确认删除这些OLT？")) {
+                        node_form.attr("action","{{url_for('nodes.olts_delete')}}").submit();
+                    }
+                }else{
+                    alert("请选择OLT");
+                }
+            })
+        })
+    </script>
 {% endmacro %}
     

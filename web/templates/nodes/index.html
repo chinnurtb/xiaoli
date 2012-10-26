@@ -23,6 +23,16 @@
                 search_form = $("#search_form");
                 search_form.attr("action","{{url_for('nodes.switches')}}").submit();
             })
+            var node_form = $("#node_form");
+            $(".delete").click(function() {
+                if(confirm("确认删除此节点？")) {
+                    var input = $(this).parent().parent().next();
+                    input.attr({checked: "checked"});
+                    $("body").append('<form id="delete_'+input.val()+'" method="POST" action="'+ $(this).src+'"></form>')
+                    $("#delete_"+input.val()).attr("action",$(this).attr("href")).append(input.clone()).submit();
+                }
+                return false;
+            })
         })
     </script>
     {{ form.media.render() }}
