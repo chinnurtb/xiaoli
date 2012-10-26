@@ -1,3 +1,8 @@
-from .menu import Menu, menus
+from .navbar import Navbar
 
-from .dashboard import Dashboard, Widget, add_widget, widgets
+navbar = Navbar()
+
+from .dashboard import Dashboard
+
+dashboard = Dashboard()
+

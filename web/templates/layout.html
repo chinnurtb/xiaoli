@@ -48,8 +48,8 @@
 			<div class="nav-collapse">
 				<ul class="nav">
                     {% if current_user.id %}
-                        {% for menu in g.menus %}
-                            {{ menu.render(menuid)|safe }}
+                        {% for nav in g.navbar %}
+                            {{ nav.render(navid)|safe }}
                         {% endfor %}
                     {% endif %}
 				</ul>

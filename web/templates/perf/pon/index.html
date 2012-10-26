@@ -1,0 +1,15 @@
+{% extends 'layout.html' %}
+
+{% set title = 'PON口性能' %}
+
+{% block content %}
+    <div class="row-fluid content">
+        <div class="span2">
+            {% set menuid = 'pon' %}
+            {% include "perf/_sidebar.html" %}
+        </div>
+        <div class="span10">
+            <h1>PON口性能</h1>
+        </div>
+    </div>
+{% endblock %}

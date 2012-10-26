@@ -1,7 +1,5 @@
 {% extends 'layout.html' %}
 
-{% set menuid = 'eocs' %}
-
 {% set title = 'EOC管理' %}
 
 {% block head %}
@@ -12,7 +10,7 @@
 
 <div class="row-fluid content">
     <div class="span2">
-        {% set submenuid = 'eocs' %}
+        {% set menuid = 'eocs' %}
         {% include 'nodes/_sidebar.html' %}
     </div>
     <div class="span10">

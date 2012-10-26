@@ -1,6 +1,3 @@
-
-{% set menuid = 'users' %}
-
 {% extends 'layout.html' %}
 
 {% set title = '添加用户' %}
@@ -68,7 +65,7 @@ $(document).ready(function(){
 <div class="row-fluid" style="margin-top:20px">
     <div class="span2">
       {% if request.endpoint == 'users.domains_new' %}
-          {% set submenuid = 'domains-new' %}
+          {% set menuid = 'domains-new' %}
       {% endif %}      
       {% include "users/_sidebar.html" %}
     </div>

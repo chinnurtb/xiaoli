@@ -12,7 +12,7 @@
 from flask import Flask, session, redirect, url_for, \
     render_template, g, request, abort
 
-from tango.ui import menus
+from tango.ui import navbar
 from tango.ip import ip_from
 from tango import db, login_mgr
 from tango.login import login_required, current_user
@@ -74,8 +74,8 @@ def load_user(id):
 
 login_mgr.init_app(app)
 
-from dashboard.views import homeview
 from tango.views import tangoview
+from home.views import homeview
 from topo.views import topoview
 from nodes.views import nodeview
 from alarms.views import alarmview
@@ -143,7 +143,7 @@ def before_request():
     # Not Anonymous User
     # Already Login
     if current_user:
-        g.menus = menus
+        g.navbar = navbar
         if current_user.username in SUPER_USERS \
            or request.endpoint in SAFE_ENDPOINTS:
             return

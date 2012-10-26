@@ -1,7 +1,5 @@
 {% extends 'layout.html' %}
 
-{% set menuid = 'nodes' %}
-
 {% block head %} {% endblock %}
 
 {% from "_table_h.html" import render_table, render_screen_meta %}
@@ -11,7 +9,7 @@
 <div class="row-fluid content">
 
     <div class="span2">
-        {% set submenuid = 'areas' %}
+        {% set menuid = 'areas' %}
         {% include 'nodes/_sidebar.html' %}
     </div>
 

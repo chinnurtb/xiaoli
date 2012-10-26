@@ -1,7 +1,17 @@
 
 {% from "tango/_sidebar_h.html" import render_sidebar %}
 
-{{ render_sidebar('性能设置', submenuid, [
-        ('thresholds','阀值管理', url_for('perf.thresholds')),
-        ('metrics','指标管理', url_for('perf.metrics'))])
+{{ render_sidebar('性能浏览', menuid, [
+    ('switches','交换机', url_for('perf.switches')),
+    ('olts','OLT', url_for('perf.olts')),
+    ('onus','ONU', url_for('perf.onus')),
+    ('eocs','EOC', url_for('perf.eocs')),
+    ('boards','OLT版卡', url_for('perf.boards')),
+    ('pon','PON口', url_for('perf.pon'))])
 }}
+
+{{ render_sidebar('性能设置', menuid, [
+    ('thresholds','阀值管理', url_for('perf.thresholds')),
+    ('metrics','指标管理', url_for('perf.metrics'))])
+}}
+

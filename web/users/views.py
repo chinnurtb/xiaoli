@@ -5,9 +5,10 @@ from flask import json
 from flask import (Blueprint, request, url_for, redirect, render_template, flash)
 
 from tango import db
+
+from tango.ui import navbar
 from tango.base import NestedDict
 from tango.ui.tables import make_table
-from tango.ui import menus, Menu
 from tango.login import logout_user, login_user, current_user
 from tango.models import Profile
 
@@ -17,9 +18,11 @@ from .forms import (UserEditForm, UserNewForm, LoginForm, PasswordForm, RoleForm
                     ProfileForm, DomainForm, ResetPasswordForm)
 from .tables import UserTable, RoleTable, DomainTable
 
-
 userview = Blueprint('users', __name__)
 
+@userview.context_processor
+def inject_navid():
+    return dict(navid = 'users')
 
 # ===============================================================================
 #  Authenticating
@@ -411,7 +414,7 @@ def domains_delete(id):
 # ==============================================================================
 #  [OTHER]
 # ==============================================================================
-menus.append(Menu('users', u'用户', '/users/'))
+navbar.add('users', u'用户', '/users/')
 
 @userview.route('/just-test')
 def just_test():
