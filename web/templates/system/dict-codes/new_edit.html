@@ -2,35 +2,29 @@
 {% set menuid = 'system' %}
 {% extends 'layout.html' %}
 
-{% set title = '编辑字典' %}
-
-{% from "_form_h.html" import render_field %}
+{% from "_form_h.html" import render_field, render_form_title %}
 
 {% block content %}
 <div class="row-fluid" style="margin-top:20px">
     <div class="span2">
-      {% set submenuid = 'dict_codes_new' %}
+      {% set submenuid = 'dict_codes' %}
       {% include "system/_sidebar.html" %}
     </div>
     
     <div class="span10">
 	<div class="row-fluid">
-	  <form class="form-horizontal" method="POST"
-                action="{{ action }}">
-	    <fieldset>
-	      {{ form.hidden_tag() }}
-              {{ render_field(form.type) }}
-              {{ render_field(form.code_name) }}
-              {{ render_field(form.code_label) }}
-              {{ render_field(form.is_valid) }}
-              {{ render_field(form.remark) }}
-	      <div class="control-group">
-		<div class="controls">
-		  <button type="submit" class="btn btn-primary">确定</button>
-		  <a href="#" class="btn">取消</a>
-		</div>
-	      </div>
-	    </fieldset>		    
+	  <form class="form-horizontal" method="POST" action="{{ action }}">
+            {{ render_form_title(request, title) }}
+	    {{ form.hidden_tag() }}
+            {{ render_field(form.type) }}
+            {{ render_field(form.code_name) }}
+            {{ render_field(form.code_label) }}
+            {{ render_field(form.is_valid) }}
+            {{ render_field(form.remark) }}
+	    <div class="form-actions">
+	      <button type="submit" class="btn btn-primary">确定</button>
+	      <a href="#" class="btn">取消</a>
+	    </div>
 	  </form>
 	</div>
         <br class="clear">

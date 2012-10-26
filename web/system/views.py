@@ -21,13 +21,16 @@ from .forms import (SettingEditForm, SearchForm, OplogFilterForm, DictCodeFilter
 
 sysview = Blueprint('system', __name__)
 
+# ==============================================================================
+#  系统设置
+# ==============================================================================
 @sysview.route('/system/')
 @sysview.route('/system/settings/')
 def settings():
     #TODO: SettingTable()
     table = make_table(Setting.query, SettingTable)
     return render_template('/system/settings/index.html', table=table)
-
+    
     
 @sysview.route('/system/setting/edit/<int:id>', methods=('GET', 'POST'))
 def settings_edit(id):
@@ -42,7 +45,10 @@ def settings_edit(id):
     form.process(obj=setting)
     return render_template('/system/settings/edit.html', form=form, setting=setting)
 
-    
+
+# ==============================================================================
+#  字典管理
+# ==============================================================================    
 @sysview.route('/dict-codes/')
 def dict_codes():
     form = DictCodeFilterForm(formdata=request.args)
@@ -51,7 +57,7 @@ def dict_codes():
         query = query.filter_by(type_id=form.type.data.id)
     if form.is_valid.data:
         query = query.filter_by(is_valid=form.is_valid.data)
-
+        
     table = make_table(query, DictCodeTable)
     return render_template('/system/dict-codes/index.html', table=table, form=form)
     
@@ -66,9 +72,9 @@ def dict_codes_new():
         db.session.commit()
         flash(u'%s 添加成功' % dict_code.code_label, 'success')
         return redirect('/dict-codes/')
-
+        
     return render_template('/system/dict-codes/new_edit.html', form=form,
-                           action='/dict-codes/new')
+                           action='/dict-codes/new', title=u'添加字典')
 
 
 @sysview.route('/dict-codes/edit/<int:id>', methods=('GET', 'POST'))
@@ -84,9 +90,12 @@ def dict_codes_edit(id):
         
     form.process(obj=dict_code)
     return render_template('/system/dict-codes/new_edit.html', form=form,
-                           action=url_for('system.dict_codes_edit', id=id))
+                           action=url_for('system.dict_codes_edit', id=id), title=u'编辑字典')
 
-    
+
+# ==============================================================================
+#  采集规则管理
+# ==============================================================================    
 @sysview.route('/timeperiods/')
 def timeperiods():
     table = make_table(TimePeriod.query, TimePeriodTable)
@@ -123,36 +132,9 @@ def timeperiods_edit(id):
                            action=url_for('system.timeperiods_edit', id=id), title=u'编辑规则')
 
 
-##  Hosts
-@sysview.route('/hosts/')
-def hosts():
-    table = make_table(NodeHost.query, NodeHostTable)
-    return render_template("/system/hosts/index.html", table=table)
-    
-
-@sysview.route('/hosts/edit/<int:id>', methods=['GET', 'POST'])
-def hosts_edit(id):
-    host = NodeHost.query.get_or_404(id)
-    form = NodeHostEditForm()
-    
-    if form.is_submitted and form.validate_on_submit():
-        alias = form.alias.data
-        remark = form.remark.data
-        host.alias = alias
-        host.remark = remark
-        db.session.commit()
-        flash(u'%s 修改成功' % host.name, 'success')
-        return redirect('/hosts/')
-        
-    form.process(obj=host)
-    return render_template("/system/hosts/edit.html", form=form, host=host)
-
-    
-@sysview.route('/subsystems/', methods=['GET'])
-def subsystems():
-    table = make_table(SubSystem.query, SubSystemTable)
-    return render_template('/system/subsystems.html', table=table)
-    
+# ==============================================================================
+#  日志管理
+# ==============================================================================
 @sysview.route('/oplogs/')
 def oplogs():
     filterForm = OplogFilterForm(formdata=request.args)
@@ -191,6 +173,40 @@ def seclogs():
     table = make_table(query, SecurityLogTable)
     return render_template('/system/seclogs.html', 
         table=table, searchForm = searchForm)
+
+
+# ==============================================================================
+#  网管系统
+# ==============================================================================    
+@sysview.route('/hosts/')
+def hosts():
+    table = make_table(NodeHost.query, NodeHostTable)
+    return render_template("/system/hosts/index.html", table=table)
+    
+
+@sysview.route('/hosts/edit/<int:id>', methods=['GET', 'POST'])
+def hosts_edit(id):
+    host = NodeHost.query.get_or_404(id)
+    form = NodeHostEditForm()
+    
+    if form.is_submitted and form.validate_on_submit():
+        alias = form.alias.data
+        remark = form.remark.data
+        host.alias = alias
+        host.remark = remark
+        db.session.commit()
+        flash(u'%s 修改成功' % host.name, 'success')
+        return redirect('/hosts/')
+        
+    form.process(obj=host)
+    return render_template("/system/hosts/edit.html", form=form, host=host)
+
+    
+@sysview.route('/subsystems/', methods=['GET'])
+def subsystems():
+    table = make_table(SubSystem.query, SubSystemTable)
+    return render_template('/system/subsystems.html', table=table)
+
 
 menus.append(Menu('system', u'系统', '/system'))
 

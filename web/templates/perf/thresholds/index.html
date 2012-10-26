@@ -26,10 +26,8 @@
         <div class="span10">
           {% include "_alert.html" %}
           <div class="tablenav top">
-            <form class="form-horizontal" method="GET" style="margin:0" action="{{url_for('perf.thresholds')}}" id="search_form">
+            <form class="form-horizontal" method="GET" action="{{url_for('perf.thresholds')}}">
               <div class="">
-                <input type="hidden" name="orderby" value="login">
-                <input type="hidden" name="order" value="asc">
                 <div class="pull-left btn-group">
                   <a class="btn btn-small" href="/perf/thresholds/new"><i class="icon-plus"></i>添加</a>
                 </div>

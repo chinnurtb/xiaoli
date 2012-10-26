@@ -26,6 +26,8 @@
             {% include 'system/_sidebar.html' %}
         </div>
         <div class="span10">
+          {% include "_alert.html" %}
+          
           <div class="tablenav top">
             <div class="alignleft actions">
               <div class="alignleft btn-group">
@@ -39,10 +41,7 @@
                 <button class="btn btn-small" type="submit">检索</button>
               </form>
             </div>
-
           </div>
-
-          {% include "_alert.html" %}
           {{ render_table(table) }}
         </div>
     </div>

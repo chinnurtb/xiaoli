@@ -8,21 +8,22 @@ class TimePeriod(db.Model):
     """采集规则"""
     __tablename__ = 'timeperiods'
     
-    id         = db.Column(db.Integer, primary_key=True)
-    name       = db.Column(db.String(100))
-    alias      = db.Column(db.String(100))
-    minute     = db.Column(db.String(100))
+    id          = db.Column(db.Integer, primary_key=True)
+    name        = db.Column(db.String(100))
+    alias       = db.Column(db.String(100))
+    minute      = db.Column(db.String(100))
     _hour       = db.Column('hour', db.String(60), default='*')
     _dayofmonth = db.Column('dayofmonth', db.String(100), default='*')
     _month      = db.Column('month', db.String(40), default='*')
     _dayofweek  = db.Column('dayofweek', db.String(40), default='*')
-    start_at   = db.Column(db.DateTime)
-    end_at     = db.Column(db.DateTime)
-    state_in   = db.Column(db.Integer)
-    state_out  = db.Column(db.Integer)
-    status     = db.Column(db.Integer)
-    created_at = db.Column(db.DateTime)
-    updated_at = db.Column(db.DateTime)
+    start_at    = db.Column(db.DateTime)
+    end_at      = db.Column(db.DateTime)
+    state_in    = db.Column(db.Integer)
+    state_out   = db.Column(db.Integer)
+    status      = db.Column(db.Integer)
+    remark      = db.Column(db.String(200))
+    created_at  = db.Column(db.DateTime)
+    updated_at  = db.Column(db.DateTime)
 
     
     @property

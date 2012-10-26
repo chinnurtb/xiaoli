@@ -10,7 +10,7 @@
     
     <div class="row-fluid content">
         <div class="span2">
-            {% set submenuid = 'timeperiods_new' %}
+            {% set submenuid = 'timeperiods' %}
             {% include 'system/_sidebar.html' %}
         </div>
         <div class="span10">
@@ -21,11 +21,11 @@
               {{ render_field(form.alias) }}
               <legend>规则设置 (Cron)</legend>
               {{ render_cron_rule([form.hour, form.dayofmonth, form.month, form.dayofweek]) }}
-	      <div class="control-group">
-		<div class="controls">
-		  <button type="submit" class="btn btn-primary">确定</button>
-		  <a href="#" class="btn">取消</a>
-		</div>
+              <hr/>
+              {{ render_field(form.remark) }}
+	      <div class="form-actions">
+		<button type="submit" class="btn btn-primary">确定</button>
+		<a href="#" class="btn">取消</a>
 	      </div>
 	  </form>
         <div>
