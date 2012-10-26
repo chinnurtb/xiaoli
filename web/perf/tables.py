@@ -28,11 +28,13 @@ class ThresholdTable(tables.Table):
 
 class MetricTable(tables.Table):
     helpdoc = u'指标管理'
+    edit    = tables.Action(name=u'编辑', endpoint='perf.metrics_edit')
+    check   = tables.CheckBoxColumn()
     
     grp    = tables.Column(verbose_name=u'分组')
     name   = tables.Column(verbose_name=u'名称')
     alias  = tables.Column(verbose_name=u'显示名')
-    calc   = tables.Column(verbose_name=u'计算')
+    calc   = tables.Column(verbose_name=u'计算方法')
     unit   = tables.Column(verbose_name=u'单位')
     format = tables.Column(verbose_name=u'格式')
     descr  = tables.Column(verbose_name=u'说明')

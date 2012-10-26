@@ -1,0 +1,38 @@
+{% set menuid = 'perf' %}
+{% extends 'layout.html' %}
+
+{% from "_form_h.html" import render_field, render_form_title %}
+
+{% block content %}
+<div class="row-fluid" style="margin-top:20px">
+    <div class="span2">
+      {% set submenuid = 'metrics' %}
+      {% include "perf/_sidebar.html" %}
+    </div>
+    
+    <div class="span10">
+	<div class="row-fluid">
+	    <div class="">
+		<form class="form-horizontal" method="POST" action="{{ action }}">
+                  {{ render_form_title(request, title) }}
+                  {{ form.hidden_tag() }}
+                  {{ render_field(form.grp) }}
+                  {{ render_field(form.name) }}
+                  {{ render_field(form.alias) }}
+                  {{ render_field(form.calc) }}
+                  {{ render_field(form.unit) }}
+                  {{ render_field(form.format) }}
+                  {{ render_field(form.descr) }}
+		  <div class="form-actions">
+		    <button type="submit" class="btn btn-primary">确定</button>
+		    <a href="#" class="btn">取消</a>
+		  </div>
+		</form>
+	    </div>
+	</div>
+        <br class="clear">
+    </div>
+</div>
+
+{% endblock %}
+

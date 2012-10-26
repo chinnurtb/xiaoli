@@ -25,6 +25,23 @@
         </div>
         <div class="span10">
           {% include "_alert.html" %}
+          <div class="tablenav top">
+            <form class="form-horizontal" method="GET" style="margin:0" action="{{url_for('perf.metrics')}}" id="search_form">
+              <div class="">
+                <div class="pull-left btn-group">
+                  <a class="btn btn-small" href="/perf/metrics/new"><i class="icon-plus"></i>添加</a>
+                </div>
+              </div>
+              <div class="pull-left" style="height: 26px;">
+                <div class="input-append pull-left" style="margin-left: 20px;">
+                  <input type="text" name="keyword" class="input-low"
+                         value="{{ keyword }}" />
+                  <button id="advance_sarch" class="btn btn-small">检索</button>
+                </div>
+              </div>
+            </form>
+          </div>
+          
           {{ render_table(table) }}
         </div>
     </div>

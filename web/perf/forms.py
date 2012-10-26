@@ -2,7 +2,7 @@
 
 
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
-from flask_wtf import Form, TextField, SelectField, IntegerField, TextAreaField
+from flask_wtf import Form, TextField, SelectField, IntegerField, TextAreaField, required
 
 from tango.models import Category, db
 from alarms.models import AlarmSeverity, AlarmClass
@@ -13,7 +13,6 @@ def valid_node_categoryies():
                                          Category.obj=='node'))
 
 class ThresholdEditForm(Form):
-    
     alias       = TextField(u'显示名')
     category    = QuerySelectField(u'设备', query_factory=valid_node_categoryies, get_label='alias')
     metric      = QuerySelectField(u'指标', query_factory=lambda:Metric.query, get_label='alias')
@@ -34,3 +33,14 @@ class ThresholdNewForm(ThresholdEditForm):
     occur_count = IntegerField(u'产生数量')
     summary = TextAreaField(u'摘要')
 
+
+
+class MetricNewEditForm(Form):
+    grp    = TextField(u'分组', [required(message=u'必填')])
+    name   = TextField(u'名称', [required(message=u'必填')])
+    alias  = TextField(u'显示名', [required(message=u'必填')])
+    calc   = SelectField(u'计算方法', [required(message=u'必填')], choices=[(u'counter', u'counter'), (u'gauge', u'gauge')])
+    unit   = TextField(u'单位')
+    format = TextField(u'格式')
+    descr  = TextAreaField(u'说明')
+    
