@@ -64,6 +64,23 @@
 </div>
 {% endmacro %}
 
+{% macro render_radio(field) %}
+    <div class="control-group {% if field.errors %}error{% endif %}">
+        <label class="control-label" for="{{ field.id }}">{{field.label.text}}</label>
+        <div class="controls" style="line-height: 30px; vertical-align: middle;">
+            {% for subfield in field %}
+                {{ subfield(style="display: inline; margin:0 4px;") }}{{ subfield.label(style="display: inline; margin:0 8px 0 0;") }}
+            {% endfor %}
+            {% if field.flags.required %}<strong><em>*</em></strong>{% endif %}
+            {% if field.errors %}
+                <span class="help-inline">
+	    {{ field.errors[0]|e }}
+	</span>
+            {% endif %}
+        </div>
+    </div>
+{% endmacro %}
+
 
 {% macro render_text(field, help = None) -%} 
 <div class="control-group {% if field.errors %}error{% endif %}">
@@ -180,12 +197,6 @@
             {% endif %}
         </div>
     </div>
-
-    <script type="text/javascript">
-        $(function() {
-
-        })
-    </script>
 {% endmacro %}
 
 {% macro render_search_form() %}
