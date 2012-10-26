@@ -1,8 +1,8 @@
 {% extends 'layout.html' %}
 
-{% set title = '用户信息' %}
+{% set title = '编辑用户信息' %}
 
-{% from "_form_h.html" import render_field %}
+{% from "_form_h.html" import render_field, render_form_title %}
 
 {% block screen_meta %} {% endblock %}
 
@@ -16,6 +16,7 @@
     <div class="span10">
       {% include "_alert.html" %}
       <form class="form-horizontal" method="POST" id="test-wtf" action="{{url_for('users.user_info')}}">
+        {{ render_form_title(request, title) }}
 	{{ form.hidden_tag() }}
         {{ render_field(form.name, class="input-medium") }}
         {{ render_field(form.role_name, disabled="disabled") }}
