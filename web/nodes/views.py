@@ -232,19 +232,15 @@ def managers():
 
 @nodeview.route('/nodes/eocs/', methods=['GET'])
 def eocs():
-    #TODO:
     return render_template('/nodes/eocs/index.html')
 
-@nodeview.route("/boards/")
-def boards():
-    table = make_table(Board.query, BoardTable)
-    return render_template('boards/index.html', table = table)
+@nodeview.route('/nodes/routers/', methods=['GET'])
+def routers():
+    return render_template('/nodes/routers/index.html')
 
-@nodeview.route("/ports/")
-@login_required
-def ports():
-    table = make_table(Port.query, PortTable)
-    return render_template('ports/index.html', table = table)
+@nodeview.route('/nodes/entrances/', methods=['GET'])
+def entrances():
+    return render_template('/nodes/entrances/index.html')
 
 @nodeview.route("/areas/")
 @login_required
