@@ -33,8 +33,7 @@
           <input type="hidden" name="order" value="asc">
           <div class="alignleft btn-group">
             <a class="btn btn-small" href="{{url_for('users.users_new')}}"><i class="icon-plus"></i>新建</a>
-            <!-- <button class="btn">重置密码</button> -->
-            <a class="btn btn-small" role="button" href="#myModal" data-toggle="modal"><i class="icon-remove"></i>删除</a>
+            <a class="btn btn-small" id="multi-delete-btn" href="#"><i class="icon-trash"></i>删除</a>
           </div>
         </form>
       </div>
@@ -49,9 +48,13 @@
              href="#"><i class="icon-download-alt"></i></a>
         </div>
      </div>
-    {{ render_table(table) }}
+    
+    <form method="POST" id="table-form" action="{{ url_for('users.users_delete_all') }}">
+      {{ render_table(table) }}
+    </form>
+    <script type="text/javascript">
+    </script>
     {{ render_modal(['edit', 'delete']) }}
-    <br class="clear">
   </div>
 </div>
 {% endblock %}

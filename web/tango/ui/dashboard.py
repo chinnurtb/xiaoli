@@ -2,15 +2,15 @@
 
 class Dashboard(object):
     
-    layout_meta = 'dashboard.screen.layout'
+    layout_meta = 'screen.layout'
 
-    order_meta = 'dashboard.box.order'
+    order_meta = 'box.order'
 
-    closed_meta = 'dashboard.closedbox' 
+    closed_meta = 'closedbox' 
 
-    hidden_meta = 'dashboard.metaboxhidden'
+    hidden_meta = 'metaboxhidden'
 
-    welcome_meta = 'dashboard.welcome.panel'
+    welcome_meta = 'welcome.panel'
 
     def __init__(self, id='dashboard'):
         self.id = id
@@ -32,7 +32,7 @@ class Dashboard(object):
         self.closed = profile.get(Dashboard.closed_meta, '').split(',')
         self.hidden = profile.get(Dashboard.hidden_meta, '').split(',')
         self.welcome = profile.get(Dashboard.welcome_meta, '1')
-    
+
     def widgets(self):
         self.widgets
 

@@ -200,6 +200,17 @@ def users_delete(id):
     return json.dumps(res)
 
     
+@userview.route('/users/delete/all', methods=['GET', 'POST'])
+def users_delete_all():
+    if request.method == 'POST':
+        ids = dict(request.values.lists()).get('id', [])
+        for iid in ids:
+            db.session.delete(User.query.get(id))
+        db.session.commit()
+        flash(u'全部用户(%s)删除成功!' % str(ids), 'success')
+        return redirect(url_for('users.users'))
+
+        
 @userview.route('/users/reset-password/<int:id>', methods=['POST', 'GET'])
 def reset_password(id):
     '''管理员重置用户密码'''
