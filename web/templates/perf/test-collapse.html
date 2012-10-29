@@ -4,6 +4,30 @@
 
 {% block content %}
 
+<style type="text/css" media="screen">
+  .inner-menu {
+  margin: 0;
+  }
+  .inner-menu .icon-chevron-right {
+     float: right;
+     margin-top: 2px;
+     margin-right: -6px;
+     opacity: .25;
+  }
+  
+  .inner-menu > li > a {
+  display: block;
+  margin: 0 0 -1px;
+  padding: 8px 14px;
+  border-bottom: 1px solid #E5E5E5;
+  }
+
+  .inner-menu > li{
+  border-left: none;
+  border-right: none;
+  }
+  
+</style>
   <div class="row-fluid content">
     <div class="span2">
       <div class="accordion" id="accordion2">
@@ -16,7 +40,7 @@
             </a>
           </div>
           <div id="collapse-{{ i }}" class="accordion-body collapse {% if loop.first %}in{% endif %}">
-            <ul class="bs-docs-sidenav inner-menu">
+            <ul class="inner-menu" >
               <li class="{% if loop.index == 3 %}active{% endif %}">
                 <a href="/perf/thresholds/"><i class="icon-chevron-right"></i> 阀值设置</a>
               </li>
@@ -30,31 +54,31 @@
           </div>
         </div>
         {% endfor %}
-        
         <div class="accordion-group">
           <div class="accordion-heading">
             <a class="accordion-toggle" data-toggle="collapse"
-               data-parent="#accordion2" href="#collapseTwo">
-              <strong>其他设置</strong>
+               data-parent="#accordion2" href="#collapse-4">
+               <strong>性能设置</strong>
             </a>
           </div>
-          <div id="collapseTwo" class="accordion-body collapse">
-              <ul class="bs-docs-sidenav inner-menu">
-                <li class="active">
-                  <a href="/perf/thresholds/"><i class="icon-chevron-right"></i> 阀值设置</a>
-                </li>
-                <li>
-                  <a href="/perf/metrics/"><i class="icon-chevron-right"></i> 指标管理</a>
-                </li>
-                <li>
-                  <a href="/perf/miboids/"><i class="icon-chevron-right"></i> MIB管理</a>
-                </li>
-              </ul>
+          <div id="collapse-4" class="accordion-body collapse ">
+            <ul class=" bs-docs-sidenav" >
+              <li>
+                <a href="/perf/thresholds/"><i class="icon-chevron-right"></i> 阀值设置</a>
+              </li>
+              <li>
+                <a href="/perf/metrics/"><i class="icon-chevron-right"></i> 指标管理</a>
+              </li>
+              <li>
+                <a href="/perf/miboids/"><i class="icon-chevron-right"></i> MIB管理</a>
+              </li>
+            </ul>
           </div>
         </div>
+
       </div>
     </div>
-    <div class="span10">_<div>
+    <div class="span10"><div>
   </div>
 
 {% endblock content %}
