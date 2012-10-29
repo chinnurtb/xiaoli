@@ -1,6 +1,6 @@
 {% from "tango/_sidebar_h.html" import render_sidebar %}
 
-{{ render_sidebar('系统管理', submenuid, [
+{{ render_sidebar('系统管理', menuid, [
         ('settings', '系统设置', url_for('system.settings')),
         ('dict_codes', '字典管理', url_for('system.dict_codes')),
         ('timeperiods', '采集规则', url_for('system.timeperiods')),
