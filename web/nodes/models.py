@@ -253,6 +253,9 @@ class NodeSwitch(NodeMixin, db.Model):
     """ Switchs """
     __tablename__ = 'node_switchs'
 
+class NodeRouter(NodeMixin, db.Model):
+    """ Routers """
+    __tablename__ = 'node_routers'
 
 class NodeHost(NodeMixin, db.Model):
     """ Hosts """

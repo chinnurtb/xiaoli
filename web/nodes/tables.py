@@ -7,9 +7,10 @@ from tango.ui import tables
 from tango.ui.tables.utils import Attrs
 
 from nodes import constants
-from .models import Node, NodeSwitch, NodeOlt, NodeOnu, Board, Port, NodeHost, NODE_STATUS_DICT
+from .models import Node, NodeSwitch, NodeRouter, NodeOlt, NodeOnu, Board, Port, NodeHost, NODE_STATUS_DICT
 
 redirct_dict = {
+    1: "routers",
     2: "switches",
     20: "olts",
     21: "onus",
@@ -94,6 +95,28 @@ class SwitchTable(tables.Table):
 
     class Meta():
         model = NodeSwitch
+        per_page = 30
+
+class RouterTable(tables.Table):
+    edit = tables.Action(name=u'编辑', endpoint='nodes.routers_edit')
+    delete = tables.Action(name=u'删除', endpoint='nodes.routers_delete',attrs=Attrs(a={"class": "delete"}))
+    check = tables.CheckBoxColumn()
+    status = tables.EnumColumn(
+        verbose_name=u'状态',
+        name='state',
+        enums=NODE_STATUS_DICT,
+        orderable=True
+    )
+    name = tables.LinkColumn(endpoint='nodes.routers_show',verbose_name=u'名称',orderable=True)
+    addr = tables.Column(verbose_name=u'IP', orderable=True)
+    area_name = tables.Column(verbose_name=u'所属区域', orderable=True, accessor='area.full_name')
+    vendor_name = tables.Column(verbose_name=u'厂商', orderable=True, accessor='vendor.alias')
+    model_name = tables.Column(verbose_name=u'型号', orderable=True, accessor='model.alias')
+    last_check = tables.Column(verbose_name=u'上次同步',orderable=True)
+    location = tables.Column(verbose_name=u'位置')
+
+    class Meta():
+        model = NodeRouter
         per_page = 30
 
 class OnuTable(tables.Table):

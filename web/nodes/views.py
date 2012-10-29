@@ -33,6 +33,7 @@ nodeview = Blueprint('nodes', __name__)
 def inject_navid():
     return dict(navid = 'nodes')
 
+from .views_router import routers, routers_new, routers_edit, routers_show, routers_delete
 from .views_switch import switches, switches_new, switches_edit, switches_show, switches_delete
 from .views_olt import olts, olts_new, olts_edit, olts_delete, olts_show
 from .views_onu import onus, onus_new, onus_edit, onus_delete, onus_show
@@ -244,10 +245,6 @@ def managers():
 @nodeview.route('/nodes/eocs/', methods=['GET'])
 def eocs():
     return render_template('/nodes/eocs/index.html')
-
-@nodeview.route('/nodes/routers/', methods=['GET'])
-def routers():
-    return render_template('/nodes/routers/index.html')
 
 @nodeview.route('/nodes/entrances/', methods=['GET'])
 def entrances():

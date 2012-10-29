@@ -1,35 +1,63 @@
 {% extends 'layout.html' %}
 
-{% set menuid = 'eocs' %}
-
-{% set title = '路由器管理' %}
-
 {% block head %}
-<link rel="stylesheet" href="/static/css/node.css" type="text/css" media="screen" />
+    {{ form.media.render() }}
+    <link rel="stylesheet" href="/static/css/node.css" type="text/css" media="screen" />
+    <script type="text/javascript" src="/static/js/node.js"></script>
+{% endblock %}
+
+{% from "_table_h.html" import render_table, render_screen_meta %}
+
+{% block screen_meta %}
+
+{{ render_screen_meta(table) }}
+
 {% endblock %}
 
 {% block content %}
 
 <div class="row-fluid content">
     <div class="span2">
-        {% set submenuid = 'routers' %}
+        {% set menuid = 'routers' %}
         {% include 'nodes/_sidebar.html' %}
     </div>
     <div class="span10">
-        <div class="tablenav top">
-            <div class="alignleft actions">
-                <input type="hidden" name="order_by" value="asc">
-                <div class="alignleft btn-group">
-                    <a class="btn" href="/eocs/new">添加路由器</a>
+        {% include "_alert.html" %}
+        <ul id="status_statistics">
+            {% for status in status_statistcs %}
+                <li class="status-{{ status.status }}">{{ status.name }}<span class="count">({{ status.number }})</span></li>
+            {% endfor %}
+        </ul>
+        <form class="form-horizontal" method="GET" action="{{url_for('nodes.routers')}}" id="search_form">
+            <div class="tablenav top">
+                <div class="alignleft">
+                    <input type="hidden" name="orderby" value="login">
+                    <input type="hidden" name="order" value="asc">
+                    <div class="alignleft btn-group">
+                        <a class="btn btn-small" href="{{ url_for('nodes.routers_new') }}"><i class="icon-plus"></i>添加</a>
+                        {% from "_form_h.html" import render_delete_button %}
+                        {{ render_delete_button(url_for('nodes.routers_delete'),confirm="路由器") }}
+                        <a class="btn btn-small" href="#"><i class="icon-file"></i>模版</a>
+                        <a class="btn btn-small" href="#"><i class="icon-upload"></i>导入</a>
+                    </div>
+                </div>
+                <div class="alignleft" style="height: 26px;">
+                        {% set keyword = '名称、别名或IP' %}
+                        <div class="input-append alignleft" style="margin-left: 20px;">
+                            {{ form.name(placeholder=keyword,class="input-low input-medium") }}
+                            <button id="advance_sarch" class="btn btn-small">检索</button>
+                        </div>
+                        <div class="alignleft advance_search" title="高级检索"></div>
+                </div>
+                <div class="pull-right actions">
+                    <a class="btn btn-small" href="#" title="Excel导出"><i class="icon-download-alt"></i></a>
                 </div>
             </div>
-            <div class="alignleft actions">
-                <form class="form-horizontal" method="GET" action="nodes/eocs'" id="eoc_search_form">
-                </form>
-            </div>
-        </div>
-        <form action="" method="POST" id="eocs_form">
-            <div> 路由器列表 </div>
+            {% from "_form_h.html" import render_search_form %}
+            {{ render_search_form("{{url_for('nodes.routers')}}",form.area, form.vendor_id, form.model_id) }}
+        </form>
+        <form action="" method="POST" id="node_form">
+        {{ render_table(table) }}
         </form>
         <br class="clear">
     </div>

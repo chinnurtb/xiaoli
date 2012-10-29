@@ -109,6 +109,30 @@ class SwitchNewForm(FormPro):
             field={'style':'padding-left: 10px;padding-bottom: 10px;'}
         )
 
+class RouterNewForm(FormPro):
+    cityid          = SelectFieldPro(u'所属地市', validators=[required(message=u'必填')],
+        choices=lambda: [('', u'请选择地市')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==1)])
+    town         = SelectFieldPro(u'', validators=[required(message=u'必填')],
+        choices=lambda: [('', u'请选择区县')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==2)])
+    area_id         = SelectFieldPro(u'所属区域', validators=[required(message=u'必填')],
+        choices=lambda: [('', u'请选择接入点')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==4)])
+    name            = TextField(u'路由器名称', validators=[required(message=u'必填')])
+    alias           = TextField(u'路由器别名', validators=[required(message=u'必填')])
+    addr            = TextField(u'IP 地址', validators=[required(message=u'必填')])
+    snmp_comm       = TextField(u'读团体名', validators=[required(message=u'必填')])
+    snmp_wcomm       = TextField(u'写团体名', validators=[required(message=u'必填')])
+    snmp_ver       = RadioField(u'SNMP版本',default=SNMP_VER_DICT.keys()[0], validators=[required(message=u'必填')],
+        choices=[(value, label) for value, label in SNMP_VER_DICT.items()])
+    mask            = TextField(u'子网掩码')
+    location        = TextField(u'位置')
+    remark          = TextAreaField(u'备注信息')
+
+    class Meta():
+        attrs = Attrs(
+            label={'style':'width:80px;text-align: right;padding-bottom: 10px;'},
+            field={'style':'padding-left: 10px;padding-bottom: 10px;'}
+        )
+
 class OnuNewForm(FormPro):
     controller_id      = SelectFieldPro(u'所属OLT', validators=[required(message=u'必填')],
         choices=lambda: [('', u'请选择OLT')] + [(unicode(r.id), r.alias+' <'+r.addr+'>') for r in NodeOlt.query])
@@ -166,6 +190,21 @@ class OnuSearchForm(FormPro):
         list_display = ('area','vendor_id','model_id')
 
 class SwitchSearchForm(FormPro):
+    name            = TextField(u'IP 地址')
+    area            = AreaSelectField(u'所属区域')
+    vendor_id       = SelectFieldPro(u'生产厂家',
+        choices=lambda: [('', u'请选择生产厂家')] + [(unicode(r.id), r.alias) for r in Vendor.query])
+    model_id        = SelectFieldPro(u'设备型号',
+        choices=lambda: [('', u'请选择设备型号')] + [(unicode(r.id), r.alias) for r in Model.query])
+
+    class Meta():
+        attrs = Attrs(
+            label={'style':'width:80px;text-align: right;padding-bottom: 10px;'},
+            field={'style':'padding-left: 10px;padding-bottom: 10px;'}
+        )
+        list_display = ('area','vendor_id','model_id')
+
+class RouterSearchForm(FormPro):
     name            = TextField(u'IP 地址')
     area            = AreaSelectField(u'所属区域')
     vendor_id       = SelectFieldPro(u'生产厂家',

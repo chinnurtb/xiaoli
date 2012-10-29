@@ -1,0 +1,133 @@
+{% extends 'layout.html' %}
+
+{% block head %}
+    <link rel="stylesheet" href="/static/css/detail.css" type="text/css" media="all">
+{% endblock %}
+
+{% block content %}
+<div class="row-fluid content">
+    <div class="span2">
+        {% set menuid = 'routers' %}
+        {% include 'nodes/_sidebar.html' %}
+    </div>
+
+    <div class="span10">
+            <h5 class="detail-title pull-left"><i class="icon-chevron-down"></i>路由器：{{ node.name }} </h5>
+            <div class="btn-group pull-right">
+                <a class="btn btn-small" href="/nodes/switches/edit/{{ node.id }}"><i class="icon-pencil"></i>编辑</a>
+            </div>
+            <hr class="clear"/>
+            <div class="span8" style="margin: 0;">
+                <div class="detail">
+                <table class="table">
+                    <tr>
+                        <td  width="17.5%" scope="col">路由器名称:</td>
+                        <td width="32.5%">{{ node.name }}</td>
+                        <td  width="17.5%" scope="col">所属接入点</td>
+                        <td>{{ node.area.name }}</td>
+                    </tr>
+
+                    <tr>
+                        <td  width="17.5%" scope="col">IP 地址</td>
+                        <td>{{ node.addr }}</td>
+                        <td  width="17.5%" scope="col">子网掩码</td>
+                        <td>{{ node.mask }}</td>
+                    </tr>
+                    <tr>
+                        <td  width="17.5%" scope="col">厂家</td>
+                        <td>{{ node.vendor.alias|ifnull }}</td>
+                        <td  width="17.5%" scope="col">型号</td>
+                        <td>{{ node.model.alias|ifnull }}</td>
+                    </tr>
+                    <tr>
+                        <td  width="17.5%" scope="col">读团体名</td>
+                        <td>{{ node.snmp_comm|ifnull }}</td>
+                        <td  width="17.5%" scope="col">写团体名</td>
+                        <td>{{ node.snmp_wcomm|ifnull }}</td>
+                    </tr>
+                    <tr>
+                        <td  width="17.5%" scope="col">所属区域:</td>
+                        <td>{{ node.area.full_name }}</td>
+                        <td  width="17.5%" scope="col">位置信息:</td>
+                        <td>{{ node.location }}</td>
+                    </tr>
+                    <tr>
+                        <td width="17.5%" scope="col">备注</td>
+                        <td>{{ node.remark|ifnull }}</td>
+                        <td width="17.5%" scope="col">是否验收</td>
+                        <td></td>
+                    </tr>
+                </table>
+              </div>
+            </div>
+            {% from "_chart_h.html" import render_highchart %}
+            <div class="span2">
+                {{ render_highchart(alarm_chart, height="220px", width="220px") }}
+            </div>
+            <div class="clear"></div>
+        <div style="height:20px"></div>
+        <div class="tabbable">
+            <ul class="nav nav-tabs">
+                <li class="active"><a href="#status_info" data-toggle="tab">设备状态信息</a></li>
+                <li><a href="#port_info" data-toggle="tab">接口信息</a></li>
+            </ul>
+            <div class="tab-content" >
+                <div class="tab-pane active detail" id="status_info">
+                    <table class="table">
+                        <tr>
+                            <td width="17.5%" scope="col">PING状态</td>
+                            <td></td>
+                            <td width="17.5%" scope="col">PING状态详细</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td width="17.5%" scope="col">SNMP状态</td>
+                            <td></td>
+                            <td width="17.5%" scope="col">SNMP状态详细</td>
+                            <td></td>
+                        </tr>
+                    </table>
+                </div>
+                <div id="port_info" class="tab-pane">
+                    <table class="table table-hover">
+                        <thead>
+                        <tr>
+                            <th>索引</th>
+                            <th>状态</th>
+                            <th>名称</th>
+                            <th>别名</th>
+                            <th>速率</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>1001</td>
+                            <td>DOWN</td>
+                            <td>IF001001</td>
+                            <td>HUAWEI01001</td>
+                            <td>10Mbps</td>
+                        </tr>
+                        <tr>
+                            <td>1002</td>
+                            <td>DOWN</td>
+                            <td>IF001002</td>
+                            <td>HUAWEI01002</td>
+                            <td>10Mbps</td>
+                        </tr>
+                        <tr>
+                            <td>1003</td>
+                            <td>DOWN</td>
+                            <td>IF001002</td>
+                            <td>HUAWEI01002</td>
+                            <td>10Mbps</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
