@@ -203,7 +203,7 @@
     </div>
 {% endmacro %}
 
-{% macro render_search_form() %}
+{% macro render_search_form(url) %}
     <div style="margin: 0; display: none;" class="span12 well advance_search_form header">
         <table>
             <tbody>
@@ -232,22 +232,40 @@
             </tbody>
         </table>
     </div>
-{% endmacro %}
-
-{% macro render_toolbar_button(url,id="delete_btn", form_id="node_form", confirm="确认删除？",class="btn btn-small",icon="icon-remove") %}
-    <a class="{{ class }}" href="{{ url }}" id="{{ id }}"><i class="{{ icon-remove }}"></i>删除</a>
     <script type="text/javascript">
         $(function(){
-            var node_form = $("#{ form_id }}");
-            $("#delete_btn").click(function() {
-                var ids = $("#node_form").find("input[name^=id]:checked");;
+            $(".advance_search").toggle(
+                    function() {
+                        $(".advance_search_form").show();
+                        $(this).addClass("hidedetail");
+                    },
+                    function() {
+                        $(".advance_search_form").hide();
+                        $(this).removeClass("hidedetail");
+                    }
+            )
+            $("#advance_search").click(function() {
+                search_form = $("#search_form");
+                search_form.attr("action","{{ url }}").submit();
+            })
+        })
+    </script>
+{% endmacro %}
+
+{% macro render_delete_button(url,id="delete_btn", form_id="node_form", confirm="节点",class="btn btn-small",icon="icon-remove") %}
+    <a class="{{ class }}" href="{{ url }}" id="{{ id }}"><i class="{{ icon }}"></i>删除</a>
+    <script type="text/javascript">
+        $(function(){
+            $("#"+"{{ id }}").click(function() {
+                var ids = $("#"+"{{ form_id }}").find("input[name^=id]:checked");;
                 if(ids.length > 0){
-                    if(confirm("确认删除这些OLT？")) {
-                        node_form.attr("action","{{url_for('nodes.olts_delete')}}").submit();
+                    if(confirm("确认删除这些{{ confirm }}?")) {
+                        $("#"+"{{ form_id }}").attr("action","{{ url }}").submit();
                     }
                 }else{
-                    alert("请选择OLT");
+                    alert("请选择{{ confirm }}");
                 }
+                return false;
             })
         })
     </script>

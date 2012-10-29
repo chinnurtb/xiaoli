@@ -7,10 +7,10 @@ var empty_options = function(id) {
 }
 /**
  * 级联下拉框ajax操作
- * @param obj1 点击选择的下拉框的id
  * @param config 配置信息
  */
-var select_change_ajax = function(obj1, config) {
+jQuery.fn.select_change_ajax = function(config) {
+    $select = this;
     var default_config = {
         id: "", // ajax 数据返回的下拉框id
         url: "",// ajax url
@@ -18,7 +18,7 @@ var select_change_ajax = function(obj1, config) {
         empty: [] // 需要置空的下拉框id
     }
     $.extend(default_config, config);
-    $("#"+ obj1).change(function() {
+    $select.change(function() {
         var select_value = $(this).val();
         if(select_value=="") return;
         $.get(default_config.url, {key: select_value},function(data) {
@@ -34,3 +34,15 @@ var select_change_ajax = function(obj1, config) {
         });
     });
 };
+
+$(function(){
+    $(".delete").click(function() {
+        if(confirm("确认删除此节点？")) {
+            var input = $(this).parent().parent().next();
+            input.attr({checked: "checked"});
+            $("body").append('<form id="delete_'+input.val()+'" method="POST" action="'+ $(this).src+'"></form>')
+            $("#delete_"+input.val()).attr("action",$(this).attr("href")).append(input.clone()).submit();
+        }
+        return false;
+    })
+})

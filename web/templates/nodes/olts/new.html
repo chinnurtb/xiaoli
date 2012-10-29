@@ -8,18 +8,18 @@
 
     <script type="text/javascript">
         $(function() {
-            select_change_ajax("vendor_id", {
+            $("#vendor_id").select_change_ajax({
                 id: "model_id",
                 url: "{{ url_for('nodes.ajax_models_for_vendor') }}",
                 option: "请选择型号"
             });
-            select_change_ajax("cityid", {
+            $("#cityid").select_change_ajax({
                 id: "town",
                 url: "{{ url_for('nodes.ajax_towns_for_city') }}",
                 option: "请选择区县",
                 empty: ["area_id"]
             });
-            select_change_ajax("town", {
+            $("#town").select_change_ajax({
                 id: "area_id",
                 url: "{{ url_for('nodes.ajax_branches_for_town') }}",
                 option: "请选择分局"
