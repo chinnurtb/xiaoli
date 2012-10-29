@@ -2,6 +2,18 @@
 
 {% set title = '交换机性能' %}
 
+{% block head %}
+
+    <link rel="stylesheet" href="/static/css/perf.css" type="text/css" media="all">
+
+
+{% endblock %}
+
+{% block screen_meta %}
+    {% from '_table_h.html' import render_screen_meta %}
+    {{ render_screen_meta(table) }}
+{% endblock %}
+
 {% block content %}
     <div class="row-fluid content">
         <div class="span2">
@@ -9,7 +21,26 @@
             {% include "perf/_sidebar.html" %}
         </div>
         <div class="span10">
-            <h1>交换机性能</h1>
+            <div class="tablenav top">
+                <div class="alignleft actions">
+                    <form class="form-inline perf-filter-form" style="margin-bottom:10px;">
+                        {{ filterForm.sampletime(size="6", class="input-small") }}
+                        {{ filterForm.intervals(multiple="true", size="6", class="input-small") }}
+                        {{ filterForm.vendors(multiple="true", size="6", class="input-small") }}
+                        {{ filterForm.models(multiple="true", size="6", class="input-small") }}
+                        
+                    <div class="btn-group btn-group-vertical">
+                      <button type="submit" class="btn btn-small">应用</button>
+                      <button type="reset" class="btn btn-small">重置</button>
+                    </div>
+                    </form>
+                </div>
+                <div class="pull-right actions">
+                    <a title="Excel导出" href="#" class="btn btn-small"><i class="icon-download-alt"></i></a>
+                </div> 
+            </div>
+            {% from '_table_h.html' import render_table %}
+            {{ render_table(table) }}
         </div>
     </div>
 {% endblock %}

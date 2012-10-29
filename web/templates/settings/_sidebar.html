@@ -1,9 +1,8 @@
-{% set menuid = 'settings' %}
+{% from "tango/_sidebar_h.html" import render_sidebar %}
 
-<div class="well sidebar-nav">
-    <ul class="nav nav-list">
-      <li class="nav-header">个人设置</li>
-      <li><a href="{{url_for('users.user_info')}}">个人信息</a></li>
-      <li><a href="{{url_for('users.change_password')}}">修改密码</a></li>
-    </ul>
-</div>
+{{ render_sidebar('个人设置', menuid, [
+    ('user_info','个人信息', '/settings/info'),
+    ('change_password','修改密码', '/settings/password')])
+}}
+
+
