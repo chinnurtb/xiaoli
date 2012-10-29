@@ -18,6 +18,8 @@ from .tables import NodePerfTable
 
 from .forms import ThresholdEditForm, ThresholdNewForm, MetricNewEditForm
 
+from .forms import PerfFilterForm
+
 perfview = Blueprint('perf', __name__, url_prefix="/perf")
 
 @perfview.context_processor
@@ -26,9 +28,11 @@ def inject_navid():
 
 @perfview.route('/switches')
 def switches():
-    q = NodePerf.query    
+    form = PerfFilterForm(formdata=request.args)
+    q = NodePerf.query
     t = make_table(q, NodePerfTable)
-    return render_template('/perf/switches/index.html', table=t)
+    return render_template('/perf/switches/index.html',
+        filterForm = form, table=t)
 
 @perfview.route('/olts/')
 def olts():
