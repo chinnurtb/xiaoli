@@ -1,0 +1,49 @@
+{% extends 'layout.html' %}
+
+{% block head %}
+    {{ form.media.render() }}
+    <style type="text/css">
+        select {
+            height: 26px;
+            line-height: 26px;
+            width: 70px;
+        }
+        select#area_chosen {
+            width: 140px;
+        }
+        .tablenav table tr:hover {
+            background: none;
+        }
+    </style>
+{% endblock %}
+
+{% from "_table_h.html" import render_table, render_screen_meta %}
+
+{% block content %}
+
+<div class="row-fluid content">
+
+    <div class="span2">
+        {% set menuid = 'areas' %}
+        {% include 'nodes/_sidebar.html' %}
+    </div>
+
+    <div class="span10">
+        <form class="form-horizontal" method="GET" action="{{url_for('nodes.areas')}}" style="margin-bottom: 0;">
+            <div class="tablenav top">
+                <table>
+                    <tr>
+                        <td>统计区域:</td>
+                        <td>{{ form.area() }}</td>
+                        <td style="padding-left: 20px;">统计粒度:</td>
+                        <td>{{ form.query_gran() }}</td>
+                        <td style="padding-left: 20px;"><button id="advance_sarch" class="btn btn-small">确定</button></td></tr>
+                </table>
+            </div>
+        </form>
+        {{ render_table(table) }}
+    </div>
+
+</div>
+
+{% endblock %}

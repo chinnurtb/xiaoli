@@ -18,6 +18,8 @@ AREA_BRANCH=3
 #4: 接入点
 AREA_ENTRANCE=4
 
+AREA_TYPE_DICT = {1:"city_name",2:"town_name",3:"branch_name",4:"entrance_name"}
+
 class Area(db.Model):
     """
     Area Table
@@ -96,18 +98,32 @@ class Vendor(db.Model):
             where(Node.vendor_id==self.id)
         )
     @property
-    def node_status0_count(self):
-        return object_session(self).\
-        scalar(
-            select([func.count(Node.id)]).\
-            where(and_(Node.vendor_id==self.id, Node.status == 0))
-        )
-    @property
     def node_status1_count(self):
         return object_session(self).\
         scalar(
             select([func.count(Node.id)]).\
             where(and_(Node.vendor_id==self.id, Node.status == 1))
+        )
+    @property
+    def node_status2_count(self):
+        return object_session(self).\
+        scalar(
+            select([func.count(Node.id)]).\
+            where(and_(Node.vendor_id==self.id, Node.status == 2))
+        )
+    @property
+    def node_status3_count(self):
+        return object_session(self).\
+        scalar(
+            select([func.count(Node.id)]).\
+            where(and_(Node.vendor_id==self.id, Node.status == 3))
+        )
+    @property
+    def node_status4_count(self):
+        return object_session(self).\
+        scalar(
+            select([func.count(Node.id)]).\
+            where(and_(Node.vendor_id==self.id, Node.status == 4))
         )
 
 class Model(db.Model):

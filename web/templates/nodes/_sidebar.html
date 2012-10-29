@@ -2,8 +2,8 @@
 
 {{ render_sidebar('资源浏览', menuid, [
     ('nodes','所有节点', '/nodes'),
-    ('areas','区域导航', '/areas')])
-}}
+    ('cities','区域导航', '/cities'),
+    ])}}
 
 {{ render_sidebar('资源管理', menuid, [
         ('entrances', '接入点', '/nodes/entrances/'),
@@ -11,12 +11,12 @@
         ('switches', '交换机', '/nodes/switches/'),
         ('olts', 'OLT', '/nodes/olts/'),
         ('onus', 'ONU', '/nodes/onus/'),
-        ('eocs', 'EOC', '/nodes/eocs/')])
-}}
+        ('eocs', 'EOC', '/nodes/eocs/'),
+    ])}}
 
 {{ render_sidebar('资源统计', menuid, [
-    ('categories','分类统计', '/categories'),
-    ('vendors','厂商统计', '/vendors'),
-    ('areas','区域统计', '/areas')])
-}}
+    ('areas','区域统计', '/nodes/statistics/areas'),
+    ('categories','分类统计', '/nodes/statistics/categories'),
+    ('vendors','厂商统计', '/nodes/statistics/vendors'),
+    ])}}
 

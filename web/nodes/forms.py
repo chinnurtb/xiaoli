@@ -218,3 +218,14 @@ class RouterSearchForm(FormPro):
             field={'style':'padding-left: 10px;padding-bottom: 10px;'}
         )
         list_display = ('area','vendor_id','model_id')
+
+class AreaStatisticsForm(FormPro):
+    area            = AreaSelectField(u'统计区域')
+    query_gran       = SelectFieldPro(u'统计粒度',choices=[('1', u'地市'),('2', u'区县'),('3', u'分局'),('4', u'接入点'),])
+
+    class Meta():
+        attrs = Attrs(
+            label={'style':'width:80px;text-align: right;padding-bottom: 10px;'},
+            field={'style':'padding-left: 10px;padding-bottom: 10px;'}
+        )
+        list_display = ('area','vendor_id','model_id')

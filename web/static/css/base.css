@@ -279,8 +279,6 @@ div.tablenav .filters input[type="text"] {
 }
 
 .input-low {
-    padding-top: 0 !important;
-    padding-bottom: 0 !important;
     -moz-box-sizing: border-box !important;
     -webkit-box-sizing: border-box !important;
     box-sizing: border-box !important;

@@ -37,6 +37,7 @@ from .views_router import routers, routers_new, routers_edit, routers_show, rout
 from .views_switch import switches, switches_new, switches_edit, switches_show, switches_delete
 from .views_olt import olts, olts_new, olts_edit, olts_delete, olts_show
 from .views_onu import onus, onus_new, onus_edit, onus_delete, onus_show
+from .views_statistics import areas, vendors, categories
 
 area_type = {0:'areas.province',1:'areas.cityid',2:'areas.town',3:'areas.branch',4:'areas.entrance'}
 
@@ -250,9 +251,9 @@ def eocs():
 def entrances():
     return render_template('/nodes/entrances/index.html')
 
-@nodeview.route("/areas/")
+@nodeview.route("/cities/")
 @login_required
-def areas():
+def cities():
     base = request.args.get("base")     # 所统计的区域
     base = Area.query.get(base) if base else Area.query.filter(Area.area_type == 0).first()
     query_gran = request.args.get("query_gran")     # 查询粒度，控制table中列的显示
@@ -290,7 +291,7 @@ def areas():
             Area.area_type==(index+2)
         ).group_by(getattr(Area,group_type)).subquery()
         sub_query_list.append(sub_query)
-    # 连接各个子查询
+        # 连接各个子查询
     query = db.session.query(
         Area.id,Area.name,Area.area_type,
         func.coalesce(sub_query_list[0].c.total_count,0).label("total_count"),
@@ -317,76 +318,6 @@ def areas():
     if request.args.get("dashboard"):
         return table.as_html()
     else:
-        return render_template('nodes/area_statistics.html', table = table, breadcrumb = breadcrumb)
-
-@nodeview.route("/vendors/")
-@login_required
-def vendors():
-    table = make_table(Vendor.query, VendorTable)
-    if request.args.get("dashboard"):
-        return table.as_html()
-    else:
-        from tango.ui.charts.highcharts import BarStacked
-        chart = BarStacked()
-        xAxis_categories = [row["alias"] for row in table.rows]
-        name_dict = {table.columns[2].name: table.columns[2].header, table.columns[3].name: table.columns[3].header}
-        series = [{"name": name_dict[name], "data": [ row[name] for row in table.rows ]} for name in name_dict.keys() ]
-        chart.set_colors(['red', 'green'])
-        chart["series"] = series
-        chart["xAxis"]["categories"] = xAxis_categories
-        chart["title"]["text"] = u"资源厂商统计"
-        chart["yAxis"]["title"] = None
-        chart.height = str(len(xAxis_categories)*50 + 100)+"px"
-        return render_template('nodes/vendor_statistics.html', table = table, chart = chart)
-
-@nodeview.route("/categories/")
-@login_required
-def categories():
-    query_total = db.session.query(
-        Node.category_id,func.count(Node.category_id).label("total_count")
-    ).group_by(Node.category_id).subquery()
-
-    query_status0 = db.session.query(
-        Node.category_id,func.count(Node.category_id).label("status0_count")
-    ).filter(Node.status==0).group_by(Node.category_id).subquery()
-
-    query_status1 = db.session.query(
-        Node.category_id,func.count(Node.category_id).label("status1_count")
-    ).filter(Node.status==1).group_by(Node.category_id).subquery()
-
-    query = db.session.query(
-        Category.id, Category.alias.label("category_name"),
-        func.coalesce(query_total.c.total_count,0).label("total_count"),
-        func.coalesce(query_status0.c.status0_count,0).label("status0_count"),
-        func.coalesce(query_status1.c.status1_count,0).label("status1_count")
-    ).outerjoin(
-        query_total, query_total.c.category_id==Category.id
-    ).outerjoin(
-        query_status0,Category.id==query_status0.c.category_id
-    ).outerjoin(
-        query_status1,Category.id==query_status1.c.category_id
-    ).filter(Category.obj == "node").filter(Category.is_valid == 1)
-
-    table = make_table(query, CategoryTable)
-    if request.args.get("dashboard"):
-        return table.as_html()
-    else:
-        from tango.ui.charts.highcharts import BarStacked
-        chart = BarStacked()
-        xAxis_categories = [row["category_name"] for row in table.rows]
-        name_dict = {table.columns[2].name: table.columns[2].header, table.columns[3].name: table.columns[3].header}
-        series = [{"name": name_dict[name], "data": [ row[name] for row in table.rows ]} for name in name_dict.keys() ]
-        chart.set_colors(['red', 'green'])
-        chart["series"] = series
-        chart["xAxis"]["categories"] = xAxis_categories
-        chart["title"]["text"] = u"资源分类统计"
-        chart["yAxis"]["title"] = None
-        chart.height = str(len(xAxis_categories)*50 + 100)+"px"
-        return render_template('nodes/category_statistics.html', table = table, chart = chart)
+        return render_template('nodes/cities.html', table = table, breadcrumb = breadcrumb)
 
 navbar.add('nodes', u'资源', '/nodes')
-
-dashboard.add_widget('category_statistic', u'分类统计', url='/categories/?dashboard=true', column = 'side')
-dashboard.add_widget('vendor_statistic', u'厂商统计', url='/vendors/?dashboard=true', column = 'side')
-dashboard.add_widget('area_statistic', u'区域统计',url='/areas/?dashboard=true', column = 'side')
-

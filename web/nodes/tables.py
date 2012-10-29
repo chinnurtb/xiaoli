@@ -211,33 +211,33 @@ class AreaTable(tables.Table):
             'entrance_count':lambda record: url_for('nodes.areas', base=record.id, query_gran=4),
         }
 
+class AreaStatisticsTable(tables.Table):
+    name        = tables.Column(verbose_name=u'区域')
+    total_count     = tables.Column(verbose_name=u'节点')
+    router_count     = tables.Column(verbose_name=u'路由器')
+    switch_count     = tables.Column(verbose_name=u'交换机')
+    firewall_count     = tables.Column(verbose_name=u'防火墙')
+    bras_count     = tables.Column(verbose_name=u'BRAS')
+    olt_count     = tables.Column(verbose_name=u'OLT')
+    onu_count     = tables.Column(verbose_name=u'ONU')
+    ac_count     = tables.Column(verbose_name=u'AC')
+    fatap_count     = tables.Column(verbose_name=u'FatAP')
+    fitap_count     = tables.Column(verbose_name=u'FitAP')
+    dslam_count     = tables.Column(verbose_name=u'DSLAM')
+    eoc_count     = tables.Column(verbose_name=u'EOC')
+    cpe_count     = tables.Column(verbose_name=u'CPE')
+
+    class Meta():
+        model = Node
+
 class CategoryTable(tables.Table):
     category_name   = tables.EnumColumn(verbose_name=u'类型',name='category',
         enums={1:u'OLT',2:u'ONU',3:u'DSLAM',4:u'EOC',5:u'Switch'}, orderable=True)
     total_count  = tables.Column(verbose_name=u'数量')
-    status1_count = tables.Column(verbose_name=u'可用')
-    status0_count = tables.Column(verbose_name=u'不可用')
-    node_status_percent = tables.Column(verbose_name=u'可用率',attrs=Attrs(th={"style": "width:175px;"}))
-
-    def render_node_status_percent(self, value, record, bound_column):
-        percent = (record.status1_count*1.0 / record.total_count) if int(record.total_count) != 0 else 0
-        text= '%.2f' % (percent * 100) + '%'
-        if percent < 0.5:
-            bar = 'bar-danger'
-            font_color = '#DD514C'
-        elif percent >= 0.5 and percent < 0.9:
-            bar = 'bar-warning'
-            font_color = '#FAA732'
-        elif percent >= 0.9:
-            bar = 'bar-success'
-            font_color = '#5EB95E'
-        html = u'''
-        <div class="progress pull-left" style="height:9px;width:100px;margin:4px 5px 5px 0;">
-            <div class="bar {bar}" style="width:{text}"></div>
-        </div>
-        <div class="pull-left"><span style="color:{font_color};">{text}&nbsp;&nbsp;</span></div>
-        '''.format(text=text,bar=bar,font_color=font_color)
-        return Markup(html)
+    status1_count  = tables.Column(verbose_name=u'正常')
+    status2_count  = tables.Column(verbose_name=u'宕机')
+    status3_count  = tables.Column(verbose_name=u'不可达')
+    status4_count  = tables.Column(verbose_name=u'未监控')
 
     class Meta():
         model = Node
@@ -245,29 +245,10 @@ class CategoryTable(tables.Table):
 class VendorTable(tables.Table):
     alias       = tables.Column(verbose_name=u'名称', orderable=True)
     node_count  = tables.Column(verbose_name=u'数量')
-    node_status1_count  = tables.Column(verbose_name=u'可用')
-    node_status0_count  = tables.Column(verbose_name=u'不可用')
-    node_status_percent = tables.Column(verbose_name=u'可用率',attrs=Attrs(th={"style": "width:175px;"}))
-
-    def render_node_status_percent(self, value, record, bound_column):
-        percent = (record.node_status1_count*1.0 / record.node_count) if int(record.node_count) != 0 else 0
-        text= '%.2f' % (percent * 100) + '%'
-        if percent < 0.5:
-            bar = 'bar-danger'
-            font_color = '#DD514C'
-        elif percent >= 0.5 and percent < 0.9:
-            bar = 'bar-warning'
-            font_color = '#FAA732'
-        elif percent >= 0.9:
-            bar = 'bar-success'
-            font_color = '#5EB95E'
-        html = u'''
-        <div class="progress pull-left" style="height:9px;width:100px;margin:4px 5px 5px 0;">
-            <div class="bar {bar}" style="width:{text}"></div>
-        </div>
-        <div class="pull-left"><span style="color:{font_color};">{text}&nbsp;&nbsp;</span></div>
-        '''.format(text=text,bar=bar,font_color=font_color)
-        return Markup(html)
+    node_status1_count  = tables.Column(verbose_name=u'正常')
+    node_status2_count  = tables.Column(verbose_name=u'宕机')
+    node_status3_count  = tables.Column(verbose_name=u'不可达')
+    node_status4_count  = tables.Column(verbose_name=u'未监控')
 
     class Meta():
         model = Node

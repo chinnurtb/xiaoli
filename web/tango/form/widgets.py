@@ -73,7 +73,7 @@ class AreaSelectWidget(object):
                 netloc_value = field.data.get('netloc_value')
                 selected_value = field.data.get('selected_value')
         if area_value == '':
-            area_value_chosen = u'请选择所属区域'
+            area_value_chosen = u'请选择区域'
         else:
             area_value_chosen = area_value
         html = u'''
@@ -118,7 +118,7 @@ class AreaSelectWidget(object):
                         $("#%(field_id)s_selected").val(selkeys.join(","));
                         $("#%(field_id)s").val(selTitles.join(","));
                         if(selTitles == "") {
-                            $("a.chzn-single.chzn-default span").html("请选择所属区域");
+                            $("a.chzn-single.chzn-default span").html("请选择区域");
                         }else {
                             $("a.chzn-single.chzn-default span").html(selTitles.join(","));
                         }
