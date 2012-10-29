@@ -9,7 +9,13 @@ from tango.ui.tables import make_table
 
 from alarms.models import AlarmSeverity
 from .models import Threshold, Metric
+
+from .models import NodePerf
+
 from .tables import ThresholdTable, MetricTable
+
+from .tables import NodePerfTable
+
 from .forms import ThresholdEditForm, ThresholdNewForm, MetricNewEditForm
 
 perfview = Blueprint('perf', __name__, url_prefix="/perf")
@@ -18,33 +24,35 @@ perfview = Blueprint('perf', __name__, url_prefix="/perf")
 def inject_navid():
     return dict(navid = 'perf')
 
-@perfview.route('/t-collapse')
-def test_collapse():
-    return render_template('perf/test-collapse.html')
-
 @perfview.route('/switches')
 def switches():
-    return render_template('/perf/switches/index.html')
+    q = NodePerf.query    
+    t = make_table(q, NodePerfTable)
+    return render_template('/perf/switches/index.html', table=t)
 
 @perfview.route('/olts/')
 def olts():
     return render_template('perf/olts/index.html')
 
+@perfview.route('/olt_boards/')
+def olt_boards():
+    return render_template('/perf/boards/index.html')
+
+@perfview.route('/olt_pon_ports/')
+def olt_pon_ports():
+    return render_template('/perf/olt_pon_ports/index.html')
+
 @perfview.route('/onus/')
 def onus():
     return render_template('perf/onus/index.html')
 
+@perfview.route('/onu_pon_ports/')
+def onu_pon_ports():
+    return render_template('/perf/onu_pon_ports/index.html')
+
 @perfview.route('/eocs')
 def eocs():
     return render_template('/perf/eocs/index.html')
-
-@perfview.route('/boards/')
-def boards():
-    return render_template('/perf/boards/index.html')
-
-@perfview.route('/pon/')
-def pon():
-    return render_template('/perf/pon/index.html')
 
 # ==============================================================================
 #  阀值管理

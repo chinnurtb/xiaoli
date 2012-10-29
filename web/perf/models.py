@@ -1,7 +1,22 @@
-#!/usr/bin/env python  
-#coding=utf-8
+# coding=utf-8
 
 from tango import db
+
+class NodePerf(db.Model):
+
+    '''节点性能'''
+    
+    __tablename__ = 'perf_node'
+
+    id          = db.Column(db.Integer, primary_key=True)
+    nodeid      = db.Column(db.Integer, db.ForeignKey("nodes.id"))
+    sampletime  = db.Column(db.DateTime)
+    pingrta     = db.Column(db.Float)
+    pingrtmax   = db.Column(db.Float)
+    pingrtmin   = db.Column(db.Float)
+    pingloss    = db.Column(db.Integer)
+
+    node        = db.relation('Node')
 
 class Metric(db.Model):
     ''' 指标管理 '''

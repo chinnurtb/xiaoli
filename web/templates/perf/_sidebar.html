@@ -4,10 +4,11 @@
 {{ render_sidebar('性能浏览', menuid, [
     ('switches','交换机', url_for('perf.switches')),
     ('olts','OLT', url_for('perf.olts')),
+    ('olt_boards','OLT 版卡', url_for('perf.olt_boards')),
+    ('olt_pon_ports','OLT PON口', url_for('perf.olt_pon_ports')),
     ('onus','ONU', url_for('perf.onus')),
-    ('eocs','EOC', url_for('perf.eocs')),
-    ('boards','OLT版卡', url_for('perf.boards')),
-    ('pon','PON口', url_for('perf.pon'))])
+    ('ont_pon_ports','ONU PON口', url_for('perf.onu_pon_ports')),
+    ('eocs','EOC', url_for('perf.eocs'))])
 }}
 
 {{ render_sidebar('性能设置', menuid, [

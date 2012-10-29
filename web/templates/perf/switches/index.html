@@ -2,6 +2,12 @@
 
 {% set title = '交换机性能' %}
 
+{% block screen_meta %}
+    {% from '_table_h.html' import render_screen_meta %}
+
+    {{ render_screen_meta(table) }}
+{% endblock %}
+
 {% block content %}
     <div class="row-fluid content">
         <div class="span2">
@@ -9,7 +15,8 @@
             {% include "perf/_sidebar.html" %}
         </div>
         <div class="span10">
-            <h1>交换机性能</h1>
+            {% from '_table_h.html' import render_table %}
+            {{ render_table(table) }}
         </div>
     </div>
 {% endblock %}
