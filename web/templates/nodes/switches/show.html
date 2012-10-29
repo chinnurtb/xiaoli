@@ -12,7 +12,7 @@
     </div>
 
     <div class="span10">
-            <h5 class="detail-title pull-left"><i class="icon-chevron-down"></i>Switch：{{ node.name }} </h5>
+            <h5 class="detail-title pull-left"><i class="icon-chevron-down"></i>交换机：{{ node.name }} </h5>
             <div class="btn-group pull-right">
                 <a class="btn btn-small" href="/nodes/switches/edit/{{ node.id }}"><i class="icon-pencil"></i>编辑</a>
             </div>
@@ -21,7 +21,7 @@
                 <div class="detail">
                 <table class="table">
                     <tr>
-                        <td  width="17.5%" scope="col">Switch名称:</td>
+                        <td  width="17.5%" scope="col">交换机名称:</td>
                         <td width="32.5%">{{ node.name }}</td>
                         <td  width="17.5%" scope="col">所属接入点</td>
                         <td>{{ node.area.name }}</td>
@@ -69,7 +69,7 @@
         <div class="tabbable">
             <ul class="nav nav-tabs">
                 <li class="active"><a href="#status_info" data-toggle="tab">设备状态信息</a></li>
-                <li><a href="#available_rate" data-toggle="tab">最近一周可用率</a></li>
+                <li><a href="#port_info" data-toggle="tab">接口信息</a></li>
             </ul>
             <div class="tab-content" >
                 <div class="tab-pane active detail" id="status_info">
@@ -88,46 +88,38 @@
                         </tr>
                     </table>
                 </div>
-                <div id="available_rate" class="tab-pane" style="height: auto; ">
+                <div id="port_info" class="tab-pane">
                     <table class="table table-hover">
                         <thead>
                         <tr>
-                            <th>槽位</th>
-                            <th>板卡类型</th>
-                            <th>板卡状态</th>
-                            <th>CPU负载</th>
-                            <th>内存占用</th>
-                            <th>硬件版本</th>
-                            <th>软件版本</th>
+                            <th>索引</th>
+                            <th>状态</th>
+                            <th>名称</th>
+                            <th>别名</th>
+                            <th>速率</th>
                         </tr>
                         </thead>
                         <tbody>
                         <tr>
-                            <td>1</td>
-                            <td>Mark</td>
-                            <td>Otto</td>
-                            <td>@mdo</td>
-                            <td>Otto</td>
-                            <td>@mdo</td>
-                            <td>@mdo</td>
+                            <td>1001</td>
+                            <td>DOWN</td>
+                            <td>IF001001</td>
+                            <td>HUAWEI01001</td>
+                            <td>10Mbps</td>
                         </tr>
                         <tr>
-                            <td>2</td>
-                            <td>Jacob</td>
-                            <td>Thornton</td>
-                            <td>@fat</td>
-                            <td>Otto</td>
-                            <td>@mdo</td>
-                            <td>@mdo</td>
+                            <td>1002</td>
+                            <td>DOWN</td>
+                            <td>IF001002</td>
+                            <td>HUAWEI01002</td>
+                            <td>10Mbps</td>
                         </tr>
                         <tr>
-                            <td>3</td>
-                            <td>Larry the Bird</td>
-                            <td>@twitter</td>
-                            <td>Otto</td>
-                            <td>@mdo</td>
-                            <td>@mdo</td>
-                            <td>@mdo</td>
+                            <td>1003</td>
+                            <td>DOWN</td>
+                            <td>IF001002</td>
+                            <td>HUAWEI01002</td>
+                            <td>10Mbps</td>
                         </tr>
                         </tbody>
                     </table>

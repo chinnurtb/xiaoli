@@ -189,7 +189,7 @@ def nodes_edit(id):
     form.process(obj=node)
     return render_template('/nodes/edit.html', node=node, form=form)
 
-@nodeview.route('/users/delete/', methods=['POST'])
+@nodeview.route('/nodes/delete/', methods=['POST'])
 def nodes_delete():
     if request.method == 'POST':
         ids = request.form.getlist('id')

@@ -52,7 +52,7 @@ class NodeTable(tables.Table):
 
 class OltTable(tables.Table):
     edit = tables.Action(name=u'编辑', endpoint='nodes.olts_edit')
-    delete = tables.Action(name=u'删除', endpoint='nodes.olts_delete')
+    delete = tables.Action(name=u'删除', endpoint='nodes.olts_delete',attrs=Attrs(a={"class": "delete"}))
     check = tables.CheckBoxColumn()
     status = tables.EnumColumn(
         verbose_name=u'状态',
@@ -76,7 +76,7 @@ class OltTable(tables.Table):
 
 class SwitchTable(tables.Table):
     edit = tables.Action(name=u'编辑', endpoint='nodes.switches_edit')
-    delete = tables.Action(name=u'删除', endpoint='nodes.switches_delete')
+    delete = tables.Action(name=u'删除', endpoint='nodes.switches_delete',attrs=Attrs(a={"class": "delete"}))
     check = tables.CheckBoxColumn()
     status = tables.EnumColumn(
         verbose_name=u'状态',
@@ -98,7 +98,7 @@ class SwitchTable(tables.Table):
 
 class OnuTable(tables.Table):
     edit = tables.Action(name=u'编辑', endpoint='nodes.onus_edit')
-    delete = tables.Action(name=u'删除', endpoint='nodes.onus_delete')
+    delete = tables.Action(name=u'删除', endpoint='nodes.onus_delete',attrs=Attrs(a={"class": "delete"}))
     check = tables.CheckBoxColumn()
     status = tables.EnumColumn(
         verbose_name=u'状态',

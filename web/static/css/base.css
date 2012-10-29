@@ -333,8 +333,8 @@ div.tablenav .filters input[type="text"] {
     box-shadow: none;
 }
 
-.advance_search_form table td{
-    
+.advance_search_form table tr:hover{
+    background: none;
 }
 
 
