@@ -29,7 +29,7 @@ def inject_navid():
 # =============================================================================== 
 @userview.route('/login', methods=['GET', 'POST'])
 def login():
-    form = LoginForm(request.form)
+    form = LoginForm(next=request.args.get('next', ''))
     if request.method == 'POST':
         username = form.username.data
         password = form.password.data
@@ -38,7 +38,7 @@ def login():
         DEBUG = True # For DEBUG
         print 'DEBUG::', DEBUG
         if user and authenticated or DEBUG: 
-            remember = form.remember.data == 'y'
+            remember = (form.remember.data == 'y')
             if login_user(user, remember = remember):
                 #flash(u'登录成功', 'success')
                 if next:
