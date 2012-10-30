@@ -6,6 +6,7 @@
             padding: 7px 0 7px 0;
         }
     </style>
+    <script type="text/javascript" src="/static/js/node.js"></script>
 {% endblock %}
 
 {% from "_table_h.html" import render_table, render_screen_meta %}
@@ -23,13 +24,14 @@
     </div>
 
     <div class="span10">
-        <form class="form-horizontal" method="GET" action="{{url_for('nodes.olts')}}" id="search_form" style="margin-bottom: 0;">
+        {% include "_alert.html" %}
+        <form class="form-horizontal" method="GET" action="{{url_for('nodes.branches')}}" id="search_form" style="margin-bottom: 0;">
             <div class="tablenav top">
-                <div class="alignleft">
+                <div>
                     <input type="hidden" name="orderby" value="login">
                     <input type="hidden" name="order" value="asc">
-                    <div class="alignleft btn-group">
-                        <a class="btn btn-small" href="{{ url_for('nodes.olts_new') }}"><i class="icon-plus"></i>添加地市</a>
+                    <div class="btn-group">
+                        <a class="btn btn-small" href="{{ url_for('nodes.branches_new') }}"><i class="icon-plus"></i>添加分局</a>
                     </div>
                 </div>
             </div>

@@ -6,8 +6,7 @@ from flask import Blueprint, request, session, url_for,\
     redirect, render_template, g, flash
 from flask import json
 
-from tango import db
-from tango import user_profile
+from tango import db,user_profile
 from tango.ui.tables import make_table
 from tango.login import current_user, login_required
 from tango.models import Profile, Category
@@ -55,7 +54,7 @@ def routers_new():
         node.category_id = 1
         db.session.add(node)
         db.session.commit()
-        flash(u'新建路由器成功', 'info')
+        flash(u'添加路由器成功', 'info')
         return redirect(url_for('nodes.routers'))
     return render_template('nodes/routers/new.html', form = form)
 

@@ -37,7 +37,7 @@ jQuery.fn.select_change_ajax = function(config) {
 
 $(function(){
     $(".delete").click(function() {
-        if(confirm("确认删除此节点？")) {
+        if(confirm("确认删除？")) {
             var input = $(this).parent().parent().next();
             input.attr({checked: "checked"});
             $("body").append('<form id="delete_'+input.val()+'" method="POST" action="'+ $(this).src+'"></form>')

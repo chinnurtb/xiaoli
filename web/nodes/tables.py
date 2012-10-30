@@ -7,7 +7,7 @@ from tango.ui import tables
 from tango.ui.tables.utils import Attrs
 
 from nodes import constants
-from .models import Node, NodeSwitch, NodeRouter, NodeOlt, NodeOnu, Board, Port, NodeHost, NODE_STATUS_DICT
+from .models import Node, NodeSwitch, NodeRouter, NodeOlt, NodeOnu, Board, Port, NodeHost, NODE_STATUS_DICT,Area
 
 redirct_dict = {
     1:"routers",
@@ -188,8 +188,8 @@ class PortTable(tables.Table):
         order_by = '-alias'
 
 class CityTable(tables.Table):
-    edit = tables.Action(name=u'编辑', endpoint='nodes.onus_edit')
-    delete = tables.Action(name=u'删除', endpoint='nodes.onus_delete',attrs=Attrs(a={"class": "delete"}))
+    edit = tables.Action(name=u'编辑', endpoint='nodes.cities_edit')
+    delete = tables.Action(name=u'删除', endpoint='nodes.cities_delete',attrs=Attrs(a={"class": "delete"}))
     check   = tables.CheckBoxColumn()
 
     name        = tables.Column(verbose_name=u'地市名称', orderable=True)
@@ -211,7 +211,7 @@ class CityTable(tables.Table):
     cpe_count     = tables.LinkColumn(verbose_name=u'CPE')
 
     class Meta():
-        model = Node
+        model = Area
         url_makers = {
             'town_count': lambda record: url_for('nodes.towns', area=record.name, area_netloc='areas.cityid='+str(record.id), area_selected=record.id),
             'branch_count': lambda record: url_for('nodes.branches', area=record.name, area_netloc='areas.cityid='+str(record.id), area_selected=record.id),
@@ -232,8 +232,8 @@ class CityTable(tables.Table):
             }
 
 class TownTable(tables.Table):
-    edit = tables.Action(name=u'编辑', endpoint='nodes.onus_edit')
-    delete = tables.Action(name=u'删除', endpoint='nodes.onus_delete',attrs=Attrs(a={"class": "delete"}))
+    edit = tables.Action(name=u'编辑', endpoint='nodes.towns_edit')
+    delete = tables.Action(name=u'删除', endpoint='nodes.towns_delete',attrs=Attrs(a={"class": "delete"}))
     check   = tables.CheckBoxColumn()
 
     name        = tables.Column(verbose_name=u'区县名称', orderable=True)
@@ -254,7 +254,7 @@ class TownTable(tables.Table):
     cpe_count     = tables.LinkColumn(verbose_name=u'CPE')
 
     class Meta():
-        model = Node
+        model = Area
         url_makers = {
             'branch_count': lambda record: url_for('nodes.branches', area=record.name, area_netloc='areas.town='+str(record.id), area_selected=record.id),
             'entrance_count': lambda record: url_for('nodes.entrances', area=record.name, area_netloc='areas.town='+str(record.id), area_selected=record.id),
@@ -274,8 +274,8 @@ class TownTable(tables.Table):
             }
 
 class BranchTable(tables.Table):
-    edit = tables.Action(name=u'编辑', endpoint='nodes.onus_edit')
-    delete = tables.Action(name=u'删除', endpoint='nodes.onus_delete',attrs=Attrs(a={"class": "delete"}))
+    edit = tables.Action(name=u'编辑', endpoint='nodes.branches_edit')
+    delete = tables.Action(name=u'删除', endpoint='nodes.branches_delete',attrs=Attrs(a={"class": "delete"}))
     check   = tables.CheckBoxColumn()
 
     name        = tables.Column(verbose_name=u'分局名称', orderable=True)
@@ -295,7 +295,7 @@ class BranchTable(tables.Table):
     cpe_count     = tables.LinkColumn(verbose_name=u'CPE')
 
     class Meta():
-        model = Node
+        model = Area
         url_makers = {
             'entrance_count': lambda record: url_for('nodes.entrances', area=record.name, area_netloc='areas.branch='+str(record.id), area_selected=record.id),
             'total_count': lambda record: url_for('nodes.nodes', area=record.name, area_netloc='areas.branch='+str(record.id), area_selected=record.id),
@@ -314,8 +314,8 @@ class BranchTable(tables.Table):
             }
 
 class EntranceTable(tables.Table):
-    edit = tables.Action(name=u'编辑', endpoint='nodes.onus_edit')
-    delete = tables.Action(name=u'删除', endpoint='nodes.onus_delete',attrs=Attrs(a={"class": "delete"}))
+    edit = tables.Action(name=u'编辑', endpoint='nodes.entrances_edit')
+    delete = tables.Action(name=u'删除', endpoint='nodes.entrances_delete',attrs=Attrs(a={"class": "delete"}))
     check   = tables.CheckBoxColumn()
 
     name        = tables.Column(verbose_name=u'接入点名称', orderable=True)
@@ -334,7 +334,7 @@ class EntranceTable(tables.Table):
     cpe_count     = tables.LinkColumn(verbose_name=u'CPE')
 
     class Meta():
-        model = Node
+        model = Area
         url_makers = {
             'total_count': lambda record: url_for('nodes.nodes', area=record.name, area_netloc='areas.entrance='+str(record.id), area_selected=record.id),
             'router_count': lambda record: url_for('nodes.routers', area=record.name, area_netloc='areas.entrance='+str(record.id), area_selected=record.id),

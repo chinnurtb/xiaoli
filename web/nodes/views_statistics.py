@@ -7,11 +7,8 @@ from flask import Blueprint, request, session, url_for,\
 from flask import json
 
 from sqlalchemy import func
-from sqlalchemy import or_
-from sqlalchemy.orm import aliased
 
-from tango import db
-from tango import user_profile
+from tango import db,user_profile
 from tango.ui import navbar, dashboard
 from tango.ui.tables import make_table
 from tango.login import current_user, login_required

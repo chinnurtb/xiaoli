@@ -3,16 +3,14 @@
 
 import re
 
-from wtforms import BooleanField
 from wtforms import validators as v
 from .models import Node, NodeOlt, Board, Port, Area, Vendor, Model,SNMP_VER_DICT
 
-from flask_wtf import (Form, TextField, PasswordField, IntegerField,NumberRange,SubmitField,RadioField,
+from flask_wtf import (Form, TextField, DecimalField, IntegerField,NumberRange,SubmitField,RadioField,
                        TextAreaField, ValidationError, required, equal_to, email)
 
 from tango.form.forms import FormPro
-from tango.form.fields import AreaSelectField
-from tango.form.fields import SelectFieldPro
+from tango.form.fields import SelectFieldPro, AreaSelectField
 from tango.ui.tables.utils import Attrs
 from tango.models import  Category
 
@@ -223,9 +221,43 @@ class AreaStatisticsForm(FormPro):
     area            = AreaSelectField(u'统计区域')
     query_gran       = SelectFieldPro(u'统计粒度',choices=[('1', u'地市'),('2', u'区县'),('3', u'分局'),('4', u'接入点'),])
 
-    class Meta():
-        attrs = Attrs(
-            label={'style':'width:80px;text-align: right;padding-bottom: 10px;'},
-            field={'style':'padding-left: 10px;padding-bottom: 10px;'}
-        )
-        list_display = ('area','vendor_id','model_id')
+class CityNewForm(FormPro):
+    name            = TextField(u'地市名称', validators=[required(message=u'必填')])
+    alias           = TextField(u'地市别名', validators=[required(message=u'必填')])
+    longitude       = DecimalField(u'经度', default=0)
+    latitude        = DecimalField(u'纬度', default=0)
+    remark          = TextAreaField(u'备注')
+
+class TownNewForm(FormPro):
+    parent_id       = SelectFieldPro(u'所属地市', validators=[required(message=u'必填')],
+        choices=lambda: [('', u'请选择地市')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==1)])
+    name            = TextField(u'区县名称', validators=[required(message=u'必填')])
+    alias           = TextField(u'区县别名', validators=[required(message=u'必填')])
+    longitude       = DecimalField(u'经度', default=0)
+    latitude        = DecimalField(u'纬度', default=0)
+    remark          = TextAreaField(u'备注')
+
+class BranchNewForm(FormPro):
+    cityid          = SelectFieldPro(u'所属地市', validators=[required(message=u'必填')],
+        choices=lambda: [('', u'请选择地市')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==1)])
+    parent_id       = SelectFieldPro(u'所属区县', validators=[required(message=u'必填')],
+        choices=lambda: [('', u'请选择区县')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==2)])
+    name            = TextField(u'分局名称', validators=[required(message=u'必填')])
+    alias           = TextField(u'分局别名', validators=[required(message=u'必填')])
+    longitude       = DecimalField(u'经度', default=0)
+    latitude        = DecimalField(u'纬度', default=0)
+    remark          = TextAreaField(u'备注')
+
+class EntranceNewForm(FormPro):
+    cityid          = SelectFieldPro(u'所属地市', validators=[required(message=u'必填')],
+        choices=lambda: [('', u'请选择地市')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==1)])
+    town            = SelectFieldPro(u'所属区县', validators=[required(message=u'必填')],
+        choices=lambda: [('', u'请选择区县')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==2)])
+    parent_id       = SelectFieldPro(u'所属分局', validators=[required(message=u'必填')],
+        choices=lambda: [('', u'请选择分局')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==3)])
+    name            = TextField(u'接入点名称', validators=[required(message=u'必填')])
+    alias           = TextField(u'接入点别名', validators=[required(message=u'必填')])
+    longitude       = DecimalField(u'经度', default=0)
+    latitude        = DecimalField(u'纬度', default=0)
+    remark          = TextAreaField(u'备注')
+
