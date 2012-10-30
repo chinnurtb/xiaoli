@@ -1,8 +1,59 @@
 # coding: utf-8
 
 from tango.ui import tables as t
-from .models import NodePerf
+from .models import NodePerf, PortPerf
 from .models import Threshold, Metric
+
+__all__ = ['CpuMemTable',
+           'PingTable',
+           'PortUsageTable',
+           'NodePerfTable',
+           'PortPerfTable',
+           'ThresholdTable',
+           'MetricTable']
+
+class NodeMixin(t.Table):
+    node_alias      = t.Column(verbose_name=u'节点', accessor='node.alias')
+    sampletime      = t.Column(verbose_name=u'时间')
+
+    class Meta():
+        model = NodePerf
+
+class CpuMemTable(NodeMixin):
+
+    helpdoc = '''CPU内存占用'''
+
+    cpuavg      = t.Column(verbose_name=u'平均CPU利用率')
+    cpumax      = t.Column(verbose_name=u'最大CPU利用率')
+    tempavg     = t.Column(verbose_name=u'平均温度')
+    tempmax     = t.Column(verbose_name=u'最大温度')
+    powerstate  = t.Column(verbose_name=u'电源状态')
+    fanstate    = t.Column(verbose_name=u'风扇状态')
+
+    class Meta():
+        model = NodePerf
+
+class PingTable(t.Table):
+
+    node_alias      = t.Column(verbose_name=u'节点', accessor='node.alias')
+    sampletime      = t.Column(verbose_name=u'时间')
+    pingrta         = t.Column(verbose_name=u'平均时延', orderable=True)
+    pingrtmax       = t.Column(verbose_name=u'最大时延', orderable=True)
+    pingrtmin       = t.Column(verbose_name=u'最小时延', orderable=True)
+    pingloss        = t.Column(verbose_name=u'丢包率', orderable=True)
+    pingstdev       = t.Column(verbose_name=u'抖动率', orderable=True)
+    
+    class Meta():
+        model = NodePerf
+
+class PortUsageTable(NodeMixin):
+    porttotal      = t.Column(verbose_name=u'端口总数')
+    portused       = t.Column(verbose_name=u'端口使用数')
+    portusage      = t.Column(verbose_name=u'端口占用率')   
+    portidle       = t.Column(verbose_name=u'端空空闲率') 
+
+    class Meta():
+        model = NodePerf
 
 class NodePerfTable(t.Table):
 
@@ -16,6 +67,29 @@ class NodePerfTable(t.Table):
     class Meta():
         model = NodePerf
         #group_by = 'node.alias'
+
+class PortPerfTable(t.Table):
+
+    helpdoc         = u'端口性能'
+
+    node_alias      = t.Column(verbose_name=u'节点', accessor='node.alias')
+    port_alias      = t.Column(verbose_name=u'端口', accessor='port.alias')
+    sampletime      = t.Column(verbose_name=u'时间')
+
+    inoctets        = t.Column(verbose_name=u'均值接收速率')
+    inoctetsmax     = t.Column(verbose_name=u'峰值接收速率')
+    inpkts          = t.Column(verbose_name=u'平均接收包数')
+    inpktsmax       = t.Column(verbose_name=u'峰值接收包数')
+    inucastpkts     = t.Column(verbose_name=u'单播包数')
+
+    outoctets       = t.Column(verbose_name=u'均值发送速率')
+    outoctetsmax    = t.Column(verbose_name=u'峰值发送速率')
+    outpkts         = t.Column(verbose_name=u'平均发送包数')
+    outpktsmax      = t.Column(verbose_name=u'峰值发送包数')
+    outucastpkts    = t.Column(verbose_name=u'单播包数')
+    
+    class Meta():
+        model = PortPerf
 
 class ThresholdTable(t.Table):
     helpdoc = u'阀值设置'

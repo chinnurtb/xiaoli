@@ -23,8 +23,8 @@ from .forms import PerfFilterForm
 perfview = Blueprint('perf', __name__, url_prefix="/perf")
 
 CONFIG = {
-    'lan_ping': (u'PING时延', NodePerf, PingTable, ['pingrta', 'pingrtmax', 'pingrtmin']),
-    'lan_cpumem': (u'CPU内存', NodePerf, CpuMemTable, []),
+    'node_ping': (u'PING时延', NodePerf, PingTable, ['pingrta', 'pingrtmax', 'pingrtmin']),
+    'node_cpumem': (u'CPU内存', NodePerf, CpuMemTable, []),
     'lan_portusage': (u'端口占用', NodePerf, PortUsageTable, []),
     'lan_traffic': (u'端口流量', PortPerf, PortPerfTable, []),
     'olt_ping': (u'PING时延', NodePerf, PingTable, ['pingrta', 'pingrtmax', 'pingrtmin'])
@@ -33,6 +33,17 @@ CONFIG = {
 @perfview.context_processor
 def inject_navid():
     return dict(navid = 'perf')
+
+@perfview.route('/node/<name>')
+def node(name):
+    menuid = 'node_' + name
+    title, model, tblcls, metrics = CONFIG[menuid]
+    table = make_table(model.query, tblcls)
+    form = PerfFilterForm(formdata=request.args)
+    return render_template('/perf/node/index.html',
+        menuid = menuid, title = title,
+        name = name, filterForm = form,
+        table = table)
 
 @perfview.route('/lan/<name>')
 def lan(name):
@@ -48,12 +59,35 @@ def lan(name):
 @perfview.route('/olt/<name>')
 def olt(name):
     menuid = 'olt_' + name
-    title, metrics = CONFIG[menuid]
+    title, model, tblcls, metrics = CONFIG[menuid]
+    table = make_table(model.query, tblcls)
     form = PerfFilterForm(formdata=request.args)
-    return render_template('/perf/lan/index.html',
+    return render_template('/perf/olt/index.html',
         menuid = menuid, title = title,
-        name = name, filterForm = form)
-    
+        name = name, filterForm = form,
+        table = table)
+
+@perfview.route('/onu/<name>')
+def onu(name):
+    menuid = 'onu_' + name
+    title, model, tblcls, metrics = CONFIG[menuid]
+    table = make_table(model.query, tblcls)
+    form = PerfFilterForm(formdata=request.args)
+    return render_template('/perf/onu/index.html',
+        menuid = menuid, title = title,
+        name = name, filterForm = form,
+        table = table)
+
+@perfview.route('/eoc/<name>')
+def eoc(name):
+    menuid = 'eoc_' + name
+    title, model, tblcls, metrics = CONFIG[menuid]
+    table = make_table(model.query, tblcls)
+    form = PerfFilterForm(formdata=request.args)
+    return render_template('/perf/eoc/index.html',
+        menuid = menuid, title = title,
+        name = name, filterForm = form,
+        table = table)
 
 @perfview.route('/switches')
 def switches():
@@ -62,7 +96,6 @@ def switches():
     t = make_table(q, NodePerfTable)
     return render_template('/perf/switches/index.html',
         filterForm = form, table=t)
-
     
 @perfview.route('/switches/intervals')
 def switches_intervals():
