@@ -23,10 +23,10 @@ class CpuMemTable(NodeMixin):
 
     helpdoc = '''CPU内存占用'''
 
-    cpuavg      = t.Column(verbose_name=u'平均CPU利用率')
-    cpumax      = t.Column(verbose_name=u'最大CPU利用率')
-    tempavg     = t.Column(verbose_name=u'平均温度')
-    tempmax     = t.Column(verbose_name=u'最大温度')
+    cpuavg      = t.Column(verbose_name=u'CPU利用率(均值)')
+    cpumax      = t.Column(verbose_name=u'CPU利用率(最大)')
+    tempavg     = t.Column(verbose_name=u'温度(均值)')
+    tempmax     = t.Column(verbose_name=u'温度(最大)')
     powerstate  = t.Column(verbose_name=u'电源状态')
     fanstate    = t.Column(verbose_name=u'风扇状态')
 
@@ -76,16 +76,16 @@ class PortPerfTable(t.Table):
     port_alias      = t.Column(verbose_name=u'端口', accessor='port.alias')
     sampletime      = t.Column(verbose_name=u'时间')
 
-    inoctets        = t.Column(verbose_name=u'均值接收速率')
-    inoctetsmax     = t.Column(verbose_name=u'峰值接收速率')
-    inpkts          = t.Column(verbose_name=u'平均接收包数')
-    inpktsmax       = t.Column(verbose_name=u'峰值接收包数')
+    inoctets        = t.Column(verbose_name=u'接收速率(均值)')
+    inoctetsmax     = t.Column(verbose_name=u'接收速率(峰值)')
+    inpkts          = t.Column(verbose_name=u'接收包数(均值)')
+    inpktsmax       = t.Column(verbose_name=u'接收包数(峰值)')
     inucastpkts     = t.Column(verbose_name=u'单播包数')
 
-    outoctets       = t.Column(verbose_name=u'均值发送速率')
-    outoctetsmax    = t.Column(verbose_name=u'峰值发送速率')
-    outpkts         = t.Column(verbose_name=u'平均发送包数')
-    outpktsmax      = t.Column(verbose_name=u'峰值发送包数')
+    outoctets       = t.Column(verbose_name=u'发送速率(均值)')
+    outoctetsmax    = t.Column(verbose_name=u'发送速率(峰值)')
+    outpkts         = t.Column(verbose_name=u'发送包数(均值)')
+    outpktsmax      = t.Column(verbose_name=u'发送包数(峰值)')
     outucastpkts    = t.Column(verbose_name=u'单播包数')
     
     class Meta():
@@ -111,7 +111,6 @@ class ThresholdTable(t.Table):
 
     class Meta():
         model = Threshold
-
 
 class MetricTable(t.Table):
     helpdoc = u'指标管理'

@@ -5,6 +5,8 @@
 {% endblock %}
 
 {% block screen_meta %}
+    {% from '_table_h.html' import render_screen_meta %}
+    {{ render_screen_meta(table) }}
 {% endblock %}
 
 {% block content %}
