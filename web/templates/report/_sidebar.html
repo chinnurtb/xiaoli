@@ -1,9 +1,14 @@
 {% from 'tango/_sidebar_h.html' import render_sidebar %}
 
-{{ render_sidebar('报表管理', menuid, [
-    ('nodes_report', '资源报表', url_for('report.nodes_report')),
-    ('perf_report', '性能报表', url_for('report.perf_report')),
-    ('alarms_report', '告警报表', url_for('report.alarms_report'))]) 
-}}
+{{ render_sidebar('资源报表', menuid, [
+    ('nodes_report', 'xx报表', url_for('report.nodes_report'))
+]) }}
 
+{{ render_sidebar('性能报表', menuid, [
+    ('perf_report', 'yy报表', url_for('report.perf_report'))
+]) }}
+
+{{ render_sidebar('告警报表', menuid, [
+    ('alarms_report', 'zz报表', url_for('report.alarms_report'))
+]) }}
 

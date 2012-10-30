@@ -25,7 +25,7 @@ from .models import Node, Board, Port, Area, Vendor, NODE_STATUS_DICT, Model
 
 from .forms import NodeNewForm, NodeSearchForm
 
-from .tables import NodeTable,PortTable,BoardTable,AreaTable,VendorTable,CategoryTable
+from .tables import NodeTable
 
 nodeview = Blueprint('nodes', __name__)
 
@@ -38,6 +38,7 @@ from .views_switch import switches, switches_new, switches_edit, switches_show, 
 from .views_olt import olts, olts_new, olts_edit, olts_delete, olts_show
 from .views_onu import onus, onus_new, onus_edit, onus_delete, onus_show
 from .views_statistics import areas, vendors, categories
+from .views_area import cities
 
 area_type = {0:'areas.province',1:'areas.cityid',2:'areas.town',3:'areas.branch',4:'areas.entrance'}
 
@@ -246,78 +247,5 @@ def managers():
 @nodeview.route('/nodes/eocs/', methods=['GET'])
 def eocs():
     return render_template('/nodes/eocs/index.html')
-
-@nodeview.route('/nodes/entrances/', methods=['GET'])
-def entrances():
-    return render_template('/nodes/entrances/index.html')
-
-@nodeview.route("/cities/")
-@login_required
-def cities():
-    base = request.args.get("base")     # 所统计的区域
-    base = Area.query.get(base) if base else Area.query.filter(Area.area_type == 0).first()
-    query_gran = request.args.get("query_gran")     # 查询粒度，控制table中列的显示
-    query_gran = (base.area_type + 1) if not query_gran else int(query_gran)
-    if query_gran == 2:
-        profile = {"table.nodes.hiddens":"town_count"}
-    elif query_gran == 3:
-        profile = {"table.nodes.hiddens":"town_count,branch_count"}
-    elif query_gran == 4:
-        profile = {"table.nodes.hiddens":"town_count,branch_count,entrance_count"}
-    else:
-        profile = {}
-
-    # 构造各个统计的子查询
-    area_type_dict = {1:"cityid",2:"town",3:"branch",4:"entrance"}
-    group_type = area_type_dict.get(query_gran)    # 分组类型，下面的子查询语句的字段将会根据它动态构造
-
-    sub_query_list = []
-    for index,category in enumerate(['total','olt','onu','dslam','eoc','switch']):
-        sub_query = db.session.query(
-            getattr(Area,group_type),func.count(Node.id).label(category+"_count")
-        ).select_from(Node).outerjoin(
-            Area, Node.area_id==Area.id
-        )
-        if index == 0:
-            sub_query = sub_query.group_by(getattr(Area,group_type)).subquery()
-        else:
-            sub_query = sub_query.filter(Node.category_id==index).group_by(getattr(Area,group_type)).subquery()
-        sub_query_list.append(sub_query)
-
-    for index,gran in enumerate(['town','branch','entrance']):
-        sub_query = db.session.query(
-            getattr(Area,group_type), func.count(Area.id).label(gran+"_count")
-        ).filter(
-            Area.area_type==(index+2)
-        ).group_by(getattr(Area,group_type)).subquery()
-        sub_query_list.append(sub_query)
-        # 连接各个子查询
-    query = db.session.query(
-        Area.id,Area.name,Area.area_type,
-        func.coalesce(sub_query_list[0].c.total_count,0).label("total_count"),
-        func.coalesce(sub_query_list[1].c.olt_count,0).label("olt_count"),
-        func.coalesce(sub_query_list[2].c.onu_count,0).label("onu_count"),
-        func.coalesce(sub_query_list[3].c.dslam_count,0).label("dslam_count"),
-        func.coalesce(sub_query_list[4].c.eoc_count,0).label("eoc_count"),
-        func.coalesce(sub_query_list[5].c.switch_count,0).label("switch_count"),
-        func.coalesce(sub_query_list[6].c.town_count,0).label("town_count"),
-        func.coalesce(sub_query_list[7].c.branch_count,0).label("branch_count"),
-        func.coalesce(sub_query_list[8].c.entrance_count,0).label("entrance_count")
-    )
-    for index,sub_query in enumerate(sub_query_list):
-        query = query.outerjoin(sub_query, getattr(sub_query.c,group_type)==Area.id)
-    query = query.filter(Area.area_type==query_gran)
-    if query_gran != 1:
-        query = query.filter(getattr(Area,area_type_dict[base.area_type])==base.id)
-
-    table = make_table(query, AreaTable, profile=profile)
-    breadcrumb = [base]
-    while base.parent:
-        breadcrumb.append(base.parent)
-        base = base.parent
-    if request.args.get("dashboard"):
-        return table.as_html()
-    else:
-        return render_template('nodes/cities.html', table = table, breadcrumb = breadcrumb)
 
 navbar.add('nodes', u'资源', '/nodes')

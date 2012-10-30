@@ -10,11 +10,19 @@ from nodes import constants
 from .models import Node, NodeSwitch, NodeRouter, NodeOlt, NodeOnu, Board, Port, NodeHost, NODE_STATUS_DICT
 
 redirct_dict = {
-    1: "routers",
-    2: "switches",
-    20: "olts",
-    21: "onus",
-    50: "eocs"
+    1:"routers",
+    2:"switches",
+    3:"firewalls",
+    10:"brases",
+    20:"olts",
+    21:"onus",
+    30:"dslams",
+    40:"acs",
+    41:"fataps",
+    42:"fitaps",
+    50:"eocs",
+    60:"cpes",
+    90:"hosts",
 }
 
 def redirect_node_show(record):
@@ -179,37 +187,169 @@ class PortTable(tables.Table):
         per_page = 30
         order_by = '-alias'
 
-class AreaTable(tables.Table):
-    name        = tables.Column(verbose_name=u'名称', orderable=True)
-    #town_count     = tables.Column(verbose_name=u'区县')
+class CityTable(tables.Table):
+    edit = tables.Action(name=u'编辑', endpoint='nodes.onus_edit')
+    delete = tables.Action(name=u'删除', endpoint='nodes.onus_delete',attrs=Attrs(a={"class": "delete"}))
+    check   = tables.CheckBoxColumn()
+
+    name        = tables.Column(verbose_name=u'地市名称', orderable=True)
     town_count      = tables.LinkColumn(verbose_name=u'区县')
     branch_count     = tables.LinkColumn(verbose_name=u'分局')
     entrance_count     = tables.LinkColumn(verbose_name=u'接入点')
-    total_count     = tables.Column(verbose_name=u'节点')
-    olt_count     = tables.Column(verbose_name=u'OLT')
-    onu_count     = tables.Column(verbose_name=u'ONU')
-    dslam_count     = tables.Column(verbose_name=u'DSLAM')
-    eoc_count     = tables.Column(verbose_name=u'EOC')
-    switch_count     = tables.Column(verbose_name=u'Switch')
-
-    # 根据节点类型决定 name是否有链接，接入点没有链接
-    def render_name(self, value, record, bound_column):
-        if record.area_type == 4:
-            return value
-        else:
-            html = u'''<a href="/areas/?base={id}">{text}</a>'''.format(
-                id = record.id,
-                text = record.name
-            )
-            return Markup(html)
+    total_count     = tables.LinkColumn(verbose_name=u'节点')
+    router_count     = tables.LinkColumn(verbose_name=u'路由器')
+    switch_count     = tables.LinkColumn(verbose_name=u'交换机')
+    firewall_count     = tables.LinkColumn(verbose_name=u'防火墙')
+    bras_count     = tables.LinkColumn(verbose_name=u'BRAS')
+    olt_count     = tables.LinkColumn(verbose_name=u'OLT')
+    onu_count     = tables.LinkColumn(verbose_name=u'ONU')
+    ac_count     = tables.LinkColumn(verbose_name=u'AC')
+    fatap_count     = tables.LinkColumn(verbose_name=u'FatAP')
+    fitap_count     = tables.LinkColumn(verbose_name=u'FitAP')
+    dslam_count     = tables.LinkColumn(verbose_name=u'DSLAM')
+    eoc_count     = tables.LinkColumn(verbose_name=u'EOC')
+    cpe_count     = tables.LinkColumn(verbose_name=u'CPE')
 
     class Meta():
         model = Node
         url_makers = {
-            'town_count': lambda record: url_for('nodes.areas', base=record.id, query_gran=2),
-            'branch_count':lambda record: url_for('nodes.areas', base=record.id, query_gran=3),
-            'entrance_count':lambda record: url_for('nodes.areas', base=record.id, query_gran=4),
-        }
+            'town_count': lambda record: url_for('nodes.towns', area=record.name, area_netloc='areas.cityid='+str(record.id), area_selected=record.id),
+            'branch_count': lambda record: url_for('nodes.branches', area=record.name, area_netloc='areas.cityid='+str(record.id), area_selected=record.id),
+            'entrance_count': lambda record: url_for('nodes.entrances', area=record.name, area_netloc='areas.cityid='+str(record.id), area_selected=record.id),
+            'total_count': lambda record: url_for('nodes.nodes', area=record.name, area_netloc='areas.cityid='+str(record.id), area_selected=record.id),
+            'router_count': lambda record: url_for('nodes.routers', area=record.name, area_netloc='areas.cityid='+str(record.id), area_selected=record.id),
+            'switch_count': lambda record: url_for('nodes.switches', area=record.name, area_netloc='areas.cityid='+str(record.id), area_selected=record.id),
+            'firewall_count': lambda record: url_for('nodes.nodes', area=record.name, area_netloc='areas.cityid='+str(record.id), area_selected=record.id),
+            'bras_count': lambda record: url_for('nodes.nodes', area=record.name, area_netloc='areas.cityid='+str(record.id), area_selected=record.id),
+            'olt_count': lambda record: url_for('nodes.olts', area=record.name, area_netloc='areas.cityid='+str(record.id), area_selected=record.id),
+            'onu_count': lambda record: url_for('nodes.onus', area=record.name, area_netloc='areas.cityid='+str(record.id), area_selected=record.id),
+            'ac_count': lambda record: url_for('nodes.nodes', area=record.name, area_netloc='areas.cityid='+str(record.id), area_selected=record.id),
+            'fatap_count': lambda record: url_for('nodes.nodes', area=record.name, area_netloc='areas.cityid='+str(record.id), area_selected=record.id),
+            'fitap_count': lambda record: url_for('nodes.nodes', area=record.name, area_netloc='areas.cityid='+str(record.id), area_selected=record.id),
+            'dslam_count': lambda record: url_for('nodes.nodes', area=record.name, area_netloc='areas.cityid='+str(record.id), area_selected=record.id),
+            'eoc_count': lambda record: url_for('nodes.eocs', area=record.name, area_netloc='areas.cityid='+str(record.id), area_selected=record.id),
+            'cpe_count':lambda record: url_for('nodes.nodes', area=record.name, area_netloc='areas.cityid='+str(record.id), area_selected=record.id),
+            }
+
+class TownTable(tables.Table):
+    edit = tables.Action(name=u'编辑', endpoint='nodes.onus_edit')
+    delete = tables.Action(name=u'删除', endpoint='nodes.onus_delete',attrs=Attrs(a={"class": "delete"}))
+    check   = tables.CheckBoxColumn()
+
+    name        = tables.Column(verbose_name=u'区县名称', orderable=True)
+    branch_count     = tables.LinkColumn(verbose_name=u'分局')
+    entrance_count     = tables.LinkColumn(verbose_name=u'接入点')
+    total_count     = tables.LinkColumn(verbose_name=u'节点')
+    router_count     = tables.LinkColumn(verbose_name=u'路由器')
+    switch_count     = tables.LinkColumn(verbose_name=u'交换机')
+    firewall_count     = tables.LinkColumn(verbose_name=u'防火墙')
+    bras_count     = tables.LinkColumn(verbose_name=u'BRAS')
+    olt_count     = tables.LinkColumn(verbose_name=u'OLT')
+    onu_count     = tables.LinkColumn(verbose_name=u'ONU')
+    ac_count     = tables.LinkColumn(verbose_name=u'AC')
+    fatap_count     = tables.LinkColumn(verbose_name=u'FatAP')
+    fitap_count     = tables.LinkColumn(verbose_name=u'FitAP')
+    dslam_count     = tables.LinkColumn(verbose_name=u'DSLAM')
+    eoc_count     = tables.LinkColumn(verbose_name=u'EOC')
+    cpe_count     = tables.LinkColumn(verbose_name=u'CPE')
+
+    class Meta():
+        model = Node
+        url_makers = {
+            'branch_count': lambda record: url_for('nodes.branches', area=record.name, area_netloc='areas.town='+str(record.id), area_selected=record.id),
+            'entrance_count': lambda record: url_for('nodes.entrances', area=record.name, area_netloc='areas.town='+str(record.id), area_selected=record.id),
+            'total_count': lambda record: url_for('nodes.nodes', area=record.name, area_netloc='areas.town='+str(record.id), area_selected=record.id),
+            'router_count': lambda record: url_for('nodes.routers', area=record.name, area_netloc='areas.town='+str(record.id), area_selected=record.id),
+            'switch_count': lambda record: url_for('nodes.switches', area=record.name, area_netloc='areas.town='+str(record.id), area_selected=record.id),
+            'firewall_count': lambda record: url_for('nodes.nodes', area=record.name, area_netloc='areas.town='+str(record.id), area_selected=record.id),
+            'bras_count': lambda record: url_for('nodes.nodes', area=record.name, area_netloc='areas.town='+str(record.id), area_selected=record.id),
+            'olt_count': lambda record: url_for('nodes.olts', area=record.name, area_netloc='areas.town='+str(record.id), area_selected=record.id),
+            'onu_count': lambda record: url_for('nodes.onus', area=record.name, area_netloc='areas.town='+str(record.id), area_selected=record.id),
+            'ac_count': lambda record: url_for('nodes.nodes', area=record.name, area_netloc='areas.town='+str(record.id), area_selected=record.id),
+            'fatap_count': lambda record: url_for('nodes.nodes', area=record.name, area_netloc='areas.town='+str(record.id), area_selected=record.id),
+            'fitap_count': lambda record: url_for('nodes.nodes', area=record.name, area_netloc='areas.town='+str(record.id), area_selected=record.id),
+            'dslam_count': lambda record: url_for('nodes.nodes', area=record.name, area_netloc='areas.town='+str(record.id), area_selected=record.id),
+            'eoc_count': lambda record: url_for('nodes.eocs', area=record.name, area_netloc='areas.town='+str(record.id), area_selected=record.id),
+            'cpe_count':lambda record: url_for('nodes.nodes', area=record.name, area_netloc='areas.town='+str(record.id), area_selected=record.id),
+            }
+
+class BranchTable(tables.Table):
+    edit = tables.Action(name=u'编辑', endpoint='nodes.onus_edit')
+    delete = tables.Action(name=u'删除', endpoint='nodes.onus_delete',attrs=Attrs(a={"class": "delete"}))
+    check   = tables.CheckBoxColumn()
+
+    name        = tables.Column(verbose_name=u'分局名称', orderable=True)
+    entrance_count     = tables.LinkColumn(verbose_name=u'接入点')
+    total_count     = tables.LinkColumn(verbose_name=u'节点')
+    router_count     = tables.LinkColumn(verbose_name=u'路由器')
+    switch_count     = tables.LinkColumn(verbose_name=u'交换机')
+    firewall_count     = tables.LinkColumn(verbose_name=u'防火墙')
+    bras_count     = tables.LinkColumn(verbose_name=u'BRAS')
+    olt_count     = tables.LinkColumn(verbose_name=u'OLT')
+    onu_count     = tables.LinkColumn(verbose_name=u'ONU')
+    ac_count     = tables.LinkColumn(verbose_name=u'AC')
+    fatap_count     = tables.LinkColumn(verbose_name=u'FatAP')
+    fitap_count     = tables.LinkColumn(verbose_name=u'FitAP')
+    dslam_count     = tables.LinkColumn(verbose_name=u'DSLAM')
+    eoc_count     = tables.LinkColumn(verbose_name=u'EOC')
+    cpe_count     = tables.LinkColumn(verbose_name=u'CPE')
+
+    class Meta():
+        model = Node
+        url_makers = {
+            'entrance_count': lambda record: url_for('nodes.entrances', area=record.name, area_netloc='areas.branch='+str(record.id), area_selected=record.id),
+            'total_count': lambda record: url_for('nodes.nodes', area=record.name, area_netloc='areas.branch='+str(record.id), area_selected=record.id),
+            'router_count': lambda record: url_for('nodes.routers', area=record.name, area_netloc='areas.branch='+str(record.id), area_selected=record.id),
+            'switch_count': lambda record: url_for('nodes.switches', area=record.name, area_netloc='areas.branch='+str(record.id), area_selected=record.id),
+            'firewall_count': lambda record: url_for('nodes.nodes', area=record.name, area_netloc='areas.branch='+str(record.id), area_selected=record.id),
+            'bras_count': lambda record: url_for('nodes.nodes', area=record.name, area_netloc='areas.branch='+str(record.id), area_selected=record.id),
+            'olt_count': lambda record: url_for('nodes.olts', area=record.name, area_netloc='areas.branch='+str(record.id), area_selected=record.id),
+            'onu_count': lambda record: url_for('nodes.onus', area=record.name, area_netloc='areas.branch='+str(record.id), area_selected=record.id),
+            'ac_count': lambda record: url_for('nodes.nodes', area=record.name, area_netloc='areas.branch='+str(record.id), area_selected=record.id),
+            'fatap_count': lambda record: url_for('nodes.nodes', area=record.name, area_netloc='areas.branch='+str(record.id), area_selected=record.id),
+            'fitap_count': lambda record: url_for('nodes.nodes', area=record.name, area_netloc='areas.branch='+str(record.id), area_selected=record.id),
+            'dslam_count': lambda record: url_for('nodes.nodes', area=record.name, area_netloc='areas.branch='+str(record.id), area_selected=record.id),
+            'eoc_count': lambda record: url_for('nodes.eocs', area=record.name, area_netloc='areas.branch='+str(record.id), area_selected=record.id),
+            'cpe_count':lambda record: url_for('nodes.nodes', area=record.name, area_netloc='areas.branch='+str(record.id), area_selected=record.id),
+            }
+
+class EntranceTable(tables.Table):
+    edit = tables.Action(name=u'编辑', endpoint='nodes.onus_edit')
+    delete = tables.Action(name=u'删除', endpoint='nodes.onus_delete',attrs=Attrs(a={"class": "delete"}))
+    check   = tables.CheckBoxColumn()
+
+    name        = tables.Column(verbose_name=u'接入点名称', orderable=True)
+    total_count     = tables.LinkColumn(verbose_name=u'节点')
+    router_count     = tables.LinkColumn(verbose_name=u'路由器')
+    switch_count     = tables.LinkColumn(verbose_name=u'交换机')
+    firewall_count     = tables.LinkColumn(verbose_name=u'防火墙')
+    bras_count     = tables.LinkColumn(verbose_name=u'BRAS')
+    olt_count     = tables.LinkColumn(verbose_name=u'OLT')
+    onu_count     = tables.LinkColumn(verbose_name=u'ONU')
+    ac_count     = tables.LinkColumn(verbose_name=u'AC')
+    fatap_count     = tables.LinkColumn(verbose_name=u'FatAP')
+    fitap_count     = tables.LinkColumn(verbose_name=u'FitAP')
+    dslam_count     = tables.LinkColumn(verbose_name=u'DSLAM')
+    eoc_count     = tables.LinkColumn(verbose_name=u'EOC')
+    cpe_count     = tables.LinkColumn(verbose_name=u'CPE')
+
+    class Meta():
+        model = Node
+        url_makers = {
+            'total_count': lambda record: url_for('nodes.nodes', area=record.name, area_netloc='areas.entrance='+str(record.id), area_selected=record.id),
+            'router_count': lambda record: url_for('nodes.routers', area=record.name, area_netloc='areas.entrance='+str(record.id), area_selected=record.id),
+            'switch_count': lambda record: url_for('nodes.switches', area=record.name, area_netloc='areas.entrance='+str(record.id), area_selected=record.id),
+            'firewall_count': lambda record: url_for('nodes.nodes', area=record.name, area_netloc='areas.entrance='+str(record.id), area_selected=record.id),
+            'bras_count': lambda record: url_for('nodes.nodes', area=record.name, area_netloc='areas.entrance='+str(record.id), area_selected=record.id),
+            'olt_count': lambda record: url_for('nodes.olts', area=record.name, area_netloc='areas.entrance='+str(record.id), area_selected=record.id),
+            'onu_count': lambda record: url_for('nodes.onus', area=record.name, area_netloc='areas.entrance='+str(record.id), area_selected=record.id),
+            'ac_count': lambda record: url_for('nodes.nodes', area=record.name, area_netloc='areas.entrance='+str(record.id), area_selected=record.id),
+            'fatap_count': lambda record: url_for('nodes.nodes', area=record.name, area_netloc='areas.entrance='+str(record.id), area_selected=record.id),
+            'fitap_count': lambda record: url_for('nodes.nodes', area=record.name, area_netloc='areas.entrance='+str(record.id), area_selected=record.id),
+            'dslam_count': lambda record: url_for('nodes.nodes', area=record.name, area_netloc='areas.entrance='+str(record.id), area_selected=record.id),
+            'eoc_count': lambda record: url_for('nodes.eocs', area=record.name, area_netloc='areas.entrance='+str(record.id), area_selected=record.id),
+            'cpe_count':lambda record: url_for('nodes.nodes', area=record.name, area_netloc='areas.entrance='+str(record.id), area_selected=record.id),
+            }
 
 class AreaStatisticsTable(tables.Table):
     name        = tables.Column(verbose_name=u'区域')
