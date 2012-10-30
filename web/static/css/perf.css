@@ -1,4 +1,4 @@
 
-.perf-filter-form select {
+form#perf-filter-form select {
     width: 150px;    
 }

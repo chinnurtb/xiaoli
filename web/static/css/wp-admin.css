@@ -2084,8 +2084,8 @@ th.sorted.desc .sorting-indicator, th.asc:hover span.sorting-indicator {
 }
 .tablenav {
     clear: both;
-    height: 30px;
-    margin: 0px 0 6px; /* ORIGIN: margin: 6px 0 4px; */
+    /* height: 30px; */ 
+    margin: 0px 0 4px; /* ORIGIN: margin: 6px 0 4px; */
     vertical-align: middle;
 }
 .tablenav.themes {
