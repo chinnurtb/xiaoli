@@ -21,9 +21,9 @@ class CpuMemTable(NodeMixin):
     helpdoc = '''CPU内存占用'''
 
     cpuavg      = t.Column(verbose_name=u'CPU利用率(均值)')
-    cpumax      = t.Column(verbose_name=u'CPU利用率(最大)')
+    cpumax      = t.Column(verbose_name=u'CPU利用率(峰值)')
     tempavg     = t.Column(verbose_name=u'温度(均值)')
-    tempmax     = t.Column(verbose_name=u'温度(最大)')
+    tempmax     = t.Column(verbose_name=u'温度(峰值)')
     powerstate  = t.Column(verbose_name=u'电源状态')
     fanstate    = t.Column(verbose_name=u'风扇状态')
 

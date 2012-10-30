@@ -37,7 +37,7 @@ class DictCodeTable(tables.Table):
 
 class ThresholdTable(tables.Table):
     helpdoc = u'阀值设置'
-    edit    = tables.Action(name=u'编辑', endpoint='perf.thresholds_edit')
+    edit    = tables.Action(name=u'编辑', endpoint='system.thresholds_edit')
     check   = tables.CheckBoxColumn()
 
     alias         = tables.Column(verbose_name=u'阀值')
@@ -58,7 +58,7 @@ class ThresholdTable(tables.Table):
 
 class MetricTable(tables.Table):
     helpdoc = u'指标管理'
-    edit    = tables.Action(name=u'编辑', endpoint='perf.metrics_edit')
+    edit    = tables.Action(name=u'编辑', endpoint='system.metrics_edit')
     check   = tables.CheckBoxColumn()
     
     grp    = tables.Column(verbose_name=u'分组')
