@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
+# coding: utf-8
 """
    XiaoLi
    ~~~~~~~
@@ -7,7 +7,6 @@
    Integrated Access Network Monitoring.
    :copyright: (c) 2012 by Ery Lee(ery.lee@gmail.com)
 """
-
 
 from flask import Flask, session, redirect, url_for, \
     render_template, g, request, abort
