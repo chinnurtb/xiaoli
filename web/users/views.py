@@ -416,6 +416,10 @@ def domains_delete(id):
 # ==============================================================================
 navbar.add('users', u'用户', '/users/')
 
-@userview.route('/just-test')
-def just_test():
-    return render_template('just_test.html')
+@userview.route('/just-test/<name>/')
+def just_test(name='a'):
+    print '\n'.join([item for item in dir(request) if item.find('__') == -1])
+    args =  request.args.to_dict()
+    args.update(request.view_args)
+    print args
+    return name

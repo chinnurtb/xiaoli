@@ -1,7 +1,9 @@
 # coding: utf-8
 
+from datetime import datetime
+import calendar
 from flask import Blueprint, request, url_for, \
-    redirect, render_template, flash
+    redirect, render_template, flash, json
 
 from tango.ui import navbar
 from tango.models import db, Category
@@ -34,6 +36,33 @@ def switches():
     return render_template('/perf/switches/index.html',
         filterForm = form, table=t)
 
+    
+@perfview.route('/switches/intervals')
+def switches_intervals():
+    """ 给搜索表单中的时间选框提供 ajax 服务 """
+    key = request.args.get('key', '')
+    now = datetime.now()
+    WEEK = [u'星期一', u'星期二', u'星期三', u'星期四', u'星期五', u'星期六', u'星期日']
+    res = []
+    if key == 'today':
+        res = [(str(i), u'%d点'%i) for i in range(now.hour + 1)]
+    elif key == 'yesterday':
+        res = [(str(i), u'%d点'%i) for i in range(24)]
+    elif key == 'thisweek':
+        res = [(str(i), WEEK(i)) for i in range(now.weekday() + 1)]
+    elif key == 'lastweek':
+        res = [(str(i), WEEK(i)) for i in range(7)]
+    elif key == 'thismonth':
+        res = [(str(i), u'%d号'%i) for i in range(1, now.day+1)]
+    elif key == 'lastmonth':
+        t = (now.year-1, 12) if now.month == 1 else (now.year, now.month-1)
+        day_num = calendar.monthrange(*t)[1]
+        res = [(str(i), u'%d号'%i) for i in range(1, day_num+1)]
+    res.insert(0, ('all', '全部时段'))
+    return json.dumps(dict(res))
+    
+    
+    
 @perfview.route('/olts/')
 def olts():
     return render_template('perf/olts/index.html')

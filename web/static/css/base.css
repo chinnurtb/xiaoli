@@ -532,3 +532,11 @@ table tr:hover {
     background-color: #D9EDF7;
 }
 
+.filter-form {
+    margin: 0px;
+}
+
+.filter-form select {
+    font-size: 13px;
+}
+

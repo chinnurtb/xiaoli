@@ -222,6 +222,7 @@ class Table(object):
     @property
     def page_url(self):
         req_args = request.args.to_dict()
+        req_args.update(request.view_args)
         # uri = request.url_root + request.path[1:]
         def func(page, order_by=None):
             req_args['page'] = page
