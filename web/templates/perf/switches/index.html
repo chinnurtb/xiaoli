@@ -7,25 +7,32 @@
     <link rel="stylesheet" href="/static/css/perf.css" type="text/css" media="all">
 
     <script type="text/javascript">
+    function updateSelectField(data, fieldId){
+        var data = eval("("+data+")");
+        opts = [];
+        for(var i in data) {
+            opts.push('<option value="'+data[i][0]+'">'+data[i][1]+'</option>');
+        }
+        $(fieldId).html(opts.join(''));
+    }
     $(function(){
       $('#sampletime').change(function(){
           var key = $(this).find(':selected').val();
-          console.log(key);
-          $.get('/perf/switches/intervals',
-                {'key': key},
+          $.get('/perf/switches/intervals', {'key': key},
                 function(data){
-                    var data = eval("("+data+")");
-                    for(var i in data) {
-                    }
-                }
-          );
+                    updateSelectField(data, '#intervals');
+                });
       });
+        
       $('#vendors').change(function(){
-          var keys = [];
+          var vendors = [];
           $(this).find(':selected').each(function(){
-              keys.push($(this).val());
+              vendors.push($(this).val());
           });
-          console.log(keys);
+          $.get('/perf/switches/models', {'vendors': vendors},
+                function(data){
+                    updateSelectField(data, '#models');
+                });
       });
     });        
     </script>
@@ -47,9 +54,9 @@
                 <div class="alignleft actions">
                     <form id="perf-filter-form" class="form-inline filter-form">
                         {{ filterForm.sampletime(size="6", class="input-small") }}
-                        {{ filterForm.intervals(multiple="true", size="6", class="input-small") }}
-                        {{ filterForm.vendors(multiple="true", size="6", class="input-small") }}
-                        {{ filterForm.models(multiple="true", size="6", class="input-small") }}
+                        {{ filterForm.intervals(size="6", class="input-small") }}
+                        {{ filterForm.vendors(size="6", class="input-small") }}
+                        {{ filterForm.models(size="6", class="input-small") }}
                         
                     <div class="btn-group btn-group-vertical">
                       <button type="submit" class="btn btn-small">应用</button>

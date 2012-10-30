@@ -1,7 +1,7 @@
 # coding: utf-8
 
-from datetime import datetime
-import calendar
+
+import operator
 from flask import Blueprint, request, url_for, \
     redirect, render_template, flash, json
 
@@ -18,7 +18,7 @@ from .tables import ThresholdTable, MetricTable
 
 from .tables import NodePerfTable
 
-from .forms import ThresholdEditForm, ThresholdNewForm, MetricNewEditForm
+from .forms import ThresholdEditForm, ThresholdNewForm, MetricNewEditForm, pull_intervals, model_choices
 
 from .forms import PerfFilterForm
 
@@ -28,39 +28,34 @@ perfview = Blueprint('perf', __name__, url_prefix="/perf")
 def inject_navid():
     return dict(navid = 'perf')
 
+
+    
 @perfview.route('/switches')
 def switches():
     form = PerfFilterForm(formdata=request.args)
+    form.intervals.choices = pull_intervals(request.args.get('sampletime'))
+    form.models.query_factory = model_choices(request.args.get('vendors'))
     q = NodePerf.query
     t = make_table(q, NodePerfTable)
     return render_template('/perf/switches/index.html',
         filterForm = form, table=t)
-
+    
     
 @perfview.route('/switches/intervals')
 def switches_intervals():
     """ 给搜索表单中的时间选框提供 ajax 服务 """
     key = request.args.get('key', '')
-    now = datetime.now()
-    WEEK = [u'星期一', u'星期二', u'星期三', u'星期四', u'星期五', u'星期六', u'星期日']
-    res = []
-    if key == 'today':
-        res = [(str(i), u'%d点'%i) for i in range(now.hour + 1)]
-    elif key == 'yesterday':
-        res = [(str(i), u'%d点'%i) for i in range(24)]
-    elif key == 'thisweek':
-        res = [(str(i), WEEK(i)) for i in range(now.weekday() + 1)]
-    elif key == 'lastweek':
-        res = [(str(i), WEEK(i)) for i in range(7)]
-    elif key == 'thismonth':
-        res = [(str(i), u'%d号'%i) for i in range(1, now.day+1)]
-    elif key == 'lastmonth':
-        t = (now.year-1, 12) if now.month == 1 else (now.year, now.month-1)
-        day_num = calendar.monthrange(*t)[1]
-        res = [(str(i), u'%d号'%i) for i in range(1, day_num+1)]
-    res.insert(0, ('all', '全部时段'))
-    return json.dumps(dict(res))
+    res = pull_intervals(key)
+    return json.dumps(res)
+
     
+@perfview.route('/switches/models')
+def switches_models():
+    """ 给搜索表单中的 (厂商/型号) 选框提供 ajax 服务 """
+    vendors = dict(request.values.lists()).get('vendors[]', [])
+    models = apply(model_choices(vendors))
+    res = [[str(model.id), model.alias] for model in models]
+    return json.dumps(res)
     
     
 @perfview.route('/olts/')
