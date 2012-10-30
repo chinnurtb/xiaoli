@@ -21,9 +21,16 @@ perfview = Blueprint('perf', __name__, url_prefix="/perf")
 CONFIG = {
     'node_ping': (u'PING时延', NodePerf, PingTable, ['pingrta', 'pingrtmax', 'pingrtmin']),
     'node_cpumem': (u'CPU内存', NodePerf, CpuMemTable, []),
-    'lan_portusage': (u'端口占用', NodePerf, PortUsageTable, []),
-    'lan_traffic': (u'端口流量', PortPerf, PortPerfTable, []),
-    'olt_ping': (u'PING时延', NodePerf, PingTable, ['pingrta', 'pingrtmax', 'pingrtmin'])
+    'node_portusage': (u'端口占用', NodePerf, PortUsageTable, []),
+    'node_traffic': (u'端口流量', PortPerf, PortPerfTable, []),
+    'olt_uptraffic': (u'上联口流量流速', PortPerf, PortPerfTable, []),
+    'olt_pontraffic': (u'PON口流量流速', PortPerf, PortPerfTable, []),
+    'olt_ponusage': (u'PON口占用率', PortPerf, PortUsageTable, []),
+    'olt_ponpower': (u'PON口光功率', PortPerf, PonPowerTable, []),
+    'onu_pontraffic': (u'PON口流量流速', PortPerf, PortPerfTable, []),
+    'onu_portusage': (u'用户口占用率', PortPerf, PortUsageTable, []),
+    'eoc_uptraffic': (u'上联口流量流速', PortPerf, PortPerfTable, []),
+    'eoc_cpetraffic': (u'CPE口流量流速', PortPerf, PortPerfTable, [])
 }
 
 @perfview.context_processor
