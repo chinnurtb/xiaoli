@@ -45,7 +45,7 @@
         <div class="span10">
             <div class="tablenav top">
                 <div class="alignleft actions">
-                    <form class="form-inline perf-filter-form" style="margin-bottom:10px;">
+                    <form id="perf-filter-form" class="form-inline filter-form">
                         {{ filterForm.sampletime(size="6", class="input-small") }}
                         {{ filterForm.intervals(multiple="true", size="6", class="input-small") }}
                         {{ filterForm.vendors(multiple="true", size="6", class="input-small") }}
@@ -60,6 +60,7 @@
                 <div class="pull-right actions">
                     <a title="Excel导出" href="#" class="btn btn-small"><i class="icon-download-alt"></i></a>
                 </div> 
+                <br class="clear">
             </div>
             {% from '_table_h.html' import render_table %}
             {{ render_table(table) }}
