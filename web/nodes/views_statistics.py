@@ -146,7 +146,12 @@ def categories():
         from tango.ui.charts.highcharts import BarStacked
         chart = BarStacked()
         xAxis_categories = [row["category_name"] for row in table.rows]
-        name_dict = {table.columns[2].name: table.columns[2].header, table.columns[3].name: table.columns[3].header}
+        name_dict = {
+            table.columns[2].name: table.columns[2].header,
+            table.columns[3].name: table.columns[3].header,
+            table.columns[4].name: table.columns[4].header,
+            table.columns[5].name: table.columns[5].header,
+        }
         series = [{"name": name_dict[name], "data": [ row[name] for row in table.rows ]} for name in name_dict.keys() ]
         chart.set_colors(['red', 'green'])
         chart["series"] = series
