@@ -10,8 +10,7 @@ nodes.nodetype -> nodes.category
 
 nodes.ip -> nodes.addr
 
-collect_rule_id -> 
-timeperiod_id
+node.collect_rule_id -> node.timeperiod_id
 
 collect_rules -> timeperiods
 
@@ -34,4 +33,53 @@ alarms.nodetype -> alarms->node_class
 ALTER TABLE profiles ADD COLUMN grp character varying(40);
 
 ALTER TABLE users ADD COLUMN group_id integer;
+
+
+
+ALTER TABLE node_hosts  ADD COLUMN os_type character varying(100);
+ALTER TABLE node_hosts  ADD COLUMN ifaces character varying(200);
+ALTER TABLE node_hosts ADD COLUMN cpu_info character varying(200);
+ALTER TABLE node_hosts ADD COLUMN mem_info character varying(200);
+ALTER TABLE node_hosts ADD COLUMN swap_info character varying(200);
+ALTER TABLE node_hosts ADD COLUMN disk_info character varying(200);
+ALTER TABLE node_hosts ADD COLUMN worker_num integer;
+
+创建子系统表
+
+CREATE TABLE subsystems
+(
+  id serial NOT NULL,
+  rdn character varying(100),
+  name character varying(100),
+  alias character varying(100),
+  host  character varying(100),
+  status integer,
+  descr character varying(200),
+  started_at timestamp without time zone,
+  updated_at timestamp without time zone,
+  CONSTRAINT pk_subsystems_id PRIMARY KEY (id )
+  USING INDEX TABLESPACE ipon_entry_index
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE subsystems OWNER TO postgres;
+
+CREATE INDEX i_subsystems_rdn
+  ON subsystems
+  USING btree
+  (rdn )
+TABLESPACE ipon_entry_index;
+
+CREATE INDEX i_subsystems_name
+  ON subsystems
+  USING btree
+  (name )
+TABLESPACE ipon_entry_index;
+
+
+
+
+
+
 
