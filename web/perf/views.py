@@ -10,11 +10,9 @@ from tango.ui.tables import make_table
 from alarms.models import AlarmSeverity
 from .models import Threshold, Metric
 
-from .models import NodePerf
+from .models import NodePerf, PortPerf
 
-from .tables import ThresholdTable, MetricTable
-
-from .tables import NodePerfTable
+from .tables import *
 
 from .forms import ThresholdEditForm, ThresholdNewForm, MetricNewEditForm
 
@@ -22,9 +20,38 @@ from .forms import PerfFilterForm
 
 perfview = Blueprint('perf', __name__, url_prefix="/perf")
 
+CONFIG = {
+    'lan_ping': (u'PING时延', NodePerf, PingTable, ['pingrta', 'pingrtmax', 'pingrtmin']),
+    'lan_cpumem': (u'CPU内存', NodePerf, CpuMemTable, []),
+    'lan_portusage': (u'端口占用', NodePerf, PortUsageTable, []),
+    'lan_traffic': (u'端口流量', PortPerf, PortPerfTable, []),
+    'olt_ping': (u'PING时延', NodePerf, PingTable, ['pingrta', 'pingrtmax', 'pingrtmin'])
+}
+
 @perfview.context_processor
 def inject_navid():
     return dict(navid = 'perf')
+
+@perfview.route('/lan/<name>')
+def lan(name):
+    menuid = 'lan_' + name
+    title, model, tblcls, metrics = CONFIG[menuid]
+    table = make_table(model.query, tblcls)
+    form = PerfFilterForm(formdata=request.args)
+    return render_template('/perf/lan/index.html',
+        menuid = menuid, title = title,
+        name = name, filterForm = form,
+        table = table)
+
+@perfview.route('/olt/<name>')
+def olt(name):
+    menuid = 'olt_' + name
+    title, metrics = CONFIG[menuid]
+    form = PerfFilterForm(formdata=request.args)
+    return render_template('/perf/lan/index.html',
+        menuid = menuid, title = title,
+        name = name, filterForm = form)
+    
 
 @perfview.route('/switches')
 def switches():
