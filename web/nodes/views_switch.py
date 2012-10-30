@@ -32,6 +32,7 @@ def switches():
         query = query.filter(netloc)
     if query_dict.get("vendor_id"): query=query.filter(NodeSwitch.vendor_id == query_dict["vendor_id"]) # ==
     if query_dict.get("model_id"): query=query.filter(NodeSwitch.model_id == query_dict["model_id"])    # ==
+    if query_dict.get("status"): query=query.filter(NodeSwitch.status == query_dict["status"])
     form.process(**query_dict)
     table = make_table(query, SwitchTable)
 

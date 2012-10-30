@@ -43,7 +43,7 @@ class TableData(object):
         
         if order_by.find('.') > -1:
              cls, order_str = self.get_cls_order(model, order_by, order)
-             self.queryset = self.queryset.join(cls).order_by(order_str)
+             self.queryset = self.queryset.outerjoin(cls).order_by(order_str)
         else:
              a = A("%s.%s" % (order_by, order)) # i.e. "name.desc"
              self.queryset = self.queryset.order_by(a.resolve(model))

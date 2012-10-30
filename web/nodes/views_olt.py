@@ -32,6 +32,7 @@ def olts():
         query = query.filter(netloc)
     if query_dict.get("vendor_id"): query=query.filter(NodeOlt.vendor_id == query_dict["vendor_id"]) # ==
     if query_dict.get("model_id"): query=query.filter(NodeOlt.model_id == query_dict["model_id"])    # ==
+    if query_dict.get("status"): query=query.filter(NodeOlt.status == query_dict["status"])
     form.process(**query_dict)
     table = make_table(query, OltTable)
 

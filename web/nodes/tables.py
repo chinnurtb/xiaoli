@@ -47,7 +47,7 @@ class NodeTable(tables.Table):
     vendor_name = tables.Column(verbose_name=u'厂商', orderable=True, accessor='vendor.alias')
     model_name = tables.Column(verbose_name=u'型号', orderable=True, accessor='model.alias')
     addr = tables.Column(verbose_name=u'IP', orderable=True)
-    area_name = tables.Column(verbose_name=u'所属区域', orderable=True, accessor='area.full_name')
+    area_name = tables.Column(verbose_name=u'所属区域', accessor='area.full_name')
     last_check = tables.Column(verbose_name=u'上次同步',orderable=True)
     summary = tables.Column(verbose_name=u'状态信息')
 
