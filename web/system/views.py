@@ -12,7 +12,15 @@ from nodes.models import NodeHost
 from nodes.tables import NodeHostTable
 from users.models import User
 
+from alarms.models import AlarmSeverity
+
+from .models import Threshold, Metric
+
+from .forms import ThresholdEditForm, ThresholdNewForm, MetricNewEditForm
+
 from .models import OperationLog, SecurityLog, SubSystem, TimePeriod
+
+from .tables import MetricTable, ThresholdTable
 from .tables import (SettingTable, OperationLogTable, SecurityLogTable,
                      DictCodeTable, SubSystemTable, TimePeriodTable)
 from .forms import (SettingEditForm, SearchForm, OplogFilterForm, DictCodeFilterForm,
@@ -94,6 +102,97 @@ def dict_codes_edit(id):
     form.process(obj=dict_code)
     return render_template('/system/dict-codes/new_edit.html', form=form,
                            action=url_for('system.dict_codes_edit', id=id), title=u'编辑字典')
+
+# ==============================================================================
+#  阀值管理
+# ==============================================================================
+@sysview.route('/')
+@sysview.route('/thresholds/')
+def thresholds():
+    keyword = request.args.get('keyword', '')
+    query = Threshold.query
+    if keyword:
+        ikeyword = '%' + keyword + '%'
+        query = query.filter(db.or_(Threshold.name.ilike(ikeyword),
+                                    Threshold.alias.ilike(ikeyword),
+                                    Threshold.category.has(Category.alias.ilike(ikeyword)),
+                                    Threshold.summary.ilike(ikeyword)))
+    table = make_table(query, ThresholdTable)
+    return render_template("system/thresholds/index.html", table=table, keyword=keyword)
+    
+    
+@sysview.route('/thresholds/edit/<int:id>', methods=['GET', 'POST'])
+def thresholds_edit(id):
+    form = ThresholdEditForm()
+    threshold = Threshold.query.get_or_404(id)
+    
+    if form.is_submitted and form.validate_on_submit():
+        form.populate_obj(threshold)
+        threshold.severity1 = threshold.severity1.id
+        threshold.severity2 = threshold.severity2.id
+        db.session.commit()
+        
+        flash(u'阀值 %s 修改成功' % threshold.name, 'success')
+        return redirect(url_for('system.thresholds'))
+        
+    form.process(obj=threshold)
+    form.severity1.data = AlarmSeverity.query.get(threshold.severity1)
+    form.severity2.data = AlarmSeverity.query.get(threshold.severity2)
+    return render_template("system/thresholds/edit.html", form=form, id=id)
+
+    
+@sysview.route('/thresholds/new', methods=['GET', 'POST'])
+def thresholds_new():
+    form = ThresholdNewForm()
+    if form.is_submitted and form.validate_on_submit():
+        threshold = Threshold()
+        form.populate_obj(threshold)
+        threshold.severity1 = threshold.severity1.id
+        threshold.severity2 = threshold.severity2.id
+        db.session.add(threshold)
+        db.session.commit()
+        
+        flash(u'阀值 %s 添加成功' % threshold.name, 'success')
+        return redirect(url_for('system.thresholds'))
+        
+    return render_template("system/thresholds/new.html", form=form, )
+
+# ==============================================================================
+#  指标管理
+# ==============================================================================    
+@sysview.route('/metrics/')
+def metrics():
+    table = make_table(Metric.query, MetricTable)
+    return render_template('system/metrics/index.html', table=table)
+    
+@sysview.route('/metrics/new', methods=['GET', 'POST'])
+def metrics_new():
+    form = MetricNewEditForm()
+    if form.is_submitted and form.validate_on_submit():
+        metric = Metric()
+        form.populate_obj(metric)
+        db.session.add(metric)
+        db.session.commit()
+        flash(u'指标 (%s) 添加成功!' % metric.name, 'success')
+        return redirect(url_for('system.metrics'))
+        
+    return render_template('system/metrics/new-edit.html', form=form,
+                           action=url_for('system.metrics_new'), title=u'添加指标')
+
+    
+@sysview.route('/metrics/edit/<int:id>', methods=['GET', 'POST'])
+def metrics_edit(id):
+    form = MetricNewEditForm()
+    metric = Metric.query.get_or_404(id)
+    if form.is_submitted and form.validate_on_submit():
+        form.populate_obj(metric)
+        db.session.commit()
+        flash(u'指标 (%s) 编辑成功' % metric.name, 'success')
+        return redirect(url_for('system.metrics'))
+        
+    form.process(obj=metric)
+    return render_template('system/metrics/new-edit.html', form=form,
+                           action=url_for('system.metrics_edit', id=id), title=u'编辑指标')
 
 
 # ==============================================================================

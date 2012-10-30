@@ -2,12 +2,9 @@
 
 {{ render_sidebar('节点性能', menuid, [
     ('node_ping', 'PING时延', url_for('perf.node', name='ping')),
-    ('node_cpumem', 'CPU/内存', url_for('perf.node', name='cpumem'))
-]) }}
-
-{{ render_sidebar('LAN性能', menuid, [
-    ('lan_portusage', '端口占用', url_for('perf.lan', name='portusage')),
-    ('lan_traffic', '端口流量', url_for('perf.lan', name='traffic'))
+    ('node_cpumem', 'CPU/内存', url_for('perf.node', name='cpumem')),
+    ('node_portusage', '端口占用', url_for('perf.node', name='portusage')),
+    ('node_traffic', '端口流量', url_for('perf.node', name='traffic'))
 ]) }}
 
 {{ render_sidebar('OLT性能', menuid, [
@@ -29,9 +26,4 @@
     ('eoc_cpetraffic', 'CPE流量流速', url_for('perf.eoc', name='cpetraffic'))
 
 ]) }}
-
-{{ render_sidebar('性能设置', menuid, [
-    ('thresholds','阀值管理', url_for('perf.thresholds')),
-    ('metrics','指标管理', url_for('perf.metrics'))])
-}}
 
