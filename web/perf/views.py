@@ -11,7 +11,7 @@ from tango.ui.tables import make_table
 from .models import NodePerf, PortPerf
 from .tables import NodePerfTable
 
-from .forms import ThresholdEditForm, ThresholdNewForm, MetricNewEditForm, pull_intervals, model_choices
+from .forms import PerfFilterForm, pull_intervals, model_choices
 from .tables import *
 
 from .forms import PerfFilterForm
