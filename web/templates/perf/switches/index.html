@@ -6,7 +6,29 @@
 
     <link rel="stylesheet" href="/static/css/perf.css" type="text/css" media="all">
 
-
+    <script type="text/javascript">
+    $(function(){
+      $('#sampletime').change(function(){
+          var key = $(this).find(':selected').val();
+          console.log(key);
+          $.get('/perf/switches/intervals',
+                {'key': key},
+                function(data){
+                    var data = eval("("+data+")");
+                    for(var i in data) {
+                    }
+                }
+          );
+      });
+      $('#vendors').change(function(){
+          var keys = [];
+          $(this).find(':selected').each(function(){
+              keys.push($(this).val());
+          });
+          console.log(keys);
+      });
+    });        
+    </script>
 {% endblock %}
 
 {% block screen_meta %}
