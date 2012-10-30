@@ -4,7 +4,7 @@
 import re
 
 from wtforms import validators as v
-from .models import Node, NodeOlt, Board, Port, Area, Vendor, Model,SNMP_VER_DICT
+from .models import Node, NodeOlt, NODE_STATUS_DICT, Area, Vendor, Model,SNMP_VER_DICT
 
 from flask_wtf import (Form, TextField, DecimalField, IntegerField,NumberRange,SubmitField,RadioField,
                        TextAreaField, ValidationError, required, equal_to, email)
@@ -33,27 +33,24 @@ class NodeNewForm(FormPro):
     location        = TextField(u'位置')
     remark          = TextAreaField(u'备注信息')
 
-    class Meta():
-        attrs = Attrs(
-            label={'style':'width:80px;text-align: right;padding-bottom: 10px;'},
-            field={'style':'padding-left: 10px;padding-bottom: 10px;'}
-        )
-
-
 class NodeSearchForm(FormPro):
     name            = TextField(u'IP 地址')
     area            = AreaSelectField(u'所属区域')
+    category_id     = SelectFieldPro(u'节点类型',
+        choices=lambda: [('', u'请选择节点类型')] + [(unicode(r.id), r.alias) for r in Category.query.filter(Category.obj=="node").filter(Category.is_valid==1)])
     vendor_id       = SelectFieldPro(u'生产厂家',
         choices=lambda: [('', u'请选择生产厂家')] + [(unicode(r.id), r.alias) for r in Vendor.query])
     model_id        = SelectFieldPro(u'设备型号',
         choices=lambda: [('', u'请选择设备型号')] + [(unicode(r.id), r.alias) for r in Model.query])
+    status          = SelectFieldPro(u'状态',
+        choices=lambda: [('',u'请选择状态')]+NODE_STATUS_DICT.items())
 
     class Meta():
         attrs = Attrs(
             label={'style':'width:80px;text-align: right;padding-bottom: 10px;'},
             field={'style':'padding-left: 10px;padding-bottom: 10px;'}
         )
-        list_display = ('area','vendor_id','model_id')
+        list_display = ('area','category_id','vendor_id','model_id')
 
 class OltNewForm(FormPro):
     cityid          = SelectFieldPro(u'所属地市', validators=[required(message=u'必填')],
@@ -77,12 +74,6 @@ class OltNewForm(FormPro):
     location        = TextField(u'位置')
     remark          = TextAreaField(u'备注信息')
 
-    class Meta():
-        attrs = Attrs(
-            label={'style':'width:80px;text-align: right;padding-bottom: 10px;'},
-            field={'style':'padding-left: 10px;padding-bottom: 10px;'}
-        )
-
 class SwitchNewForm(FormPro):
     cityid          = SelectFieldPro(u'所属地市', validators=[required(message=u'必填')],
         choices=lambda: [('', u'请选择地市')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==1)])
@@ -101,12 +92,6 @@ class SwitchNewForm(FormPro):
     location        = TextField(u'位置')
     remark          = TextAreaField(u'备注信息')
 
-    class Meta():
-        attrs = Attrs(
-            label={'style':'width:80px;text-align: right;padding-bottom: 10px;'},
-            field={'style':'padding-left: 10px;padding-bottom: 10px;'}
-        )
-
 class RouterNewForm(FormPro):
     cityid          = SelectFieldPro(u'所属地市', validators=[required(message=u'必填')],
         choices=lambda: [('', u'请选择地市')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==1)])
@@ -124,12 +109,6 @@ class RouterNewForm(FormPro):
     mask            = TextField(u'子网掩码')
     location        = TextField(u'位置')
     remark          = TextAreaField(u'备注信息')
-
-    class Meta():
-        attrs = Attrs(
-            label={'style':'width:80px;text-align: right;padding-bottom: 10px;'},
-            field={'style':'padding-left: 10px;padding-bottom: 10px;'}
-        )
 
 class OnuNewForm(FormPro):
     controller_id      = SelectFieldPro(u'所属OLT', validators=[required(message=u'必填')],
@@ -151,12 +130,6 @@ class OnuNewForm(FormPro):
     location        = TextField(u'位置')
     remark          = TextAreaField(u'备注信息')
 
-    class Meta():
-        attrs = Attrs(
-            label={'style':'width:80px;text-align: right;padding-bottom: 10px;'},
-            field={'style':'padding-left: 10px;padding-bottom: 10px;'}
-        )
-
 class OltSearchForm(FormPro):
     name            = TextField(u'IP 地址')
     area            = AreaSelectField(u'所属区域')
@@ -164,13 +137,8 @@ class OltSearchForm(FormPro):
         choices=lambda: [('', u'请选择生产厂家')] + [(unicode(r.id), r.alias) for r in Vendor.query])
     model_id        = SelectFieldPro(u'设备型号',
         choices=lambda: [('', u'请选择设备型号')] + [(unicode(r.id), r.alias) for r in Model.query])
-
-    class Meta():
-        attrs = Attrs(
-            label={'style':'width:80px;text-align: right;padding-bottom: 10px;'},
-            field={'style':'padding-left: 10px;padding-bottom: 10px;'}
-        )
-        list_display = ('area','vendor_id','model_id')
+    status          = SelectFieldPro(u'状态',
+        choices=lambda: [('',u'请选择状态')]+NODE_STATUS_DICT.items())
 
 class OnuSearchForm(FormPro):
     name            = TextField(u'IP 地址')
@@ -179,13 +147,8 @@ class OnuSearchForm(FormPro):
         choices=lambda: [('', u'请选择生产厂家')] + [(unicode(r.id), r.alias) for r in Vendor.query])
     model_id        = SelectFieldPro(u'设备型号',
         choices=lambda: [('', u'请选择设备型号')] + [(unicode(r.id), r.alias) for r in Model.query])
-
-    class Meta():
-        attrs = Attrs(
-            label={'style':'width:80px;text-align: right;padding-bottom: 10px;'},
-            field={'style':'padding-left: 10px;padding-bottom: 10px;'}
-        )
-        list_display = ('area','vendor_id','model_id')
+    status          = SelectFieldPro(u'状态',
+        choices=lambda: [('',u'请选择状态')]+NODE_STATUS_DICT.items())
 
 class SwitchSearchForm(FormPro):
     name            = TextField(u'IP 地址')
@@ -194,13 +157,8 @@ class SwitchSearchForm(FormPro):
         choices=lambda: [('', u'请选择生产厂家')] + [(unicode(r.id), r.alias) for r in Vendor.query])
     model_id        = SelectFieldPro(u'设备型号',
         choices=lambda: [('', u'请选择设备型号')] + [(unicode(r.id), r.alias) for r in Model.query])
-
-    class Meta():
-        attrs = Attrs(
-            label={'style':'width:80px;text-align: right;padding-bottom: 10px;'},
-            field={'style':'padding-left: 10px;padding-bottom: 10px;'}
-        )
-        list_display = ('area','vendor_id','model_id')
+    status          = SelectFieldPro(u'状态',
+        choices=lambda: [('',u'请选择状态')]+NODE_STATUS_DICT.items())
 
 class RouterSearchForm(FormPro):
     name            = TextField(u'IP 地址')
@@ -209,13 +167,8 @@ class RouterSearchForm(FormPro):
         choices=lambda: [('', u'请选择生产厂家')] + [(unicode(r.id), r.alias) for r in Vendor.query])
     model_id        = SelectFieldPro(u'设备型号',
         choices=lambda: [('', u'请选择设备型号')] + [(unicode(r.id), r.alias) for r in Model.query])
-
-    class Meta():
-        attrs = Attrs(
-            label={'style':'width:80px;text-align: right;padding-bottom: 10px;'},
-            field={'style':'padding-left: 10px;padding-bottom: 10px;'}
-        )
-        list_display = ('area','vendor_id','model_id')
+    status          = SelectFieldPro(u'状态',
+        choices=lambda: [('',u'请选择状态')]+NODE_STATUS_DICT.items())
 
 class AreaStatisticsForm(FormPro):
     area            = AreaSelectField(u'统计区域')

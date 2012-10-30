@@ -33,6 +33,7 @@ def onus():
     if query_dict.get("vendor_id"): query=query.filter(NodeOnu.vendor_id == query_dict["vendor_id"]) # ==
     if query_dict.get("model_id"): query=query.filter(NodeOnu.model_id == query_dict["model_id"])    # ==
     if request.args.get("olt_id"): query=query.filter(NodeOnu.controller_id == request.args["olt_id"])
+    if query_dict.get("status"): query=query.filter(NodeOnu.status == query_dict["status"])
     form.process(**query_dict)
     table = make_table(query, OnuTable)
 
