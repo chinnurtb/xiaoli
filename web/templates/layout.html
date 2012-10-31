@@ -58,7 +58,7 @@
 				<ul class="nav pull-right">
                     {% if current_user.id %}
                         {% for s,c in g.severities %} 
-                            <li><a style="padding:10px 4px" href="{{ url_for('alarms.index', severity=s.name) }}">
+                            <li><a style="padding:10px 3px" href="{{ url_for('alarms.index', severity=s.name) }}">
                                 <span class="badge badge-alarm-{{s.name}}">{{c}}</span> 
                             </a></li>
                         {% endfor %}

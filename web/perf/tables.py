@@ -35,10 +35,10 @@ class PingTable(t.Table):
 
     node_alias      = t.Column(verbose_name=u'节点', accessor='node.alias')
     sampletime      = t.Column(verbose_name=u'时间')
-    pingrta         = t.Column(verbose_name=u'平均时延', orderable=True)
-    pingrtmax       = t.Column(verbose_name=u'最大时延', orderable=True)
-    pingrtmin       = t.Column(verbose_name=u'最小时延', orderable=True)
-    pingloss        = t.Column(verbose_name=u'丢包率', orderable=True)
+    pingrta         = t.Column(verbose_name=u'平均时延(ms)', orderable=True)
+    pingrtmax       = t.Column(verbose_name=u'最大时延(ms)', orderable=True)
+    pingrtmin       = t.Column(verbose_name=u'最小时延(ms)', orderable=True)
+    pingloss        = t.Column(verbose_name=u'丢包率(%)', orderable=True)
     pingstdev       = t.Column(verbose_name=u'抖动率', orderable=True)
     
     class Meta():

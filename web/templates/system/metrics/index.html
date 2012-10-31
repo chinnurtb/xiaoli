@@ -26,11 +26,11 @@
           <div class="tablenav top">
             <div class="alignleft actions">
               <div class="alignleft btn-group">
-                <a class="btn btn-small" href="/metrics/new"><i class="icon-plus"></i>添加</a>
+                <a class="btn btn-small" href="/metrics/new"><i class="icon-plus"></i>添加指标</a>
               </div>
             </div>
-            <div class="alignleft actions" style="margin-left: 20px;">
-              <form class="form-inline filter-form" method="GET" action="{{url_for('system.metrics')}}">
+            <div class="alignleft actions" style="margin: 0px 20px;">
+              <form class="form-inline filter-form input-append" method="GET" action="{{url_for('system.metrics')}}">
                 <input type="text" name="keyword" class="input-low" value="{{ keyword }}" />
                 <button class="btn btn-small">检索</button>
               </form>
