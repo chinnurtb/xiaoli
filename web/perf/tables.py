@@ -19,7 +19,7 @@ class NodeMixin(t.Table):
 
 class CpuMemTable(NodeMixin):
 
-    helpdoc = '''CPU内存占用'''
+    helpdoc = u"CPU内存占用"
 
     cpuavg      = t.Column(verbose_name=u'CPU利用率(均值)')
     cpumax      = t.Column(verbose_name=u'CPU利用率(峰值)')

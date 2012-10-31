@@ -1,5 +1,7 @@
 errdb/
 web/venv
+\#*
+.\#*
 *.pyc
 *.swp
 .idea

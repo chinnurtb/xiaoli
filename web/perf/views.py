@@ -69,7 +69,7 @@ def add_time():
         hour = rand.randint(0, 23)
         minute = rand.randint(0, 59)
         dt = datetime(year, month, day, hour, minute)
-        node_perf = NodePerf()
+        node_perf = PortPerf()
         node_perf.sampletime = dt
         node_perf.sampleyear = year
         node_perf.samplemonth = month
@@ -86,11 +86,11 @@ def add_time():
 def node(name):
     menuid = 'node_' + name
     title, model, tblcls, metrics = CONFIG[menuid]
+    
     form = PerfFilterForm(formdata=request.args)
     form.refresh_choices(request.args)
-
-    query = model.query
-    query = form.filter(model, query)
+    query = form.filter(model)
+    
     table = make_table(query, tblcls)
     return render_template('/perf/node/index.html',
         menuid = menuid, title = title,
@@ -101,8 +101,12 @@ def node(name):
 def lan(name):
     menuid = 'lan_' + name
     title, model, tblcls, metrics = CONFIG[menuid]
-    table = make_table(model.query, tblcls)
+    
     form = PerfFilterForm(formdata=request.args)
+    form.refresh_choices(request.args)
+    query = form.filter(model)
+    
+    table = make_table(query, tblcls)
     return render_template('/perf/lan/index.html',
         menuid = menuid, title = title,
         name = name, filterForm = form,
@@ -112,8 +116,12 @@ def lan(name):
 def olt(name):
     menuid = 'olt_' + name
     title, model, tblcls, metrics = CONFIG[menuid]
-    table = make_table(model.query, tblcls)
+
     form = PerfFilterForm(formdata=request.args)
+    form.refresh_choices(request.args)
+    query = form.filter(model)
+    
+    table = make_table(query, tblcls)
     return render_template('/perf/olt/index.html',
         menuid = menuid, title = title,
         name = name, filterForm = form,
@@ -123,8 +131,12 @@ def olt(name):
 def onu(name):
     menuid = 'onu_' + name
     title, model, tblcls, metrics = CONFIG[menuid]
-    table = make_table(model.query, tblcls)
+
     form = PerfFilterForm(formdata=request.args)
+    form.refresh_choices(request.args)
+    query = form.filter(model)
+    
+    table = make_table(query, tblcls)
     return render_template('/perf/onu/index.html',
         menuid = menuid, title = title,
         name = name, filterForm = form,
@@ -134,8 +146,12 @@ def onu(name):
 def eoc(name):
     menuid = 'eoc_' + name
     title, model, tblcls, metrics = CONFIG[menuid]
-    table = make_table(model.query, tblcls)
+    
     form = PerfFilterForm(formdata=request.args)
+    form.refresh_choices(request.args)
+    query = form.filter(model)
+    
+    table = make_table(query, tblcls)
     return render_template('/perf/eoc/index.html',
         menuid = menuid, title = title,
         name = name, filterForm = form,
