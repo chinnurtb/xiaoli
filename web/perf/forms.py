@@ -186,7 +186,8 @@ class PerfFilterForm(Form):
         self.models.query_factory = model_choices(args.get('vendors'))
 
 
-    def filter(self, model, query):
+    def filter(self, model):
+        query = model.query
         # 'all' or 'today' ...
         sampletime = self.sampletime.data 
         # [] or ['all'] or ['1', '2'] or ['all', '1', '2'] ...    

@@ -30,7 +30,13 @@ class PortPerf(db.Model):
     id          = db.Column(db.Integer, primary_key=True)
     nodeid      = db.Column(db.Integer, db.ForeignKey("nodes.id"))
     portid      = db.Column(db.Integer, db.ForeignKey("ports.id"))
-    sampletime  = db.Column(db.DateTime)
+    
+    sampletime    = db.Column(db.DateTime)
+    sampleyear    = db.Column(db.Integer)
+    samplemonth   = db.Column(db.Integer)
+    sampleday     = db.Column(db.Integer)
+    sampleweekday = db.Column(db.Integer)
+    samplehour    = db.Column(db.Integer)
 
     inoctets    = db.Column(db.Float)
     inoctetsmax = db.Column(db.Float)

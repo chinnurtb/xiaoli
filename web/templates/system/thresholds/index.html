@@ -24,20 +24,20 @@
         <div class="span10">
           {% include "_alert.html" %}
           <div class="tablenav top">
-            <form class="form-horizontal" method="GET" action="{{url_for('system.thresholds')}}">
-              <div class="">
-                <div class="pull-left btn-group">
-                  <a class="btn btn-small" href="/system/thresholds/new"><i class="icon-plus"></i>添加</a>
-                </div>
+            
+            <div class="alignleft actions">
+              <div class="alignleft btn-group">
+                <a class="btn btn-small" href="/system/thresholds/new"><i class="icon-plus"></i>添加</a>
               </div>
-              <div class="pull-left" style="height: 26px;">
-                <div class="input-append pull-left" style="margin-left: 20px;">
-                  <input type="text" name="keyword" class="input-low"
-                         value="{{ keyword }}" />
-                  <button id="advance_sarch" class="btn btn-small">检索</button>
-                </div>
-              </div>
-            </form>
+            </div>
+
+            <div class="alignleft actions" style="margin-left: 20px;">
+              <form class="form-inline filter-form " method="GET" action="{{url_for('system.thresholds')}}">
+                <input type="text" name="keyword" class="input-low" value="{{ keyword }}" />
+                <button class="btn btn-small">检索</button>
+              </form>
+            </div>
+            <br class="clear">
           </div>
 
           {{ render_table(table) }}

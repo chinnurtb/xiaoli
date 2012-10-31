@@ -1,5 +1,4 @@
 {% extends 'layout.html' %} 
-
 {% set title = '角色管理' %}
 
 {% block head %} 
@@ -31,31 +30,28 @@
 
     <div class="span10">
         {% include "_alert.html" %}
-	    <div class="tablenav top">
-            <div class="alignleft actions">
-                <form action="" method="get">
-                <input type="hidden" name="orderby" value="login">
-                <input type="hidden" name="order" value="asc">
-                <div class="alignleft btn-group">
-                    <a class="btn btn-small"
-                    href="{{url_for('users.roles_new')}}"><i class="icon-plus"></i>新建</a>
-                    <button class="btn btn-small"><i class="icon-remove"></i>删除</button>
-                </div>
-                </form>
+	<div class="tablenav top">
+          
+          <div class="alignleft actions">
+            <div class="alignleft btn-group">
+              <a class="btn btn-small" href="{{url_for('users.roles_new')}}"><i class="icon-plus"></i>新建</a>
+              <button class="btn btn-small"><i class="icon-remove"></i>删除</button>
             </div>
+          </div>
 
-            <div class="alignleft actions input-append">
-                <form class="form-inline" action="" method="GET">
-                <input type="text" name="keyword" value="{{keyword}}" class="input-medium input-low" placeholder="关键词">
-                <button type="submit" class="btn btn-small">Filter</button>
-                </form>
-            </div>
+          <div class="alignleft actions" style="margin-lef:20px;">
+            <form class="form-inline filter-form" action="" method="GET">
+              <input type="text" name="keyword" value="{{keyword}}" class="input-medium input-low" placeholder="关键词">
+              <button type="submit" class="btn btn-small">Filter</button>
+            </form>
+          </div>
 
-            <div class="alignright actions">
-                <a class="btn btn-small"
-                href="#"><i class="icon-download-alt"></i></a>
-            </div>
-	    </div>
+          <div class="alignright actions">
+            <a class="btn btn-small"
+               href="#"><i class="icon-download-alt"></i></a>
+          </div>
+          <br class="clear">
+	</div>
         {{ render_table(table) }}
         <br class="clear">
     </div>
