@@ -121,7 +121,6 @@ def switches_models():
     res = [[str(model.id), model.alias] for model in models]
     return json.dumps(res)
     
-    
 @perfview.route('/olts/')
 def olts():
     return render_template('perf/olts/index.html')
@@ -130,22 +129,10 @@ def olts():
 def olt_boards():
     return render_template('/perf/boards/index.html')
 
-@perfview.route('/olt_pon_ports/')
-def olt_pon_ports():
-    return render_template('/perf/olt_pon_ports/index.html')
+@perfview.route('/demo-table')
+def demo_table():
+    return render_template('perf/demo_table.html')
 
-@perfview.route('/onus/')
-def onus():
-    return render_template('perf/onus/index.html')
-
-@perfview.route('/onu_pon_ports/')
-def onu_pon_ports():
-    return render_template('/perf/onu_pon_ports/index.html')
-
-@perfview.route('/eocs')
-def eocs():
-    return render_template('/perf/eocs/index.html')
-    
 
 # ==============================================================================
 #  Test
