@@ -56,3 +56,23 @@ th.alarm_alias-column {
     width:10em;
 }
 
+/* badge */
+.badge-alarm-clear { 
+     background-color: #00FF00; 
+}
+.badge-alarm-indeterminate {
+    background-color: #773EF7; 
+}
+.badge-alarm-warning {
+    background-color: #43d5fa; 
+}
+.badge-alarm-minor {
+    background-color: #E6F940;
+}
+.badge-alarm-major {
+    background-color: #F6983E;
+}
+.badge-alarm-critical {
+    background-color: #ED4D5A;
+}
+

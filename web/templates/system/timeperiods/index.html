@@ -30,13 +30,12 @@
                   <a class="btn btn-small" href="/timeperiods/new"><i class="icon-plus"></i>添加采集规则</a>
                 </div>
               </div>
-              <form class="form-inline filter-form" method="GET" action="{{url_for('system.timeperiods')}}">
-              <div class="alignleft actions input-append" style="margin-left: 20px;">
-                  <input type="text" name="keyword" class="input-low"
-                         value="{{ keyword }}" />
+              <div class="alignleft actions">
+              <form class="form-inline filter-form input-append" method="GET" action="{{url_for('system.timeperiods')}}">
+                  <input type="text" name="keyword" class="input-low" value="{{ keyword }}" />
                   <button id="advance_sarch" class="btn btn-small">检索</button>
-              </div>
               </form>
+              </div>
               <br class="clear">
           </div>
           {{ render_table(table) }}

@@ -3,23 +3,44 @@
 from tango import db
 
 class NodePerf(db.Model):
-
     '''节点性能'''
     
     __tablename__ = 'perf_node'
 
-    id          = db.Column(db.Integer, primary_key=True)
-    nodeid      = db.Column(db.Integer, db.ForeignKey("nodes.id"))
-    sampletime  = db.Column(db.DateTime)
-    pingrta     = db.Column(db.Float)
-    pingrtmax   = db.Column(db.Float)
-    pingrtmin   = db.Column(db.Float)
-    pingloss    = db.Column(db.Integer)
+    id            = db.Column(db.Integer, primary_key=True)
+    nodeid        = db.Column(db.Integer, db.ForeignKey("nodes.id"))
+    sampletime    = db.Column(db.DateTime)
+    sampleyear    = db.Column(db.Integer)
+    samplemonth   = db.Column(db.Integer)
+    sampleday     = db.Column(db.Integer)
+    sampleweekday = db.Column(db.Integer)
+    samplehour    = db.Column(db.Integer)
+    pingrta       = db.Column(db.Float)
+    pingrtmax     = db.Column(db.Float)
+    pingrtmin     = db.Column(db.Float)
+    pingloss      = db.Column(db.Integer)
 
     node        = db.relation('Node')
 
-class PortPerf(db.Model):
+class BoardPerf(db.Model):
+    '''版卡性能'''
+    
+    __tablename__ = 'perf_board'
 
+    id          = db.Column(db.Integer, primary_key=True)
+    nodeid      = db.Column(db.Integer, db.ForeignKey("nodes.id"))
+    sampletime  = db.Column(db.DateTime)
+    cpuavg      = db.Column(db.Integer)
+    cpumax      = db.Column(db.Integer) 
+    memavg      = db.Column(db.Integer) 
+    memmax      = db.Column(db.Integer) 
+    tempavg     = db.Column(db.Integer) 
+    tempmax     = db.Column(db.Integer) 
+
+    node        = db.relation('Node')
+    
+
+class PortPerf(db.Model):
     '''端口性能'''
 
     __tablename__ = 'perf_port'
@@ -27,7 +48,13 @@ class PortPerf(db.Model):
     id          = db.Column(db.Integer, primary_key=True)
     nodeid      = db.Column(db.Integer, db.ForeignKey("nodes.id"))
     portid      = db.Column(db.Integer, db.ForeignKey("ports.id"))
-    sampletime  = db.Column(db.DateTime)
+    
+    sampletime    = db.Column(db.DateTime)
+    sampleyear    = db.Column(db.Integer)
+    samplemonth   = db.Column(db.Integer)
+    sampleday     = db.Column(db.Integer)
+    sampleweekday = db.Column(db.Integer)
+    samplehour    = db.Column(db.Integer)
 
     inoctets    = db.Column(db.Float)
     inoctetsmax = db.Column(db.Float)

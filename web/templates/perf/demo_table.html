@@ -1,0 +1,63 @@
+{% extends 'layout.html' %}
+
+{% block head %}
+    <link rel="stylesheet" href="/static/css/perf.css" type="text/css" media="all">
+{% endblock %}
+
+{% block content %}
+
+<table class="wp-list-table widefat fixed" cellspacing="0"  style="margin-top:40px;">
+    <thead>
+    <tr>
+    <th scope="col" class="manage-column node_alias-column" id="node_alias">
+    节点</th>
+    <th scope="col" class="manage-column port_alias-column" id="port_alias">
+    PON口</th>
+    <th scope="col" class="manage-column sampletime-column" id="sampletime">
+    时间</th>
+    <th scope="col" class="manage-column txpoweravg-column metric-column" id="txpoweravg">
+    发送光功率(Dbm)<br>均值 / 峰值</th>
+    <th scope="col" class="manage-column rxpoweravg-column metric-column" id="rxpoweravg">
+    接收光功率(Dbm)<br>均值 / 峰值</th>
+    <th scope="col" class="biascurrentavg-column manage-column metric-column" id="biascurrentavg">偏置电流(mA)<br>均值 / 峰值</th>
+    <th scope="col" class="manage-column supplyvolageavg-column metric-column" id="supplyvolageavg">
+    供电电压(V)<br>均值 / 峰值</th>
+    <th scope="col" class="manage-column pontempavg-column metric-column" id="pontempavg">
+    温度<br>均值 / 峰值</th>
+    </tr>
+    </thead>
+    <tfoot>
+    <tr>
+    <th scope="col" class="manage-column node_alias-column" id="node_alias">
+    节点</th>
+    <th scope="col" class="manage-column port_alias-column" id="port_alias">
+    PON口</th>
+    <th scope="col" class="manage-column sampletime-column" id="sampletime">
+    时间</th>
+    <th scope="col" class="manage-column txpoweravg-column" id="txpoweravg">
+    发送光功率(Dbm)<br><a href="orderby=avg">均值</a> / 峰值</th>
+    <th scope="col" class="manage-column rxpoweravg-column metric-column" id="rxpoweravg">
+    接收光功率(Dbm)<br>均值 / 峰值</th>
+    <th scope="col" class="biascurrentavg-column manage-column metric-column" id="biascurrentavg">偏置电流(mA)<br><a>均值</a> / <a>峰值</a></th>
+    <th scope="col" class="manage-column supplyvolageavg-column metric-column" id="supplyvolageavg">
+    供电电压(V)<br><a>均值</a> / <a>峰值</a></th>
+    <th scope="col" class="manage-column pontempavg-column metric-column" id="pontempavg">
+    温度<br>均值 / 峰值</th>
+    </tr>
+    </tfoot>
+    
+    <tbody id="the-list">
+    
+    <tr>
+        <td colspan="8">
+          <div class="alert alert-block" style="text-align:center;">
+            <button type="button" class="close" data-dismiss="alert">×</button>
+            当前没有数据
+          </div>
+        </td>
+    </tr>
+    
+    </tbody>
+</table>
+
+{% endblock %}

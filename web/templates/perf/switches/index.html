@@ -3,39 +3,8 @@
 {% set title = '交换机性能' %}
 
 {% block head %}
-
     <link rel="stylesheet" href="/static/css/perf.css" type="text/css" media="all">
-
-    <script type="text/javascript">
-    function updateSelectField(data, fieldId){
-        var data = eval("("+data+")");
-        opts = [];
-        for(var i in data) {
-            opts.push('<option value="'+data[i][0]+'">'+data[i][1]+'</option>');
-        }
-        $(fieldId).html(opts.join(''));
-    }
-    $(function(){
-      $('#sampletime').change(function(){
-          var key = $(this).find(':selected').val();
-          $.get('/perf/switches/intervals', {'key': key},
-                function(data){
-                    updateSelectField(data, '#intervals');
-                });
-      });
-        
-      $('#vendors').change(function(){
-          var vendors = [];
-          $(this).find(':selected').each(function(){
-              vendors.push($(this).val());
-          });
-          $.get('/perf/switches/models', {'vendors': vendors},
-                function(data){
-                    updateSelectField(data, '#models');
-                });
-      });
-    });        
-    </script>
+    <script type="text/javascript" src="/static/js/perf.js"></script>
 {% endblock %}
 
 {% block screen_meta %}
