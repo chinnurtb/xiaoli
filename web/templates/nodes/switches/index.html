@@ -36,7 +36,7 @@
                     <input type="hidden" name="orderby" value="login">
                     <input type="hidden" name="order" value="asc">
                     <div class="alignleft btn-group">
-                        <a class="btn btn-small" href="{{ url_for('nodes.switches_new') }}"><i class="icon-plus"></i>添加</a>
+                        <a class="btn btn-small" href="{{ url_for('nodes.switches_new') }}"><i class="icon-plus"></i>添加交换机</a>
                         {% from "_form_h.html" import render_delete_button %}
                         {{ render_delete_button(url_for('nodes.switches_delete'),confirm="交换机") }}
                         <a class="btn btn-small" href="#"><i class="icon-file"></i>模版</a>

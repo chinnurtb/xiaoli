@@ -27,7 +27,6 @@
   <div class="span10">
     {% include "_alert.html" %}
     <div class="tablenav top">
-      
       <div class="alignleft actions">
         <div class="alignleft btn-group">
           <a class="btn btn-small" href="{{url_for('users.users_new')}}"><i class="icon-plus"></i>新建用户</a>
@@ -35,7 +34,7 @@
         </div>
       </div>
       
-      <div class="alignleft actions" style="margin-left: 20px;">
+      <div class="alignleft actions">
         <form class="form-inline filter-form input-append" action="" method="GET">
           <input type="text" name="keyword" value="{{ keyword }}" placeholder="关键词" class="input-low"/>
           <button type="submit" class="btn btn-small">检索</button>
