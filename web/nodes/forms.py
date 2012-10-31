@@ -6,6 +6,7 @@ import re
 from wtforms import validators as v
 from .models import Node, NodeOlt, NODE_STATUS_DICT, Area, Vendor, Model,SNMP_VER_DICT
 
+from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from flask_wtf import (Form, TextField, DecimalField, IntegerField,NumberRange,SubmitField,RadioField,
                        TextAreaField, ValidationError, required, equal_to, email)
 
@@ -74,6 +75,28 @@ class OltNewForm(FormPro):
     location        = TextField(u'位置')
     remark          = TextAreaField(u'备注信息')
 
+class EocNewForm(FormPro):
+    cityid          = SelectFieldPro(u'所属地市', validators=[required(message=u'必填')],
+        choices=lambda: [('', u'请选择地市')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==1)])
+    town         = SelectFieldPro(u'', validators=[required(message=u'必填')],
+        choices=lambda: [('', u'请选择区县')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==2)])
+    area_id         = SelectFieldPro(u'所属区域', validators=[required(message=u'必填')],
+        choices=lambda: [('', u'请选择分局')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==3)])
+    name            = TextField(u'EOC名称', validators=[required(message=u'必填')])
+    alias           = TextField(u'EOC别名', validators=[required(message=u'必填')])
+    addr            = TextField(u'IP 地址', validators=[required(message=u'必填')])
+    snmp_comm       = TextField(u'读团体名', validators=[required(message=u'必填')])
+    snmp_wcomm      = TextField(u'写团体名', validators=[required(message=u'必填')])
+    snmp_ver       = RadioField(u'SNMP版本',default=SNMP_VER_DICT.keys()[0], validators=[required(message=u'必填')],
+        choices=[(value, label) for value, label in SNMP_VER_DICT.items()])
+    vendor       = QuerySelectField(u'EOC厂商', query_factory=lambda: Vendor.query.filter(Vendor.is_valid==1),
+        allow_blank=True, blank_text=u'请选择厂商',get_label='alias')
+    model        = QuerySelectField(u'EOC型号', query_factory=lambda: Model.query.filter(Model.is_valid==1).filter(Model.category_id==50),
+        allow_blank=True, blank_text=u'请选择型号',get_label='alias')
+    mask            = TextField(u'子网掩码')
+    location        = TextField(u'位置')
+    remark          = TextAreaField(u'备注信息')
+
 class SwitchNewForm(FormPro):
     cityid          = SelectFieldPro(u'所属地市', validators=[required(message=u'必填')],
         choices=lambda: [('', u'请选择地市')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==1)])
@@ -131,6 +154,16 @@ class OnuNewForm(FormPro):
     remark          = TextAreaField(u'备注信息')
 
 class OltSearchForm(FormPro):
+    name            = TextField(u'IP 地址')
+    area            = AreaSelectField(u'所属区域')
+    vendor_id       = SelectFieldPro(u'生产厂家',
+        choices=lambda: [('', u'请选择生产厂家')] + [(unicode(r.id), r.alias) for r in Vendor.query])
+    model_id        = SelectFieldPro(u'设备型号',
+        choices=lambda: [('', u'请选择设备型号')] + [(unicode(r.id), r.alias) for r in Model.query])
+    status          = SelectFieldPro(u'状态',
+        choices=lambda: [('',u'请选择状态')]+NODE_STATUS_DICT.items())
+
+class EocSearchForm(FormPro):
     name            = TextField(u'IP 地址')
     area            = AreaSelectField(u'所属区域')
     vendor_id       = SelectFieldPro(u'生产厂家',

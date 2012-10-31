@@ -7,7 +7,7 @@ from tango.ui import tables
 from tango.ui.tables.utils import Attrs
 
 from nodes import constants
-from .models import Node, NodeSwitch, NodeRouter, NodeOlt, NodeOnu, Board, Port, NodeHost, NODE_STATUS_DICT,Area
+from .models import Node, NodeSwitch, NodeRouter, NodeOlt, NodeOnu, NodeEoc, Board, Port, NodeHost, NODE_STATUS_DICT,Area
 
 redirct_dict = {
     1:"routers",
@@ -74,13 +74,37 @@ class OltTable(tables.Table):
     vendor_name = tables.Column(verbose_name=u'厂商', orderable=True, accessor='vendor.alias')
     model_name = tables.Column(verbose_name=u'型号', orderable=True, accessor='model.alias')
     addr = tables.Column(verbose_name=u'IP', orderable=True)
-    area_name = tables.Column(verbose_name=u'所属区域', orderable=True, accessor='area.full_name')
+    area_name = tables.Column(verbose_name=u'所属区域', accessor='area.full_name')
     last_check = tables.Column(verbose_name=u'上次同步',orderable=True)
     onu_count_plan = tables.Column(verbose_name=u'已规划ONU')
     onu_count_unplan = tables.Column(verbose_name=u'未规划ONU')
 
     class Meta():
         model = NodeOlt
+        per_page = 30
+
+class EocTable(tables.Table):
+    edit = tables.Action(name=u'编辑', endpoint='nodes.eocs_edit')
+    delete = tables.Action(name=u'删除', endpoint='nodes.eocs_delete',attrs=Attrs(a={"class": "delete"}))
+    check = tables.CheckBoxColumn()
+    status = tables.EnumColumn(
+        verbose_name=u'状态',
+        name='state',
+        enums=NODE_STATUS_DICT,
+        orderable=True
+    )
+    name = tables.LinkColumn(endpoint='nodes.eocs_show',verbose_name=u'名称',orderable=True)
+    alias = tables.Column(verbose_name=u'别名',orderable=True)
+    vendor_name = tables.Column(verbose_name=u'厂商', orderable=True, accessor='vendor.alias')
+    model_name = tables.Column(verbose_name=u'型号', orderable=True, accessor='model.alias')
+    addr = tables.Column(verbose_name=u'IP', orderable=True)
+    area_name = tables.Column(verbose_name=u'所属区域', accessor='area.full_name')
+    last_check = tables.Column(verbose_name=u'上次同步',orderable=True)
+    onu_count_plan = tables.Column(verbose_name=u'已规划EOC终端')
+    onu_count_unplan = tables.Column(verbose_name=u'未规划EOC终端')
+
+    class Meta():
+        model = NodeEoc
         per_page = 30
 
 class SwitchTable(tables.Table):
@@ -95,7 +119,7 @@ class SwitchTable(tables.Table):
     )
     name = tables.LinkColumn(endpoint='nodes.switches_show',verbose_name=u'名称',orderable=True)
     addr = tables.Column(verbose_name=u'IP', orderable=True)
-    area_name = tables.Column(verbose_name=u'所属区域', orderable=True, accessor='area.full_name')
+    area_name = tables.Column(verbose_name=u'所属区域', accessor='area.full_name')
     vendor_name = tables.Column(verbose_name=u'厂商', orderable=True, accessor='vendor.alias')
     model_name = tables.Column(verbose_name=u'型号', orderable=True, accessor='model.alias')
     last_check = tables.Column(verbose_name=u'上次同步',orderable=True)
@@ -117,7 +141,7 @@ class RouterTable(tables.Table):
     )
     name = tables.LinkColumn(endpoint='nodes.routers_show',verbose_name=u'名称',orderable=True)
     addr = tables.Column(verbose_name=u'IP', orderable=True)
-    area_name = tables.Column(verbose_name=u'所属区域', orderable=True, accessor='area.full_name')
+    area_name = tables.Column(verbose_name=u'所属区域', accessor='area.full_name')
     vendor_name = tables.Column(verbose_name=u'厂商', orderable=True, accessor='vendor.alias')
     model_name = tables.Column(verbose_name=u'型号', orderable=True, accessor='model.alias')
     last_check = tables.Column(verbose_name=u'上次同步',orderable=True)
@@ -139,7 +163,7 @@ class OnuTable(tables.Table):
     )
     name = tables.LinkColumn(endpoint='nodes.onus_show',verbose_name=u'名称',orderable=True)
     addr = tables.Column(verbose_name=u'IP', orderable=True)
-    area_name = tables.Column(verbose_name=u'所属区域', orderable=True, accessor='area.full_name')
+    area_name = tables.Column(verbose_name=u'所属区域', accessor='area.full_name')
     vendor_name = tables.Column(verbose_name=u'厂商', orderable=True, accessor='vendor.alias')
     model_name = tables.Column(verbose_name=u'型号', orderable=True, accessor='model.alias')
     mac = tables.Column(verbose_name=u'认证标识',orderable=True)

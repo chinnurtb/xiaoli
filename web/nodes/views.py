@@ -28,6 +28,7 @@ from .views_router import routers, routers_new, routers_edit, routers_show, rout
 from .views_switch import switches, switches_new, switches_edit, switches_show, switches_delete
 from .views_olt import olts, olts_new, olts_edit, olts_delete, olts_show
 from .views_onu import onus, onus_new, onus_edit, onus_delete, onus_show
+from .views_eoc import eocs, eocs_new, eocs_edit, eocs_delete, eocs_show
 from .views_statistics import areas, vendors, categories
 from .views_area import cities
 
@@ -235,10 +236,5 @@ def nodes_import():
 @nodeview.route('/managers', methods=['GET'])
 def managers():
     return render_template('/managers/index.html')
-
-
-@nodeview.route('/nodes/eocs/', methods=['GET'])
-def eocs():
-    return render_template('/nodes/eocs/index.html')
 
 navbar.add('nodes', u'资源', '/nodes')

@@ -9,3 +9,4 @@ web/venv
 */.idea
 */.idea/*
 web/local_settings.py
+web/static/file/download/*
