@@ -3,18 +3,22 @@
 from tango import db
 
 class NodePerf(db.Model):
-
     '''节点性能'''
     
     __tablename__ = 'perf_node'
 
-    id          = db.Column(db.Integer, primary_key=True)
-    nodeid      = db.Column(db.Integer, db.ForeignKey("nodes.id"))
-    sampletime  = db.Column(db.DateTime)
-    pingrta     = db.Column(db.Float)
-    pingrtmax   = db.Column(db.Float)
-    pingrtmin   = db.Column(db.Float)
-    pingloss    = db.Column(db.Integer)
+    id            = db.Column(db.Integer, primary_key=True)
+    nodeid        = db.Column(db.Integer, db.ForeignKey("nodes.id"))
+    sampletime    = db.Column(db.DateTime)
+    sampleyear    = db.Column(db.Integer)
+    samplemonth   = db.Column(db.Integer)
+    sampleday     = db.Column(db.Integer)
+    sampleweekday = db.Column(db.Integer)
+    samplehour    = db.Column(db.Integer)
+    pingrta       = db.Column(db.Float)
+    pingrtmax     = db.Column(db.Float)
+    pingrtmin     = db.Column(db.Float)
+    pingloss      = db.Column(db.Integer)
 
     node        = db.relation('Node')
 
@@ -37,7 +41,6 @@ class BoardPerf(db.Model):
     
 
 class PortPerf(db.Model):
-
     '''端口性能'''
 
     __tablename__ = 'perf_port'
