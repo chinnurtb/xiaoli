@@ -30,14 +30,13 @@
       
       <div class="alignleft actions">
         <div class="alignleft btn-group">
-          <a class="btn btn-small" href="{{url_for('users.users_new')}}"><i class="icon-plus"></i>新建</a>
-          <a class="btn btn-small" id="multi-delete-btn" href="#"><i class="icon-trash"></i>删除</a>
+          <a class="btn btn-small" href="{{url_for('users.users_new')}}"><i class="icon-plus"></i>新建用户</a>
+          <a class="btn btn-small" id="multi-delete-btn" href="#"><i class="icon-remove"></i>删除</a>
         </div>
       </div>
-
       
       <div class="alignleft actions" style="margin-left: 20px;">
-        <form class="form-inline filter-form" action="" method="GET">
+        <form class="form-inline filter-form input-append" action="" method="GET">
           <input type="text" name="keyword" value="{{ keyword }}" placeholder="关键词" class="input-low"/>
           <button type="submit" class="btn btn-small">检索</button>
         </form>
