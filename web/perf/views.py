@@ -38,14 +38,20 @@ def ajax_refresh_models():
     res = [[str(model.id), model.alias] for model in models]
     return json.dumps(res)
     
-
         
 CONFIG = {
     'node_ping': (u'PING时延', NodePerf, PingTable, ['pingrta', 'pingrtmax', 'pingrtmin']),
     'node_cpumem': (u'CPU内存', NodePerf, CpuMemTable, []),
-    'lan_portusage': (u'端口占用', NodePerf, PortUsageTable, []),
-    'lan_traffic': (u'端口流量', PortPerf, PortPerfTable, []),
-    'olt_ping': (u'PING时延', NodePerf, PingTable, ['pingrta', 'pingrtmax', 'pingrtmin'])
+    'node_portusage': (u'端口占用', NodePerf, PortUsageTable, []),
+    'node_traffic': (u'端口流量', PortPerf, PortPerfTable, []),
+    'olt_uptraffic': (u'上联口流量流速', PortPerf, PortPerfTable, []),
+    'olt_pontraffic': (u'PON口流量流速', PortPerf, PortPerfTable, []),
+    'olt_ponusage': (u'PON口占用率', PortPerf, PortUsageTable, []),
+    'olt_ponpower': (u'PON口光功率', PortPerf, PonPowerTable, []),
+    'onu_pontraffic': (u'PON口流量流速', PortPerf, PortPerfTable, []),
+    'onu_portusage': (u'用户口占用率', PortPerf, PortUsageTable, []),
+    'eoc_uptraffic': (u'上联口流量流速', PortPerf, PortPerfTable, []),
+    'eoc_cpetraffic': (u'CPE口流量流速', PortPerf, PortPerfTable, [])
 }
 
 @perfview.route('/do-db')
@@ -144,22 +150,10 @@ def olts():
 def olt_boards():
     return render_template('/perf/boards/index.html')
 
-@perfview.route('/olt_pon_ports/')
-def olt_pon_ports():
-    return render_template('/perf/olt_pon_ports/index.html')
+@perfview.route('/demo-table')
+def demo_table():
+    return render_template('perf/demo_table.html')
 
-@perfview.route('/onus/')
-def onus():
-    return render_template('perf/onus/index.html')
-
-@perfview.route('/onu_pon_ports/')
-def onu_pon_ports():
-    return render_template('/perf/onu_pon_ports/index.html')
-
-@perfview.route('/eocs')
-def eocs():
-    return render_template('/perf/eocs/index.html')
-    
 
 # ==============================================================================
 #  Test

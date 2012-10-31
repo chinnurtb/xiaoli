@@ -16,6 +16,7 @@ from tango.models import Profile, Category
 
 from .models import Node, Board, Port, Area, Vendor, NODE_STATUS_DICT, Model
 from .tables import CityTable, TownTable, BranchTable, EntranceTable
+from .forms import CityNewForm, TownNewForm, BranchNewForm, EntranceNewForm
 from .views import nodeview
 
 
@@ -60,7 +61,7 @@ def cities():
 
     # 隐藏is_valid = 0 的分类
     hiddens = u','.join([category.name+'_count' for category in Category.query.filter(Category.obj=='node').filter(Category.is_valid!=1)])
-    profile = {"table.nodes.hiddens":hiddens}
+    profile = {"table.areas.hiddens":hiddens}
     table = make_table(query, CityTable,profile)
     if request.args.get("dashboard"):
         return table.as_html()
@@ -111,7 +112,7 @@ def towns():
 
     # 隐藏is_valid = 0 的分类
     hiddens = u','.join([category.name+'_count' for category in Category.query.filter(Category.obj=='node').filter(Category.is_valid!=1)])
-    profile = {"table.nodes.hiddens":hiddens}
+    profile = {"table.areas.hiddens":hiddens}
     table = make_table(query, TownTable,profile)
     if request.args.get("dashboard"):
         return table.as_html()
@@ -161,7 +162,7 @@ def branches():
 
     # 隐藏is_valid = 0 的分类
     hiddens = u','.join([category.name+'_count' for category in Category.query.filter(Category.obj=='node').filter(Category.is_valid!=1)])
-    profile = {"table.nodes.hiddens":hiddens}
+    profile = {"table.areas.hiddens":hiddens}
     table = make_table(query, BranchTable,profile)
     if request.args.get("dashboard"):
         return table.as_html()
@@ -202,9 +203,182 @@ def entrances():
 
     # 隐藏is_valid = 0 的分类
     hiddens = u','.join([category.name+'_count' for category in Category.query.filter(Category.obj=='node').filter(Category.is_valid!=1)])
-    profile = {"table.nodes.hiddens":hiddens}
+    profile = {"table.areas.hiddens":hiddens}
     table = make_table(query, EntranceTable,profile)
     if request.args.get("dashboard"):
         return table.as_html()
     else:
         return render_template('nodes/areas/entrances.html', table = table)
+
+@nodeview.route('/nodes/cities/new/', methods=['GET','POST'])
+@login_required
+def cities_new():
+    form = CityNewForm()
+    if request.method == 'POST' and form.validate_on_submit():
+        area = Area()
+        form.populate_obj(area)
+        area.area_type = 1
+        area.parent_id = Area.query.filter(Area.area_type==0).first().id
+        db.session.add(area)
+        db.session.commit()
+        flash(u'添加地市成功', 'success')
+        return redirect(url_for('nodes.cities'))
+    return render_template('nodes/areas/cities_new.html', form = form)
+
+@nodeview.route('/nodes/cities/edit/<int:id>/', methods=['POST', 'GET'])
+@login_required
+def cities_edit(id):
+    form = CityNewForm()
+    area = Area.query.get_or_404(id)
+    if request.method == 'POST' and form.validate_on_submit():
+        form.populate_obj(area)
+        area.updated_at = datetime.now()
+        db.session.add(area)
+        db.session.commit()
+        flash(u'修改地市成功','success')
+        return redirect(url_for('nodes.cities'))
+    form.process(obj=area)
+    return render_template('/nodes/areas/cities_edit.html', area=area, form=form)
+
+@nodeview.route('/nodes/cities/delete/', methods=['POST'])
+def cities_delete():
+    if request.method == 'POST':
+        ids = request.form.getlist('id')
+        for id in ids:
+            area = Area.query.get(id)
+            if len(area.children) > 0:
+                flash(u'删除地市失败，请先删除其所有区县', 'error')
+                return redirect(url_for('nodes.cities'))
+            db.session.delete(area)
+        db.session.commit()
+        flash(u'删除地市成功','success')
+        return redirect(url_for('nodes.cities'))
+
+@nodeview.route('/nodes/towns/new/', methods=['GET','POST'])
+@login_required
+def towns_new():
+    form = TownNewForm()
+    if request.method == 'POST' and form.validate_on_submit():
+        area = Area()
+        form.populate_obj(area)
+        area.area_type = 2
+        db.session.add(area)
+        db.session.commit()
+        flash(u'添加区县成功', 'success')
+        return redirect(url_for('nodes.towns'))
+    return render_template('nodes/areas/towns_new.html', form = form)
+
+@nodeview.route('/nodes/towns/edit/<int:id>/', methods=['POST', 'GET'])
+@login_required
+def towns_edit(id):
+    form = TownNewForm()
+    area = Area.query.get_or_404(id)
+    if request.method == 'POST' and form.validate_on_submit():
+        form.populate_obj(area)
+        area.updated_at = datetime.now()
+        db.session.add(area)
+        db.session.commit()
+        flash(u'修改区县成功','success')
+        return redirect(url_for('nodes.towns'))
+    form.process(obj=area)
+    return render_template('/nodes/areas/towns_edit.html', area=area, form=form)
+
+@nodeview.route('/nodes/towns/delete/', methods=['POST'])
+def towns_delete():
+    if request.method == 'POST':
+        ids = request.form.getlist('id')
+        for id in ids:
+            area = Area.query.get(id)
+            if len(area.children) > 0:
+                flash(u'删除区县失败，请先删除其所有分局', 'error')
+                return redirect(url_for('nodes.towns'))
+            db.session.delete(area)
+        db.session.commit()
+        flash(u'删除区县成功','success')
+        return redirect(url_for('nodes.towns'))
+
+@nodeview.route('/nodes/branches/new/', methods=['GET','POST'])
+@login_required
+def branches_new():
+    form = BranchNewForm()
+    if request.method == 'POST' and form.validate_on_submit():
+        area = Area()
+        form.populate_obj(area)
+        area.area_type = 3
+        db.session.add(area)
+        db.session.commit()
+        flash(u'添加分局成功', 'success')
+        return redirect(url_for('nodes.branches'))
+    return render_template('nodes/areas/branches_new.html', form = form)
+
+@nodeview.route('/nodes/branches/edit/<int:id>/', methods=['POST', 'GET'])
+@login_required
+def branches_edit(id):
+    form = BranchNewForm()
+    area = Area.query.get_or_404(id)
+    if request.method == 'POST' and form.validate_on_submit():
+        del form._fields["cityid"]
+        form.populate_obj(area)
+        area.updated_at = datetime.now()
+        db.session.add(area)
+        db.session.commit()
+        flash(u'修改分局成功','success')
+        return redirect(url_for('nodes.branches'))
+    form.process(obj=area)
+    return render_template('/nodes/areas/branches_edit.html', area=area, form=form)
+
+@nodeview.route('/nodes/branches/delete/', methods=['POST'])
+def branches_delete():
+    if request.method == 'POST':
+        ids = request.form.getlist('id')
+        for id in ids:
+            area = Area.query.get(id)
+            if len(area.children) > 0:
+                flash(u'删除分局失败，请先删除其所有接入点', 'error')
+                return redirect(url_for('nodes.branches'))
+            db.session.delete(area)
+        db.session.commit()
+        flash(u'删除分局成功','success')
+        return redirect(url_for('nodes.branches'))
+
+@nodeview.route('/nodes/entrances/new/', methods=['GET','POST'])
+@login_required
+def entrances_new():
+    form = EntranceNewForm()
+    if request.method == 'POST' and form.validate_on_submit():
+        area = Area()
+        form.populate_obj(area)
+        area.area_type = 4
+        db.session.add(area)
+        db.session.commit()
+        flash(u'添加接入点成功', 'success')
+        return redirect(url_for('nodes.entrances'))
+    return render_template('nodes/areas/entrances_new.html', form = form)
+
+@nodeview.route('/nodes/entrances/edit/<int:id>/', methods=['POST', 'GET'])
+@login_required
+def entrances_edit(id):
+    form = EntranceNewForm()
+    area = Area.query.get_or_404(id)
+    if request.method == 'POST' and form.validate_on_submit():
+        del form._fields["cityid"]
+        del form._fields["town"]
+        form.populate_obj(area)
+        area.updated_at = datetime.now()
+        db.session.add(area)
+        db.session.commit()
+        flash(u'修改接入点成功','success')
+        return redirect(url_for('nodes.entrances'))
+    form.process(obj=area)
+    return render_template('/nodes/areas/entrances_edit.html', area=area, form=form)
+
+@nodeview.route('/nodes/entrances/delete/', methods=['POST'])
+def entrances_delete():
+    if request.method == 'POST':
+        ids = request.form.getlist('id')
+        for id in ids:
+            area = Area.query.get(id)
+            db.session.delete(area)
+        db.session.commit()
+        flash(u'删除接入点成功','success')
+        return redirect(url_for('nodes.entrances'))

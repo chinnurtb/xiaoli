@@ -6,25 +6,16 @@ from flask import Blueprint, request, session, url_for, \
     redirect, render_template, g, flash
 from flask import json
 
-from sqlalchemy import func
 from sqlalchemy import or_
-from sqlalchemy.orm import aliased
 
-from tango import db
-
-from tango import user_profile
-
+from tango import db,user_profile
 from tango.ui import navbar, dashboard
-
 from tango.ui.tables import make_table
-
 from tango.login import current_user, login_required
 from tango.models import Profile, Category
 
-from .models import Node, Board, Port, Area, Vendor, NODE_STATUS_DICT, Model
-
+from .models import Node, Area, Vendor, NODE_STATUS_DICT
 from .forms import NodeNewForm, NodeSearchForm
-
 from .tables import NodeTable
 
 nodeview = Blueprint('nodes', __name__)
@@ -129,6 +120,8 @@ def nodes():
         query = query.filter(netloc)
     if query_dict.get("vendor_id"): query=query.filter(Node.vendor_id == query_dict["vendor_id"]) # ==
     if query_dict.get("model_id"): query=query.filter(Node.model_id == query_dict["model_id"])    # ==
+    if query_dict.get("category_id"): query=query.filter(Node.category_id == query_dict["category_id"])
+    if query_dict.get("status"): query=query.filter(Node.status == query_dict["status"])
     form.process(**query_dict)
     table = make_table(query, NodeTable)
 
@@ -171,7 +164,7 @@ def nodes_new():
         node.status = 1
         db.session.add(node)
         db.session.commit()
-        flash(u'新建节点成功', 'info')
+        flash(u'添加节点成功', 'info')
         return redirect(url_for('nodes.nodes'))
     return render_template('nodes/new.html', form = form)
 

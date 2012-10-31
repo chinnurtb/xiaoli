@@ -1,10 +1,3 @@
-.status-column.state-0 {
-    color: red;
-}
-.status-column.state-1 {
-    color: green;
-}
-
 #status_statistics {
     font-size: 12px;
     margin: 0;
@@ -14,16 +7,16 @@
     float: left;
     padding-right: 10px;
 }
-#status_statistics .status-1 {
+.status-column.state-1, #status_statistics .status-1 a{
     color: lime;
 }
-#status_statistics .status-2 {
+.status-column.state-2, #status_statistics .status-2 a{
     color: red;
 }
-#status_statistics .status-3 {
+.status-column.state-3, #status_statistics .status-3 a{
     color: #F6983E;
 }
-#status_statistics .status-4 {
+.status-column.state-4, #status_statistics .status-4 a{
     color: #43D5FA;
 }
 #search_form {
@@ -40,4 +33,7 @@
 }
 select#area_chosen {
     width: 166px;
+}
+.tablenav .actions {
+    padding: 2px 8px 2px 0;
 }
