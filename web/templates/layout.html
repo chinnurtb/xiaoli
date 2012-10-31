@@ -10,28 +10,30 @@
 	<meta name="author" content="ery.lee@gmail.com">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>{% if title %}{{title}} - {% endif %}OPENGOSS</title>
+
+    {% from "tango/_base.html" import stylesheet, javascript %}
     <link rel="stylesheet" href="/static/css/wp-admin.css" type="text/css" media="all">
     <link rel="stylesheet" href="/static/css/thickbox.css" type="text/css" media="all">
     <link rel="stylesheet" href="/static/css/colors-fresh.css" type="text/css" media="all">
-    <link rel="stylesheet" href="/static/css/bootstrap.css"/>
-    <link rel="stylesheet" href="/static/css/datepicker.css"/>
-    <link rel="stylesheet" href="/static/css/base.css"/>
-    <!-- <link rel="stylesheet" href="/static/css/jquery-ui-1.9.0.custom.css"/> -->
-
+    {{ stylesheet("/static/css/bootstrap.css") }}
+    {{ stylesheet("/static/css/datepicker.css") }}
+    {{ stylesheet("/static/css/base.css") }}
+    {{ stylesheet("/static/css/alarm.css") }}
     
     <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-    <script type="text/javascript" src="/static/js/jquery.js"></script>
-    <script type="text/javascript" src="/static/js/jquery-color.js"></script>
-    <script type="text/javascript" src="/static/js/jquery-ui.js"></script>
-    <script type="text/javascript" src="/static/js/common.dev.js"></script>
-    <script type="text/javascript" src="/static/js/hoverIntent.js"></script>
-    <script type="text/javascript" src="/static/js/utils.js"></script>
-    <script type="text/javascript" src="/static/js/bootstrap.js"></script>
-    <script type="text/javascript" src="/static/js/bootstrap-datepicker.js"></script>
-    <script type="text/javascript" src="/static/js/base.js"></script>
+    {{ javascript("/static/js/jquery.js") }}
+    {{ javascript("/static/js/jquery-color.js") }}
+    {{ javascript("/static/js/jquery-ui.js") }}
+    {{ javascript("/static/js/common.dev.js") }}
+    {{ javascript("/static/js/hoverIntent.js") }}
+    {{ javascript("/static/js/utils.js") }}
+    {{ javascript("/static/js/bootstrap.js") }}
+    {{ javascript("/static/js/bootstrap-datepicker.js") }}
+    {{ javascript("/static/js/base.js") }}
+
 	<script>$(function(){ $(".alert").alert() }); </script>
 	{% block head %} {% endblock %}
 </head>
@@ -49,11 +51,18 @@
 				<ul class="nav">
                     {% if current_user.id %}
                         {% for nav in g.navbar %}
-                            {{ nav.render(navid)|safe }}
+                            {{ nav.render(navid)|safe }} 
                         {% endfor %}
                     {% endif %}
 				</ul>
 				<ul class="nav pull-right">
+                    {% if current_user.id %}
+                        {% for s,c in g.severities %} 
+                            <li><a style="padding:10px 4px" href="{{ url_for('alarms.index', severity=s.name) }}">
+                                <span class="badge badge-alarm-{{s.name}}">{{c}}</span> 
+                            </a></li>
+                        {% endfor %}
+                    {% endif %}
 					<li class="divider-vertical"></li>
                     {% if current_user.id %} 
                     <li class="dropdown">
