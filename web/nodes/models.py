@@ -269,6 +269,10 @@ class NodeSwitch(NodeMixin, db.Model):
     """ Switchs """
     __tablename__ = 'node_switchs'
 
+    @staticmethod
+    def export_columns():
+        return ['status','name','alias','addr','area.full_name','vendor.alias','model.alias','created_at','location']
+
 class NodeRouter(NodeMixin, db.Model):
     """ Routers """
     __tablename__ = 'node_routers'
@@ -310,6 +314,10 @@ class NodeOnu(NodeMixin,db.Model):
     __tablename__ = 'node_onus'
 
     controller_id = db.Column(db.Integer, db.ForeignKey('node_olts.id'))
+
+class NodeEoc(NodeMixin, db.Model):
+    """ Eocs """
+    __tablename__ = 'node_eocs'
 
 class Board(db.Model):
     """板卡"""

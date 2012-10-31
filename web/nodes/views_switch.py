@@ -11,12 +11,16 @@ from tango.ui.tables import make_table
 from tango.login import current_user, login_required
 from tango.models import Profile, Category
 
+from flask import send_file
+from tango.excelRW.CsvWriter import CsvWriter
+
 from .models import NodeSwitch,NODE_STATUS_DICT, Area
 from .tables import SwitchTable
 from .forms import  SwitchSearchForm, SwitchNewForm
 from .views import nodeview
 
 @nodeview.route('/nodes/switches/', methods=['POST', 'GET'])
+@nodeview.route('/nodes/switches.csv/', methods=['POST', 'GET'])
 @login_required
 def switches():
     form = SwitchSearchForm()
@@ -35,6 +39,10 @@ def switches():
     if query_dict.get("status"): query=query.filter(NodeSwitch.status == query_dict["status"])
     form.process(**query_dict)
     table = make_table(query, SwitchTable)
+
+    if request.url.endswith(".csv/"):
+        writer = CsvWriter('switches',columns=NodeSwitch.export_columns())
+        return send_file(writer.write(query,True,format={'status': lambda value: NODE_STATUS_DICT.get(value)}),as_attachment=True,attachment_filename='switches.csv')
 
     status_statistcs = []
     for status in NODE_STATUS_DICT.keys():
