@@ -93,20 +93,27 @@ class TableMeta(type):
         # print '-----'
         # print TableMeta, cls
         # print '===========\n'
-
+        
         _meta = attrs.get("Meta", None)
         if _meta is None and name != 'Table':
             raise ValueError("*Meta* class is required in class (%s)!" % name)
         
         attrs["_meta"] = TableOptions(attrs.get("Meta", None), name)
-        columns = [(name_, attrs.pop(name_)) for name_, column in attrs.items()
-                                             if isinstance(column, Column)]
-        columns.sort(lambda x, y: cmp(x[1].creation_counter, y[1].creation_counter))
-
+        
+        def get_columns(attrs):
+            columns = [(name_, attrs.pop(name_)) for name_, column in attrs.items()
+                       if isinstance(column, Column)]
+            columns.sort(lambda x, y: cmp(x[1].creation_counter, y[1].creation_counter))
+            return columns
+        columns = get_columns(attrs)
+        
         parent_columns = []
         for base in bases[::-1]:
             if hasattr(base, "base_columns"):
                 parent_columns = base.base_columns.items() + parent_columns
+            else:
+                t_columns = get_columns(base.__dict__)
+                parent_columns = t_columns + parent_columns
 
         attrs["base_columns"] = SortedDict(parent_columns)
         attrs["base_columns"].update(SortedDict(columns))

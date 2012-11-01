@@ -9,7 +9,7 @@ __all__ = ['CpuMemTable',
            'IntfTrafficPerfTable',
            'PonPowerTable']
 
-class NodeMixin():
+class NodeMixin(object):
     node_alias      = t.Column(u'节点', accessor='node.alias')
     sampletime      = t.Column(u'时间')
 
