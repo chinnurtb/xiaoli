@@ -732,7 +732,7 @@ kbd, code {
     width: 2.2em;
 }
 .widefat tbody th.check-column {
-    padding: 9px 0 22px;
+    padding: 9px 0 9px; /* 22px; */
 }
 .widefat .num, .column-comments, .column-links, .column-posts {
     text-align: center;
@@ -4344,7 +4344,7 @@ table.form-table td .updated {
     padding: 0 0 3px;
 }
 #poststuff h3, .metabox-holder h3 {
-    font-size: 15px;
+    font-size: 14px; /*15px*/
     font-weight: normal;
     line-height: 1;
     margin: 0;

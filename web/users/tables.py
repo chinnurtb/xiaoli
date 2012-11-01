@@ -17,13 +17,13 @@ class UserTable(tables.Table):
     
     check      = tables.CheckBoxColumn()
     
-    username       = tables.Column(verbose_name=u'用户名', orderable=True)
-    name           = tables.Column(verbose_name=u'真实姓名')
-    role_name      = tables.Column(verbose_name=u'角色名称', orderable=True, accessor='role.name')
-    domain         = tables.Column(verbose_name=u'管理域', orderable=True, accessor='domain.name')
-    email          = tables.EmailColumn(verbose_name=u'邮箱')
-    department     = tables.Column(verbose_name=u'部门')
-    telephone      = tables.Column(verbose_name=u'电话')
+    username       = tables.Column(u'用户名', orderable=True)
+    name           = tables.Column(u'真实姓名')
+    role_name      = tables.Column(u'角色名称', orderable=True, accessor='role.name')
+    domain         = tables.Column(u'管理域', orderable=True, accessor='domain.name')
+    email          = tables.EmailColumn(u'邮箱')
+    department     = tables.Column(u'部门')
+    telephone      = tables.Column(u'电话')
 
     class Meta():
         model = User
@@ -36,8 +36,8 @@ class RoleTable(tables.Table):
     
     check  = tables.CheckBoxColumn()
     
-    name        = tables.Column(verbose_name=u'角色名称')
-    description = tables.Column(verbose_name=u'描述')
+    name        = tables.Column(u'角色名称')
+    description = tables.Column(u'描述')
 
     class Meta():
         model = Role
@@ -50,8 +50,8 @@ class DomainTable(tables.Table):
 
     check  = tables.CheckBoxColumn()
     
-    name        = tables.Column(verbose_name=u'名称')
-    description = tables.Column(verbose_name=u'描述')
+    name        = tables.Column(u'名称')
+    description = tables.Column(u'描述')
 
     class Meta():
         model = Domain

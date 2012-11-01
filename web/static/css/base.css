@@ -1,4 +1,8 @@
 .navbar-inner {
+    background-image: -moz-linear-gradient(top, #FAFAFA, #EAEAEA);
+    background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#FAFAFA), to(#EAEAEA));
+    background-image: -webkit-linear-gradient(top, #FAFAFA, #EAEAEA);
+    background-image: -o-linear-gradient(top, #FAFAFA, #EAEAEA);
     background-image: linear-gradient(to bottom, #FAFAFA, #EAEAEA);
 }
 

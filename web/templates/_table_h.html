@@ -148,7 +148,7 @@
 	    <div class="metabox-prefs">
               <input id="hidden-columns" type="hidden" name="hidden-columns" value="" />
 		{% for column in table.columns %}
-		{% if not column.is_checkbox and not column.is_button %}
+		{% if not column.is_checkbox %}
 		<label for="{{ column.name }}-hide">
 		    <input class="hide-column-tog" name="{{ column.name }}-hide" type="checkbox"
 			   id="{{ column.name }}-hide" value="{{ column.name }}"
