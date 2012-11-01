@@ -17,8 +17,8 @@ __all__ = ['Column', 'EnumColumn', 'CheckBoxColumn', 'BaseLinkColumn', 'LinkColu
 class Column(object):
     creation_counter = 0
 
-    def __init__(self, attrs=None, accessor=None, subcolumns=None,
-                 verbose_name=None, orderable=None, ifnull=None):
+    def __init__(self, verbose_name=None, attrs=None, accessor=None, subcolumns=None,
+                  orderable=None, ifnull=None):
         if not (accessor is None or isinstance(accessor, basestring) or
                 callable(accessor)):
             raise TypeError('accessor must be a string or callable, not %s' %
@@ -58,8 +58,8 @@ class Column(object):
 
 class EnumColumn(Column):
 
-    def __init__(self, name, enums=None, attrs=None, **extra):
-        super(EnumColumn, self).__init__(attrs=attrs, **extra)
+    def __init__(self, verbose_name, name, enums=None, attrs=None, **extra):
+        super(EnumColumn, self).__init__(verbose_name, attrs=attrs, **extra)
         self.name = name
         self.enums = enums
 
@@ -108,7 +108,7 @@ class CheckBoxColumn(Column):
 
 class BaseLinkColumn(Column):
 
-    def __init__(self, attrs=None, *args, **kwargs):
+    def __init__(self, verbose_name, attrs=None, *args, **kwargs):
         attrs = attrs or Attrs()
         if not isinstance(attrs, Attrs):
             warnings.warn('attrs must be Attrs object, not %s'
@@ -130,9 +130,9 @@ class BaseLinkColumn(Column):
 
 class LinkColumn(BaseLinkColumn):
 
-    def __init__(self, endpoint=None, values=None, _external=None,
+    def __init__(self, verbose_name, endpoint=None, values=None, _external=None,
                  attrs=None, **extra):
-        super(LinkColumn, self).__init__(attrs, **extra)
+        super(LinkColumn, self).__init__(verbose_name, **extra)
         self.endpoint = endpoint
         self.values = values
         self._external = _external
@@ -169,58 +169,58 @@ class EmailColumn(BaseLinkColumn):
         return self.render_link("mailto:%s" % value, value)
 
 
-class ButtonColumn(BaseLinkColumn):
-    def __init__(self, endpoint=None, icon_type=None, attrs=None, **extra):
-        if endpoint is None:
-            raise ValueError('An endpoint must be given')
-        self.endpoint = endpoint
+# class ButtonColumn(BaseLinkColumn):
+#     def __init__(self, endpoint=None, icon_type=None, attrs=None, **extra):
+#         if endpoint is None:
+#             raise ValueError('An endpoint must be given')
+#         self.endpoint = endpoint
 
-        default_attrs = Attrs(th={'style': 'width:2.0em;'})
+#         default_attrs = Attrs(th={'style': 'width:2.0em;'})
 
-        attrs = attrs or Attrs()
-        if not isinstance(attrs, Attrs):
-            warnings.warn('attrs must be Attrs object, not %s'
-                          % type(attrs).__name__, DeprecationWarning)
-            attrs = Attrs(a=attrs)
-        attrs.update(default_attrs)
+#         attrs = attrs or Attrs()
+#         if not isinstance(attrs, Attrs):
+#             warnings.warn('attrs must be Attrs object, not %s'
+#                           % type(attrs).__name__, DeprecationWarning)
+#             attrs = Attrs(a=attrs)
+#         attrs.update(default_attrs)
 
-        danger_btns = ('trash', 'remove')
-        self.icon_type = icon_type
-        self.btn_class = 'btn btn-mini'
-        self.icon_class = 'icon-' + self.icon_type
-        if self.icon_type in danger_btns:
-            self.btn_class += ' btn-danger'
-            self.icon_class += ' icon-white'
+#         danger_btns = ('trash', 'remove')
+#         self.icon_type = icon_type
+#         self.btn_class = 'btn btn-mini'
+#         self.icon_class = 'icon-' + self.icon_type
+#         if self.icon_type in danger_btns:
+#             self.btn_class += ' btn-danger'
+#             self.icon_class += ' icon-white'
 
-        super(ButtonColumn, self).__init__(attrs, **extra)
-
-
-    @property
-    def header(self):
-        return u''
-
-    def render(self, value, record, bound_column):
-        uri = url_for(self.endpoint, id=getattr(record, 'id', None))
-        attrs = AttributeDict({'class': self.btn_class})
-        content = Markup(u'<i class="%s"></i>' % self.icon_class)
-        return self.render_link(uri, content, attrs)
+#         super(ButtonColumn, self).__init__(attrs, **extra)
 
 
-class EditBtnColumn(ButtonColumn):
-    def __init__(self, endpoint=None, attrs=None, **extra):
-        super(EditBtnColumn, self).__init__(endpoint, icon_type='pencil', **extra)
+#     @property
+#     def header(self):
+#         return u''
+
+#     def render(self, value, record, bound_column):
+#         uri = url_for(self.endpoint, id=getattr(record, 'id', None))
+#         attrs = AttributeDict({'class': self.btn_class})
+#         content = Markup(u'<i class="%s"></i>' % self.icon_class)
+#         return self.render_link(uri, content, attrs)
 
 
-class DeleteBtnColumn(ButtonColumn):
-    def __init__(self, endpoint=None, attrs=None, **extra):
-        super(DeleteBtnColumn, self).__init__(endpoint, icon_type='remove', **extra)
-        self.btn_class += ' btn-danger'
-        self.icon_class += ' icon-white'
+# class EditBtnColumn(ButtonColumn):
+#     def __init__(self, endpoint=None, attrs=None, **extra):
+#         super(EditBtnColumn, self).__init__(endpoint, icon_type='pencil', **extra)
+
+
+# class DeleteBtnColumn(ButtonColumn):
+#     def __init__(self, endpoint=None, attrs=None, **extra):
+#         super(DeleteBtnColumn, self).__init__(endpoint, icon_type='remove', **extra)
+#         self.btn_class += ' btn-danger'
+#         self.icon_class += ' icon-white'
 
 
 class DateTimeColumn(Column):
-    def __init__(self, format='%Y-%m-%d %H:%M:%S', **extra):
-        super(DateTimeColumn, self).__init__(**extra)
+    def __init__(self, verbose_name, format='%Y-%m-%d %H:%M:%S', *args, **extra):
+        super(DateTimeColumn, self).__init__(verbose_name, *args, **extra)
         self.format = format
 
     def render(self, value):
@@ -237,7 +237,6 @@ class BoundColumn(object):
         self.column = column
         self.name = name
         self.is_checkbox = True if isinstance(column, CheckBoxColumn) else False
-        self.is_button = True if isinstance(column, ButtonColumn) else False
 
         url_makers = getattr(table._meta, 'url_makers', None)
         self.url_maker = url_makers.get(name, None) if url_makers else None

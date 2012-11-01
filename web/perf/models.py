@@ -15,13 +15,13 @@ __all__ = ['PingPerf',
 
 class PerfMixin(object):
 
-    id              = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
 
     @declared_attr 
     def nodeid(cls):
         return db.Column(db.Integer, db.ForeignKey("nodes.id"))
 
-    @declared_attr 
+    @declared_attr
     def node(cls):
         return db.relation('Node')
 
@@ -139,7 +139,7 @@ class IntfTrafficPerf(db.Model, PerfMixin):
 
     @property #发送流量
     def outoctetstotal(self):
-        return outoctets * 3600 / 8
+        return self.outoctets * 3600 / 8
 
     @property #发送带宽利用率
     def outbwusage(self):
