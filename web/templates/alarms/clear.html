@@ -18,13 +18,13 @@
             {% include 'alarms/_sidebar.html' %}
         </div>
         <div class="span10">
-        <h3>Clear: {{alarm.node_alias}} / {{alarm.alarm_alias}}</h3>
+        <h3>清除 : {{alarm.node_alias}} / {{alarm.alarm_alias}}</h3>
         
 		<form class="form-horizontal" method="POST" action="/alarms/clear/{{alarm.id}}">
 			{{ form.hidden_tag() }}
             {{ render_field(form.cleared_note) }}
             <div class="form-actions">
-                <button type="submit" class="btn btn-primary btn-small">Clear</button>
+                <button type="submit" class="btn btn-primary btn-small">清除</button>
             </div>
         </form>
         </div>

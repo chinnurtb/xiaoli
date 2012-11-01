@@ -18,13 +18,13 @@
             {% include 'alarms/_sidebar.html' %}
         </div>
         <div class="span10">
-        <h3>ACK: {{alarm.node_alias}} / {{alarm.alarm_alias}}</h3>
+        <h3>确认 : {{alarm.node_alias}} / {{alarm.alarm_alias}}</h3>
         
 		<form class="form-horizontal" method="POST" action="/alarms/ack/{{alarm.id}}">
 			{{ form.hidden_tag() }}
             {{ render_field(form.acked_note) }}
             <div class="form-actions">
-                <button type="submit" class="btn btn-primary btn-small">确定</button>
+                <button type="submit" class="btn btn-primary btn-small">确认</button>
             </div>
         </form>
         </div>

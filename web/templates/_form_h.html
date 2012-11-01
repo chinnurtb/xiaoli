@@ -154,6 +154,7 @@
   <form id="perf-filter-form" class="form-inline filter-form">
     {{ form.sampletime(size="6", class="input-small") }}
     {{ form.intervals(multiple="true", size="6", class="input-small") }}
+    {% if form.categories is defined %} {{ form.categories() }} {% endif %}
     {{ form.vendors(multiple="true", size="6", class="input-small") }}
     {{ form.models(multiple="true", size="6", class="input-small") }}
     

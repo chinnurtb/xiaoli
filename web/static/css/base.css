@@ -1,3 +1,7 @@
+.navbar-inner {
+    background-image: linear-gradient(to bottom, #FAFAFA, #EAEAEA);
+}
+
 .auto-width {
     width: auto;
 }

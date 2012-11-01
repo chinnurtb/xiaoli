@@ -11,6 +11,16 @@
             {% include 'admin/_sidebar.html' %}
         </div>
         <div class="span10">
+            <div class="well">
+                <h3>系统基础数据配置</h3>
+                <p><a href="{{url_for('admin.categories')}}">设备分类</a></p>
+                <p><a href="{{url_for('admin.vendors')}}"> 设备供应商</a></p>
+                <p><a href="{{url_for('admin.models')}}">设备型号</a></p>
+                <p><a href="{{url_for('admin.sysoids')}}">SysOID</a></p>
+                <p><a href="{{url_for('admin.modules')}}">监控模块</a></p>
+                <p><a href="{{url_for('admin.monitors')}}">监控器</a>  </p>
+                <p><a href="{{url_for('admin.miboids')}}">MIB管理</a> </p>
+            </div>
         </div>
     </div>
 

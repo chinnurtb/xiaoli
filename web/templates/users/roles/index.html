@@ -1,4 +1,5 @@
 {% extends 'layout.html' %} 
+
 {% set title = '角色管理' %}
 
 {% block head %} 
@@ -34,15 +35,15 @@
           
           <div class="alignleft actions">
             <div class="alignleft btn-group">
-              <a class="btn btn-small" href="{{url_for('users.roles_new')}}"><i class="icon-plus"></i>新建</a>
+              <a class="btn btn-small" href="{{url_for('users.roles_new')}}"><i class="icon-plus"></i>新建角色</a>
               <button class="btn btn-small"><i class="icon-remove"></i>删除</button>
             </div>
           </div>
 
-          <div class="alignleft actions" style="margin-lef:20px;">
-            <form class="form-inline filter-form" action="" method="GET">
-              <input type="text" name="keyword" value="{{keyword}}" class="input-medium input-low" placeholder="关键词">
-              <button type="submit" class="btn btn-small">Filter</button>
+          <div class="alignleft actions">
+            <form class="form-inline filter-form input-append" action="" method="GET">
+              <input type="text" name="keyword" value="{{keyword}}" class="input-low">
+              <button type="submit" class="btn btn-small">检索</button>
             </form>
           </div>
 
