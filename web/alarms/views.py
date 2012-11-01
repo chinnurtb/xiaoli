@@ -313,12 +313,16 @@ def alarm_state_filter(s):
 #==============================================
 #Statistics 
 #==============================================
-@alarmview.route('/alarms/stats/by_severity')
-def stats_by_severity():
+def count_by_severity():
     q = db.session.query(AlarmSeverity, func.count(Alarm.id).label('count'))
     q = q.outerjoin(Alarm, AlarmSeverity.id == Alarm.severity)
     q = q.group_by(AlarmSeverity).order_by(AlarmSeverity.id.desc())
-    data = [{'label': s.alias, 'color': s.color, 'value': c} for s,c in q.all()]
+    return q.all()
+    
+@alarmview.route('/alarms/stats/by_severity')
+def stats_by_severity():
+    data = [{'label': s.alias, 'color': s.color, 'value': c}
+                for s,c in count_by_severity()]
     chartdata = [{'values': data}]
     return render_template('alarms/stats/by_severity.html',
         chartdata=chartdata)

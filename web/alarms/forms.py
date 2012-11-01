@@ -21,11 +21,11 @@ class QueryNewForm(Form):
 
 class AlarmAckForm(Form):
     id              = HiddenField(u'Id')
-    acked_note        = TextAreaField(u'Note', validators=[required(message=u'必填')])
+    acked_note        = TextAreaField(u'确认说明', validators=[required(message=u'必填')])
 
 class AlarmClearForm(Form):
     id              = HiddenField(u'Id')
-    cleared_note    = TextAreaField(u'Note', validators=[required(message=u'必填')])
+    cleared_note    = TextAreaField(u'清除说明', validators=[required(message=u'必填')])
  
 class AlarmClassForm(Form):
     id              = HiddenField(u'Id')

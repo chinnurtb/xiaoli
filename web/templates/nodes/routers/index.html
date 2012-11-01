@@ -36,7 +36,7 @@
                     <input type="hidden" name="orderby" value="login">
                     <input type="hidden" name="order" value="asc">
                     <div class="alignleft btn-group">
-                        <a class="btn btn-small" href="{{ url_for('nodes.routers_new') }}"><i class="icon-plus"></i>添加</a>
+                        <a class="btn btn-small" href="{{ url_for('nodes.routers_new') }}"><i class="icon-plus"></i>添加路由器</a>
                         {% from "_form_h.html" import render_delete_button %}
                         {{ render_delete_button(url_for('nodes.routers_delete'),confirm="路由器") }}
                         <a class="btn btn-small" href="#"><i class="icon-file"></i>模版</a>

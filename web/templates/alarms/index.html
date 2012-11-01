@@ -58,8 +58,6 @@
     </div>
 
     <div class="span10">
-        <form id="alarms-form" class="form-inline" action="/alarms" method="GET">
-
         <ul class="subsubsub">
             <li><a href="/alarms">全部<span class="count">({{total}})</span></a>|</li>
             {% for severity, count in severities %}
@@ -73,21 +71,21 @@
                     <a id="alarm-clear-action" class="btn btn-small" href="#">清除</a>
                 </div>
             </div>
-            <div class="alignleft actions">
+            <div class="alignleft actions" style="margin:0px 20px;">
+                <form id="alarms-form" class="form-inline filter-form" action="/alarms" method="GET">
                 {{ filterForm.alarm_class(class="input-small input-low") }}
                 {{ filterForm.start_date(class="input-small datepicker input-low", placeholder="开始日期",style="margin-bottom:1px;") }}
                 <label for='end_date'>-</label>
                 {{ filterForm.end_date(class="input-small datepicker input-low", placeholder="结束日期",style="margin-bottom:1px;") }}
                 {{ filterForm.keyword(placeholder='告警或节点名称', class="input-low") }}
                 <button type="submit" class="btn btn-small">检索</button>
+                </form>
             </div>
+            <br class="clear">
         </div>
 
         {{ render_table(table) }}
 
-        <br class="clear">
-
-        </form>
 
         <div id="alarm-show-model" class="modal hide" tabindex="-1" role="dialog">
           <div class="modal-header">

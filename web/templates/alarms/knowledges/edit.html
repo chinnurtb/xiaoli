@@ -1,6 +1,6 @@
 {% extends 'layout.html' %}
 
-{% set title 修改告警知识库 %}
+{% set title = '修改告警知识库' %}
 
 {% block head %} 
     <link rel="stylesheet" href="/static/css/alarm.css" type="text/css" media="all">
@@ -17,7 +17,7 @@
         </div>
 
         <div class="span10">
-            <form id="alarm-knowledge-edit-form" class="form-horizontal" action="{{ url_for('alarms.knowledge_edit', id=record.id) }}" method="POST">
+            <form id="alarm-knowledge-edit-form" class="form-horizontal" action="{{ url_for('alarms.knowledges_edit', id=record.id) }}" method="POST">
             <legend>修改告警知识库</legend>
 			{{ form.hidden_tag() }}
             {{ render_field(form.class_id) }}

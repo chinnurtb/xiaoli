@@ -1,9 +1,17 @@
 {% extends 'layout.html' %}
 
-{% set title = 'EOC管理' %}
-
 {% block head %}
-<link rel="stylesheet" href="/static/css/node.css" type="text/css" media="screen" />
+    {{ form.media.render() }}
+    <link rel="stylesheet" href="/static/css/node.css" type="text/css" media="screen" />
+    <script type="text/javascript" src="/static/js/node.js"></script>
+{% endblock %}
+
+{% from "_table_h.html" import render_table, render_screen_meta %}
+
+{% block screen_meta %}
+
+{{ render_screen_meta(table) }}
+
 {% endblock %}
 
 {% block content %}
@@ -14,20 +22,44 @@
         {% include 'nodes/_sidebar.html' %}
     </div>
     <div class="span10">
-        <div class="tablenav top">
-            <div class="alignleft actions">
-                <input type="hidden" name="order_by" value="asc">
-                <div class="alignleft btn-group">
-                    <a class="btn" href="/eocs/new">添加EOC</a>
+        {% include "_alert.html" %}
+        <ul id="status_statistics">
+            {% for status in status_statistcs %}
+                <li class="status-{{ status.status }}">
+                    <a href="{{ url_for('nodes.eocs', status=status.status) }}">{{ status.name }}<span class="count">({{ status.number }})</span></a>
+                </li>
+            {% endfor %}
+        </ul>
+        <form class="form-horizontal" method="GET" action="{{url_for('nodes.eocs')}}" id="search_form">
+            <div class="tablenav top">
+                <div class="alignleft">
+                    <input type="hidden" name="orderby" value="login">
+                    <input type="hidden" name="order" value="asc">
+                    <div class="alignleft btn-group">
+                        <a class="btn btn-small" href="{{ url_for('nodes.eocs_new') }}"><i class="icon-plus"></i>添加EOC</a>
+                        {% from "_form_h.html" import render_delete_button %}
+                        {{ render_delete_button(url_for('nodes.eocs_delete'),confirm="EOC") }}
+                        <a class="btn btn-small" href="#"><i class="icon-file"></i>模版</a>
+                        <a class="btn btn-small" href="#"><i class="icon-upload"></i>导入</a>
+                    </div>
+                </div>
+                <div class="alignleft" style="height: 26px;">
+                        {% set keyword = '名称、别名或IP' %}
+                        <div class="input-append alignleft" style="margin-left: 20px;">
+                            {{ form.name(placeholder=keyword,class="input-low input-medium") }}
+                            <button id="advance_sarch" class="btn btn-small">检索</button>
+                        </div>
+                        <div class="alignleft advance_search" title="高级检索"></div>
+                </div>
+                <div class="pull-right actions">
+                    <a class="btn btn-small" href="#" title="Excel导出"><i class="icon-download-alt"></i></a>
                 </div>
             </div>
-            <div class="alignleft actions">
-                <form class="form-horizontal" method="GET" action="nodes/eocs'" id="eoc_search_form">
-                </form>
-            </div>
-        </div>
-        <form action="" method="POST" id="eocs_form">
-            <div> EOC列表 </div>
+            {% from "_form_h.html" import render_search_form %}
+            {{ render_search_form("{{url_for('nodes.eocs')}}",form.area, form.status, form.vendor_id, form.model_id) }}
+        </form>
+        <form action="" method="POST" id="node_form">
+        {{ render_table(table) }}
         </form>
         <br class="clear">
     </div>

@@ -17,21 +17,21 @@
         </div>
 
         <div class="span10">
-            <form id="alarm-knowledges-query-form" class="form-inline" action="{{ url_for('alarms.knowledges') }}" method="GET">
             <div class="tablenav top">
                 <div class="alignleft actions">
                     <div class="alignleft btn-group">
-                        <a class="btn btn-small" href="{{url_for('alarms.knowledges_new')}}">创建</a>
+                        <a class="btn btn-small" href="{{url_for('alarms.knowledges_new')}}"><i class="icon-plus"></i>新建知识库</a>
                     </div>
                 </div>
-                <div class="alignleft filters input-append">
-                    <input class="input-low" type="text" name="keyword" placeholder="名称" {% if keyword %} value="{{ keyword }}" {% endif %}>
-                    <button type="submit" class="btn btn-small">检索</button>
+                <div class="alignleft filters">
+                    <form id="alarm-knowledges-query-form" class="form-inline filter-form input-append" action="{{ url_for('alarms.knowledges') }}" method="GET">
+                        <input class="input-low" type="text" name="keyword" placeholder="名称" {% if keyword %} value="{{ keyword }}" {% endif %}>
+                        <button type="submit" class="btn btn-small">检索</button>
+                    </form>
                 </div>
+                <br class="clear">
             </div>
             {{ render_table(table) }}
-            <br class="clear">
-            </form>
         </div>
     </div>
 

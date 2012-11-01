@@ -22,6 +22,24 @@ class NodePerf(db.Model):
 
     node        = db.relation('Node')
 
+class BoardPerf(db.Model):
+    '''版卡性能'''
+    
+    __tablename__ = 'perf_board'
+
+    id          = db.Column(db.Integer, primary_key=True)
+    nodeid      = db.Column(db.Integer, db.ForeignKey("nodes.id"))
+    sampletime  = db.Column(db.DateTime)
+    cpuavg      = db.Column(db.Integer)
+    cpumax      = db.Column(db.Integer) 
+    memavg      = db.Column(db.Integer) 
+    memmax      = db.Column(db.Integer) 
+    tempavg     = db.Column(db.Integer) 
+    tempmax     = db.Column(db.Integer) 
+
+    node        = db.relation('Node')
+    
+
 class PortPerf(db.Model):
     '''端口性能'''
 
