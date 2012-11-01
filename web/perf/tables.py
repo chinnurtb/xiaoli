@@ -1,7 +1,7 @@
 # coding: utf-8
 
 from tango.ui import tables as t
-from .models import NodePerf, PortPerf
+from .models import *
 
 __all__ = ['CpuMemTable',
            'PingTable',
