@@ -4,10 +4,10 @@
 import re
 
 from wtforms import validators as v
-from .models import Node, NodeOlt, NODE_STATUS_DICT, Area, Vendor, Model,SNMP_VER_DICT
+from .models import NodeEoc, NodeOlt, NODE_STATUS_DICT, Area, Vendor, Model,SNMP_VER_DICT
 
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
-from flask_wtf import (Form, TextField, DecimalField, IntegerField,NumberRange,SubmitField,RadioField,
+from flask_wtf import (Form, TextField, DecimalField, DateTimeField,NumberRange,SubmitField,RadioField,
                        TextAreaField, ValidationError, required, equal_to, email)
 
 from tango.form.forms import FormPro
@@ -94,7 +94,31 @@ class EocNewForm(FormPro):
     model        = QuerySelectField(u'EOC型号', query_factory=lambda: Model.query.filter(Model.is_valid==1).filter(Model.category_id==50),
         allow_blank=True, blank_text=u'请选择型号',get_label='alias')
     mask            = TextField(u'子网掩码')
-    location        = TextField(u'位置')
+    esn             = TextField(u'ESN')
+    owner           = TextField(u'维护人员')
+    contact_tel     = TextField(u'联系电话')
+    location        = TextField(u'安装地址')
+    install_time    = DateTimeField(u'安装时间')
+    remark          = TextAreaField(u'备注信息')
+
+class CpeNewForm(FormPro):
+    controller_id      = SelectFieldPro(u'所属EOC', validators=[required(message=u'必填')],
+        choices=lambda: [('', u'请选择EOC')] + [(unicode(r.id), r.alias+' <'+r.addr+'>') for r in NodeEoc.query])
+    area_id         = SelectFieldPro(u'接入点', validators=[required(message=u'必填')],
+        choices=lambda: [('', u'请选择接入点')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==4)])
+    name            = TextField(u'CPE名称', validators=[required(message=u'必填')])
+    alias           = TextField(u'CPE别名', validators=[required(message=u'必填')])
+    mac            = TextField(u'MAC地址', validators=[required(message=u'必填')])
+    vendor       = QuerySelectField(u'CPE厂商', query_factory=lambda: Vendor.query.filter(Vendor.is_valid==1),
+        allow_blank=True, blank_text=u'请选择厂商',get_label='alias')
+    model        = QuerySelectField(u'CPE型号', query_factory=lambda: Model.query.filter(Model.is_valid==1).filter(Model.category_id==51),
+        allow_blank=True, blank_text=u'请选择型号',get_label='alias')
+    esn             = TextField(u'ESN')
+    owner           = TextField(u'用户名')
+    card_id         = TextField(u'身份证号')
+    contact_tel     = TextField(u'联系电话')
+    location        = TextField(u'安装地址')
+    install_time    = DateTimeField(u'安装时间')
     remark          = TextAreaField(u'备注信息')
 
 class SwitchNewForm(FormPro):
@@ -164,6 +188,16 @@ class OltSearchForm(FormPro):
         choices=lambda: [('',u'请选择状态')]+NODE_STATUS_DICT.items())
 
 class EocSearchForm(FormPro):
+    name            = TextField(u'IP 地址')
+    area            = AreaSelectField(u'所属区域')
+    vendor_id       = SelectFieldPro(u'生产厂商',
+        choices=lambda: [('', u'请选择生产厂商')] + [(unicode(r.id), r.alias) for r in Vendor.query])
+    model_id        = SelectFieldPro(u'设备型号',
+        choices=lambda: [('', u'请选择设备型号')] + [(unicode(r.id), r.alias) for r in Model.query])
+    status          = SelectFieldPro(u'状态',
+        choices=lambda: [('',u'请选择状态')]+NODE_STATUS_DICT.items())
+
+class CpeSearchForm(FormPro):
     name            = TextField(u'IP 地址')
     area            = AreaSelectField(u'所属区域')
     vendor_id       = SelectFieldPro(u'生产厂商',

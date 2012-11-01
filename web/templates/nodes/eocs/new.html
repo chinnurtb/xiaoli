@@ -54,7 +54,10 @@
             {{ render_field(form.snmp_comm) }}
             {{ render_field(form.snmp_wcomm) }}
             {{ render_radio(form.snmp_ver) }}
-            <legend>其他</legend>
+            <legend>工程信息</legend>
+            {{ render_field(form.owner) }}
+            {{ render_field(form.contact_tel) }}
+            {{ render_field(form.install_time) }}
             {{ render_field(form.location) }}
             {{ render_field(form.remark) }}
 
