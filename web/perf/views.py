@@ -5,13 +5,13 @@ from flask import Blueprint, request, url_for, \
     redirect, render_template, flash, json
 
 from tango.ui import navbar
-from tango.models import db, Category
+from tango.models import db
 from tango.ui.tables import make_table
 
 from .models import NodePerf, PortPerf
 from .tables import NodePerfTable
 
-from .forms import PerfFilterForm, pull_intervals, model_choices
+from .forms import PerfFilterForm, NodePerfFilterForm, pull_intervals, model_choices
 from .tables import *
 
 perfview = Blueprint('perf', __name__, url_prefix="/perf")
@@ -86,9 +86,12 @@ def add_time():
 def node(name):
     menuid = 'node_' + name
     title, model, tblcls, metrics = CONFIG[menuid]
-    
-    form = PerfFilterForm(formdata=request.args)
+
+    form = NodePerfFilterForm(formdata=request.args)
+    # print request.args
+    # print form.data
     form.refresh_choices(request.args)
+    # print form.data
     query = form.filter(model)
     
     table = make_table(query, tblcls)
