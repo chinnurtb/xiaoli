@@ -62,8 +62,8 @@ class MetricTable(tables.Table):
     check   = tables.CheckBoxColumn()
     
     grp    = tables.Column(verbose_name=u'分组')
-    name   = tables.Column(verbose_name=u'名称')
-    alias  = tables.Column(verbose_name=u'显示名')
+    name   = tables.LinkColumn(verbose_name=u'名称', endpoint='system.metrics_edit')
+    alias  = tables.LinkColumn(verbose_name=u'显示名', endpoint='system.metrics_edit')
     calc   = tables.Column(verbose_name=u'计算方法')
     unit   = tables.Column(verbose_name=u'单位')
     format = tables.Column(verbose_name=u'格式')
@@ -71,6 +71,7 @@ class MetricTable(tables.Table):
     
     class Meta():
         model = Metric
+        group_by = 'grp'
 
 class TimePeriodTable(tables.Table):
     helpdoc = u'采集规则'
