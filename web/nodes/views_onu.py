@@ -4,18 +4,22 @@ from datetime import datetime
 
 from flask import Blueprint, request, session, url_for,\
     redirect, render_template, g, flash
-from flask import json
+from flask import json, send_file
+
+from sqlalchemy import or_
 
 from tango import db,user_profile
 from tango.ui.tables import make_table
 from tango.login import current_user, login_required
 from tango.models import Profile, Category
+from tango.excelRW.CsvWriter import CsvWriter
 
 from .models import NodeOnu, NODE_STATUS_DICT, Area, NodeOlt
 from .tables import OnuTable
 from .forms import  OnuSearchForm, OnuNewForm
 from .views import nodeview
 
+@nodeview.route('/nodes/onus.csv/', methods=['GET'])
 @nodeview.route('/nodes/onus/', methods=['GET'])
 @login_required
 def onus():
@@ -24,8 +28,12 @@ def onus():
     query = query.outerjoin(Area, NodeOnu.area_id==Area.id)
 
     query_dict = dict([(key, request.args.get(key))for key in form.data.keys()])
-    if query_dict.get("ip"): query=query.filter(NodeOnu.addr.like('%'+query_dict["ip"]+'%'))         # ilike
-    if query_dict.get("name"): query=query.filter(NodeOnu.name.like('%'+query_dict["name"]+'%'))     # ilike
+    if query_dict.get("name"):
+        query=query.filter(or_(
+            NodeOnu.name.like('%'+query_dict["name"]+'%'),
+            NodeOnu.alias.like('%'+query_dict["name"]+'%'),
+            NodeOnu.addr.like('%'+query_dict["name"]+'%')
+        ))
     if query_dict.get("area"):
         netloc = request.args.get('area_netloc')
         if 'or' in netloc: netloc = '('+netloc+')'
@@ -41,7 +49,12 @@ def onus():
     for status in NODE_STATUS_DICT.keys():
         num = NodeOnu.query.filter(NodeOnu.status == status).count()
         status_statistcs.append({"status": status, "number": num, "name": NODE_STATUS_DICT.get(status)})
-    return render_template('/nodes/onus/index.html', table = table, form=form, status_statistcs=status_statistcs)
+
+    if request.base_url.endswith(".csv/"):
+        writer = CsvWriter('onus',columns=NodeOnu.export_columns())
+        return send_file(writer.write(query,format={'status': lambda value: NODE_STATUS_DICT.get(value)}),as_attachment=True,attachment_filename='onus.csv')
+    else:
+        return render_template('/nodes/onus/index.html', table = table, form=form, status_statistcs=status_statistcs)
 
 @nodeview.route('/nodes/onus/new/', methods=['GET','POST'])
 @login_required
@@ -54,7 +67,7 @@ def onus_new():
         node.category_id = 21
         db.session.add(node)
         db.session.commit()
-        flash(u'添加ONU成功', 'info')
+        flash(u'添加ONU成功', 'success')
         return redirect(url_for('nodes.onus'))
     return render_template('nodes/onus/new.html', form = form)
 
@@ -68,7 +81,7 @@ def onus_edit(id):
         node.updated_at = datetime.now()
         db.session.add(node)
         db.session.commit()
-        flash(u'修改ONU成功','info')
+        flash(u'修改ONU成功','success')
         return redirect(url_for('nodes.onus'))
     form.process(obj=node)
     return render_template('/nodes/onus/edit.html', node=node, form=form)
@@ -81,7 +94,7 @@ def onus_delete():
             node = NodeOnu.query.get(id)
             db.session.delete(node)
         db.session.commit()
-        flash(u'删除ONU成功','info')
+        flash(u'删除ONU成功','success')
         return redirect(url_for('nodes.onus'))
 
 @nodeview.route('/nodes/onus/<int:id>/', methods=['GET'])

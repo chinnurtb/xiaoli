@@ -76,7 +76,7 @@ class OltTable(tables.Table):
     addr = tables.Column(verbose_name=u'IP', orderable=True)
     area_name = tables.Column(verbose_name=u'所属区域', accessor='area.full_name')
     last_check = tables.Column(verbose_name=u'上次同步',orderable=True)
-    onu_count_plan = tables.Column(verbose_name=u'已规划ONU')
+    onu_count_plan = tables.Column(verbose_name=u'ONU数量')
     onu_count_unplan = tables.Column(verbose_name=u'未规划ONU')
 
     class Meta():
@@ -99,13 +99,17 @@ class EocTable(tables.Table):
     model_name = tables.Column(verbose_name=u'型号', orderable=True, accessor='model.alias')
     addr = tables.Column(verbose_name=u'IP', orderable=True)
     area_name = tables.Column(verbose_name=u'所属区域', accessor='area.full_name')
+    onu_name = tables.Column(verbose_name=u'所属ONU', accessor='onu.name')
     last_check = tables.Column(verbose_name=u'上次同步',orderable=True)
-    onu_count_plan = tables.Column(verbose_name=u'已规划EOC终端')
-    onu_count_unplan = tables.Column(verbose_name=u'未规划EOC终端')
+    cpe_count_plan = tables.Column(verbose_name=u'CPE终端数量')
+    cpe_count_unplan = tables.Column(verbose_name=u'未规划CPE终端')
 
     class Meta():
         model = NodeEoc
         per_page = 30
+        url_makers = {
+            'onu_name': lambda record: url_for('nodes.onus_show',id=record.olt.id),
+            }
 
 class SwitchTable(tables.Table):
     edit = tables.Action(name=u'编辑', endpoint='nodes.switches_edit')
@@ -168,11 +172,14 @@ class OnuTable(tables.Table):
     model_name = tables.Column(verbose_name=u'型号', orderable=True, accessor='model.alias')
     mac = tables.Column(verbose_name=u'认证标识',orderable=True)
     olt_border_no = tables.Column(verbose_name=u'OLT板位')
-    olt_name = tables.Column(verbose_name=u'所属OLT', accessor='olt.alias')
+    olt_name = tables.LinkColumn(verbose_name=u'所属OLT', accessor='olt.name')
 
     class Meta():
         model = NodeOnu
         per_page = 30
+        url_makers = {
+            'olt_name': lambda record: url_for('nodes.olts_show',id=record.olt.id),
+            }
 
 class NodeHostTable(tables.Table):
     helpdoc = u'查看所有主机'

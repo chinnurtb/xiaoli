@@ -21,12 +21,17 @@
                 <div class="detail">
                 <table class="table">
                     <tr>
-                        <td  width="17.5%" scope="col">路由器名称:</td>
+                        <td  width="17.5%" scope="col">路由器名称</td>
                         <td width="32.5%">{{ node.name }}</td>
+                        <td  width="17.5%" scope="col">路由器别名</td>
+                        <td>{{ node.alias }}</td>
+                    </tr>
+                    <tr>
+                        <td  width="17.5%" scope="col">路由器状态</td>
+                        <td width="32.5%">{{ node.status_name }}</td>
                         <td  width="17.5%" scope="col">所属接入点</td>
                         <td>{{ node.area.name }}</td>
                     </tr>
-
                     <tr>
                         <td  width="17.5%" scope="col">IP 地址</td>
                         <td>{{ node.addr }}</td>
@@ -34,7 +39,7 @@
                         <td>{{ node.mask }}</td>
                     </tr>
                     <tr>
-                        <td  width="17.5%" scope="col">厂家</td>
+                        <td  width="17.5%" scope="col">厂商</td>
                         <td>{{ node.vendor.alias|ifnull }}</td>
                         <td  width="17.5%" scope="col">型号</td>
                         <td>{{ node.model.alias|ifnull }}</td>
@@ -46,9 +51,9 @@
                         <td>{{ node.snmp_wcomm|ifnull }}</td>
                     </tr>
                     <tr>
-                        <td  width="17.5%" scope="col">所属区域:</td>
+                        <td  width="17.5%" scope="col">所属区域</td>
                         <td>{{ node.area.full_name }}</td>
-                        <td  width="17.5%" scope="col">位置信息:</td>
+                        <td  width="17.5%" scope="col">位置信息</td>
                         <td>{{ node.location }}</td>
                     </tr>
                     <tr>

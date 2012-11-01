@@ -4,18 +4,22 @@ from datetime import datetime
 
 from flask import Blueprint, request, session, url_for,\
     redirect, render_template, g, flash
-from flask import json
+from flask import json,send_file
+
+from sqlalchemy import or_
 
 from tango import db,user_profile
 from tango.ui.tables import make_table
 from tango.login import current_user, login_required
 from tango.models import Profile, Category
+from tango.excelRW.CsvWriter import CsvWriter
 
 from .models import NodeOlt,NODE_STATUS_DICT, Area
 from .tables import OltTable
 from .forms import  OltSearchForm, OltNewForm
 from .views import nodeview
 
+@nodeview.route('/nodes/olts.csv/', methods=['POST', 'GET'])
 @nodeview.route('/nodes/olts/', methods=['POST', 'GET'])
 @login_required
 def olts():
@@ -24,8 +28,12 @@ def olts():
     query = query.outerjoin(Area, NodeOlt.area_id==Area.id)
 
     query_dict = dict([(key, request.args.get(key))for key in form.data.keys()])
-    if query_dict.get("ip"): query=query.filter(NodeOlt.addr.like('%'+query_dict["ip"]+'%'))         # ilike
-    if query_dict.get("name"): query=query.filter(NodeOlt.name.like('%'+query_dict["name"]+'%'))     # ilike
+    if query_dict.get("name"):
+        query=query.filter(or_(
+            NodeOlt.name.like('%'+query_dict["name"]+'%'),
+            NodeOlt.alias.like('%'+query_dict["name"]+'%'),
+            NodeOlt.addr.like('%'+query_dict["name"]+'%')
+        ))
     if query_dict.get("area"):
         netloc = request.args.get('area_netloc')
         if 'or' in netloc: netloc = '('+netloc+')'
@@ -40,7 +48,12 @@ def olts():
     for status in NODE_STATUS_DICT.keys():
         num = NodeOlt.query.filter(NodeOlt.status == status).count()
         status_statistcs.append({"status": status, "number": num, "name": NODE_STATUS_DICT.get(status)})
-    return render_template('/nodes/olts/index.html', table = table, form=form, status_statistcs=status_statistcs)
+
+    if request.base_url.endswith(".csv/"):
+        writer = CsvWriter('olts',columns=NodeOlt.export_columns())
+        return send_file(writer.write(query,format={'status': lambda value: NODE_STATUS_DICT.get(value)}),as_attachment=True,attachment_filename='olts.csv')
+    else:
+        return render_template('/nodes/olts/index.html', table = table, form=form, status_statistcs=status_statistcs)
 
 @nodeview.route('/nodes/olts/new/', methods=['GET','POST'])
 @login_required
@@ -55,7 +68,7 @@ def olts_new():
         node.category_id = 20
         db.session.add(node)
         db.session.commit()
-        flash(u'添加OLT成功', 'info')
+        flash(u'添加OLT成功', 'success')
         return redirect(url_for('nodes.olts'))
     return render_template('nodes/olts/new.html', form = form)
 
@@ -71,7 +84,7 @@ def olts_edit(id):
         node.updated_at = datetime.now()
         db.session.add(node)
         db.session.commit()
-        flash(u'修改OLT成功','info')
+        flash(u'修改OLT成功','success')
         return redirect(url_for('nodes.olts'))
     form.process(obj=node)
     return render_template('/nodes/olts/edit.html', node=node, form=form)
@@ -84,7 +97,7 @@ def olts_delete():
             node = NodeOlt.query.get(id)
             db.session.delete(node)
         db.session.commit()
-        flash(u'删除OLT成功','info')
+        flash(u'删除OLT成功','success')
         return redirect(url_for('nodes.olts'))
 
 @nodeview.route('/nodes/olts/<int:id>/', methods=['GET'])

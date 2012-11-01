@@ -1,7 +1,7 @@
 # coding: utf-8
 
 from flask import (Blueprint, request, url_for, redirect,
-                   render_template, flash)
+                   render_template, flash, json)
 
 from tango import db
 from tango.ui.tables import make_table
@@ -173,7 +173,7 @@ def metrics_new():
         form.populate_obj(metric)
         db.session.add(metric)
         db.session.commit()
-        flash(u'指标 (%s) 添加成功!' % metric.name, 'success')
+        flash(u'指标 (%s) 添加成功!' % metric.alias, 'success')
         return redirect(url_for('system.metrics'))
         
     return render_template('system/metrics/new-edit.html', form=form,
@@ -187,7 +187,7 @@ def metrics_edit(id):
     if form.is_submitted and form.validate_on_submit():
         form.populate_obj(metric)
         db.session.commit()
-        flash(u'指标 (%s) 编辑成功' % metric.name, 'success')
+        flash(u'指标 (%s) 编辑成功' % metric.alias, 'success')
         return redirect(url_for('system.metrics'))
         
     form.process(obj=metric)
@@ -195,6 +195,22 @@ def metrics_edit(id):
                            action=url_for('system.metrics_edit', id=id), title=u'编辑指标')
 
 
+@sysview.route('/metric/delete/<int:id>', methods=['GET', 'POST'])
+def metrics_delete(id):
+    metric = Metric.query.get_or_404(id)
+    if request.method == 'POST':
+        db.session.delete(metric)
+        db.session.commit()
+        flash(u'指标 (%s) 删除成功!' % metric.alias, 'success')
+        return redirect(url_for('system.metrics'))
+        
+    res = {
+        'title': u'删除指标',
+        'body': render_template('system/metrics/delete.html', metric=metric)
+    }
+    return json.dumps(res)
+
+    
 # ==============================================================================
 #  采集规则管理
 # ==============================================================================    

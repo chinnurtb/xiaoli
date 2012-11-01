@@ -4,14 +4,14 @@ from datetime import datetime
 
 from flask import Blueprint, request, session, url_for,\
     redirect, render_template, g, flash
-from flask import json
+from flask import json,send_file
+
+from sqlalchemy import or_
 
 from tango import db,user_profile
 from tango.ui.tables import make_table
 from tango.login import current_user, login_required
 from tango.models import Profile, Category
-
-from flask import send_file
 from tango.excelRW.CsvWriter import CsvWriter
 
 from .models import NodeSwitch,NODE_STATUS_DICT, Area
@@ -19,8 +19,8 @@ from .tables import SwitchTable
 from .forms import  SwitchSearchForm, SwitchNewForm
 from .views import nodeview
 
-@nodeview.route('/nodes/switches/', methods=['POST', 'GET'])
 @nodeview.route('/nodes/switches.csv/', methods=['POST', 'GET'])
+@nodeview.route('/nodes/switches/', methods=['POST', 'GET'])
 @login_required
 def switches():
     form = SwitchSearchForm()
@@ -28,8 +28,12 @@ def switches():
     query = query.outerjoin(Area, NodeSwitch.area_id==Area.id)
 
     query_dict = dict([(key, request.args.get(key))for key in form.data.keys()])
-    if query_dict.get("ip"): query=query.filter(NodeSwitch.addr.like('%'+query_dict["ip"]+'%'))         # ilike
-    if query_dict.get("name"): query=query.filter(NodeSwitch.name.like('%'+query_dict["name"]+'%'))     # ilike
+    if query_dict.get("name"):
+        query=query.filter(or_(
+            NodeSwitch.name.like('%'+query_dict["name"]+'%'),
+            NodeSwitch.alias.like('%'+query_dict["name"]+'%'),
+            NodeSwitch.addr.like('%'+query_dict["name"]+'%')
+        ))
     if query_dict.get("area"):
         netloc = request.args.get('area_netloc')
         if 'or' in netloc: netloc = '('+netloc+')'
@@ -40,15 +44,16 @@ def switches():
     form.process(**query_dict)
     table = make_table(query, SwitchTable)
 
-    if request.url.endswith(".csv/"):
-        writer = CsvWriter('switches',columns=NodeSwitch.export_columns())
-        return send_file(writer.write(query,True,format={'status': lambda value: NODE_STATUS_DICT.get(value)}),as_attachment=True,attachment_filename='switches.csv')
-
     status_statistcs = []
     for status in NODE_STATUS_DICT.keys():
         num = NodeSwitch.query.filter(NodeSwitch.status == status).count()
         status_statistcs.append({"status": status, "number": num, "name": NODE_STATUS_DICT.get(status)})
-    return render_template('/nodes/switches/index.html', table = table, form=form, status_statistcs=status_statistcs)
+
+    if request.base_url.endswith(".csv/"):
+        writer = CsvWriter('switches',columns=NodeSwitch.export_columns())
+        return send_file(writer.write(query,format={'status': lambda value: NODE_STATUS_DICT.get(value)}),as_attachment=True,attachment_filename='switches.csv')
+    else:
+        return render_template('/nodes/switches/index.html', table = table, form=form, status_statistcs=status_statistcs)
 
 @nodeview.route('/nodes/switches/new/', methods=['GET','POST'])
 @login_required
@@ -63,7 +68,7 @@ def switches_new():
         node.category_id = 2
         db.session.add(node)
         db.session.commit()
-        flash(u'添加交换机成功', 'info')
+        flash(u'添加交换机成功', 'success')
         return redirect(url_for('nodes.switches'))
     return render_template('nodes/switches/new.html', form = form)
 
@@ -79,7 +84,7 @@ def switches_edit(id):
         node.updated_at = datetime.now()
         db.session.add(node)
         db.session.commit()
-        flash(u'修改交换机成功','info')
+        flash(u'修改交换机成功','success')
         return redirect(url_for('nodes.switches'))
     form.process(obj=node)
     return render_template('/nodes/switches/edit.html', node=node, form=form)
@@ -92,7 +97,7 @@ def switches_delete():
             node = NodeSwitch.query.get(id)
             db.session.delete(node)
         db.session.commit()
-        flash(u'删除交换机成功','info')
+        flash(u'删除交换机成功','success')
         return redirect(url_for('nodes.switches'))
 
 @nodeview.route('/nodes/switches/<int:id>/', methods=['GET'])

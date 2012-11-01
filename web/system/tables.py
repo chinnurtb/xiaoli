@@ -1,6 +1,7 @@
 # coding: utf-8
 
 from tango.ui import tables
+from tango.ui.tables.utils import Attrs
 from tango.models import Setting, DictCode
 
 from nodes import constants
@@ -59,6 +60,7 @@ class ThresholdTable(tables.Table):
 class MetricTable(tables.Table):
     helpdoc = u'指标管理'
     edit    = tables.Action(name=u'编辑', endpoint='system.metrics_edit')
+    delete  = tables.Action(name=u'删除', endpoint='system.metrics_delete', attrs=Attrs(a={"class": "delete-btn"}))
     check   = tables.CheckBoxColumn()
     
     grp    = tables.Column(verbose_name=u'分组')

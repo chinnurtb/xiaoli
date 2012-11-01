@@ -24,17 +24,17 @@
                 <div class="detail">
                 <table class="table">
                     <tr>
-                        <td  width="17.5%" scope="col">节点名称:</td>
+                        <td  width="17.5%" scope="col">EOC名称</td>
                         <td width="32.5%">{{ node.name }}</td>
-                        <td  width="17.5%" scope="col">节点别名</td>
+                        <td  width="17.5%" scope="col">EOC别名</td>
                         <td>{{ node.alias }}</td>
                     </tr>
 
                     <tr>
-                        <td  width="17.5%" scope="col">节点状态</td>
+                        <td  width="17.5%" scope="col">EOC状态</td>
                         <td>{{ node.status_name }}</td>
-                        <td  width="17.5%" scope="col">节点类型</td>
-                        <td>{{ node.category.alias }}</td>
+                        <td width="17.5%" scope="col">状态信息</td>
+                        <td>{{ node.summary|ifnull }}</td>
                     </tr>
                     <tr>
                         <td  width="17.5%" scope="col">IP 地址</td>
@@ -49,16 +49,16 @@
                         <td>{{ node.mask|ifnull }}</td>
                     </tr>
                     <tr>
-                        <td  width="17.5%" scope="col">所属区域:</td>
+                        <td  width="17.5%" scope="col">所属区域</td>
                         <td>{{ node.area.full_name }}</td>
-                        <td  width="17.5%" scope="col">位置信息:</td>
+                        <td  width="17.5%" scope="col">位置信息</td>
                         <td>{{ node.location }}</td>
                     </tr>
                     <tr>
-                        <td width="17.5%" scope="col">状态信息</td>
-                        <td>{{ node.summary|ifnull }}</td>
                         <td width="17.5%" scope="col">上次同步</td>
                         <td>{{ node.last_check|ifnull }}</td>
+                        <td width="17.5%" scope="col">备注信息</td>
+                        <td>{{ node.remark|ifnull }}</td>
                     </tr>
                 </table>
               </div>
@@ -73,7 +73,6 @@
             <ul class="nav nav-tabs">
                 <li class="active"><a href="#basic_info" data-toggle="tab">流量图</a></li>
                 <li><a href="#snmp_info" data-toggle="tab">运行信息</a></li>
-                <li><a href="#board_info" data-toggle="tab">板卡信息</a></li>
                 <li><a href="#port_info" data-toggle="tab">端口信息</a></li>
             </ul>
             <div class="tab-content" >
@@ -96,73 +95,23 @@
                             <td>{{ node.snmp_ver|ifnull }}</td>
                         </tr>
                         <tr>
-                            <td width="17.5%" scope="col">维护人员</td>
-                            <td>{{ node.owner|ifnull }}</td>
-                            <td width="17.5%" scope="col">SNMP OID</td>
-                            <td>{{ node.sysoid|ifnull }}</td>
-                        </tr>
-                        <tr>
-                            <td width="17.5%" scope="col">CPU利用率</td>
+                            <td width="17.5%" scope="col">硬件版本</td>
                             <td></td>
-                            <td width="17.5%" scope="col">内存利用率</td>
+                            <td width="17.5%" scope="col">软件版本</td>
                             <td></td>
                         </tr>
                         <tr>
-                            <td width="17.5%" scope="col">设备温度</td>
+                            <td width="17.5%" scope="col">工作模式</td>
                             <td></td>
-                            <td width="17.5%" scope="col">运行时间</td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <td width="17.5%" scope="col">PON口数量</td>
-                            <td></td>
-                            <td width="17.5%" scope="col">ONU数量</td>
+                            <td width="17.5%" scope="col">无线信道</td>
                             <td></td>
                         </tr>
-                    </table>
-                </div>
-                <div id="board_info" class="tab-pane" style="height: auto; ">
-                    <table class="table table-hover">
-                        <thead>
                         <tr>
-                            <th>槽位</th>
-                            <th>板卡类型</th>
-                            <th>板卡状态</th>
-                            <th>CPU负载</th>
-                            <th>内存占用</th>
-                            <th>硬件版本</th>
-                            <th>软件版本</th>
+                            <td width="17.5%" scope="col">所属ONU</td>
+                            <td>{{ node.onu.name }}</td>
+                            <td width="17.5%" scope="col">CPE数量</td>
+                            <td></td>
                         </tr>
-                        </thead>
-                        <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td>Mark</td>
-                            <td>Otto</td>
-                            <td>@mdo</td>
-                            <td>Otto</td>
-                            <td>@mdo</td>
-                            <td>@mdo</td>
-                        </tr>
-                        <tr>
-                            <td>2</td>
-                            <td>Jacob</td>
-                            <td>Thornton</td>
-                            <td>@fat</td>
-                            <td>Otto</td>
-                            <td>@mdo</td>
-                            <td>@mdo</td>
-                        </tr>
-                        <tr>
-                            <td>3</td>
-                            <td>Larry the Bird</td>
-                            <td>@twitter</td>
-                            <td>Otto</td>
-                            <td>@mdo</td>
-                            <td>@mdo</td>
-                            <td>@mdo</td>
-                        </tr>
-                        </tbody>
                     </table>
                 </div>
                 <div id="port_info" class="tab-pane">

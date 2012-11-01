@@ -4,18 +4,22 @@ from datetime import datetime
 
 from flask import Blueprint, request, session, url_for,\
     redirect, render_template, g, flash
-from flask import json
+from flask import json, send_file
+
+from sqlalchemy import or_
 
 from tango import db,user_profile
 from tango.ui.tables import make_table
 from tango.login import current_user, login_required
 from tango.models import Profile, Category
+from tango.excelRW.CsvWriter import CsvWriter
 
 from .models import NodeEoc,NODE_STATUS_DICT, Area
 from .tables import EocTable
 from .forms import  EocSearchForm, EocNewForm
 from .views import nodeview
 
+@nodeview.route('/nodes/eocs.csv/', methods=['POST', 'GET'])
 @nodeview.route('/nodes/eocs/', methods=['POST', 'GET'])
 @login_required
 def eocs():
@@ -24,8 +28,12 @@ def eocs():
     query = query.outerjoin(Area, NodeEoc.area_id==Area.id)
 
     query_dict = dict([(key, request.args.get(key))for key in form.data.keys()])
-    if query_dict.get("ip"): query=query.filter(NodeEoc.addr.like('%'+query_dict["ip"]+'%'))         # ilike
-    if query_dict.get("name"): query=query.filter(NodeEoc.name.like('%'+query_dict["name"]+'%'))     # ilike
+    if query_dict.get("name"):
+        query=query.filter(or_(
+            NodeEoc.name.like('%'+query_dict["name"]+'%'),
+            NodeEoc.alias.like('%'+query_dict["name"]+'%'),
+            NodeEoc.addr.like('%'+query_dict["name"]+'%')
+        ))
     if query_dict.get("area"):
         netloc = request.args.get('area_netloc')
         if 'or' in netloc: netloc = '('+netloc+')'
@@ -40,7 +48,12 @@ def eocs():
     for status in NODE_STATUS_DICT.keys():
         num = NodeEoc.query.filter(NodeEoc.status == status).count()
         status_statistcs.append({"status": status, "number": num, "name": NODE_STATUS_DICT.get(status)})
-    return render_template('/nodes/eocs/index.html', table = table, form=form, status_statistcs=status_statistcs)
+
+    if request.base_url.endswith(".csv/"):
+        writer = CsvWriter('eocs',columns=NodeEoc.export_columns())
+        return send_file(writer.write(query,format={'status': lambda value: NODE_STATUS_DICT.get(value)}),as_attachment=True,attachment_filename='eocs.csv')
+    else:
+        return render_template('/nodes/eocs/index.html', table = table, form=form, status_statistcs=status_statistcs)
 
 @nodeview.route('/nodes/eocs/new/', methods=['GET','POST'])
 @login_required

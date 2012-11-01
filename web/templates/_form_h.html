@@ -154,6 +154,7 @@
   <form id="perf-filter-form" class="form-inline filter-form">
     {{ form.sampletime(size="6", class="input-small") }}
     {{ form.intervals(multiple="true", size="6", class="input-small") }}
+    {% if form.categories is defined %} {{ form.categories() }} {% endif %}
     {{ form.vendors(multiple="true", size="6", class="input-small") }}
     {{ form.models(multiple="true", size="6", class="input-small") }}
     
@@ -265,25 +266,6 @@
             $("#advance_search").click(function() {
                 search_form = $("#search_form");
                 search_form.attr("action","{{ url }}").submit();
-            })
-        })
-    </script>
-{% endmacro %}
-
-{% macro render_delete_button(url,id="delete_btn", form_id="node_form", confirm="节点",class="btn btn-small",icon="icon-remove") %}
-    <a class="{{ class }}" href="{{ url }}" id="{{ id }}"><i class="{{ icon }}"></i>删除</a>
-    <script type="text/javascript">
-        $(function(){
-            $("#"+"{{ id }}").click(function() {
-                var ids = $("#"+"{{ form_id }}").find("input[name^=id]:checked");;
-                if(ids.length > 0){
-                    if(confirm("确认删除这些{{ confirm }}?")) {
-                        $("#"+"{{ form_id }}").attr("action","{{ url }}").submit();
-                    }
-                }else{
-                    alert("请选择{{ confirm }}");
-                }
-                return false;
             })
         })
     </script>

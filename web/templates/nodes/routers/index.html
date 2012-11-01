@@ -4,6 +4,21 @@
     {{ form.media.render() }}
     <link rel="stylesheet" href="/static/css/node.css" type="text/css" media="screen" />
     <script type="text/javascript" src="/static/js/node.js"></script>
+    <script type="text/javascript">
+        $(function(){
+            $("#delete_btn").click(function() {
+                var ids = $("#node_form").find("input[name^=id]:checked");;
+                if(ids.length > 0){
+                    if(confirm("确认删除这些路由器?")) {
+                        $("#node_form").attr("action","{{ url_for('nodes.routers_delete') }}").submit();
+                    }
+                }else{
+                    alert("请选择路由器");
+                }
+                return false;
+            })
+        })
+    </script>
 {% endblock %}
 
 {% from "_table_h.html" import render_table, render_screen_meta %}
@@ -36,10 +51,9 @@
                     <input type="hidden" name="orderby" value="login">
                     <input type="hidden" name="order" value="asc">
                     <div class="alignleft btn-group">
-                        <a class="btn btn-small" href="{{ url_for('nodes.routers_new') }}"><i class="icon-plus"></i>添加路由器</a>
-                        {% from "_form_h.html" import render_delete_button %}
-                        {{ render_delete_button(url_for('nodes.routers_delete'),confirm="路由器") }}
-                        <a class="btn btn-small" href="#"><i class="icon-file"></i>模版</a>
+                        <a class="btn btn-small" href="{{ url_for('nodes.routers_new') }}"><i class="icon-plus"></i>添加</a>
+                        <a class="btn btn-small" href="#" id="delete_btn"><i class="icon-remove"></i>删除</a>
+                        <a class="btn btn-small" href="/static/file/template/routers.csv"><i class="icon-file"></i>模版</a>
                         <a class="btn btn-small" href="#"><i class="icon-upload"></i>导入</a>
                     </div>
                 </div>
@@ -52,7 +66,7 @@
                         <div class="alignleft advance_search" title="高级检索"></div>
                 </div>
                 <div class="pull-right actions">
-                    <a class="btn btn-small" href="#" title="Excel导出"><i class="icon-download-alt"></i></a>
+                    <a class="btn btn-small" href="{{ request.url|replace('routers','routers.csv') }}" title="Excel导出"><i class="icon-download-alt"></i></a>
                 </div>
             </div>
             {% from "_form_h.html" import render_search_form %}

@@ -25,7 +25,7 @@ class TableData(object):
         cls = accessor.comparator.property.argument()
         attr = getattr(cls, chains[1])
         order_func = getattr(attr, order)
-        return cls, order_func()
+        return cls, order_func() # Node, Node.name.desc()
 
 
     def ordering(self, order_by):
@@ -49,11 +49,6 @@ class TableData(object):
              self.queryset = self.queryset.order_by(a.resolve(model))
 
              
-    def grouping(self):
-        """ 对表的数据进行分组 """
-        pass
-            
-            
     def paginate(self, page, per_page):
         if hasattr(self.queryset, 'paginate') and callable(self.queryset.paginate):
             self.page_obj = self.queryset.paginate(page=self.table.page,per_page=self.table.per_page)
