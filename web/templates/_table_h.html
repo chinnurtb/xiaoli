@@ -83,7 +83,7 @@
     <tfoot>
 	<tr>
 	    {% for column in table.columns %}
-        {{ render_column(column, table.page_url, table.page_obj.page) }}
+            {{ render_column(column, table.page_url, table.page_obj.page) }}
 	    {% endfor %}
 	</tr>
     </tfoot>
@@ -207,7 +207,8 @@
     $actions = $('.row-actions a');
     var types = {{ types|safe }};
     for (var t in types){
-        $actions.filter('.' + types[t]).on('click', function(){
+        
+        $actions.filter('.' + types[t] + '-btn').on('click', function(){
             $.ajax({
                 type: 'GET',
                 dateType: 'json',
@@ -224,6 +225,7 @@
         });
     }
     </script>
+    
 {% endmacro %}
 
 

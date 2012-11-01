@@ -17,7 +17,7 @@ __all__ = ['Column', 'EnumColumn', 'CheckBoxColumn', 'BaseLinkColumn', 'LinkColu
 class Column(object):
     creation_counter = 0
 
-    def __init__(self, attrs=None, accessor=None,
+    def __init__(self, attrs=None, accessor=None, subcolumns=None,
                  verbose_name=None, orderable=None, ifnull=None):
         if not (accessor is None or isinstance(accessor, basestring) or
                 callable(accessor)):
@@ -28,6 +28,7 @@ class Column(object):
         self.accessor = A(accessor) if accessor else None
 
         self.verbose_name = verbose_name
+        self.subcolumns = subcolumns
         self.orderable = orderable
         self.ifnull = ifnull
 
@@ -251,11 +252,15 @@ class BoundColumn(object):
             return column_header
 
         verbose_name = self.verbose_name
+        if self.column.subcolumns:
+            verbose_name += '<br />(%s)' % ('/'.join([field_name for name, field_name \
+                                                      in self.column.subcolumns]))
         return Markup(title(verbose_name))
 
 
     @property
     def accessor(self):
+        """ Name or accessor"""
         return self.column.accessor or A(self.name)
 
 

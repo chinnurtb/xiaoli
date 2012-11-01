@@ -11,7 +11,7 @@
 
 {% endblock %}
 
-{% from "_table_h.html" import render_table, render_screen_meta %}
+{% from "_table_h.html" import render_table, render_screen_meta, render_modal %}
 
 {% block screen_meta %} {{ render_screen_meta(table) }} {% endblock %}
 
@@ -39,6 +39,7 @@
           </div>
           
           {{ render_table(table) }}
+          {{ render_modal(['delete']) }}
         </div>
     </div>
 {% endblock %}

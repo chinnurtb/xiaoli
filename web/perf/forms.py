@@ -121,7 +121,8 @@ class PerfFilterForm(Form):
         vendor_ids = [v.id for v in self.vendors.data] if self.vendors.data else []
         # the same as intervals
         model_ids = [m.id for m in self.models.data]
-        category_ids = [c.id for c in self.categories.data] if self.categories.data else []
+        category_ids = [c.id for c in self.categories.data] if \
+                       hasattr(self, 'categories') and self.categories.data else []
         
         # print '========================================'
         # print 'self.sampletime.data::', sampletime
@@ -151,4 +152,4 @@ class PerfFilterForm(Form):
 
 class NodePerfFilterForm(PerfFilterForm):
     categories  = QuerySelectMultipleFieldFix(u'分类', query_factory=lambda: Category.query.filter_by(obj='node'),
-                                              get_label='alias', allow_blank=True, blank_text=u'全部类别', default=[u'__None'])
+                                              get_label='alias', allow_blank=True, blank_text=u'全部类别')

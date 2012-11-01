@@ -21,12 +21,13 @@ class CpuMemTable(NodeMixin):
 
     helpdoc = u"CPU内存占用"
 
-    cpuavg      = t.Column(verbose_name=u'CPU利用率(均值)')
-    cpumax      = t.Column(verbose_name=u'CPU利用率(峰值)')
-    tempavg     = t.Column(verbose_name=u'温度(均值)')
-    tempmax     = t.Column(verbose_name=u'温度(峰值)')
-    powerstate  = t.Column(verbose_name=u'电源状态')
-    fanstate    = t.Column(verbose_name=u'风扇状态')
+    cpu_use    = t.Column(verbose_name=u'CPU利用率', subcolumns=[(u'均值', 'cpuavg'), (u'峰值', 'cpumax')])
+    cpuavg     = t.Column(verbose_name=u'CPU利用率(均值)')
+    cpumax     = t.Column(verbose_name=u'CPU利用率(峰值)')
+    tempavg    = t.Column(verbose_name=u'温度(均值)')
+    tempmax    = t.Column(verbose_name=u'温度(峰值)')
+    powerstate = t.Column(verbose_name=u'电源状态')
+    fanstate   = t.Column(verbose_name=u'风扇状态')
 
     class Meta():
         model = NodePerf
@@ -120,7 +121,3 @@ class PonPowerTable(t.Table):
     class Meta():
         model = PortPerf
     
-
-
-
-

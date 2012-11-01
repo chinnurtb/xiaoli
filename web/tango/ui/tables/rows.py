@@ -49,10 +49,16 @@ class BoundRow(object):
         bound_column = self.table.columns[name]
         #value = getattr(self.record, name, '')
         value = None
-        try:
-            value = bound_column.accessor.resolve(self.record)
-        except ValueError:
-            pass
+        if bound_column.column.subcolumns:
+            subvalues = []
+            for name, field_name in bound_column.column.subcolumns:
+                subvalues.append(A(field_name).resolve(self.record))
+            value = '/'.join(subvalues)
+        elif name not in ['check']:
+            try:
+                value = bound_column.accessor.resolve(self.record)
+            except ValueError, e:
+                print e
 
         kwargs = {
             'value':            lambda: value,
