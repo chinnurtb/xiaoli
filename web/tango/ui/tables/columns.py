@@ -115,7 +115,7 @@ class BaseLinkColumn(Column):
                           % type(attrs).__name__, DeprecationWarning)
             attrs = Attrs(a=attrs)
         kwargs[b'attrs'] = attrs
-        super(BaseLinkColumn, self).__init__(*args, **kwargs)
+        super(BaseLinkColumn, self).__init__(verbose_name, *args, **kwargs)
 
     def render_link(self, uri, text, attrs=None):
         attrs = AttributeDict(attrs if attrs is not None else
@@ -167,55 +167,6 @@ class LinkColumn(BaseLinkColumn):
 class EmailColumn(BaseLinkColumn):
     def render(self, value):
         return self.render_link("mailto:%s" % value, value)
-
-
-# class ButtonColumn(BaseLinkColumn):
-#     def __init__(self, endpoint=None, icon_type=None, attrs=None, **extra):
-#         if endpoint is None:
-#             raise ValueError('An endpoint must be given')
-#         self.endpoint = endpoint
-
-#         default_attrs = Attrs(th={'style': 'width:2.0em;'})
-
-#         attrs = attrs or Attrs()
-#         if not isinstance(attrs, Attrs):
-#             warnings.warn('attrs must be Attrs object, not %s'
-#                           % type(attrs).__name__, DeprecationWarning)
-#             attrs = Attrs(a=attrs)
-#         attrs.update(default_attrs)
-
-#         danger_btns = ('trash', 'remove')
-#         self.icon_type = icon_type
-#         self.btn_class = 'btn btn-mini'
-#         self.icon_class = 'icon-' + self.icon_type
-#         if self.icon_type in danger_btns:
-#             self.btn_class += ' btn-danger'
-#             self.icon_class += ' icon-white'
-
-#         super(ButtonColumn, self).__init__(attrs, **extra)
-
-
-#     @property
-#     def header(self):
-#         return u''
-
-#     def render(self, value, record, bound_column):
-#         uri = url_for(self.endpoint, id=getattr(record, 'id', None))
-#         attrs = AttributeDict({'class': self.btn_class})
-#         content = Markup(u'<i class="%s"></i>' % self.icon_class)
-#         return self.render_link(uri, content, attrs)
-
-
-# class EditBtnColumn(ButtonColumn):
-#     def __init__(self, endpoint=None, attrs=None, **extra):
-#         super(EditBtnColumn, self).__init__(endpoint, icon_type='pencil', **extra)
-
-
-# class DeleteBtnColumn(ButtonColumn):
-#     def __init__(self, endpoint=None, attrs=None, **extra):
-#         super(DeleteBtnColumn, self).__init__(endpoint, icon_type='remove', **extra)
-#         self.btn_class += ' btn-danger'
-#         self.icon_class += ' icon-white'
 
 
 class DateTimeColumn(Column):

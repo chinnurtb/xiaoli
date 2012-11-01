@@ -9,10 +9,9 @@ from tango.models import db
 from tango.ui.tables import make_table
 
 from .models import *
-from .tables import NodePerfTable
-
-from .forms import PerfFilterForm, NodePerfFilterForm, pull_intervals, model_choices
 from .tables import *
+from .forms import PerfFilterForm, NodePerfFilterForm, pull_intervals, model_choices
+
 
 perfview = Blueprint('perf', __name__, url_prefix="/perf")
 
@@ -54,15 +53,23 @@ def ajax_refresh_models():
 # }
 
 
-@perfview.route('/ping/')
+@perfview.route('/node/ping/')
 def ping():
-    pass
-
-@perfview.route('/cpumem/')
-def cpumen():
-    pass
-
+    form = NodePerfFilterForm(formdata=request.args)
+    form.refresh_choices(request.args)
+    query = form.filter(PingPerf)
+    table = make_table(query, PingTable)
     
+    kwargs = {
+        'menuid': 'ping',
+        'name': 'ping',
+        'title': u'PING延时',
+        'table': table,
+        'filterForm': form
+    }
+    return render_template('/perf/node/index.html', **kwargs)
+
+
 # @perfview.route('/node/<name>')
 # def node(name):
 #     menuid = 'node_' + name
@@ -184,15 +191,16 @@ def add_time():
         hour = rand.randint(0, 23)
         minute = rand.randint(0, 59)
         dt = datetime(year, month, day, hour, minute)
-        node_perf = PortPerf()
-        node_perf.sampletime = dt
-        node_perf.sampleyear = year
-        node_perf.samplemonth = month
-        node_perf.sampleday = day
-        node_perf.sampleweekday = dt.weekday()
-        node_perf.samplehour = hour
-        node_perf.nodeid = 104
-        db.session.add(node_perf)
+        
+        obj = PingPerf()
+        obj.sampletime = dt
+        obj.sampleyear = year
+        obj.samplemonth = month
+        obj.sampleday = day
+        obj.sampleweekday = dt.weekday()
+        obj.samplehour = hour
+        obj.nodeid = 104
+        db.session.add(obj)
     db.session.commit()
     return 'OK: ' + str(num)
 

@@ -3,8 +3,7 @@
 from tango.ui import tables as t
 from .models import *
 
-__all__ = ['NodePerfTable',
-           'CpuMemTable',
+__all__ = ['CpuMemTable',
            'PingTable',
            'IntfUsageTable',
            'IntfTrafficPerfTable',
@@ -15,31 +14,18 @@ class NodeMixin():
     sampletime      = t.Column(u'时间')
 
     
-class PingTable(t.Table):
-
-    node_alias = t.Column(u'节点', accessor='node.alias')
-    sampletime = t.Column(u'时间')
-    pingrta    = t.Column(u'平均时延(ms)', orderable=True)
-    pingrtmax  = t.Column(u'最大时延(ms)', orderable=True)
-    pingrtmin  = t.Column(u'最小时延(ms)', orderable=True)
-    pingloss   = t.Column(u'丢包率(%)', orderable=True)
-    pingstdev  = t.Column(u'抖动率', orderable=True)
+class PingTable(t.Table, NodeMixin):
+    rta      = t.Column(u'平均时延(ms)', orderable=True)
+    rtmax    = t.Column(u'最大时延(ms)', orderable=True)
+    rtmin    = t.Column(u'最小时延(ms)', orderable=True)
+    lossavg  = t.Column(u'平均丢包率(%)', orderable=True)
+    lossmax  = t.Column(u'最大丢包率(%)', orderable=True)
+    stdevavg = t.Column(u'平均抖动率', orderable=True)
+    stdevmax = t.Column(u'最大抖动率', orderable=True)
     
     class Meta():
         model = PingPerf
     
-class NodePerfTable(t.Table):
-
-    node_alias = t.Column(u'节点', accessor='node.alias')
-    sampletime = t.Column(u'时间')
-    pingrta    = t.Column(u'平均时延(ms)', orderable=True)
-    pingrtmax  = t.Column(u'最大时延(ms)', orderable=True)
-    pingrtmin  = t.Column(u'最小时延(ms)', orderable=True)
-    pingloss   = t.Column(u'丢包率(%)', orderable=True)
-    pingstdev  = t.Column(u'抖动率', orderable=True)
-    
-    class Meta():
-        model = PingPerf
         
 class CpuMemTable(t.Table, NodeMixin):
 
