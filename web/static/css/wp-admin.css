@@ -732,7 +732,7 @@ kbd, code {
     width: 2.2em;
 }
 .widefat tbody th.check-column {
-    padding: 9px 0 22px;
+    padding: 9px 0 9px; /* 22px; */
 }
 .widefat .num, .column-comments, .column-links, .column-posts {
     text-align: center;
