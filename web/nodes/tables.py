@@ -7,7 +7,7 @@ from tango.ui import tables
 from tango.ui.tables.utils import Attrs
 
 from nodes import constants
-from .models import Node, NodeSwitch, NodeRouter, NodeOlt, NodeOnu, NodeEoc, Board, Port, NodeHost, NODE_STATUS_DICT,Area
+from .models import Node, NodeSwitch, NodeRouter, NodeOlt, NodeOnu, NodeEoc, NodeCpe, Board, Port, NodeHost, NODE_STATUS_DICT,Area
 
 redirct_dict = {
     1:"routers",
@@ -21,7 +21,7 @@ redirct_dict = {
     41:"fataps",
     42:"fitaps",
     50:"eocs",
-    60:"cpes",
+    51:"cpes",
     90:"hosts",
 }
 
@@ -110,6 +110,30 @@ class EocTable(tables.Table):
         url_makers = {
             'onu_name': lambda record: url_for('nodes.onus_show',id=record.olt.id),
             }
+
+class CpeTable(tables.Table):
+    edit = tables.Action(name=u'编辑', endpoint='nodes.cpes_edit')
+    delete = tables.Action(name=u'删除', endpoint='nodes.cpes_delete',attrs=Attrs(a={"class": "delete"}))
+    check = tables.CheckBoxColumn()
+    status = tables.EnumColumn(
+        verbose_name=u'状态',
+        name='state',
+        enums=NODE_STATUS_DICT,
+        orderable=True
+    )
+    name = tables.LinkColumn(endpoint='nodes.cpes_show',verbose_name=u'名称',orderable=True)
+    alias = tables.Column(verbose_name=u'别名',orderable=True)
+    vendor_name = tables.Column(verbose_name=u'厂商', orderable=True, accessor='vendor.alias')
+    model_name = tables.Column(verbose_name=u'型号', orderable=True, accessor='model.alias')
+    mac = tables.Column(verbose_name=u'Mac地址', orderable=True)
+    area_name = tables.Column(verbose_name=u'所属区域', accessor='area.full_name')
+    eoc_name = tables.Column(verbose_name=u'所属EOC', accessor='eoc.name')
+    last_check = tables.Column(verbose_name=u'上次同步',orderable=True)
+
+    class Meta():
+        model = NodeCpe
+        per_page = 30
+
 
 class SwitchTable(tables.Table):
     edit = tables.Action(name=u'编辑', endpoint='nodes.switches_edit')
@@ -259,7 +283,7 @@ class CityTable(tables.Table):
             'fitap_count': lambda record: url_for('nodes.nodes', area=record.name, area_netloc='areas.cityid='+str(record.id), area_selected=record.id),
             'dslam_count': lambda record: url_for('nodes.nodes', area=record.name, area_netloc='areas.cityid='+str(record.id), area_selected=record.id),
             'eoc_count': lambda record: url_for('nodes.eocs', area=record.name, area_netloc='areas.cityid='+str(record.id), area_selected=record.id),
-            'cpe_count':lambda record: url_for('nodes.nodes', area=record.name, area_netloc='areas.cityid='+str(record.id), area_selected=record.id),
+            'cpe_count':lambda record: url_for('nodes.cpes', area=record.name, area_netloc='areas.cityid='+str(record.id), area_selected=record.id),
             }
 
 class TownTable(tables.Table):
@@ -301,7 +325,7 @@ class TownTable(tables.Table):
             'fitap_count': lambda record: url_for('nodes.nodes', area=record.name, area_netloc='areas.town='+str(record.id), area_selected=record.id),
             'dslam_count': lambda record: url_for('nodes.nodes', area=record.name, area_netloc='areas.town='+str(record.id), area_selected=record.id),
             'eoc_count': lambda record: url_for('nodes.eocs', area=record.name, area_netloc='areas.town='+str(record.id), area_selected=record.id),
-            'cpe_count':lambda record: url_for('nodes.nodes', area=record.name, area_netloc='areas.town='+str(record.id), area_selected=record.id),
+            'cpe_count':lambda record: url_for('nodes.cpes', area=record.name, area_netloc='areas.town='+str(record.id), area_selected=record.id),
             }
 
 class BranchTable(tables.Table):
@@ -341,7 +365,7 @@ class BranchTable(tables.Table):
             'fitap_count': lambda record: url_for('nodes.nodes', area=record.name, area_netloc='areas.branch='+str(record.id), area_selected=record.id),
             'dslam_count': lambda record: url_for('nodes.nodes', area=record.name, area_netloc='areas.branch='+str(record.id), area_selected=record.id),
             'eoc_count': lambda record: url_for('nodes.eocs', area=record.name, area_netloc='areas.branch='+str(record.id), area_selected=record.id),
-            'cpe_count':lambda record: url_for('nodes.nodes', area=record.name, area_netloc='areas.branch='+str(record.id), area_selected=record.id),
+            'cpe_count':lambda record: url_for('nodes.cpes', area=record.name, area_netloc='areas.branch='+str(record.id), area_selected=record.id),
             }
 
 class EntranceTable(tables.Table):
@@ -355,13 +379,11 @@ class EntranceTable(tables.Table):
     switch_count     = tables.LinkColumn(u'交换机')
     firewall_count     = tables.LinkColumn(u'防火墙')
     bras_count     = tables.LinkColumn(u'BRAS')
-    olt_count     = tables.LinkColumn(u'OLT')
     onu_count     = tables.LinkColumn(u'ONU')
     ac_count     = tables.LinkColumn(u'AC')
     fatap_count     = tables.LinkColumn(u'FatAP')
     fitap_count     = tables.LinkColumn(u'FitAP')
     dslam_count     = tables.LinkColumn(u'DSLAM')
-    eoc_count     = tables.LinkColumn(u'EOC')
     cpe_count     = tables.LinkColumn(u'CPE')
 
     class Meta():
@@ -372,14 +394,12 @@ class EntranceTable(tables.Table):
             'switch_count': lambda record: url_for('nodes.switches', area=record.name, area_netloc='areas.entrance='+str(record.id), area_selected=record.id),
             'firewall_count': lambda record: url_for('nodes.nodes', area=record.name, area_netloc='areas.entrance='+str(record.id), area_selected=record.id),
             'bras_count': lambda record: url_for('nodes.nodes', area=record.name, area_netloc='areas.entrance='+str(record.id), area_selected=record.id),
-            'olt_count': lambda record: url_for('nodes.olts', area=record.name, area_netloc='areas.entrance='+str(record.id), area_selected=record.id),
             'onu_count': lambda record: url_for('nodes.onus', area=record.name, area_netloc='areas.entrance='+str(record.id), area_selected=record.id),
             'ac_count': lambda record: url_for('nodes.nodes', area=record.name, area_netloc='areas.entrance='+str(record.id), area_selected=record.id),
             'fatap_count': lambda record: url_for('nodes.nodes', area=record.name, area_netloc='areas.entrance='+str(record.id), area_selected=record.id),
             'fitap_count': lambda record: url_for('nodes.nodes', area=record.name, area_netloc='areas.entrance='+str(record.id), area_selected=record.id),
             'dslam_count': lambda record: url_for('nodes.nodes', area=record.name, area_netloc='areas.entrance='+str(record.id), area_selected=record.id),
-            'eoc_count': lambda record: url_for('nodes.eocs', area=record.name, area_netloc='areas.entrance='+str(record.id), area_selected=record.id),
-            'cpe_count':lambda record: url_for('nodes.nodes', area=record.name, area_netloc='areas.entrance='+str(record.id), area_selected=record.id),
+            'cpe_count':lambda record: url_for('nodes.cpes', area=record.name, area_netloc='areas.entrance='+str(record.id), area_selected=record.id),
             }
 
 class AreaStatisticsTable(tables.Table):

@@ -58,9 +58,12 @@
               {{ render_radio(form.snmp_ver) }}
             </fieldset>
             <fieldset>
-              <legend>其他</legend>
-              {{ render_field(form.location) }}
-              {{ render_field(form.remark) }}
+              <legend>工程信息</legend>
+                {{ render_field(form.owner) }}
+                {{ render_field(form.contact_tel) }}
+                {{ render_field(form.install_time) }}
+                {{ render_field(form.location) }}
+                {{ render_field(form.remark) }}
             </fieldset>
 
             <div class="form-actions span10">

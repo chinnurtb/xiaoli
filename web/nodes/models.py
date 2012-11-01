@@ -336,7 +336,23 @@ class NodeEoc(NodeMixin, db.Model):
     """ Eocs """
     __tablename__ = 'node_eocs'
 
+    esn             = db.Column(db.String(50))  # ESN
+    contact_tel     = db.Column(db.String(50))  # 联系电话
+    install_time    = db.Column(db.DateTime)    # 安装时间
+
     controller_id = db.Column(db.Integer, db.ForeignKey('node_onus.id'))
+    cpes = db.relationship("NodeCpe", backref="eoc")
+
+class NodeCpe(NodeMixin, db.Model):
+    """ Cpes """
+    __tablename__ = 'node_cpes'
+
+    esn             = db.Column(db.String(50))  # ESN
+    contact_tel     = db.Column(db.String(50))  # 联系电话
+    install_time    = db.Column(db.DateTime)    # 安装时间
+    card_id         = db.Column(db.String(50))  # 身份证号
+
+    controller_id = db.Column(db.Integer, db.ForeignKey('node_eocs.id'))
 
 class Board(db.Model):
     """板卡"""

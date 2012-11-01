@@ -30,6 +30,7 @@ from .views_switch import switches, switches_new, switches_edit, switches_show, 
 from .views_olt import olts, olts_new, olts_edit, olts_delete, olts_show
 from .views_onu import onus, onus_new, onus_edit, onus_delete, onus_show
 from .views_eoc import eocs, eocs_new, eocs_edit, eocs_delete, eocs_show
+from .views_cpe import cpes, cpes_new, cpes_edit, cpes_delete, cpes_show
 from .views_statistics import areas, vendors, categories
 from .views_area import cities
 
