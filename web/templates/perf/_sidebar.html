@@ -1,28 +1,28 @@
 {% from "tango/_sidebar_h.html" import render_sidebar %}
 
 {{ render_sidebar('节点性能', menuid, [
-    ('node_ping', 'PING时延', url_for('perf.node', name='ping')),
-    ('node_cpumem', 'CPU/内存', url_for('perf.node', name='cpumem')),
-    ('node_portusage', '端口占用', url_for('perf.node', name='portusage')),
-    ('node_traffic', '端口流量', url_for('perf.node', name='traffic'))
+    ('ping', 'PING时延', url_for('perf.ping')),
+    ('cpumem', 'CPU/内存', url_for('perf.cpumem')),
+    ('intfusage', '端口占用', url_for('perf.intfusage')),
+    ('intftraffic', '端口流量', url_for('perf.intftraffic'))
 ]) }}
 
 {{ render_sidebar('OLT性能', menuid, [
-    ('olt_uptraffic', '上联口流量流速', url_for('perf.olt', name='uptraffic')),
-    ('olt_pontraffic', 'PON口流量流速', url_for('perf.olt', name='pontraffic')),
-    ('olt_ponusage', 'PON口占用率', url_for('perf.olt', name='ponusage')),
-    ('olt_ponpower', 'PON口光功率', url_for('perf.olt', name='ponpower'))
+    ('intftraffic_oltup', '上联口流量流速', url_for('perf.intftraffic', name='oltup')),
+    ('intftraffic_oltpon', 'PON口流量流速', url_for('perf.intftraffic', name='oltpon')),
+    ('ponusage', 'PON口占用率', url_for('perf.ponusage')),
+    ('ponpower', 'PON口光功率', url_for('perf.ponpower'))
 ]) }}
 
 {{ render_sidebar('ONU性能', menuid, [
-    ('onu_pontraffic', 'PON口流量流速', url_for('perf.onu', name='pontraffic')),
-    ('onu_portusage', '用户口占用率', url_for('perf.onu', name='portusage'))
+    ('intftraffic_onupon', 'PON口流量流速', url_for('perf.intftraffic', name='onupon')),
+    ('intfusage_onu', '用户口占用率', url_for('perf.intfusage', name='onu'))
 
 ]) }}
 
 {{ render_sidebar('EOC性能', menuid, [
-    ('eoc_uptraffic', '上联口流量流速', url_for('perf.eoc', name='uptraffic')),
-    ('eoc_cpetraffic', 'CPE流量流速', url_for('perf.eoc', name='cpetraffic'))
+    ('intftraffic_eocup', '上联口流量流速', url_for('perf.intftraffic', name='eocup')),
+    ('intftraffic_eoc', 'CPE流量流速', url_for('perf.intftraffic', name='cpe'))
 
 ]) }}
 

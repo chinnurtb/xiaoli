@@ -484,8 +484,8 @@ table.widefat span.delete a, table.widefat span.trash a, table.widefat span.spam
     color: #333333;
 }
 #screen-options-link-wrap, #contextual-help-link-wrap {
-    background-color: #E3E3E3;
-    background-image: -moz-linear-gradient(center bottom , #DFDFDF, #F1F1F1);
+    background-color: #EAEAEA;/*#E3E3E3;*/
+    background-image: -moz-linear-gradient(center bottom, #EAEAEA, #F1F1F1); /*#DFDFDF, #F1F1F1);*/
     border-bottom: 1px solid #CCCCCC;
     border-left: 1px solid #CCCCCC;
     border-right: 1px solid #CCCCCC;
