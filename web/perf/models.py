@@ -10,7 +10,8 @@ __all__ = ['PingPerf',
            'IntfTrafficPerf',
            'IntfUsagePerf',
            'PonPowerPerf',
-           'PonTrafficPerf']
+           'PonTrafficPerf',
+           'PonUsagePerf']
 
 class PerfMixin(object):
 
