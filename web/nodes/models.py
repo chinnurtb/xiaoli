@@ -265,17 +265,25 @@ class Node(NodeMixin,db.Model):
     __tablename__ = 'nodes'
     __table_args__ = {'implicit_returning':False}
 
+    @staticmethod
+    def export_columns():
+        return ['status','name','alias','addr','category.alias','vendor.alias','model.alias','area.full_name','last_check','summary']
+
 class NodeSwitch(NodeMixin, db.Model):
     """ Switchs """
     __tablename__ = 'node_switchs'
 
     @staticmethod
     def export_columns():
-        return ['status','name','alias','addr','area.full_name','vendor.alias','model.alias','created_at','location']
+        return ['status','name','alias','addr','area.city_name','area.town_name','area.entrance_name','vendor.alias','model.alias','mask','snmp_comm','snmp_wcomm','last_check','location','remark']
 
 class NodeRouter(NodeMixin, db.Model):
     """ Routers """
     __tablename__ = 'node_routers'
+
+    @staticmethod
+    def export_columns():
+        return ['status','name','alias','addr','area.city_name','area.town_name','area.entrance_name','vendor.alias','model.alias','mask','snmp_comm','snmp_wcomm','last_check','location','remark']
 
 class NodeHost(NodeMixin, db.Model):
     """ Hosts """
@@ -309,15 +317,26 @@ class NodeOlt(NodeMixin,db.Model):
             where(and_(NodeOnu.controller_id==self.id, NodeOnu.area_id == None))
         )
 
+    @staticmethod
+    def export_columns():
+        return ['status','name','alias','addr','area.city_name','area.town_name','area.branch_name','onu_count_plan','onu_count_unplan','vendor.alias','model.alias','mask','snmp_comm','snmp_wcomm','last_check','location','remark']
+
 class NodeOnu(NodeMixin,db.Model):
     """ ONU """
     __tablename__ = 'node_onus'
 
     controller_id = db.Column(db.Integer, db.ForeignKey('node_olts.id'))
+    eocs = db.relationship("NodeEoc", backref="onu")
+
+    @staticmethod
+    def export_columns():
+        return ['status','name','alias','addr','area.city_name','area.town_name','area.branch_name','area.entrance_name','olt.name','olt.addr','vendor.alias','model.alias','mask','snmp_comm','snmp_wcomm','last_check','location','remark']
 
 class NodeEoc(NodeMixin, db.Model):
     """ Eocs """
     __tablename__ = 'node_eocs'
+
+    controller_id = db.Column(db.Integer, db.ForeignKey('node_onus.id'))
 
 class Board(db.Model):
     """板卡"""

@@ -4,18 +4,22 @@ from datetime import datetime
 
 from flask import Blueprint, request, session, url_for,\
     redirect, render_template, g, flash
-from flask import json
+from flask import json, send_file
+
+from sqlalchemy import or_
 
 from tango import db,user_profile
 from tango.ui.tables import make_table
 from tango.login import current_user, login_required
 from tango.models import Profile, Category
+from tango.excelRW.CsvWriter import CsvWriter
 
 from .models import NodeRouter,NODE_STATUS_DICT, Area
 from .tables import RouterTable
 from .forms import  RouterSearchForm, RouterNewForm
 from .views import nodeview
 
+@nodeview.route('/nodes/routers.csv/', methods=['POST', 'GET'])
 @nodeview.route('/nodes/routers/', methods=['POST', 'GET'])
 @login_required
 def routers():
@@ -24,8 +28,12 @@ def routers():
     query = query.outerjoin(Area, NodeRouter.area_id==Area.id)
 
     query_dict = dict([(key, request.args.get(key))for key in form.data.keys()])
-    if query_dict.get("ip"): query=query.filter(NodeRouter.addr.like('%'+query_dict["ip"]+'%'))         # ilike
-    if query_dict.get("name"): query=query.filter(NodeRouter.name.like('%'+query_dict["name"]+'%'))     # ilike
+    if query_dict.get("name"):
+        query=query.filter(or_(
+            NodeRouter.name.like('%'+query_dict["name"]+'%'),
+            NodeRouter.alias.like('%'+query_dict["name"]+'%'),
+            NodeRouter.addr.like('%'+query_dict["name"]+'%')
+        ))
     if query_dict.get("area"):
         netloc = request.args.get('area_netloc')
         if 'or' in netloc: netloc = '('+netloc+')'
@@ -40,7 +48,12 @@ def routers():
     for status in NODE_STATUS_DICT.keys():
         num = NodeRouter.query.filter(NodeRouter.status == status).count()
         status_statistcs.append({"status": status, "number": num, "name": NODE_STATUS_DICT.get(status)})
-    return render_template('/nodes/routers/index.html', table = table, form=form, status_statistcs=status_statistcs)
+
+    if request.base_url.endswith(".csv/"):
+        writer = CsvWriter('routers',columns=NodeRouter.export_columns())
+        return send_file(writer.write(query,format={'status': lambda value: NODE_STATUS_DICT.get(value)}),as_attachment=True,attachment_filename='routers.csv')
+    else:
+        return render_template('/nodes/routers/index.html', table = table, form=form, status_statistcs=status_statistcs)
 
 @nodeview.route('/nodes/routers/new/', methods=['GET','POST'])
 @login_required
@@ -55,7 +68,7 @@ def routers_new():
         node.category_id = 1
         db.session.add(node)
         db.session.commit()
-        flash(u'添加路由器成功', 'info')
+        flash(u'添加路由器成功', 'success')
         return redirect(url_for('nodes.routers'))
     return render_template('nodes/routers/new.html', form = form)
 
@@ -71,7 +84,7 @@ def routers_edit(id):
         node.updated_at = datetime.now()
         db.session.add(node)
         db.session.commit()
-        flash(u'修改路由器成功','info')
+        flash(u'修改路由器成功','success')
         return redirect(url_for('nodes.routers'))
     form.process(obj=node)
     return render_template('/nodes/routers/edit.html', node=node, form=form)
@@ -84,7 +97,7 @@ def routers_delete():
             node = NodeRouter.query.get(id)
             db.session.delete(node)
         db.session.commit()
-        flash(u'删除路由器成功','info')
+        flash(u'删除路由器成功','success')
         return redirect(url_for('nodes.routers'))
 
 @nodeview.route('/nodes/routers/<int:id>/', methods=['GET'])

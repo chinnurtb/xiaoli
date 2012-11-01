@@ -4,7 +4,7 @@ from datetime import datetime
 
 from flask import Blueprint, request, session, url_for, \
     redirect, render_template, g, flash
-from flask import json
+from flask import json, send_file
 
 from sqlalchemy import or_
 
@@ -13,6 +13,7 @@ from tango.ui import navbar, dashboard
 from tango.ui.tables import make_table
 from tango.login import current_user, login_required
 from tango.models import Profile, Category
+from tango.excelRW.CsvWriter import CsvWriter
 
 from .models import Node, Area, Vendor, NODE_STATUS_DICT
 from .forms import NodeNewForm, NodeSearchForm
@@ -98,6 +99,7 @@ def area_select():
 
 
 from tango.ui.queries import NodeForm
+@nodeview.route('/nodes.csv/', methods=['POST', 'GET'])
 @nodeview.route('/nodes/', methods=['POST', 'GET'])
 @login_required
 def nodes():
@@ -131,7 +133,12 @@ def nodes():
     for status in NODE_STATUS_DICT.keys():
         num = Node.query.filter(Node.status == status).count()
         status_statistcs.append({"status": status, "number": num, "name": NODE_STATUS_DICT.get(status)})
-    return render_template('nodes/index.html', table = table, form=form, status_statistcs=status_statistcs)
+
+    if request.base_url.endswith(".csv/"):
+        writer = CsvWriter('nodes',columns=Node.export_columns())
+        return send_file(writer.write(query,format={'status': lambda value: NODE_STATUS_DICT.get(value)}),as_attachment=True,attachment_filename='nodes.csv')
+    else:
+        return render_template('nodes/index.html', table = table, form=form, status_statistcs=status_statistcs)
 
 
 @nodeview.route('/nodes/<int:id>/', methods=['GET'])
@@ -165,7 +172,7 @@ def nodes_new():
         node.status = 1
         db.session.add(node)
         db.session.commit()
-        flash(u'添加节点成功', 'info')
+        flash(u'添加节点成功', 'success')
         return redirect(url_for('nodes.nodes'))
     return render_template('nodes/new.html', form = form)
 
@@ -181,7 +188,7 @@ def nodes_edit(id):
         node.updated_at = datetime.now()
         db.session.add(node)
         db.session.commit()
-        flash(u'修改节点成功','info')
+        flash(u'修改节点成功','success')
         return redirect(url_for('nodes.nodes'))
     form.process(obj=node)
     return render_template('/nodes/edit.html', node=node, form=form)
@@ -194,7 +201,7 @@ def nodes_delete():
             node = Node.query.get(id)
             db.session.delete(node)
         db.session.commit()
-        flash(u'删除节点成功','info')
+        flash(u'删除节点成功','success')
         return redirect(url_for('nodes.nodes'))
 
 @nodeview.route('/nodes/ajax_models_for_vendor', methods=['GET'])
