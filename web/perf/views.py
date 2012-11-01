@@ -8,7 +8,7 @@ from tango.ui import navbar
 from tango.models import db, Category
 from tango.ui.tables import make_table
 
-from .models import NodePerf, PortPerf
+from .models import *
 from .tables import NodePerfTable
 
 from .forms import PerfFilterForm, pull_intervals, model_choices
