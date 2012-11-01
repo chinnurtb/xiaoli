@@ -50,8 +50,6 @@
     <form method="POST" id="table-form" action="{{ url_for('users.users_delete_all') }}">
       {{ render_table(table) }}
     </form>
-    <script type="text/javascript">
-    </script>
     {{ render_modal(['edit', 'delete']) }}
   </div>
 </div>

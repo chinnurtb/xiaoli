@@ -54,7 +54,7 @@ class BoundRow(object):
             for name, field_name in bound_column.column.subcolumns:
                 subvalues.append(A(field_name).resolve(self.record))
             value = '/'.join(subvalues)
-        else:
+        elif name not in ['check']:
             try:
                 value = bound_column.accessor.resolve(self.record)
             except ValueError, e:

@@ -1,7 +1,7 @@
 # coding: utf-8
 
 from flask import (Blueprint, request, url_for, redirect,
-                   render_template, flash)
+                   render_template, flash, json)
 
 from tango import db
 from tango.ui.tables import make_table
@@ -204,6 +204,13 @@ def metrics_delete(id):
         flash(u'指标 (%s) 删除成功!' % metric.alias, 'success')
         return redirect(url_for('system.metrics'))
         
+    res = {
+        'title': u'删除指标',
+        'body': render_template('system/metrics/delete.html', metric=metric)
+    }
+    return json.dumps(res)
+
+    
 # ==============================================================================
 #  采集规则管理
 # ==============================================================================    

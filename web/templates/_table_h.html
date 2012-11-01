@@ -207,7 +207,8 @@
     $actions = $('.row-actions a');
     var types = {{ types|safe }};
     for (var t in types){
-        $actions.filter('.' + types[t]).on('click', function(){
+        
+        $actions.filter('.' + types[t] + '-btn').on('click', function(){
             $.ajax({
                 type: 'GET',
                 dateType: 'json',
@@ -224,6 +225,7 @@
         });
     }
     </script>
+    
 {% endmacro %}
 
 
