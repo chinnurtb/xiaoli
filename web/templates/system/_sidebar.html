@@ -1,7 +1,7 @@
 {% from "tango/_sidebar_h.html" import render_sidebar %}
 
 {{ render_sidebar('系统管理', menuid, [
-        ('settings', '系统设置', url_for('system.settings')),
+        ('settings', '参数设置', url_for('system.settings')),
         ('dict_codes', '字典管理', url_for('system.dict_codes')),
         ('thresholds','阀值管理', url_for('system.thresholds')),
         ('metrics','指标管理', url_for('system.metrics')),
