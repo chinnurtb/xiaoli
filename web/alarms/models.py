@@ -4,6 +4,10 @@ from tango import db
 
 from tango.models import Category
 
+from sqlalchemy import select, func
+
+from sqlalchemy.orm import column_property
+
 class Alarm(db.Model):
     
     """告警表"""
@@ -127,7 +131,9 @@ class AlarmSeverity(db.Model):
     sound       = db.Column(db.String(60))
     remark      = db.Column(db.String(60))
     
-    count       = 0
+    count       = column_property(
+                    select([func.count(Alarm.id)]).\
+                        where(Alarm.severity == id))
 
     @staticmethod
     def name2id(name):
@@ -144,6 +150,9 @@ class AlarmSeverity(db.Model):
 
     def __unicode__(self):
         return self.alias
+
+def query_severities():
+    return AlarmSeverity.query.order_by(AlarmSeverity.id.desc()).all()
 
 class AlarmKnowledge(db.Model):
 

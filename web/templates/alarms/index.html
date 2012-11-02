@@ -60,8 +60,8 @@
     <div class="span10">
         <ul class="subsubsub">
             <li><a href="/alarms">全部<span class="count">({{total}})</span></a>|</li>
-            {% for severity, count in severities %}
-            <li class="alarm-{{ severity.name }}"><a {% if request.args['severity'] == severity.name %} class="current" {% endif %} href="/alarms?severity={{ severity.name }}">{{ severity.alias }}<span class="count">({{ count }})</span></a> {% if not loop.last %} | {% endif %} </li>
+            {% for severity in severities %}
+            <li class="alarm-{{ severity.name }}"><a {% if request.args['severity'] == severity.name %} class="current" {% endif %} href="/alarms?severity={{ severity.name }}">{{ severity.alias }}<span class="count">({{ severity.count }})</span></a> {% if not loop.last %} | {% endif %} </li>
             {% endfor %}
         </ul>
         <div class="tablenav top">
