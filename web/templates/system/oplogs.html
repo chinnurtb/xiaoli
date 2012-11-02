@@ -10,6 +10,7 @@
     {{ render_table_profile(table) }} 
 </script>
 
+
 {% endblock %}
 
 {% from "_table_h.html" import render_table, render_screen_meta %}
@@ -27,21 +28,27 @@
         <div class="span10">
           {% include "_alert.html" %}
             <div class="tablenav top">
-              
               <div class="alignleft actions">
-                <form class="form-inline filter-form" action="" method="GET">
-                  {{ filterForm.uid(class="input-low input-medium") }}
-                  {{ filterForm.start_date(class="input-small datepicker input-low",
-                            placeholder="开始日期", style="margin-bottom:1px;") }}
-                  <label for='end_date'>-</label>
-                  {{ filterForm.end_date(class="input-small datepicker input-low",
-                            placeholder="结束日期", style="margin-bottom:1px;") }}
-                  {{ filterForm.keyword(placeholder="详细信息",class="input-low") }}
-                  <button class="btn btn-small" type="submit">检索</button>
-                </form>
+                {% from '_form_h.html' import search_form %}
+                {{ search_form(request.args.get('keyword'), advanced=True) }}
+              </div>
+              <div class="pull-right actions">
+                <a class="btn btn-small" href="{{ request.url|replace('nodes','nodes.csv') }}" title="Excel导出"><i class="icon-download-alt"></i></a>
               </div>
               <br class="clear">
+
             </div>
+
+            <div id="advanced-search-form" class="advance_search_form header" style="display:none;margin:0px;">
+              <form class="form form-horizontal" action="" method="GET">
+                {% from '_form_h.html' import render_field, render_submit %}
+                {{ render_field(filterForm.uid, class="input-low input-medium") }}
+                {{ render_field(filterForm.start_date, class="input-medium datepicker input-low", style="margin-bottom:1px;") }}
+                {{ render_field(filterForm.end_date, class="input-medium datepicker input-low", style="margin-bottom:1px;") }}
+                {{ render_submit("应用") }}
+              </form>
+            </div>
+            
             {{ render_table(table) }}
         </div>
     </div>
