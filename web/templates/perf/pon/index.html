@@ -4,14 +4,14 @@
     <link rel="stylesheet" href="/static/css/perf.css" type="text/css" media="all">
     <script type="text/javascript" src="/static/js/perf.js"></script>
 {% endblock %}
-
+    
 {% block screen_meta %}
     {% from '_table_h.html' import render_screen_meta %}
     {{ render_screen_meta(table) }}
 {% endblock %}
 
 {% block content %}
-    <div class="row-fluid content" style="margin-top:40px;">
+    <div class="row-fluid content">
         <div class="span2">
             {% include "perf/_sidebar.html" %}
         </div>
@@ -31,3 +31,4 @@
         </div>
     </div>
 {% endblock %}
+
