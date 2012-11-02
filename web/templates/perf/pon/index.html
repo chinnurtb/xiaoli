@@ -1,15 +1,33 @@
 {% extends 'layout.html' %}
 
-{% set title = 'PON口性能' %}
+{% block head %}
+    <link rel="stylesheet" href="/static/css/perf.css" type="text/css" media="all">
+    <script type="text/javascript" src="/static/js/perf.js"></script>
+{% endblock %}
+
+{% block screen_meta %}
+    {% from '_table_h.html' import render_screen_meta %}
+    {{ render_screen_meta(table) }}
+{% endblock %}
 
 {% block content %}
-    <div class="row-fluid content">
+    <div class="row-fluid content" style="margin-top:40px;">
         <div class="span2">
-            {% set menuid = 'pon' %}
             {% include "perf/_sidebar.html" %}
         </div>
         <div class="span10">
-            <h1>PON口性能</h1>
+            <div class="tablenav top">
+              
+              {% from "_form_h.html" import render_perf_filter_from %}
+              {{ render_perf_filter_from(filterForm) }}
+              
+                <div class="pull-right actions">
+                    <a title="Excel导出" href="#" class="btn btn-small"><i class="icon-download-alt"></i></a>
+                </div> 
+                <br class="clear">
+            </div>
+            {% from '_table_h.html' import render_table %}
+            {{ render_table(table) }}
         </div>
     </div>
 {% endblock %}
