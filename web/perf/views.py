@@ -56,7 +56,7 @@ def ping():
         'table'      : table,
         'filterForm' : form
     }
-    return render_template('/perf/node/index.html', **kwargs)
+    return render_template('/perf/index.html', **kwargs)
 
 
 @perfview.route('/node/cpumem')
@@ -73,7 +73,7 @@ def cpumem():
         'table'      : table,
         'filterForm' : form
     }
-    return render_template('/perf/node/index.html', **kwargs)
+    return render_template('/perf/index.html', **kwargs)
 
 
 @perfview.route('/node/intfusage/<name>/')
@@ -96,7 +96,7 @@ def intfusage(name):
         'table'      : table,
         'filterForm' : form
     }
-    return render_template('/perf/node/index.html', **kwargs)
+    return render_template('/perf/index.html', **kwargs)
     
 
 @perfview.route('/node/intftraffic/<name>/')
@@ -125,7 +125,7 @@ def intftraffic(name):
         'table'      : table,
         'filterForm' : form
     }
-    return render_template('/perf/node/index.html', **kwargs)
+    return render_template('/perf/index.html', **kwargs)
 
     
 @perfview.route('/olt/ponusage/')
@@ -142,7 +142,7 @@ def ponusage():
         'table'      : table,
         'filterForm' : form
     }
-    return render_template('/perf/pon/index.html', **kwargs)
+    return render_template('/perf/index.html', **kwargs)
     
 
 @perfview.route('/olt/ponpower/')

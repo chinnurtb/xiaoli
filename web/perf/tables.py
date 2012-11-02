@@ -142,8 +142,8 @@ class PonPowerTable(t.Table):
     sampletime      = t.Column(u'时间')
 
     #发送光功率(均值、最大、最小）Output OpticalPower  发送光接口（dbm）
-    txpower = t.Column(u'发送光功率(dbm)', subcolumns=[(u'均值', 'txpoweravg'), (u'峰值', 'txpowermax')])
-
+    txpower = t.Column(u'发送光功率(dbm)', orderable=True,
+                       subcolumns=[(u'均值', 'txpoweravg'), (u'峰值', 'txpowermax')])
     #接收光功率(均值、最大、最小） Input OpticalPower  接收光功率（dbm）
     rxpower = t.Column(u'接收光功率(dbm)', subcolumns=[(u'均值', 'rxpoweravg'), (u'峰值', 'rxpowermax')])
     

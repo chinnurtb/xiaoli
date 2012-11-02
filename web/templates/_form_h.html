@@ -152,11 +152,11 @@
 {% macro render_perf_filter_from(form) %}
 <div class="alignleft actions">
   <form id="perf-filter-form" class="form-inline filter-form">
-    {{ form.sampletime(size="6", class="input-small") }}
-    {{ form.intervals(multiple="true", size="6", class="input-small") }}
-    {% if form.categories is defined %} {{ form.categories() }} {% endif %}
-    {{ form.vendors(multiple="true", size="6", class="input-small") }}
-    {{ form.models(multiple="true", size="6", class="input-small") }}
+    {{ form.sampletime(size="6") }}
+    {{ form.intervals(size="6") }}
+    {% if form.categories is defined %} {{ form.categories(size="6") }} {% endif %}
+    {{ form.vendors(size="6")}}
+    {{ form.models(size="6") }}
     
     <div class="btn-group btn-group-vertical" style="margin-left: 20px;">
       <button type="submit" class="btn btn-small">应用</button>
