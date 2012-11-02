@@ -1,3 +1,30 @@
+{% macro search_form(keyword=None, advanced=False) %}
+
+<form method="GET" action="" class="form-inline filter-form input-append">
+    <input id="keyword" type="text" placeholder="" {% if keyword %} value="{{keyword}}" {% endif %} class="input-low" name="keyword"></input>
+    <button type="submit" data-placement="bottom" rel="tooltip" class="btn btn-small" data-original-title="搜索"><i class="icon-search"></i></button>
+    {% if advanced %}
+    <button id="advanced-search-button" class="btn btn-small" data-placement="bottom" rel="tooltip" data-original-title="高级搜索"><i class="icon-cog"></i></button>
+    {% endif %}
+</form>
+
+{% if advanced %}
+<script>
+    $("#advanced-search-button").toggle(
+        function() {
+            $("#advanced-search-form").show();
+            $(this).addClass('active');
+        },
+        function() {
+            $("#advanced-search-form").hide();
+            $(this).removeClass('active');
+        }
+    )
+</script>
+{% endif %}
+
+{% endmacro %}
+
 {% macro render_form_title(request, title) %}
 <h5><i class="icon-{% if request.endpoint.find('_new') > -1 %}plus{% else %}pencil{% endif %}"></i>{{ title }}</h5><hr>
 {% endmacro %}
