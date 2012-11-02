@@ -196,9 +196,23 @@ def test_fieldset():
 def add_time():
     from random import Random
     import calendar
+    
     rand = Random()
+    key = request.args.get('key', '')
     num = request.args.get('num', 50, type=int)
-        
+    CLSES = {
+        'ping' : PingPerf,
+        'cpumem': CpuMemPerf,
+        'board': BoardPerf,
+        'intftraffic': IntfTrafficPerf,
+        'ponpower': PonPowerPerf,
+        'ponusage': PonUsagePerf,
+        'pontraffic': PonTrafficPerf
+    }
+    if not key or key not in CLSES.keys():
+        return '*key* ERROR(%s)!\r\n %s' % (key, str(CLSES))
+    cls = CLSES[key]
+    
     for i in range(num):
         year = 2012
         month = rand.randint(9, 10)
@@ -208,7 +222,7 @@ def add_time():
         minute = rand.randint(0, 59)
         dt = datetime(year, month, day, hour, minute)
         
-        obj = PingPerf()
+        obj = cls()
         obj.sampletime = dt
         obj.sampleyear = year
         obj.samplemonth = month
@@ -216,6 +230,14 @@ def add_time():
         obj.sampleweekday = dt.weekday()
         obj.samplehour = hour
         obj.nodeid = 104
+        if key == 'cpumem':
+            attrs = ['cupavg', 'cpumax',
+                     'memavg', 'memmax',
+                     'tempavg', 'tempmax']
+            for attr in attrs:
+                value = rand.random() * 20
+                setattr(obj, attr, value)
+        
         db.session.add(obj)
     db.session.commit()
     return 'OK: ' + str(num)

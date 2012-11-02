@@ -186,6 +186,7 @@ class BoundColumn(object):
     def __init__(self, table, column, name):
         self.table = table
         self.column = column
+        self.subcolumns = column.subcolumns
         self.name = name
         self.is_checkbox = True if isinstance(column, CheckBoxColumn) else False
 
@@ -202,12 +203,13 @@ class BoundColumn(object):
             return column_header
 
         verbose_name = self.verbose_name
-        if self.column.subcolumns:
-            verbose_name += '<br />(%s)' % ('/'.join([name for name, field_name \
-                                                      in self.column.subcolumns]))
         return Markup(title(verbose_name))
 
-
+    @property
+    def subcolumns_header(self):
+        verbose_names = [verbose_name for verbose_name, field_name in self.subcolumns]
+        return Markup(title(' / '.join(verbose_names)))
+        
     @property
     def accessor(self):
         """ Name or accessor"""

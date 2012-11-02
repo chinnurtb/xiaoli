@@ -227,23 +227,20 @@ class Table(object):
 
     @property
     def page_url(self):
-        req_args = request.args.to_dict()
-        req_args.update(request.view_args)
-        # uri = request.url_root + request.path[1:]
         def func(page, order_by=None):
+            req_args = request.args.to_dict()
+            req_args.update(request.view_args)
             req_args['page'] = page
             old_order_by = req_args.get('order_by', None)
+            
             if order_by:
                 if old_order_by == order_by:
                     order_by = '-' + order_by
                 req_args['order_by'] = order_by
             return url_for(request.endpoint, **req_args)
-            # return uri + '?' + '&'.join(['%s=%s'%(k, v)
-            #                              for k, v in req_args.items()])
         return func
 
     def as_html(self,template="_dashboard_table.html"):
-        from flask import  render_template
         return render_template(template, table=self)
 
 
