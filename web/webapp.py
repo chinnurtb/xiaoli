@@ -122,9 +122,7 @@ def check_permissions():
     print 'Permission check failed'
     abort(403)
 
-
-#TODO: FIX LATER
-from alarms.views import count_by_severity
+from alarms.models import query_severities
     
 @app.before_request
 def before_request():
@@ -147,7 +145,7 @@ def before_request():
     if current_user:
         g.navbar = navbar
         #TODO: mv to alarms/ later
-        g.severities = count_by_severity()
+        g.severities = query_severities() 
         if current_user.username in SUPER_USERS \
            or request.endpoint in SAFE_ENDPOINTS:
             return

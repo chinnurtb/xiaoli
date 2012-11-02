@@ -1,12 +1,33 @@
 {% extends 'layout.html' %}
 
-{% block content %} 
+{% block head %}
+    <link rel="stylesheet" href="/static/css/perf.css" type="text/css" media="all">
+    <script type="text/javascript" src="/static/js/perf.js"></script>
+{% endblock %}
+    
+{% block screen_meta %}
+    {% from '_table_h.html' import render_screen_meta %}
+    {{ render_screen_meta(table) }}
+{% endblock %}
+
+{% block content %}
     <div class="row-fluid content">
         <div class="span2">
             {% include "perf/_sidebar.html" %}
         </div>
         <div class="span10">
-            <h1>性能管理</h1>
+            <div class="tablenav top">
+              
+              {% from "_form_h.html" import render_perf_filter_from %}
+              {{ render_perf_filter_from(filterForm) }}
+              
+                <div class="pull-right actions">
+                    <a title="Excel导出" href="#" class="btn btn-small"><i class="icon-download-alt"></i></a>
+                </div> 
+                <br class="clear">
+            </div>
+            {% from '_table_h.html' import render_table %}
+            {{ render_table(table) }}
         </div>
     </div>
 {% endblock %}

@@ -33,7 +33,7 @@ from nodes.models import Node, Vendor
 from system.tables import SettingTable
 from system.forms import SettingEditForm
 
-from .models import Alarm, AlarmSeverity, History, AlarmClass, AlarmKnowledge
+from .models import Alarm, AlarmSeverity, History, AlarmClass, AlarmKnowledge, query_severities
 
 from .forms import QueryNewForm, AlarmAckForm, AlarmClearForm, AlarmClassForm, AlarmKnowledgeForm, AlarmFilterForm
 
@@ -68,12 +68,6 @@ def alarm_filter(cls, query, form):
                     cls.node_alias.ilike('%'+keyword+'%')))
     return query
 
-def alarm_severities():
-    q = db.session.query(AlarmSeverity, func.count(Alarm.id).label('count'))
-    q = q.outerjoin(Alarm, AlarmSeverity.id == Alarm.severity)
-    q = q.group_by(AlarmSeverity).order_by(AlarmSeverity.id.desc())
-    return q
-
 @alarmview.route('/alarms', methods = ['GET'])
 def index():
     filterForm = AlarmFilterForm(formdata=request.args)
@@ -81,8 +75,8 @@ def index():
     severity = request.args.get('severity')
     if severity:
         query = query.filter(Alarm.severity == AlarmSeverity.name2id(severity))
-    severities = alarm_severities().all()
-    total = sum([c for s, c in severities])
+    severities = query_severities()
+    total = sum([severity.count for severity in severities])
     table = make_table(query, AlarmTable)
     return render_template("/alarms/index.html",
         table = table, filterForm = filterForm, 
@@ -140,7 +134,7 @@ def histories():
 @alarmview.route('/alarms/console/')
 def alarms_console():
 
-    severities = AlarmSeverity.query.all()
+    severities = query_severities()
     
     #TODO: FIX ME later
     from datetime import datetime, timedelta
@@ -206,7 +200,7 @@ def _console_category_query(cid):
     return q.filter(Category.id == cid).group_by(Alarm.severity)
 
 def render_console_chart(id, query):
-    severities = AlarmSeverity.query.order_by(AlarmSeverity.id.desc()).all()
+    severities = query_severities()
     counts = dict(query.all())
     data = [{'label': severity.alias, 
              'color': severity.color,
@@ -313,19 +307,13 @@ def alarm_state_filter(s):
 #==============================================
 #Statistics 
 #==============================================
-def count_by_severity():
-    q = db.session.query(AlarmSeverity, func.count(Alarm.id).label('count'))
-    q = q.outerjoin(Alarm, AlarmSeverity.id == Alarm.severity)
-    q = q.group_by(AlarmSeverity).order_by(AlarmSeverity.id.desc())
-    return q.all()
-    
 @alarmview.route('/alarms/stats/by_severity')
 def stats_by_severity():
-    data = [{'label': s.alias, 'color': s.color, 'value': c}
-                for s,c in count_by_severity()]
+    data = [{'label': s.alias, 'color': s.color, 'value': s.count}
+                for s in query_severities()]
     chartdata = [{'values': data}]
     return render_template('alarms/stats/by_severity.html',
-        chartdata=chartdata)
+                            chartdata=chartdata)
 
 @alarmview.route('/alarms/stats/by_category')
 def stats_by_category():

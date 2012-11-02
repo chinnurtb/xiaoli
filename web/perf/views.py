@@ -19,7 +19,9 @@ perfview = Blueprint('perf', __name__, url_prefix="/perf")
 def inject_navid():
     return dict(navid = 'perf')
 
-    
+# ==============================================================================
+#  Ajax server
+# ==============================================================================    
 @perfview.route('/refresh/intervals')
 def ajax_refresh_intervals():
     """ 刷新表单中的时间选框中的选项 """
@@ -35,24 +37,11 @@ def ajax_refresh_models():
     models = apply(model_choices(vendors))
     res = [[str(model.id), model.alias] for model in models]
     return json.dumps(res)
+
     
-        
-# CONFIG = {
-#     'node_ping'      : (u'PING时延', PingPerf, PingTable, ['pingrta', 'pingrtmax', 'pingrtmin']),
-#     'node_cpumem'    : (u'CPU内存', CpuMemPerf, CpuMemTable, []),
-#     'node_intfusage' : (u'端口占用', IntfUsagePerf, PortUsageTable, []),
-#     'node_traffic'   : (u'端口流量', PortPerf, PortPerfTable, []),
-#     'olt_uptraffic'  : (u'上联口流量流速', PortPerf, PortPerfTable, []),
-#     'olt_pontraffic' : (u'PON口流量流速', PortPerf, PortPerfTable, []),
-#     'olt_ponusage'   : (u'PON口占用率', PortPerf, PortUsageTable, []),
-#     'olt_ponpower'   : (u'PON口光功率', PortPerf, PonPowerTable, []),
-#     'onu_pontraffic' : (u'PON口流量流速', PortPerf, PortPerfTable, []),
-#     'onu_intfusage'  : (u'用户口占用率', PortPerf, PortUsageTable, []),
-#     'eoc_uptraffic'  : (u'上联口流量流速', PortPerf, PortPerfTable, []),
-#     'eoc_cpetraffic' : (u'CPE口流量流速', PortPerf, PortPerfTable, [])
-# }
-
-
+# ==============================================================================
+#  Normal view
+# ==============================================================================    
 @perfview.route('/node/ping/')
 def ping():
     form = NodePerfFilterForm(formdata=request.args)
@@ -61,94 +50,121 @@ def ping():
     table = make_table(query, PingTable)
     
     kwargs = {
-        'menuid': 'ping',
-        'name': 'ping',
-        'title': u'PING延时',
-        'table': table,
-        'filterForm': form
+        'menuid'     : 'ping',
+        'name'       : 'ping',
+        'title'      : u'PING延时',
+        'table'      : table,
+        'filterForm' : form
     }
-    return render_template('/perf/node/index.html', **kwargs)
+    return render_template('/perf/index.html', **kwargs)
 
 
-# @perfview.route('/node/<name>')
-# def node(name):
-#     menuid = 'node_' + name
-#     title, model, tblcls, metrics = CONFIG[menuid]
-
-#     form = NodePerfFilterForm(formdata=request.args)
-#     # print request.args
-#     # print form.data
-#     form.refresh_choices(request.args)
-#     # print form.data
-#     query = form.filter(model)
+@perfview.route('/node/cpumem')
+def cpumem():
+    form = NodePerfFilterForm(formdata=request.args)
+    form.refresh_choices(request.args)
+    query = form.filter(CpuMemPerf)
+    table = make_table(query, CpuMemTable)
     
-#     table = make_table(query, tblcls)
-#     return render_template('/perf/node/index.html',
-#         menuid = menuid, title = title,
-#         name = name, filterForm = form,
-#         table = table)
+    kwargs = {
+        'menuid'     : 'cpumem',
+        'name'       : 'cpumem',
+        'title'      : u'CPU/内存',
+        'table'      : table,
+        'filterForm' : form
+    }
+    return render_template('/perf/index.html', **kwargs)
 
-# @perfview.route('/lan/<name>')
-# def lan(name):
-#     menuid = 'lan_' + name
-#     title, model, tblcls, metrics = CONFIG[menuid]
-    
-#     form = PerfFilterForm(formdata=request.args)
-#     form.refresh_choices(request.args)
-#     query = form.filter(model)
-    
-#     table = make_table(query, tblcls)
-#     return render_template('/perf/lan/index.html',
-#         menuid = menuid, title = title,
-#         name = name, filterForm = form,
-#         table = table)
 
-# @perfview.route('/olt/<name>')
-# def olt(name):
-#     menuid = 'olt_' + name
-#     title, model, tblcls, metrics = CONFIG[menuid]
-
-#     form = PerfFilterForm(formdata=request.args)
-#     form.refresh_choices(request.args)
-#     query = form.filter(model)
+@perfview.route('/node/intfusage/<name>/')
+def intfusage(name):
+    CONFIG = {
+        'all' : ('intfusage', u'端口流量', NodePerfFilterForm ,IntfUsageTable),
+        'onu' : ('intfusage_onu', u'用户口占用率', PerfFilterForm, IntfUsageTable),
+    }
+    menuid, title, form_cls, table_cls = CONFIG[name]
     
-#     table = make_table(query, tblcls)
-#     return render_template('/perf/olt/index.html',
-#         menuid = menuid, title = title,
-#         name = name, filterForm = form,
-#         table = table)
-
-# @perfview.route('/onu/<name>')
-# def onu(name):
-#     menuid = 'onu_' + name
-#     title, model, tblcls, metrics = CONFIG[menuid]
-
-#     form = PerfFilterForm(formdata=request.args)
-#     form.refresh_choices(request.args)
-#     query = form.filter(model)
+    form = form_cls(formdata=request.args)
+    form.refresh_choices(request.args)
+    query = form.filter(IntfUsagePerf)
+    table = make_table(query, table_cls)
     
-#     table = make_table(query, tblcls)
-#     return render_template('/perf/onu/index.html',
-#         menuid = menuid, title = title,
-#         name = name, filterForm = form,
-#         table = table)
+    kwargs = {
+        'menuid'     : menuid,
+        'name'       : name,
+        'title'      : title,
+        'table'      : table,
+        'filterForm' : form
+    }
+    return render_template('/perf/index.html', **kwargs)
+    
 
-# @perfview.route('/eoc/<name>')
-# def eoc(name):
-#     menuid = 'eoc_' + name
-#     title, model, tblcls, metrics = CONFIG[menuid]
+@perfview.route('/node/intftraffic/<name>/')
+def intftraffic(name):
+    CONFIG = {
+        'all'    : ('intftraffic', u'端口流量'),
+        'oltup'  : ('intftraffic_oltup', u'上联口流量流速'),
+        'oltpon' : ('intftraffic_oltpon', u'PON口流量流速'),
+        'onupon' : ('intftraffic_onupon', u'PON口流量流速'),
+        'eocup'  : ('intftraffic_eocup', u'上联口流量流速'),
+        'cpe'    : ('intftraffic_cpe', u'CPE流量流速')
+    }
+    menuid, title = CONFIG[name]
+    form_cls, table_cls = (NodePerfFilterForm, IntfTrafficTable) if name == 'all' \
+                          else (PerfFilterForm, IntfTrafficOctetsTable)
     
-#     form = PerfFilterForm(formdata=request.args)
-#     form.refresh_choices(request.args)
-#     query = form.filter(model)
+    form = form_cls(formdata=request.args)
+    form.refresh_choices(request.args)
+    query = form.filter(IntfTrafficPerf)
+    table = make_table(query, table_cls)
     
-#     table = make_table(query, tblcls)
-#     return render_template('/perf/eoc/index.html',
-#         menuid = menuid, title = title,
-#         name = name, filterForm = form,
-#         table = table)
+    kwargs = {
+        'menuid'     : menuid,
+        'name'       : name,
+        'title'      : title,
+        'table'      : table,
+        'filterForm' : form
+    }
+    return render_template('/perf/index.html', **kwargs)
 
     
+@perfview.route('/olt/ponusage/')
+def ponusage():
+    form = PerfFilterForm(formdata=request.args)
+    form.refresh_choices(request.args)
+    query = form.filter(PonUsagePerf)
+    table = make_table(query, PonUsageTable)
+    
+    kwargs = {
+        'menuid'     : 'ponusage',
+        'name'       : 'ponusage',
+        'title'      : u'PON口占用率',
+        'table'      : table,
+        'filterForm' : form
+    }
+    return render_template('/perf/index.html', **kwargs)
+    
+
+@perfview.route('/olt/ponpower/')
+def ponpower():
+    form = PerfFilterForm(formdata=request.args)
+    form.refresh_choices(request.args)
+    query = form.filter(PonPowerPerf)
+    table = make_table(query, PonPowerTable)
+    
+    kwargs = {
+        'menuid'     : 'ponpower',
+        'name'       : 'ponpower',
+        'title'      : u'PON口光功率',
+        'table'      : table,
+        'filterForm' : form
+    }
+    return render_template('/perf/pon/index.html', **kwargs)
+
+    
+# ==============================================================================
+#  Other
+# ==============================================================================    
 @perfview.route('/olts/')
 def olts():
     return render_template('perf/olts/index.html')
@@ -180,9 +196,23 @@ def test_fieldset():
 def add_time():
     from random import Random
     import calendar
+    
     rand = Random()
+    key = request.args.get('key', '')
     num = request.args.get('num', 50, type=int)
-        
+    CLSES = {
+        'ping' : PingPerf,
+        'cpumem': CpuMemPerf,
+        'board': BoardPerf,
+        'intftraffic': IntfTrafficPerf,
+        'ponpower': PonPowerPerf,
+        'ponusage': PonUsagePerf,
+        'pontraffic': PonTrafficPerf
+    }
+    if not key or key not in CLSES.keys():
+        return '*key* ERROR(%s)!\r\n %s' % (key, str(CLSES))
+    cls = CLSES[key]
+    
     for i in range(num):
         year = 2012
         month = rand.randint(9, 10)
@@ -192,7 +222,7 @@ def add_time():
         minute = rand.randint(0, 59)
         dt = datetime(year, month, day, hour, minute)
         
-        obj = PingPerf()
+        obj = cls()
         obj.sampletime = dt
         obj.sampleyear = year
         obj.samplemonth = month
@@ -200,6 +230,14 @@ def add_time():
         obj.sampleweekday = dt.weekday()
         obj.samplehour = hour
         obj.nodeid = 104
+        if key == 'cpumem':
+            attrs = ['cupavg', 'cpumax',
+                     'memavg', 'memmax',
+                     'tempavg', 'tempmax']
+            for attr in attrs:
+                value = rand.random() * 20
+                setattr(obj, attr, value)
+        
         db.session.add(obj)
     db.session.commit()
     return 'OK: ' + str(num)

@@ -49,10 +49,11 @@ class BoundRow(object):
         bound_column = self.table.columns[name]
         #value = getattr(self.record, name, '')
         value = None
-        if bound_column.column.subcolumns:
+        if bound_column.subcolumns:
             subvalues = []
-            for name, field_name in bound_column.column.subcolumns:
-                subvalues.append(A(field_name).resolve(self.record))
+            for name, field_name in bound_column.subcolumns:
+                subvalue = A(field_name).resolve(self.record)
+                subvalues.append(str(subvalue))
             value = '/'.join(subvalues)
         elif name not in ['check']:
             try:
