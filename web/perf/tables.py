@@ -50,7 +50,7 @@ class BoardTable(t.Table, NodeMixin):
         model = BoardPerf
     
     
-class IntfUsageTable(NodeMixin):
+class IntfUsageTable(t.Table, NodeMixin):
     intftotal      = t.Column(u'端口总数')
     intfused       = t.Column(u'端口使用数')
     intfusage      = t.Column(u'端口占用率')   
@@ -60,7 +60,7 @@ class IntfUsageTable(NodeMixin):
         model = IntfUsagePerf
 
         
-class IntfTrafficPerfTable(t.Table):
+class IntfTrafficPerfTable(t.Table, NodeMixin):
 
     helpdoc         = u'端口性能'
 

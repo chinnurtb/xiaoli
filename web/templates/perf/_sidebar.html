@@ -2,27 +2,25 @@
 
 {{ render_sidebar('节点性能', menuid, [
     ('ping', 'PING时延', url_for('perf.ping')),
+    ('cpumem', 'CPU/内存', url_for('perf.cpumem')),
+    ('intfusage', '端口占用', url_for('perf.intfusage', name='all')), 
+    ('intftraffic', '端口流量', url_for('perf.intftraffic', name='all')) 
 ]) }}
-    {# ('cpumem', 'CPU/内存', url_for('perf.cpumem')), #}
-    {# ('intfusage', '端口占用', url_for('perf.intfusage')), #}
-    {# ('intftraffic', '端口流量', url_for('perf.intftraffic')) #}
 
-{# {{ render_sidebar('OLT性能', menuid, [ #}
-{#     ('intftraffic_oltup', '上联口流量流速', url_for('perf.intftraffic', name='oltup')), #}
-{#     ('intftraffic_oltpon', 'PON口流量流速', url_for('perf.intftraffic', name='oltpon')), #}
-{#     ('ponusage', 'PON口占用率', url_for('perf.ponusage')), #}
-{#     ('ponpower', 'PON口光功率', url_for('perf.ponpower')) #}
-{# ]) }} #}
+{{ render_sidebar('OLT性能', menuid, [
+    ('intftraffic_oltup', '上联口流量流速', url_for('perf.intftraffic', name='oltup')), 
+    ('intftraffic_oltpon', 'PON口流量流速', url_for('perf.intftraffic', name='oltpon')), 
+    ('ponusage', 'PON口占用率', url_for('perf.ponusage')), 
+    ('ponpower', 'PON口光功率', url_for('perf.ponpower'))
+]) }}
 
-{# {{ render_sidebar('ONU性能', menuid, [ #}
-{#     ('intftraffic_onupon', 'PON口流量流速', url_for('perf.intftraffic', name='onupon')), #}
-{#     ('intfusage_onu', '用户口占用率', url_for('perf.intfusage', name='onu')) #}
+{{ render_sidebar('ONU性能', menuid, [
+    ('intftraffic_onupon', 'PON口流量流速', url_for('perf.intftraffic', name='onupon')), 
+    ('intfusage_onu', '用户口占用率', url_for('perf.intfusage', name='onu')) 
+]) }}
 
-{# ]) }} #}
-
-{# {{ render_sidebar('EOC性能', menuid, [ #}
-{#     ('intftraffic_eocup', '上联口流量流速', url_for('perf.intftraffic', name='eocup')), #}
-{#     ('intftraffic_eoc', 'CPE流量流速', url_for('perf.intftraffic', name='cpe')) #}
-
-{# ]) }} #}
+{{ render_sidebar('EOC性能', menuid, [ 
+    ('intftraffic_eocup', '上联口流量流速', url_for('perf.intftraffic', name='eocup')), 
+    ('intftraffic_eoc', 'CPE流量流速', url_for('perf.intftraffic', name='cpe')) 
+]) }} 
 

@@ -42,16 +42,18 @@ def ajax_refresh_models():
 #     'node_cpumem'    : (u'CPU内存', CpuMemPerf, CpuMemTable, []),
 #     'node_intfusage' : (u'端口占用', IntfUsagePerf, PortUsageTable, []),
 #     'node_traffic'   : (u'端口流量', PortPerf, PortPerfTable, []),
+    
 #     'olt_uptraffic'  : (u'上联口流量流速', PortPerf, PortPerfTable, []),
 #     'olt_pontraffic' : (u'PON口流量流速', PortPerf, PortPerfTable, []),
 #     'olt_ponusage'   : (u'PON口占用率', PortPerf, PortUsageTable, []),
 #     'olt_ponpower'   : (u'PON口光功率', PortPerf, PonPowerTable, []),
+    
 #     'onu_pontraffic' : (u'PON口流量流速', PortPerf, PortPerfTable, []),
 #     'onu_intfusage'  : (u'用户口占用率', PortPerf, PortUsageTable, []),
+    
 #     'eoc_uptraffic'  : (u'上联口流量流速', PortPerf, PortPerfTable, []),
 #     'eoc_cpetraffic' : (u'CPE口流量流速', PortPerf, PortPerfTable, [])
 # }
-
 
 @perfview.route('/node/ping/')
 def ping():
@@ -61,15 +63,116 @@ def ping():
     table = make_table(query, PingTable)
     
     kwargs = {
-        'menuid': 'ping',
-        'name': 'ping',
-        'title': u'PING延时',
-        'table': table,
-        'filterForm': form
+        'menuid'     : 'ping',
+        'name'       : 'ping',
+        'title'      : u'PING延时',
+        'table'      : table,
+        'filterForm' : form
     }
     return render_template('/perf/node/index.html', **kwargs)
 
 
+@perfview.route('/node/cpumem')
+def cpumem():
+    form = NodePerfFilterForm(formdata=request.args)
+    form.refresh_choices(request.args)
+    query = form.filter(CpuMemPerf)
+    table = make_table(query, CpuMemTable)
+    
+    kwargs = {
+        'menuid'     : 'cpumem',
+        'name'       : 'cpumem',
+        'title'      : u'CPU/内存',
+        'table'      : table,
+        'filterForm' : form
+    }
+    return render_template('/perf/node/index.html', **kwargs)
+
+
+@perfview.route('/node/intfusage/<name>/')
+def intfusage(name):
+    CONFIG = {
+        'all' : ('intfusage', u'端口流量', IntfUsageTable),
+        'onu' : ('intfusage_onu', u'用户口占用率', IntfUsageTable),
+    }
+    form = NodePerfFilterForm(formdata=request.args)
+    form.refresh_choices(request.args)
+    query = form.filter(IntfUsagePerf)
+    menuid, title, table_cls = CONFIG[name]
+    table = make_table(query, table_cls)
+    
+    kwargs = {
+        'menuid'     : menuid,
+        'name'       : name,
+        'title'      : title,
+        'table'      : table,
+        'filterForm' : form
+    }
+    return render_template('/perf/node/index.html', **kwargs)
+    
+
+@perfview.route('/node/intftraffic/<name>/')
+def intftraffic(name):
+    CONFIG = {
+        'all'    : ('intftraffic', u'端口流量', IntfTrafficPerfTable),
+        'oltup'  : ('intftraffic_oltup', u'上联口流量流速', IntfTrafficPerfTable),
+        'oltpon' : ('intftraffic_oltpon', u'PON口流量流速', IntfTrafficPerfTable),
+        'onupon' : ('intftraffic_onupon', u'PON口流量流速', IntfTrafficPerfTable),
+        'eocup'  : ('intftraffic_eocup', u'上联口流量流速', IntfTrafficPerfTable),
+        'cpe'    : ('intftraffic_eoc', u'CPE流量流速', IntfTrafficPerfTable)
+    }
+    
+    form = NodePerfFilterForm(formdata=request.args)
+    form.refresh_choices(request.args)
+    query = form.filter(IntfTrafficPerf)
+    menuid, title, table_cls = CONFIG[name]
+    table = make_table(query, table_cls)
+    
+    kwargs = {
+        'menuid'     : menuid,
+        'name'       : name,
+        'title'      : title,
+        'table'      : table,
+        'filterForm' : form
+    }
+    return render_template('/perf/node/index.html', **kwargs)
+
+    
+@perfview.route('/olt/ponusage/')
+def ponusage():
+    form = NodePerfFilterForm(formdata=request.args)
+    form.refresh_choices(request.args)
+    query = form.filter(IntfUsagePerf)
+    table = make_table(query, IntfUsageTable)
+    
+    kwargs = {
+        'menuid'     : 'ponusage',
+        'name'       : 'ponusage',
+        'title'      : u'PON口占用率',
+        'table'      : table,
+        'filterForm' : form
+    }
+    return render_template('/perf/olt/index.html', **kwargs)
+    
+
+@perfview.route('/olt/ponpower/')
+def ponpower():
+    form = NodePerfFilterForm(formdata=request.args)
+    form.refresh_choices(request.args)
+    query = form.filter(IntfUsagePerf)
+    table = make_table(query, IntfUsageTable)
+    
+    kwargs = {
+        'menuid'     : 'ponpower',
+        'name'       : 'ponpower',
+        'title'      : u'PON口光功率',
+        'table'      : table,
+        'filterForm' : form
+    }
+    return render_template('/perf/olt/index.html', **kwargs)
+    
+    
+    
 # @perfview.route('/node/<name>')
 # def node(name):
 #     menuid = 'node_' + name

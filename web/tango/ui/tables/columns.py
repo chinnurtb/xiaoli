@@ -203,7 +203,7 @@ class BoundColumn(object):
 
         verbose_name = self.verbose_name
         if self.column.subcolumns:
-            verbose_name += '<br />(%s)' % ('/'.join([field_name for name, field_name \
+            verbose_name += '<br />(%s)' % ('/'.join([name for name, field_name \
                                                       in self.column.subcolumns]))
         return Markup(title(verbose_name))
 
