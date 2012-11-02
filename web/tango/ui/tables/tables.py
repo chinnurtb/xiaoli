@@ -101,9 +101,13 @@ class TableMeta(type):
         attrs["_meta"] = TableOptions(attrs.get("Meta", None), name)
         
         def get_columns(attrs):
-            columns = [(name_, attrs.pop(name_)) for name_, column in attrs.items()
+            columns = [(name_, attrs.get(name_)) for name_, column in attrs.items()
                        if isinstance(column, Column)]
             columns.sort(lambda x, y: cmp(x[1].creation_counter, y[1].creation_counter))
+            if isinstance(attrs, dict):
+                for name_, column in attrs.items():
+                    if isinstance(column, Column):
+                        attrs.pop(name_)
             return columns
         columns = get_columns(attrs)
         
