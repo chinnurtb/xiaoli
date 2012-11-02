@@ -548,3 +548,8 @@ table tr:hover {
     font-size: 13px;
 }
 
+#advanced-search-button.active {
+    border-color: #CCCCCC;
+}
+
+
