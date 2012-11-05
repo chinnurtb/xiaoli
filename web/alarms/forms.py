@@ -43,8 +43,8 @@ class AlarmKnowledgeForm(Form):
     resolvent       = TextAreaField(u'解决方案')
 
 class AlarmFilterForm(Form):
-    alarm_class = QuerySelectField(query_factory=lambda: AlarmClass.query, get_label='alias', allow_blank=True, blank_text=u'全部告警')
-    start_date  = DateTimeField(u'开始时间', format='%Y-%m-%d')
-    end_date    = DateTimeField(u'结束时间', format='%Y-%m-%d')
+    alarm_class = QuerySelectField(u'告警类型:', query_factory=lambda: AlarmClass.query, get_label='alias', allow_blank=True, blank_text=u'全部告警')
+    start_date  = DateTimeField(u'开始时间:', format='%Y-%m-%d')
+    end_date    = DateTimeField(u'结束时间:', format='%Y-%m-%d')
     keyword     = TextField()
     
