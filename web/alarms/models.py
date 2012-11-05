@@ -134,7 +134,8 @@ class AlarmSeverity(db.Model):
     count       = column_property(
                     select([func.count(Alarm.id)]).\
                         where(Alarm.severity == id))
-
+    
+    
     @staticmethod
     def name2id(name):
         if name == 'clear': return 0

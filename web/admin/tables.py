@@ -12,7 +12,7 @@ class CategoryTable(t.Table):
 
     helpdoc = u"分类表: 管理设备分类表"
 
-    edit   = t.Action(name=u'编辑', endpoint='admin.categories_edit', modalable=True)
+    edit   = t.Action(name=u'编辑', endpoint='admin.categories_edit')
     delete = t.Action(name=u'删除', endpoint='admin.categories_delete', modalable=True)
     check  = t.CheckBoxColumn()
 
@@ -27,6 +27,11 @@ class CategoryTable(t.Table):
         order_by = 'id'
 
 class VendorTable(t.Table):
+    helpdoc = u'厂商表'
+    
+    edit   = t.Action(name=u'编辑', endpoint='admin.vendors_edit')
+    delete = t.Action(name=u'删除', endpoint='admin.vendors_delete', modalable=True)
+    check  = t.CheckBoxColumn()
 
     id      = t.Column(u'ID', orderable=True)
     name    = t.Column(u'供应商名', orderable=True)
@@ -39,8 +44,11 @@ class VendorTable(t.Table):
         order_by = 'id'
     
 class ModelTable(t.Table):
-
     helpdoc = u"型号表: 管理维护设备型号"
+
+    edit   = t.Action(name=u'编辑', endpoint='admin.models_edit')
+    delete = t.Action(name=u'删除', endpoint='admin.models_delete', modalable=True)
+    check  = t.CheckBoxColumn()
     
     id          = t.Column(u'ID', orderable=True)
     category    = t.Column(u'设备分类', accessor='category.alias', orderable=True)   
@@ -57,9 +65,12 @@ class ModelTable(t.Table):
     
 
 class ModuleTable(t.Table):
-    
     helpdoc = u"采集模块表: 管理维护采集模块"
 
+    edit   = t.Action(name=u'编辑', endpoint='admin.modules_edit')
+    delete = t.Action(name=u'删除', endpoint='admin.modules_delete', modalable=True)
+    check  = t.CheckBoxColumn()
+    
     id      = t.Column(u'ID', orderable=True)
     name    = t.Column(u'模块名', orderable=True)
     alias   = t.Column(u'模块别名')
@@ -73,8 +84,11 @@ class ModuleTable(t.Table):
         order_by = 'id'
 
 class SysOidTable(t.Table):
-    
     helpdoc = u'SysOid表: 管理设备系统OID'
+
+    edit   = t.Action(name=u'编辑', endpoint='admin.sysoids_edit')
+    delete = t.Action(name=u'删除', endpoint='admin.sysoids_delete', modalable=True)
+    check  = t.CheckBoxColumn()
 
     sysoid  = t.Column(u'OID', orderable=True)
     model   = t.Column(u'设备型号', accessor='model.alias', orderable=True)
@@ -87,8 +101,11 @@ class SysOidTable(t.Table):
         order_by = 'id'
     
 class MonitorTable(t.Table):
-
     helpdoc = u'监控器表: 管理配置监控器'
+
+    edit   = t.Action(name=u'编辑', endpoint='admin.monitors_edit')
+    delete = t.Action(name=u'删除', endpoint='admin.monitors_delete', modalable=True)
+    check  = t.CheckBoxColumn()
 
     category    = t.Column(u'设备分类', orderable=True)
     vendor      = t.Column(u'设备供应商', orderable=True)

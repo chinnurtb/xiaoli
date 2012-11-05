@@ -9,22 +9,22 @@ class Module(db.Model):
     id          = db.Column(db.Integer, primary_key=True)
     name        = db.Column(db.String(20))
     alias       = db.Column(db.String(40))
-    period      = db.Column(db.Integer)
-    retries     = db.Column(db.Integer)
-    timeout     = db.Column(db.Integer)
+    period      = db.Column(db.Integer) # 采集周期, 单位: minute
+    retries     = db.Column(db.Integer) # 重试次数, 单位: 次
+    timeout     = db.Column(db.Integer) # 超时, 单位: second
     remark      = db.Column(db.String(100))
 
-class Monitor(db.Model):
     
+class Monitor(db.Model):
     """监控器表"""
     
     __tablename__ = 'monitors'
 
     id          = db.Column(db.Integer, primary_key=True)
-    category    = db.Column(db.String(20))
-    vendor      = db.Column(db.String(20))
-    sysoid      = db.Column(db.String(100))
-    match       = db.Column(db.String(100))
+    category    = db.Column(db.String(20)) # 分类, 不关联
+    vendor      = db.Column(db.String(20)) # 供应商,
+    sysoid      = db.Column(db.String(100)) # 不关联
+    match       = db.Column(db.String(100)) # 匹配规则
     modid       = db.Column(db.Integer, db.ForeignKey('modules.id'))
     mib         = db.Column(db.String(20))
     remark      = db.Column(db.String(100))
@@ -33,15 +33,15 @@ class Monitor(db.Model):
 
     
 class Miboid(db.Model):
+    """Mib 文件"""
     __tablename__ = 'miboids'
 
     id       = db.Column(db.Integer, primary_key=True)
     mib      = db.Column(db.String(100))
     grp      = db.Column(db.String(40))
     name     = db.Column(db.String(100))
+    alias    = db.Column(db.String(100))
     oid      = db.Column(db.String(100))
     is_valid = db.Column(db.Integer)
-    alias    = db.Column(db.String(100))
     remark   = db.Column(db.String(100))
-
 

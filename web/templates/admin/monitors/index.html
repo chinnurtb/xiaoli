@@ -16,10 +16,27 @@
             {% set menuid = 'monitors' %}
             {% include 'admin/_sidebar.html' %}
         </div>
+
         <div class="span10">
-            {% from "_table_h.html" import render_table %}
-            {{ render_table(table) }}
+          {% include "_alert.html" %}
+          <div class="tablenav top">
+            <div class="alignleft actions">
+              <div class="alignleft btn-group">
+                <a class="btn btn-small" href="/admin/monitors/new"><i class="icon-plus"></i>新建监控器</a>
+                <a class="btn btn-small" id="multi-delete-btn" href="/dict-codes/new"><i class="icon-remove"></i>删除</a>
+              </div>
+            </div>
+
+            {% from "tango/_search_h.html" import search_form %}
+            <div class="alignleft actions">
+              {{ search_form(request) }}
+            </div>
+            <br class="clear">
+          </div>
+          {% from "_table_h.html" import render_table %}
+          {{ render_table(table) }}
         </div>
+        <div class="modal hide fade" id="myModal"></div>
     </div>
 
 {% endblock %}

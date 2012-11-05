@@ -11,7 +11,11 @@ $(function() {
 
 // Modal
 $(function(){
-  $('.row-actions .modal-btn').click(function(){
+  $('#multi-delete-btn').click(function(){
+    $('#')
+  });
+  
+  $('.modal-btn').click(function(){
     $.get($(this).attr('href'), function(data){
       console.log(data);
       $('#myModal').html(data).modal('show');

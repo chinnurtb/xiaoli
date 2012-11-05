@@ -5,7 +5,7 @@
 {% from "_form_h.html" import render_field, render_form_title %}
 
 {% block content %}
-<div class="row-fluid" style="margin-top:20px">
+<div class="row-fluid content">
     <div class="span2">
       {% set menuid = 'thresholds' %}
       {% include "system/_sidebar.html" %}
@@ -22,11 +22,11 @@
         <legend>一级阀值设置</legend>                      
         {{ render_field(form.occur_cond1) }}
         {{ render_field(form.restore_cond1) }}
-        {{ render_field(form.severity1) }}
+        {{ render_field(form.severity1_obj) }}
         <legend>二级阀值设置</legend>                      
         {{ render_field(form.occur_cond2) }}
         {{ render_field(form.restore_cond2) }}
-        {{ render_field(form.severity2) }}
+        {{ render_field(form.severity2_obj) }}
 	<div class="form-actions">
 	  <button type="submit" class="btn btn-primary">确定</button>
 	  <a href="#" class="btn">取消</a>

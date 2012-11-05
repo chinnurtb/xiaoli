@@ -82,10 +82,10 @@ class Vendor(db.Model):
     __tablename__ = 'vendors'
     id       = db.Column(db.Integer, primary_key=True)
     cityid   = db.Column(db.Integer)
-    type_id  = db.Column(db.Integer)
+    type_id  = db.Column(db.Integer) # 貌似没用?
     name     = db.Column(db.String(100))   
     alias    = db.Column(db.String(100))
-    url      = db.Column(db.String(100))
+    url      = db.Column(db.String(100)) # 厂商主页
     is_valid = db.Column(db.Integer)
 
     models = db.relationship("Model", backref="vendor")
@@ -132,14 +132,14 @@ class Model(db.Model):
     id                = db.Column(db.Integer, primary_key=True)
     cityid            = db.Column(db.Integer)
     category_id       = db.Column(db.Integer, db.ForeignKey("categories.id"))
-    object            = db.Column(db.String(100))
+    object            = db.Column(db.String(100)) # 不要
     name              = db.Column(db.String(100))
     alias             = db.Column(db.String(100))
     sysoid            = db.Column(db.String(100))
     vendor_id         = db.Column(db.Integer, db.ForeignKey("vendors.id"))
-    fttx              = db.Column(db.Integer)
-    control_slot_num  = db.Column(db.Integer)
-    business_slot_num = db.Column(db.Integer)
+    fttx              = db.Column(db.Integer) # 不要
+    control_slot_num  = db.Column(db.Integer) # 不要
+    business_slot_num = db.Column(db.Integer) # 不要
     is_valid          = db.Column(db.Integer)
     remark            = db.Column(db.String(100))
 
@@ -419,9 +419,9 @@ class SysOid(db.Model):
     id          = db.Column(db.Integer, primary_key=True)
     sysoid      = db.Column(db.String(100))
     model_id    = db.Column(db.Integer, db.ForeignKey('models.id'))
-    disco       = db.Column(db.String(20))
-    mib         = db.Column(db.String(20))
+    disco       = db.Column(db.String(20)) # 发现模块
+    mib         = db.Column(db.String(20)) # mib文件, 从 miboids.mib 中选
     remark      = db.Column(db.String(100))
-
+    
     model       = db.relation('Model')
-
+    

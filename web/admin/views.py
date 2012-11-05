@@ -10,7 +10,7 @@ from tango.models import Category
 from nodes.models import Vendor, SysOid, Model
 
 from .models import Module, Monitor, Miboid
-from .forms import CategoryForm
+from .forms import CategoryForm, VendorForm, ModelForm, SysoidForm, ModuleForm, MonitorForm
 from .tables import CategoryTable, VendorTable, ModuleTable, \
     ModelTable, SysOidTable, MonitorTable, MiboidTable
 
@@ -30,7 +30,7 @@ def categories():
         table = table)
 
     
-@adminview.route('/categories/new')
+@adminview.route('/categories/new', methods=['GET', 'POST'])
 def categories_new():
     form = CategoryForm()
     if form.is_submitted and form.validate_on_submit():
@@ -48,19 +48,46 @@ def categories_new():
     }
     return render_template('admin/categories/new-edit.html', **kwargs)
 
-@adminview.route('/categories/edit/<int:id>')
+@adminview.route('/categories/edit/<int:id>', methods=['GET', 'POST'])
 def categories_edit(id):
-    pass
+    form = CategoryForm()
+    category = Category.query.get_or_404(id)
+    if form.is_submitted and form.validate_on_submit():
+        form.populate_obj(category)
+        db.session.commit()
+        flash(u'%s 修改成功' % category.alias, 'success')
+        return redirect(url_for('admin.categories'))
+        
+    form.process(obj=category)
+    kwargs = {
+        'title': u'编辑类别',
+        'action': url_for('admin.categories_edit', id=id),
+        'form': form
+    }
+    return render_template('admin/categories/new-edit.html', **kwargs)
     
-@adminview.route('/categories/delete/<int:id>')
+@adminview.route('/categories/delete/<int:id>', methods=['GET', 'POST'])
 def categories_delete(id):
-    pass
+    category = Category.query.get_or_404(id)
+    if request.method == 'POST':
+        db.session.delete(category)
+        db.session.commit()
+        flash(u'%s 已删除' % category.alias, 'success')
+        return redirect(url_for('admin.categories'))
+        
+    kwargs = {
+        'title': u'删除类别',
+        'action': url_for('admin.categories_delete', id=id),
+        'fields': [(u'分组', category.obj), (u'显示名', category.alias)],
+        'type' : 'delete'
+    }
+    return render_template('_modal.html', **kwargs)
     
     
 @adminview.route('/categories/delete/all')
 def categories_delete_all():
     pass
-    
+
     
 # ==============================================================================
 #  供应商
@@ -71,26 +98,70 @@ def vendors():
     return render_template('admin/vendors/index.html',
         table = table)
 
-@adminview.route('/vendors/new')
+    
+@adminview.route('/vendors/new', methods=['GET', 'POST'])
 def vendors_new():
-    pass
-
-@adminview.route('/vendors/edit/<int:id>')
-def vendors_edit(id):
-    pass
+    form = VendorForm()
+    if form.is_submitted and form.validate_on_submit():
+        vendor = Vendor()
+        form.populate_obj(vendor)
+        db.session.add(vendor)
+        db.session.commit()
+        flash(u'%s 添加成功' % vendor.alias, 'success') # Diff
+        return redirect(url_for('admin.vendors'))
+        
+    kwargs = {
+        'title' : u'添加厂商',
+        'action' : url_for('admin.vendors_new'),
+        'form' : form,
+    }
+    return render_template('admin/vendors/new-edit.html', **kwargs)
     
 
-@adminview.route('/vendors/delete/<int:id>')
-def vendors_delete(id):
-    pass
+@adminview.route('/vendors/edit/<int:id>', methods=['GET', 'POST'])
+def vendors_edit(id):
+    form = VendorForm()
+    vendor = Vendor.query.get_or_404(id)
+    if form.is_submitted and form.validate_on_submit():
+        form.populate_obj(vendor)
+        db.session.commit()
+        flash(u'%s 修改成功' % vendor.alias, 'success') # Diff
+        return redirect(url_for('admin.vendors'))
+        
+    form.process(obj=vendor)
+    kwargs = {
+        'title': u'编辑厂商',
+        'action': url_for('admin.vendors_edit', id=id),
+        'form': form
+    }
+    return render_template('admin/vendors/new-edit.html', **kwargs)
 
+    
+@adminview.route('/vendors/delete/<int:id>', methods=['GET', 'POST'])
+def vendors_delete(id):
+    vendor = Vendor.query.get_or_404(id)
+    if request.method == 'POST':
+        db.session.delete(vendor)
+        db.session.commit()
+        flash(u'%s 已删除' % vendor.alias, 'success') # Diff
+        return redirect(url_for('admin.vendors'))
+        
+    kwargs = {
+        'title': u'删除厂商',
+        'action': url_for('admin.vendors_delete', id=id),
+        'fields': [(u'显示名', vendor.alias)], # Diff
+        'type' : 'delete'
+    }
+    return render_template('_modal.html', **kwargs)
+
+    
 @adminview.route('/vendors/delete/all')
 def vendors_delete_all():
-    pass
+    pass    
 
     
 # ==============================================================================
-#  型号
+#  设备
 # ==============================================================================    
 @adminview.route('/models/')
 def models():
@@ -98,21 +169,65 @@ def models():
     return render_template('admin/models/index.html',
         table = table)
 
-@adminview.route('/models/new')
+    
+@adminview.route('/models/new', methods=['GET', 'POST'])
 def models_new():
-    pass
+    form = ModelForm()
+    if form.is_submitted and form.validate_on_submit():
+        model = Model()
+        form.populate_obj(model)
+        db.session.add(model)
+        db.session.commit()
+        flash(u'%s 添加成功' % model.alias, 'success') # Diff
+        return redirect(url_for('admin.models'))
+        
+    kwargs = {
+        'title' : u'添加设备',
+        'action' : url_for('admin.models_new'),
+        'form' : form,
+    }
+    return render_template('admin/models/new-edit.html', **kwargs)
 
-@adminview.route('/models/edit/<int:id>')
+@adminview.route('/models/edit/<int:id>', methods=['GET', 'POST'])
 def models_edit(id):
-    pass
-
-@adminview.route('/models/delete/<int:id>')
+    form = ModelForm()
+    model = Model.query.get_or_404(id)
+    if form.is_submitted and form.validate_on_submit():
+        form.populate_obj(model)
+        db.session.commit()
+        flash(u'%s 修改成功' % model.alias, 'success') # Diff
+        return redirect(url_for('admin.models'))
+        
+    form.process(obj=model)
+    kwargs = {
+        'title': u'编辑设备',
+        'action': url_for('admin.models_edit', id=id),
+        'form': form
+    }
+    return render_template('admin/models/new-edit.html', **kwargs)
+    
+@adminview.route('/models/delete/<int:id>', methods=['GET', 'POST'])
 def models_delete(id):
-    pass
+    model = Model.query.get_or_404(id)
+    if request.method == 'POST':
+        db.session.delete(model)
+        db.session.commit()
+        flash(u'%s 已删除' % model.alias, 'success') # Diff
+        return redirect(url_for('admin.models'))
+        
+    kwargs = {
+        'title': u'删除设备',
+        'action': url_for('admin.models_delete', id=id),
+        'fields': [(u'显示名', model.alias)], # Diff
+        'type' : 'delete'
+    }
+    return render_template('_modal.html', **kwargs)
 
+    
 @adminview.route('/models/delete/all')
 def models_delete_all():
-    pass
+    pass    
+
     
 # ==============================================================================
 #  SysOID
@@ -122,10 +237,66 @@ def sysoids():
     table = make_table(SysOid.query, SysOidTable)
     return render_template('admin/sysoids/index.html',
         table = table)
+
     
+@adminview.route('/sysoids/new', methods=['GET', 'POST'])
+def sysoids_new():
+    form = SysoidForm()
+    if form.is_submitted and form.validate_on_submit():
+        sysoid = SysOid()
+        form.populate_obj(sysoid)
+        db.session.add(sysoid)
+        db.session.commit()
+        return redirect(url_for('admin.sysoids'))
+        
+    kwargs = {
+        'title' : u'添加Sysoid',
+        'action' : url_for('admin.sysoids_new'),
+        'form' : form,
+    }
+    return render_template('admin/sysoids/new-edit.html', **kwargs)
+
+@adminview.route('/sysoids/edit/<int:id>', methods=['GET', 'POST'])
+def sysoids_edit(id):
+    form = SysoidForm()
+    sysoid = SysOid.query.get_or_404(id)
+    if form.is_submitted and form.validate_on_submit():
+        form.populate_obj(sysoid)
+        db.session.commit()
+        return redirect(url_for('admin.sysoids'))
+        
+    form.process(obj=sysoid)
+    kwargs = {
+        'title': u'编辑Sysoid',
+        'action': url_for('admin.sysoids_edit', id=id),
+        'form': form
+    }
+    return render_template('admin/sysoids/new-edit.html', **kwargs)
+    
+@adminview.route('/sysoids/delete/<int:id>', methods=['GET', 'POST'])
+def sysoids_delete(id):
+    sysoid = SysOid.query.get_or_404(id)
+    if request.method == 'POST':
+        db.session.delete(sysoid)
+        db.session.commit()
+        return redirect(url_for('admin.sysoids'))
+        
+    kwargs = {
+        'title': u'删除Sysoid',
+        'action': url_for('admin.sysoids_delete', id=id),
+        'fields': [(u'Sysoid', sysoid.sysoid)],
+        'type' : 'delete'
+    }
+    return render_template('_modal.html', **kwargs)
+
+    
+@adminview.route('/sysoids/delete/all')
+def sysoids_delete_all():
+    pass    
+
     
 # ==============================================================================
-#  监控模块
+#  采集模块
 # ==============================================================================    
 @adminview.route('/modules/')
 def modules():
@@ -133,6 +304,67 @@ def modules():
     return render_template('admin/modules/index.html',
         table=table)
 
+    
+@adminview.route('/modules/new', methods=['GET', 'POST'])
+def modules_new():
+    form = ModuleForm()
+    if form.is_submitted and form.validate_on_submit():
+        module = Module()
+        form.populate_obj(module)
+        db.session.add(module)
+        db.session.commit()
+        flash(u'%s 添加成功' % module.alias, 'success') # Diff
+        return redirect(url_for('admin.modules'))
+        
+    kwargs = {
+        'title' : u'添加采集模块',
+        'action' : url_for('admin.modules_new'),
+        'form' : form,
+    }
+    return render_template('admin/modules/new-edit.html', **kwargs)
+
+@adminview.route('/modules/edit/<int:id>', methods=['GET', 'POST'])
+def modules_edit(id):
+    form = ModuleForm()
+    module = Module.query.get_or_404(id)
+    if form.is_submitted and form.validate_on_submit():
+        form.populate_obj(module)
+        db.session.commit()
+        flash(u'%s 修改成功' % module.alias, 'success') # Diff
+        return redirect(url_for('admin.modules'))
+        
+    form.process(obj=module)
+    kwargs = {
+        'title': u'编辑采集模块',
+        'action': url_for('admin.modules_edit', id=id),
+        'form': form
+    }
+    return render_template('admin/modules/new-edit.html', **kwargs)
+    
+@adminview.route('/modules/delete/<int:id>', methods=['GET', 'POST'])
+def modules_delete(id):
+    module = Module.query.get_or_404(id)
+    if request.method == 'POST':
+        db.session.delete(module)
+        db.session.commit()
+        flash(u'%s 已删除' % module.alias, 'success') # Diff
+        return redirect(url_for('admin.modules'))
+        
+    kwargs = {
+        'title': u'删除采集模块',
+        'action': url_for('admin.modules_delete', id=id),
+        'fields': [(u'显示名', module.alias)], # Diff
+        'type' : 'delete'
+    }
+    return render_template('_modal.html', **kwargs)
+
+    
+@adminview.route('/modules/delete/all')
+def modules_delete_all():
+    pass    
+
+
+    
 # ==============================================================================
 #  监控器
 # ==============================================================================    
@@ -142,6 +374,63 @@ def monitors():
     return render_template('admin/monitors/index.html',
         table = table)
 
+    
+@adminview.route('/monitors/new', methods=['GET', 'POST'])
+def monitors_new():
+    form = MonitorForm()
+    if form.is_submitted and form.validate_on_submit():
+        monitor = Monitor()
+        form.populate_obj(monitor)
+        db.session.add(monitor)
+        db.session.commit()
+        return redirect(url_for('admin.monitors'))
+        
+    kwargs = {
+        'title' : u'添加监控器',
+        'action' : url_for('admin.monitors_new'),
+        'form' : form,
+    }
+    return render_template('admin/monitors/new-edit.html', **kwargs)
+
+@adminview.route('/monitors/edit/<int:id>', methods=['GET', 'POST'])
+def monitors_edit(id):
+    form = MonitorForm()
+    monitor = Monitor.query.get_or_404(id)
+    if form.is_submitted and form.validate_on_submit():
+        form.populate_obj(monitor)
+        db.session.commit()
+        return redirect(url_for('admin.monitors'))
+        
+    form.process(obj=monitor)
+    kwargs = {
+        'title': u'编辑监控器',
+        'action': url_for('admin.monitors_edit', id=id),
+        'form': form
+    }
+    return render_template('admin/monitors/new-edit.html', **kwargs)
+    
+@adminview.route('/monitors/delete/<int:id>', methods=['GET', 'POST'])
+def monitors_delete(id):
+    monitor = Monitor.query.get_or_404(id)
+    if request.method == 'POST':
+        db.session.delete(monitor)
+        db.session.commit()
+        return redirect(url_for('admin.monitors'))
+        
+    kwargs = {
+        'title': u'删除监控器',
+        'action': url_for('admin.monitors_delete', id=id),
+        'fields': [(u'备注', monitor.remark)],
+        'type' : 'delete'
+    }
+    return render_template('_modal.html', **kwargs)
+
+    
+@adminview.route('/monitors/delete/all')
+def monitors_delete_all():
+    pass
+
+    
 # ==============================================================================
 #  MIB管理
 # ==============================================================================    

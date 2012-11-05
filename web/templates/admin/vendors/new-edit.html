@@ -5,7 +5,7 @@
 {% block content %}
 <div class="row-fluid content">
     <div class="span2">
-      {% set menuid = 'categories' %}
+      {% set menuid = 'vendors' %}
       {% include "admin/_sidebar.html" %}
     </div>
     
@@ -14,7 +14,7 @@
 	  <form class="form-horizontal" method="POST" action="{{ action }}">
             {{ render_form_title(request, title) }}
 	    {{ form.hidden_tag() }}
-            
+
             {% for field in form %}
               {{ render_field(field) }}
             {% endfor %}
