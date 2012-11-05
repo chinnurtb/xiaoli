@@ -38,7 +38,7 @@
     </div>
     <div class="span10">
         {% include "_alert.html" %}
-        <ul id="status_statistics">
+        <ul id="status_statistics" class="subsubsub">
             {% for status in status_statistcs %}
                 <li class="status-{{ status.status }}">
                     <a href="{{ url_for('nodes.olts', status=status.status) }}">{{ status.name }}<span class="count">({{ status.number }})</span></a>
