@@ -27,14 +27,17 @@
             {% include 'system/_sidebar.html' %}
         </div>
         <div class="span10">
+
+          <form method="GET" class="form filter-form">
+          {% from 'tango/_search_h.html' import render_keyword %}
+            
             <div class="tablenav top">
                 <div class="alignleft actions input-append">
-                    <form class="form-inline filter-form" action="" method="GET">
-                        {{ searchForm.keyword(placeholder='用户名或终端IP', class='input-low') }}
-                        <button class="btn btn-small" type="submit">检索</button>
-                    </form>
+                    {{ render_keyword(filterForm, "用户名/终端IP") }}
                 </div>
             </div>
+
+            </form>
             {{ render_table(table) }}
         </div>
     </div>

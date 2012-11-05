@@ -24,6 +24,10 @@
         </div>
         <div class="span10">
           {% include "_alert.html" %}
+
+          <form method="GET" class="form filter-form">
+          {% from 'tango/_search_h.html' import render_keyword %}
+
           <div class="tablenav top">
               <div class="alignleft actions">
                 <div class="btn-group">
@@ -31,13 +35,12 @@
                 </div>
               </div>
               <div class="alignleft actions">
-              <form class="form-inline filter-form input-append" method="GET" action="{{url_for('system.timeperiods')}}">
-                  <input type="text" name="keyword" class="input-low" value="{{ keyword }}" />
-                  <button id="advance_sarch" class="btn btn-small">检索</button>
-              </form>
+                {{ render_keyword(filterForm, "名称/显示名") }}
               </div>
               <br class="clear">
           </div>
+          </form>
+
           {{ render_table(table) }}
         <div>
     </div>

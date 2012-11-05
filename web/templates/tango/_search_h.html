@@ -1,0 +1,40 @@
+{% macro render_keyword(form, placeholder=None, advanced=False) %}
+
+<div class="form-inline input-append" style="margin:0px;">
+    {{ form.keyword(class="input-low", placeholder=placeholder) }}
+    <button type="submit" data-placement="bottom" rel="tooltip" class="btn btn-small" data-original-title="搜索"><i class="icon-search"></i></button>
+    {% if advanced %}
+        <button class="btn btn-small advanced-search-btn" data-placement="bottom" rel="tooltip" data-original-title="高级搜索"><i class="icon-cog"></i></button>
+    {% endif %}
+</div>
+
+{% endmacro %}
+
+{% macro render_advanced(request, form) %}
+    {% set _advshow = request.args.get('_advshow') %}
+    <div class="advanced-search-form header" style="display:none;">
+      <div class="form form-horizontal" style="margin:0px;">
+        <input id="_advshow" type="hidden" name="_advshow"
+            {% if _advshow %} value="{{_advshow}}" {% endif %}></input>
+        {{ caller() }}
+      </div>
+    </div>
+    <script>
+    $(".advanced-search-btn").toggle(
+        function() {
+            $(".advanced-search-form").show();
+            $("#_advshow").attr({value: "1"});
+            $(this).addClass('active');
+        },
+        function() {
+            $(".advanced-search-form").hide();
+            $("#_advshow").attr({value: "0"});
+            $(this).removeClass('active');
+        }
+    )
+    {% if _advshow == '1' %}
+        $(".advanced-search-btn").click();
+    {% endif %}
+    </script>
+{% endmacro %}
+
