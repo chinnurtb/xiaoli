@@ -12,6 +12,10 @@ class CategoryTable(t.Table):
 
     helpdoc = u"分类表: 管理设备分类表"
 
+    edit   = t.Action(name=u'编辑', endpoint='admin.categories_edit', modalable=True)
+    delete = t.Action(name=u'删除', endpoint='admin.categories_delete', modalable=True)
+    check  = t.CheckBoxColumn()
+
     id      = t.Column(u'ID', orderable=True)
     obj     = t.Column(u'对象', orderable=True)
     name    = t.Column(u'分类名', orderable=True)

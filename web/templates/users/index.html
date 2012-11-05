@@ -50,8 +50,10 @@
     <form method="POST" id="table-form" action="{{ url_for('users.users_delete_all') }}">
       {{ render_table(table) }}
     </form>
-    {{ render_modal(['edit', 'delete']) }}
   </div>
+  
+  <div class="modal hide fade" id="myModal"></div>
+  
 </div>
 {% endblock %}
 

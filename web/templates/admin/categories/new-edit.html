@@ -1,0 +1,33 @@
+{% extends 'layout.html' %}
+
+{% from "_form_h.html" import render_field, render_form_title %}
+
+{% block content %}
+<div class="row-fluid" style="margin-top:20px">
+    <div class="span2">
+      {% set menuid = 'categories' %}
+      {% include "system/_sidebar.html" %}
+    </div>
+    
+    <div class="span10">
+	<div class="row-fluid">
+	  <form class="form-horizontal" method="POST" action="{{ action }}">
+            {{ render_form_title(request, title) }}
+	    {{ form.hidden_tag() }}
+            {{ render_field(form.id) }}
+            {{ render_field(form.obj) }}
+            {{ render_field(form.name) }}
+            {{ render_field(form.alias) }}
+            {{ render_field(form.is_valid) }}
+	    <div class="form-actions">
+	      <button type="submit" class="btn btn-primary">确定</button>
+	      <a href="#" class="btn">取消</a>
+	    </div>
+	  </form>
+	</div>
+        <br class="clear">
+    </div>
+</div>
+
+{% endblock %}
+

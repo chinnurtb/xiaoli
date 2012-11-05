@@ -21,6 +21,7 @@
   </th>
 {%- endmacro %}
 
+  
 <!-- render_paginate -->
 {% macro render_paginate(page_obj, page_url) -%}
 <div class="pagination pagination-right">
@@ -216,7 +217,7 @@
     var types = {{ types|safe }};
     for (var t in types){
         
-        $actions.filter('.' + types[t] + '-btn').on('click', function(){
+    $actions.filter('.' + types[t] + '-btn').on('click', function(){
             $.ajax({
                 type: 'GET',
                 dateType: 'json',

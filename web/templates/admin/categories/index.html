@@ -1,8 +1,14 @@
 {% extends 'layout.html' %}
-
 {% set navid = 'admin' %}
-
 {% set title = "分类管理" %}
+
+{% block head %}
+
+{% from "_table_h.html" import render_table, render_table_profile %}
+<script type="text/javascript">
+  {{ render_table_profile(table) }}
+</script>
+{% endblock %}
 
 {% block screen_meta %}
     {% from "_table_h.html" import render_screen_meta %}
@@ -17,8 +23,25 @@
             {% include 'admin/_sidebar.html' %}
         </div>
         <div class="span10">
-            {% from "_table_h.html" import render_table %}
-            {{ render_table(table) }}
+          {% include "_alert.html" %}
+          <div class="tablenav top">
+            <div class="alignleft actions">
+              <div class="alignleft btn-group">
+                <a class="btn btn-small" href="/admin/categories/new"><i class="icon-plus"></i>新建类别</a>
+                <a class="btn btn-small" id="multi-delete-btn" href="/dict-codes/new"><i class="icon-remove"></i>删除</a>
+              </div>
+            </div>
+            
+            <div class="alignleft actions">
+              <form method="GET" id="" class="form-inline filter-form" action="">
+                {{ form.type(style="width:auto;", class="input-low") }}
+                {{ form.is_valid(style="width:auto;", class="input-low") }}
+                <button class="btn btn-small" type="submit">检索</button>
+              </form>
+            </div>
+            <br class="clear">
+          </div>
+          {{ render_table(table) }}
         </div>
     </div>
 

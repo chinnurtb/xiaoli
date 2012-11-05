@@ -138,7 +138,7 @@ class Category(db.Model):
     __tablename__ = 'categories'
 
     id          = db.Column(db.Integer, primary_key=True)
-    obj         = db.Column(db.String(100))
+    obj         = db.Column(db.String(100)) # 分组
     name        = db.Column(db.String(100))
     alias       = db.Column(db.String(100))
     is_valid    = db.Column(db.Boolean, default=True)

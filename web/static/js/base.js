@@ -1,8 +1,21 @@
+
+// Orderable
 $(function() {
   var attrs = $(".desc .attrs");
   $(".desc .trigger").click(function() {
     attrs.toggleClass("hide");
     $(this).toggleClass("down");
+    return false;
+  });
+});
+
+// Modal
+$(function(){
+  $('.row-actions .modal-btn').click(function(){
+    $.get($(this).attr('href'), function(data){
+      console.log(data);
+      $('#myModal').html(data).modal('show');
+    });
     return false;
   });
 });
