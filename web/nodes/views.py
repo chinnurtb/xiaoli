@@ -110,11 +110,11 @@ def nodes():
     query = Node.query
     query = query.outerjoin(Area, Node.area_id==Area.id)
     query_dict = dict([(key, request.args.get(key))for key in form.data.keys()])
-    if query_dict.get("name"):
+    if query_dict.get("keyword"):
         query=query.filter(or_(
-            Node.name.like('%'+query_dict["name"]+'%'),
-            Node.alias.like('%'+query_dict["name"]+'%'),
-            Node.addr.like('%'+query_dict["name"]+'%')
+            Node.name.like('%'+query_dict["keyword"]+'%'),
+            Node.alias.like('%'+query_dict["keyword"]+'%'),
+            Node.addr.like('%'+query_dict["keyword"]+'%')
         ))
     if query_dict.get("area"):
         # 区域树查询，是直接用的前台传过来的值作为where条件，如果包含or，需加括号

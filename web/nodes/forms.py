@@ -35,6 +35,7 @@ class NodeNewForm(FormPro):
     remark          = TextAreaField(u'备注信息')
 
 class NodeSearchForm(FormPro):
+    keyword         = TextField()
     name            = TextField(u'IP 地址')
     area            = AreaSelectField(u'所属区域')
     category_id     = SelectFieldPro(u'节点类型',

@@ -110,7 +110,8 @@ def dict_codes_edit(id):
 @sysview.route('/thresholds/')
 def thresholds():
     query = Threshold.query
-    keyword = request.args.get('keyword', '')
+    form = SearchForm(formdata=request.args)
+    keyword = form.keyword.data
     if keyword and keyword != '':
         ikeyword = '%' + keyword + '%'
         query = query.filter(db.or_(Threshold.name.ilike(ikeyword),
@@ -118,7 +119,8 @@ def thresholds():
                                     Threshold.category.has(Category.alias.ilike(ikeyword)),
                                     Threshold.summary.ilike(ikeyword)))
     table = make_table(query, ThresholdTable)
-    return render_template("system/thresholds/index.html", table=table, keyword=keyword)
+    return render_template("system/thresholds/index.html",
+                            filterForm = form, table=table)
     
     
 @sysview.route('/thresholds/edit/<int:id>', methods=['GET', 'POST'])
@@ -163,14 +165,16 @@ def thresholds_new():
 @sysview.route('/metrics/')
 def metrics():
     query = Metric.query
-    keyword = request.args.get('keyword', '')
+    form = SearchForm(formdata=request.args)
+    keyword = form.keyword.data
     if keyword and keyword != '':
         ikeyword = '%' + keyword + '%'
         query = query.filter(db.or_(Metric.name.ilike(ikeyword),
                                     Metric.grp.ilike(ikeyword),
                                     Metric.alias.ilike(ikeyword)))
     table = make_table(query, MetricTable)
-    return render_template('system/metrics/index.html', table=table)
+    return render_template('system/metrics/index.html',
+                            filterForm=form, table=table)
     
 @sysview.route('/metrics/new', methods=['GET', 'POST'])
 def metrics_new():
@@ -224,13 +228,15 @@ def metrics_delete(id):
 @sysview.route('/timeperiods/')
 def timeperiods():
     query = TimePeriod.query
-    keyword = request.args.get('keyword', '')
+    form = SearchForm(formdata=request.args)
+    keyword = form.keyword.data
     if keyword and keyword != '':
         ikeyword = '%' + keyword + '%'
         query = query.filter(db.or_(TimePeriod.name.ilike(ikeyword),
                                     TimePeriod.alias.ilike(ikeyword)))
     table = make_table(query, TimePeriodTable)
-    return render_template('/system/timeperiods/index.html', table=table)
+    return render_template('/system/timeperiods/index.html',
+                            filterForm = form, table=table)
 
 
 @sysview.route('/timeperiods/new', methods=['GET', 'POST'])
@@ -269,41 +275,43 @@ def timeperiods_edit(id):
 @sysview.route('/oplogs/')
 def oplogs():
     query = OperationLog.query
-    keyword = request.args.get('keyword')
     filterForm = OplogFilterForm(formdata=request.args)
+    keyword = filterForm.keyword.data
     if keyword and keyword != '':
         keyword = keyword.strip()
-        query = query.filter(OperationLog.summary.ilike('%'+keyword+'%'))
-    else:
-        user = filterForm.uid.data
-        if user :
-            query = query.filter(OperationLog.uid == user.id)
-        ip = filterForm.ip.data
-        if ip:
-            query = query.filter(OperationLog.terminal_ip == ip)
-        start_date = filterForm.start_date.data
-        if start_date:
-            query = query.filter(OperationLog.created_at >= start_date)
-        end_date = filterForm.end_date.data
-        if end_date:
-            query = query.filter(OperationLog.created_at <= end_date)
+        query = query.filter(db.or_(
+                        OperationLog.terminal_ip.ilike('%'+keyword+'%'),
+                        OperationLog.summary.ilike('%'+keyword+'%')))
+    user = filterForm.uid.data
+    if user :
+        query = query.filter(OperationLog.uid == user.id)
+    ip = filterForm.ip.data
+    if ip:
+        query = query.filter(OperationLog.terminal_ip == ip)
+    start_date = filterForm.start_date.data
+    if start_date:
+        query = query.filter(OperationLog.created_at >= start_date)
+    end_date = filterForm.end_date.data
+    if end_date:
+        query = query.filter(OperationLog.created_at <= end_date)
 
     table = make_table(query, OperationLogTable)
     return render_template('/system/oplogs.html', 
         table=table, filterForm=filterForm)
-
     
 @sysview.route('/seclogs/')
 def seclogs():
     query = SecurityLog.query
-    keyword = request.args.get('keyword')
+    form = SearchForm(formdata=request.args)
+    keyword = form.keyword.data
     if keyword and keyword != '':
         keyword = keyword.strip()
         query = query.filter(db.or_(
             SecurityLog.terminal_ip.ilike('%'+keyword+'%'),
             SecurityLog.user.has(User.username.ilike('%'+keyword+'%'))))
     table = make_table(query, SecurityLogTable)
-    return render_template('/system/seclogs.html', table=table)
+    return render_template('/system/seclogs.html',
+                            filterForm=form, table=table)
 
 # ==============================================================================
 #  网管系统
@@ -339,5 +347,4 @@ def subsystems():
 
 
 navbar.add('system', u'系统', '/system')
-
 

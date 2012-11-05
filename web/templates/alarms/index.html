@@ -65,6 +65,8 @@
             {% endfor %}
         </ul>
 
+        <form method="GET" class="form filter-form">
+        {% from 'tango/_search_h.html' import render_keyword, render_advanced %}
         <div class="tablenav top">
             <div class="alignleft actions">
                 <div class="alignleft btn-group">
@@ -73,14 +75,11 @@
                 </div>
             </div>
             <div class="alignleft actions">
-                {% from 'tango/_search_h.html' import search_form %}
-                {{ search_form(request, "节点名/IP地址/告警名", True) }}
+                {{ render_keyword(filterForm, "节点名/IP地址/告警名", True) }}
             </div>
             <br class="clear">
-        </div>
         
-        {% from 'tango/_search_h.html' import advanced_search_form %}
-        {% call advanced_search_form(request) %}
+            {% call render_advanced(request) %}
                 <table class="table">
                 <tbody>
 
@@ -107,7 +106,10 @@
 
                 </tbody>
                 </table>
-        {% endcall %}
+            {% endcall %}
+
+        </div>
+        </form>
 
         {{ render_table(table) }}
 

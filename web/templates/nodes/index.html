@@ -32,19 +32,19 @@
                 {% endfor %}
             </ul>
 
+            <form method="GET" class="form filter-form">
+            {% from 'tango/_search_h.html' import render_keyword, render_advanced %}
+
             <div class="tablenav top">
                 <div class="alignleft actions">
-                    {% from 'tango/_search_h.html' import search_form %}
-                    {{ search_form(request, "名称/别名/IP", advanced=True) }}
+                    {{ render_keyword(form, "名称/别名/IP", advanced=True) }}
                 </div>
                 <div class="pull-right actions">
                     <a class="btn btn-small" href="{{ request.url|replace('nodes','nodes.csv') }}" title="Excel导出"><i class="icon-download-alt"></i></a>
                 </div>
                 <br class="clear">
-            </div>
 
-            {% from 'tango/_search_h.html' import advanced_search_form %}
-            {% call advanced_search_form(request) %}
+                {% call render_advanced(request) %}
                 <table class="table">
                 <tbody>
                 <tr>
@@ -73,9 +73,11 @@
                 </tr>
                 </tbody>
                 </table>
-            {% endcall %}
+                {% endcall %}
+            </div>
+            </form>
 
-            <form action="" method="POST" id="node_form">
+            <form method="POST" id="node_form">
                 {{ render_table(table) }}
             </form>
         </div>

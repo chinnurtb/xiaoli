@@ -19,15 +19,15 @@
         </div>
 
         <div class="span10">
+            <form method="GET" class="form filter-form">
+            {% from 'tango/_search_h.html' import render_keyword %}
             <div class="tablenav top">
                 <div class="alignleft actions">
-                    <form id="alarmclass-query-form" class="form-inline filter-form input-append" action="{{ url_for('alarms.classes') }}" method="GET">
-                        <input class="input-low" type="text" name="keyword" placeholder="名称" {% if keyword %} value="{{ keyword }}" {% endif %}>
-                        <input type="submit" name="" id="alarmclass-query-submit" class="btn btn-small" value="检索">
-                    </form>
+                {{ render_keyword(filterForm, "名称/显示名") }}
                 </div>
                 <br class="clear">
             </div>
+            </form>
             {{ render_table(table) }}
         </div>
     </div>
