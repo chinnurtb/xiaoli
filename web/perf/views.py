@@ -243,5 +243,5 @@ def add_time():
     return 'OK: ' + str(num)
 
 
-navbar.add('perf', u'性能', '/perf/node/ping')
+navbar.add('perf', u'性能', 'signal', '/perf/node/ping')
 

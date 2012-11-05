@@ -357,7 +357,7 @@ def nvd3_demo():
     return render_template('alarms/nvd3_demo.html', data=data)
 
     
-navbar.add('alarms', u'故障', '/alarms/console/')
+navbar.add('alarms', u'故障', 'warning-sign', '/alarms/console/')
 
 dashboard.add_widget('alarms_stats_by_severity', u'告警概况', url='/alarms/stats/by_severity')
 dashboard.add_widget('alarms_stats_by_category', u'告警分类', url='/alarms/stats/by_category')

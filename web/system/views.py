@@ -340,5 +340,5 @@ def subsystems():
     return render_template('/system/subsystems.html', table=table)
 
 
-navbar.add('system', u'系统', '/system')
+navbar.add('system', u'系统', 'wrench', '/system')
 

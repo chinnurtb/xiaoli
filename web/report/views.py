@@ -32,5 +32,5 @@ def alarms_report():
     #TODO:
     return render_template('report/index.html')
 
-navbar.add('report', u'报表', '/report')
+navbar.add('report', u'报表', 'list-alt', '/report')
 

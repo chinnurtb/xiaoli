@@ -22,5 +22,5 @@ def index():
 def timeline():
     return render_template('/timeline.html', events=[])
 
-navbar.add('home', u'首页', '/')
+navbar.add('home', u'首页', 'home', '/')
 
