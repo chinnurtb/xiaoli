@@ -319,7 +319,7 @@ class NodeOlt(NodeMixin,db.Model):
 
     @staticmethod
     def export_columns():
-        return ['status','name','alias','addr','area.city_name','area.town_name','area.branch_name','onu_count_plan','onu_count_unplan','vendor.alias','model.alias','mask','snmp_comm','snmp_wcomm','last_check','location','remark']
+        return ['status','name','alias','addr','area.full_name','onu_count_plan','onu_count_unplan','vendor.alias','model.alias','mask','snmp_comm','snmp_wcomm','last_check','location','remark']
 
 class NodeOnu(NodeMixin,db.Model):
     """ ONU """

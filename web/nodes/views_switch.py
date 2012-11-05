@@ -12,7 +12,7 @@ from tango import db,user_profile
 from tango.ui.tables import make_table
 from tango.login import current_user, login_required
 from tango.models import Profile, Category
-from tango.excelRW.CsvWriter import CsvWriter
+from tango.excel.CsvExport import CsvExport
 
 from .models import NodeSwitch,NODE_STATUS_DICT, Area
 from .tables import SwitchTable
@@ -50,8 +50,8 @@ def switches():
         status_statistcs.append({"status": status, "number": num, "name": NODE_STATUS_DICT.get(status)})
 
     if request.base_url.endswith(".csv/"):
-        writer = CsvWriter('switches',columns=NodeSwitch.export_columns())
-        return send_file(writer.write(query,format={'status': lambda value: NODE_STATUS_DICT.get(value)}),as_attachment=True,attachment_filename='switches.csv')
+        csv = CsvExport('switches',columns=NodeSwitch.export_columns())
+        return send_file(csv.export(query,format={'status': lambda value: NODE_STATUS_DICT.get(value)}),as_attachment=True,attachment_filename='switches.csv')
     else:
         return render_template('/nodes/switches/index.html', table = table, form=form, status_statistcs=status_statistcs)
 
