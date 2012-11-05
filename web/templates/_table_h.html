@@ -1,16 +1,24 @@
 <!-- render_column -->
 {% macro render_column(column, page_url, page) -%}
-{% if column.orderable %}
-<th {{ column.attrs.th.as_html() }} >
-    <a href="{{ page_url(page, order_by=column.name) }}">
-	<span>{{ column.header }}</span>
-	<span class="sorting-indicator"></span>
-    </a>
-</th>
-{% else %}
-<th {{ column.attrs.th.as_html() }} >
-    {{ column.header }}</th>
-{% endif %}
+  <th {{ column.attrs.th.as_html() }} >
+    {% if column.orderable %}
+      {% if column.subcolumns %}
+        {{ column.header}}<br />
+        {% for verbose_name, field_name in column.subcolumns %}<a class="subcolumn" 
+          href="{{ page_url(page, order_by=field_name)}}">{{verbose_name }}</a>{% if not loop.last %} / {% endif %}{% endfor %}
+      {% else %}
+        <a href="{{ page_url(page, order_by=column.name) }}">
+          <span>{{ column.header }}</span> <span class="sorting-indicator"></span>
+        </a>
+      {% endif %}
+      
+    {% else %}
+      {{ column.header }}
+      {% if column.subcolumns %}
+        <br /> {{ column.subcolumns_header}}
+      {% endif %}
+    {% endif %}
+  </th>
 {%- endmacro %}
 
 <!-- render_paginate -->

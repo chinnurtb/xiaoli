@@ -48,10 +48,9 @@ class PingPerf(db.Model, PerfMixin):
 
     
 class CpuMemPerf(db.Model, PerfMixin):
-    
     '''节点CPU内存指标'''
-
     __tablename__ = 'perf_cpumem'
+    
     cpuavg      = db.Column(db.Float)
     cpumax      = db.Column(db.Float) 
     memavg      = db.Column(db.Float) 
@@ -63,9 +62,7 @@ class CpuMemPerf(db.Model, PerfMixin):
 
     
 class BoardPerf(db.Model, PerfMixin):
-
     '''版卡指标'''
-    
     __tablename__ = 'perf_board'
 
     boardidx    = db.Column(db.Integer)
@@ -80,9 +77,7 @@ class BoardPerf(db.Model, PerfMixin):
 
     
 class IntfUsagePerf(db.Model, PerfMixin):
-
     '''接口占用指标'''
-
     __tablename__ = 'perf_intfusage'
 
     intftype    = db.Column(db.Integer)
@@ -93,9 +88,7 @@ class IntfUsagePerf(db.Model, PerfMixin):
     
 
 class IntfTrafficPerf(db.Model, PerfMixin):
-
     '''接口流量流速指标'''
-
     __tablename__ = 'perf_intftraffic'
 
     intfidx     = db.Column(db.Integer)
@@ -104,18 +97,18 @@ class IntfTrafficPerf(db.Model, PerfMixin):
     ifspeed     = db.Column(db.Integer) # 带宽
     
     # 接收
-    inoctets    = db.Column(db.Float)   # 均值速率
-    inoctetsmax = db.Column(db.Float)   # 峰值速率
-    inpkts      = db.Column(db.Integer) # 报文均值
-    inpktsmax   = db.Column(db.Integer) # 报文峰值
-    inucastpkts = db.Column(db.Integer) # 单播报文
-    inmulticastpkts = db.Column(db.Float) # 多播报文
-    inbroadcastpkts = db.Column(db.Float) # 广播报文
-    innucastpkts    = db.Column(db.Float) # 非单播报文
-    indiscards      = db.Column(db.Float) # 丢包
-    inerrors        = db.Column(db.Float) # 错误包
-    inunknownprotos = db.Column(db.Float) # 未知协议包
-
+    inoctets        = db.Column(db.Float)   # 均值速率
+    inoctetsmax     = db.Column(db.Float)   # 峰值速率
+    inpkts          = db.Column(db.Integer) # 报文均值
+    inpktsmax       = db.Column(db.Integer) # 报文峰值
+    inucastpkts     = db.Column(db.Integer) # 单播报文
+    inmulticastpkts = db.Column(db.Float)   # 多播报文
+    inbroadcastpkts = db.Column(db.Float)   # 广播报文
+    innucastpkts    = db.Column(db.Float)   # 非单播报文
+    indiscards      = db.Column(db.Float)   # 丢包
+    inerrors        = db.Column(db.Float)   # 错误包
+    inunknownprotos = db.Column(db.Float)   # 未知协议包
+    
     # 发送
     outoctets       = db.Column(db.Float) 
     outoctetsmax    = db.Column(db.Float)
@@ -181,7 +174,7 @@ class IntfTrafficPerf(db.Model, PerfMixin):
     
         
 class PonTrafficPerf(db.Model, PerfMixin):
-
+    """PON口流量"""
     __tablename__ = 'perf_pontraffic'
 
     ponidx      = db.Column(db.Integer)
@@ -203,7 +196,7 @@ class PonTrafficPerf(db.Model, PerfMixin):
 
 
 class PonUsagePerf(db.Model, PerfMixin):
-
+    """PON口占用率"""
     __tablename__ = 'perf_ponusage'
 
     pontotal    = db.Column(db.Integer)
@@ -216,7 +209,7 @@ class PonUsagePerf(db.Model, PerfMixin):
 
     
 class PonPowerPerf(db.Model, PerfMixin):
-    
+    """ PON口光功率 """
     __tablename__ = 'perf_ponpower'
     
     ponidx      = db.Column(db.Integer)

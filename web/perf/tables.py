@@ -42,10 +42,10 @@ class PingTable(t.Table, NodeMixin):
 class CpuMemTable(t.Table, NodeMixin):
     helpdoc = u"CPU/内存"
 
-    cpu        = t.Column(u'CPU利用率', subcolumns=[(u'均值', 'cpuavg'), (u'峰值', 'cpumax')])
-    mem        = t.Column(u'内存', subcolumns=[(u'均值', 'memavg'), (u'峰值', 'memmax')])
-    temp       = t.Column(u'温度', subcolumns=[(u'均值', 'tempavg'), (u'峰值', 'tempmax')])
-    powerstate = t.Column(u'电源状态')
+    cpu        = t.Column(u'CPU利用率', orderable=True, subcolumns=[(u'均值', 'cpuavg'), (u'峰值', 'cpumax')])
+    mem        = t.Column(u'内存', orderable=True, subcolumns=[(u'均值', 'memavg'), (u'峰值', 'memmax')])
+    temp       = t.Column(u'温度', orderable=True, subcolumns=[(u'均值', 'tempavg'), (u'峰值', 'tempmax')])
+    powerstate = t.Column(u'电源状态', orderable=True)
     fanstate   = t.Column(u'风扇状态')
 
     class Meta():
