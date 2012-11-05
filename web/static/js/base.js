@@ -32,7 +32,10 @@ $(function(){
       return false;
     }
   });
-})
+});
 
+$(function() { 
+    $("[rel=tooltip]").tooltip(); 
+});
 
 

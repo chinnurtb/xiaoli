@@ -64,28 +64,30 @@
             <li class="alarm-{{ severity.name }}"><a {% if request.args['severity'] == severity.name %} class="current" {% endif %} href="/alarms?severity={{ severity.name }}">{{ severity.alias }}<span class="count">({{ severity.count }})</span></a> {% if not loop.last %} | {% endif %} </li>
             {% endfor %}
         </ul>
+
         <div class="tablenav top">
             <div class="alignleft actions">
                 <div class="alignleft btn-group">
-                    <a id="alarm-ack-action" class="btn btn-small" href="#">确认</a>
+                    <a id="alarm-ack-action" class="btn btn-small" href="#"><i class="icon-ok"></i>确认</a>
                     <a id="alarm-clear-action" class="btn btn-small" href="#">清除</a>
                 </div>
             </div>
-            <div class="alignleft actions" style="margin:0px 20px;">
-                <form id="alarms-form" class="form-inline filter-form" action="/alarms" method="GET">
-                {{ filterForm.alarm_class(class="input-small input-low") }}
-                {{ filterForm.start_date(class="input-small datepicker input-low", placeholder="开始日期",style="margin-bottom:1px;") }}
-                <label for='end_date'>-</label>
-                {{ filterForm.end_date(class="input-small datepicker input-low", placeholder="结束日期",style="margin-bottom:1px;") }}
-                {{ filterForm.keyword(placeholder='告警或节点名称', class="input-low") }}
-                <button type="submit" class="btn btn-small">检索</button>
-                </form>
+            <div class="alignleft actions">
+                {% from '_form_h.html' import search_form %}
+                {{ search_form(request.args.get('keyword'), True) }}
             </div>
             <br class="clear">
         </div>
+        <div id="advanced-search-form" class="advance_search_form header" style="display:none;margin:0px;">
+            <form class="form form-horizontal" action="" method="GET">
+            {{ filterForm.alarm_class(class="input-small input-low") }}
+            {{ filterForm.start_date(class="input-small datepicker input-low", placeholder="开始日期",style="margin-bottom:1px;") }}
+            <label for='end_date'>-</label>
+            {{ filterForm.end_date(class="input-small datepicker input-low", placeholder="结束日期",style="margin-bottom:1px;") }}
+            </form>
+        </div>
 
         {{ render_table(table) }}
-
 
         <div id="alarm-show-model" class="modal hide" tabindex="-1" role="dialog">
           <div class="modal-header">
