@@ -23,6 +23,10 @@
         </div>
         <div class="span10">
           {% include "_alert.html" %}
+            
+          <form method="GET" class="form filter-form">
+          {% from 'tango/_search_h.html' import render_keyword %}
+
           <div class="tablenav top">
             <div class="alignleft actions">
               <div class="alignleft btn-group">
@@ -30,11 +34,12 @@
               </div>
             </div>
             <div class="alignleft actions">
-                {% from 'tango/_search_h.html' import search_form %}
-                {{ search_form(request, "分组/名称/显示名") }}
+                {{ render_keyword(filterForm, "分组/名称/显示名") }}
             </div>
             <br class="clear">
           </div>
+
+          </form>
           
           {{ render_table(table) }}
           {{ render_modal(['delete']) }}

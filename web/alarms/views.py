@@ -35,7 +35,7 @@ from system.forms import SettingEditForm
 
 from .models import Alarm, AlarmSeverity, History, AlarmClass, AlarmKnowledge, query_severities
 
-from .forms import QueryNewForm, AlarmAckForm, AlarmClearForm, AlarmClassForm, AlarmKnowledgeForm, AlarmFilterForm
+from .forms import QueryNewForm, AlarmAckForm, AlarmClearForm, AlarmClassForm, AlarmKnowledgeForm, AlarmFilterForm, SearchForm
 
 from .tables import AlarmTable, QueryTable, HistoryTable, AlarmClassTable, AlarmKnowledgeTable
 
@@ -220,14 +220,15 @@ def stats_history():
 
 @alarmview.route('/alarms/classes')
 def classes():
-    keyword = request.args.get('keyword')
     query = AlarmClass.query
-    if keyword is not None and keyword != '':
+    form = SearchForm(formdata=request.args)
+    keyword = form.keyword.data
+    if keyword and keyword != '':
         query = query.filter(db.or_(AlarmClass.name.ilike('%'+keyword+'%'),
                                     AlarmClass.alias.ilike('%'+keyword+'%')))
     table = make_table(query, AlarmClassTable)
     return render_template("/alarms/classes/index.html",
-                            table=table, keyword=keyword)
+                            table=table, filterForm=form)
 
 @alarmview.route('/alarms/classes/edit/<int:id>', methods=['GET', 'POST'])
 def classes_edit(id):
@@ -245,13 +246,14 @@ def classes_edit(id):
 @alarmview.route("/alarms/knowledges/")
 def knowledges():
     query = AlarmKnowledge.query
-    keyword = request.args.get('keyword')
-    if keyword is not None and keyword != '':
+    form = SearchForm(formdata=request.args)
+    keyword = form.keyword.data
+    if keyword and keyword != '':
         query = query.filter(AlarmKnowledge.alarm_class.has(
             AlarmClass.alias.ilike('%'+keyword+'%')))
     table = make_table(query, AlarmKnowledgeTable)
     return render_template('/alarms/knowledges/index.html',
-        table=table, keyword=keyword)
+                            table=table, filterForm=form)
 
 @alarmview.route('/alarms/knowledges/new', methods=['GET', 'POST'])
 def knowledges_new():

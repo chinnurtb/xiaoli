@@ -13,7 +13,7 @@ from tango.ui import navbar, dashboard
 from tango.ui.tables import make_table
 from tango.login import current_user, login_required
 from tango.models import Profile, Category
-from tango.excelRW.CsvWriter import CsvWriter
+from tango.excel.CsvExport import CsvExport
 
 from .models import Node, Area, Vendor, NODE_STATUS_DICT
 from .forms import NodeNewForm, NodeSearchForm
@@ -110,11 +110,11 @@ def nodes():
     query = Node.query
     query = query.outerjoin(Area, Node.area_id==Area.id)
     query_dict = dict([(key, request.args.get(key))for key in form.data.keys()])
-    if query_dict.get("name"):
+    if query_dict.get("keyword"):
         query=query.filter(or_(
-            Node.name.like('%'+query_dict["name"]+'%'),
-            Node.alias.like('%'+query_dict["name"]+'%'),
-            Node.addr.like('%'+query_dict["name"]+'%')
+            Node.name.like('%'+query_dict["keyword"]+'%'),
+            Node.alias.like('%'+query_dict["keyword"]+'%'),
+            Node.addr.like('%'+query_dict["keyword"]+'%')
         ))
     if query_dict.get("area"):
         # 区域树查询，是直接用的前台传过来的值作为where条件，如果包含or，需加括号
@@ -136,8 +136,8 @@ def nodes():
         status_statistcs.append({"status": status, "number": num, "name": NODE_STATUS_DICT.get(status)})
 
     if request.base_url.endswith(".csv/"):
-        writer = CsvWriter('nodes',columns=Node.export_columns())
-        return send_file(writer.write(query,format={'status': lambda value: NODE_STATUS_DICT.get(value)}),as_attachment=True,attachment_filename='nodes.csv')
+        csv = CsvExport('nodes',columns=Node.export_columns())
+        return send_file(csv.export(query,format={'status': lambda value: NODE_STATUS_DICT.get(value)}),as_attachment=True,attachment_filename='nodes.csv')
     else:
         return render_template('nodes/index.html', table = table, form=form, status_statistcs=status_statistcs)
 

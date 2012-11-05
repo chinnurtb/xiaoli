@@ -1,23 +1,27 @@
-{% macro render_keyword(form, placeholder=None, advanced=False) %}
+{% macro search_form(request, placeholder=None, advanced=False) %}
 
-<div class="form-inline input-append" style="margin:0px;">
-    {{ form.keyword(class="input-low", placeholder=placeholder) }}
+{% set _keyword = request.args.get('keyword') %}
+
+<form method="GET" class="form-inline filter-form input-append">
+    <input id="keyword" type="text" class="input-low" name="keyword"
+        {% if placeholder %} placeholder="{{placeholder}}" {% endif %} 
+        {% if _keyword %} value="{{_keyword}}" {% endif %}></input>
     <button type="submit" data-placement="bottom" rel="tooltip" class="btn btn-small" data-original-title="搜索"><i class="icon-search"></i></button>
     {% if advanced %}
         <button class="btn btn-small advanced-search-btn" data-placement="bottom" rel="tooltip" data-original-title="高级搜索"><i class="icon-cog"></i></button>
     {% endif %}
-</div>
+</form>
 
 {% endmacro %}
 
-{% macro render_advanced(request, form) %}
+{% macro advanced_search_form(request, form) %}
     {% set _advshow = request.args.get('_advshow') %}
     <div class="advanced-search-form header" style="display:none;">
-      <div class="form form-horizontal" style="margin:0px;">
+      <form class="form form-horizontal" action="" method="GET">
         <input id="_advshow" type="hidden" name="_advshow"
             {% if _advshow %} value="{{_advshow}}" {% endif %}></input>
         {{ caller() }}
-      </div>
+      </form>
     </div>
     <script>
     $(".advanced-search-btn").toggle(

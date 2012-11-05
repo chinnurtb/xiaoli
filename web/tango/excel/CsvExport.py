@@ -9,7 +9,7 @@ try:
 except ImportError:
     from StringIO import StringIO
 
-from .cn import cn
+from .export_config import cn
 
 def attrgetter(format, *items):
     if len(items) == 1:
@@ -29,7 +29,7 @@ def resolve_attr(obj, attr, format):
         obj = format_call(obj)
     return obj.encode('gbk') if isinstance(obj, basestring) else obj
 
-class CsvWriter(object):
+class CsvExport(object):
 
     # model: 对应cn.py里的keys
     # columns: 只写入哪些列，同时cn.py里中文名称的key
@@ -42,7 +42,7 @@ class CsvWriter(object):
     # query: SQLAlchemy的query对象
     # is_save:  是否保存文件
     # format: 格式化字典, key 为columns里的元素，value 为格式化函数，函数参数此列的值
-    def write(self, query, is_save=False, format={}):
+    def export(self, query, is_save=False, format={}):
         return_fileobj = None
         if type(query).__name__ != 'BaseQuery':
             raise TypeError('The query argument should be sqlalchemy query object.')

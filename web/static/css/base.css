@@ -316,7 +316,7 @@ div.tablenav .filters {
 
 .advanced-search-form.header {
     position: relative;
-    margin: 0 0 4px;
+    margin: 4px 0 4px;
     padding: 39px 19px 14px;
     *padding-top: 19px;
     background-color: #FAFAFA;

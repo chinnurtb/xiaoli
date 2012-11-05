@@ -65,6 +65,8 @@
             {% endfor %}
         </ul>
 
+        <form method="GET" class="form filter-form">
+        {% from 'tango/_search_h.html' import render_keyword, render_advanced %}
         <div class="tablenav top">
             <div class="alignleft actions">
                 <div class="alignleft btn-group">
@@ -73,19 +75,41 @@
                 </div>
             </div>
             <div class="alignleft actions">
-                {% from '_form_h.html' import search_form %}
-                {{ search_form(request.args.get('keyword'), True) }}
+                {{ render_keyword(filterForm, "节点名/IP地址/告警名", True) }}
             </div>
             <br class="clear">
+        
+            {% call render_advanced(request) %}
+                <table class="table">
+                <tbody>
+
+                <tr>
+                <td width="17.5%"> {{ filterForm.alarm_class.label }} </td>
+                <td width="32.5%"> {{ filterForm.alarm_class(class="input-low ") }} </td>
+                <td width="17.5%">  </td>
+                <td width="32.5%">  </td>
+                </tr>
+
+                <tr>
+                <td width="17.5%"> {{ filterForm.start_date.label }} </td>
+                <td width="32.5%"> {{ filterForm.start_date(class="datepicker input-low", placeholder="开始日期",style="margin-bottom:1px;") }} </td>
+                <td width="17.5%"> {{ filterForm.end_date.label }} </td>
+                <td width="32.5%"> {{ filterForm.end_date(class="datepicker input-low", placeholder="结束日期",style="margin-bottom:1px;") }} </td>
+                </tr>
+
+                <tr>
+                <td colspan="2">
+                <button class="btn btn-small" type="submit">应用</button>
+                <button class="btn btn-small" type="reset">重置</button>
+                </td>
+                </tr>
+
+                </tbody>
+                </table>
+            {% endcall %}
+
         </div>
-        <div id="advanced-search-form" class="advance_search_form header" style="display:none;margin:0px;">
-            <form class="form form-horizontal" action="" method="GET">
-            {{ filterForm.alarm_class(class="input-small input-low") }}
-            {{ filterForm.start_date(class="input-small datepicker input-low", placeholder="开始日期",style="margin-bottom:1px;") }}
-            <label for='end_date'>-</label>
-            {{ filterForm.end_date(class="input-small datepicker input-low", placeholder="结束日期",style="margin-bottom:1px;") }}
-            </form>
-        </div>
+        </form>
 
         {{ render_table(table) }}
 

@@ -88,6 +88,7 @@ class TimePeriodNewEditForm(Form):
     
     
 class OplogFilterForm(Form):
+    keyword     = TextField(u'keyword')
     uid         = QuerySelectField(u'用户名:', query_factory=lambda: User.query, allow_blank=True, blank_text=u'操作用户')
     ip          = TextField(u'终端IP:')
     start_date  = DateTimeField(u'开始时间:', format='%Y-%m-%d')
