@@ -31,10 +31,8 @@
                 </div>
               </div>
               <div class="alignleft actions">
-              <form class="form-inline filter-form input-append" method="GET" action="{{url_for('system.timeperiods')}}">
-                  <input type="text" name="keyword" class="input-low" value="{{ keyword }}" />
-                  <button id="advance_sarch" class="btn btn-small">检索</button>
-              </form>
+                {% from 'tango/_search_h.html' import search_form %}
+                {{ search_form(request, "名称或显示名") }}
               </div>
               <br class="clear">
           </div>

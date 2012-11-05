@@ -80,8 +80,8 @@ class TimePeriodTable(tables.Table):
     edit    = tables.Action(name=u'编辑', endpoint='system.timeperiods_edit')
     check   = tables.CheckBoxColumn()
 
-    name       = tables.Column(u'名称')
-    alias      = tables.Column(u'显示名')
+    name       = tables.LinkColumn(u'名称', endpoint='system.timeperiods_edit', orderable=True)
+    alias      = tables.LinkColumn(u'显示名', endpoint='system.timeperiods_edit', orderable=True)
     _hour       = tables.Column(u'小时')
     _dayofmonth = tables.Column(u'日期')
     _month      = tables.Column(u'月份')

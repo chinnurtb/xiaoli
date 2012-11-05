@@ -27,27 +27,40 @@
         </div>
         <div class="span10">
           {% include "_alert.html" %}
+          {% from 'tango/_search_h.html' import search_form, advanced_search_form %}
             <div class="tablenav top">
               <div class="alignleft actions">
-                {% from '_form_h.html' import search_form %}
-                {{ search_form(request.args.get('keyword'), advanced=True) }}
+                {{ search_form(request, "用户或终端IP", advanced=True) }}
               </div>
               <div class="pull-right actions">
                 <a class="btn btn-small" href="{{ request.url|replace('nodes','nodes.csv') }}" title="Excel导出"><i class="icon-download-alt"></i></a>
               </div>
               <br class="clear">
-
             </div>
-
-            <div id="advanced-search-form" class="advance_search_form header" style="display:none;margin:0px;">
-              <form class="form form-horizontal" action="" method="GET">
-                {% from '_form_h.html' import render_field, render_submit %}
-                {{ render_field(filterForm.uid, class="input-low input-medium") }}
-                {{ render_field(filterForm.start_date, class="input-medium datepicker input-low", style="margin-bottom:1px;") }}
-                {{ render_field(filterForm.end_date, class="input-medium datepicker input-low", style="margin-bottom:1px;") }}
-                {{ render_submit("应用") }}
-              </form>
-            </div>
+            {% call advanced_search_form(request) %}
+                <table class="table">
+                <tbody>
+                <tr>
+                <td width="17.5%"> {{ filterForm.uid.label }} </td>
+                <td width="32.5%"> {{ filterForm.uid(class="input-low ") }} </td>
+                <td width="17.5%"> {{ filterForm.ip.label }} </td>
+                <td width="32.5%"> {{ filterForm.ip(class="input-low ") }} </td>
+                </tr>
+                <tr>
+                <td> {{ filterForm.start_date.label }} </td>
+                <td> {{ filterForm.start_date(class="datepicker input-low", style="margin-bottom:1px;") }} </td>
+                <td> {{ filterForm.end_date.label }} </td>
+                <td> {{ filterForm.end_date(class="datepicker input-low", style="margin-bottom:1px;") }} </td>
+                </tr>
+                <tr>
+                <td colspan="2">
+                <button class="btn btn-small" type="submit">应用</button>
+                <button class="btn btn-small" type="reset">重置</button>
+                </td>
+                </tr>
+                </tbody>
+                </table>
+            {% endcall %}
             
             {{ render_table(table) }}
         </div>
