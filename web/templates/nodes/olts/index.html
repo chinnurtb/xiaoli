@@ -54,7 +54,7 @@
                         <a class="btn btn-small" href="{{ url_for('nodes.olts_new') }}"><i class="icon-plus"></i>添加</a>
                         <a class="btn btn-small" href="#" id="delete_btn"><i class="icon-remove"></i>删除</a>
                         <a class="btn btn-small" href="/static/file/template/olts.csv"><i class="icon-file"></i>模版</a>
-                        <a class="btn btn-small" href="#"><i class="icon-upload"></i>导入</a>
+                        <a class="btn btn-small" href="#import_form" data-toggle="modal"><i class="icon-upload"></i>导入</a>
                     </div>
                 </div>
                 <div class="alignleft" style="height: 26px;">
@@ -75,6 +75,21 @@
         <form action="" method="POST" id="node_form">
         {{ render_table(table) }}
         </form>
+
+        <!-- Modal -->
+        <div id="import_form" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h5 id="myModalLabel">导入OLT</h5>
+            </div>
+            <div class="modal-body">
+                <p>导入文件</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary btn-small">确定</button>
+                <button class="btn btn-small" data-dismiss="modal" aria-hidden="true">关闭</button>
+            </div>
+        </div>
         <br class="clear">
     </div>
 </div>
