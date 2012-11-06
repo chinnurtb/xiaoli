@@ -215,9 +215,11 @@ def render_console_chart(id, query):
     return render_template('alarms/console/_chart.html',
                            chartid = id, chartdata = chartdata)
 
-@alarmview.route('/alarms/stats/current')
-def stats_current():
-    return render_template('alarms/stats/current.html')
+@alarmview.route('/alarms/stats/active')
+def stats_active():
+    activestats.configure(user_profile('activestats'))
+    return render_template('alarms/stats/active.html',
+                           dashboard = activestats)
     
 @alarmview.route('/alarms/stats/history')
 def stats_history():
@@ -392,6 +394,14 @@ dashboard.add_widget('alarms_stats_by_category', u'告警分类', url='/alarms/s
 dashboard.add_widget('alarms_stats_by_class', u'告警类型', url='/alarms/stats/by_class')
 dashboard.add_widget('alarms_stats_by_node_category', u'设备告警', url='/alarms/stats/by_node_category')
 dashboard.add_widget('alarms_stats_by_node_vendor', u'厂商告警', url='/alarms/stats/by_node_vendor')
+
+activestats = Dashboard('activestats')
+activestats.add_widget('alarms_stats_by_severity', u'告警概况', url='/alarms/stats/by_severity')
+activestats.add_widget('alarms_stats_by_category', u'告警分类', url='/alarms/stats/by_category')
+
+activestats.add_widget('alarms_stats_by_class', u'告警类型', url='/alarms/stats/by_class', column='side')
+activestats.add_widget('alarms_stats_by_node_category', u'设备告警', url='/alarms/stats/by_node_category', column='side')
+activestats.add_widget('alarms_stats_by_node_vendor', u'厂商告警', url='/alarms/stats/by_node_vendor', column='side')
 
 alarmconsole = Dashboard('alarmconsole')
 alarmconsole.add_widget('alarms_console_all', u'全部告警', url='all')
