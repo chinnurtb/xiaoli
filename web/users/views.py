@@ -428,7 +428,7 @@ def domains_delete(id):
 # ==============================================================================
 #  [OTHER]
 # ==============================================================================
-navbar.add('users', u'用户', '/users/')
+navbar.add('users', u'用户', 'user', '/users/')
 
 @userview.route('/just-test/<name>/')
 def just_test(name='a'):

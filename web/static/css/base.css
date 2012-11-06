@@ -6,6 +6,16 @@
     background-image: linear-gradient(to bottom, #FAFAFA, #EAEAEA);
 }
 
+/*
+.navbar [class^="icon-"] {
+    background-image: url("../img/twitter_web_sprite_icons.png")
+}
+
+.icon-nav-home {
+    background-position: 0 -110px;
+}
+*/
+
 .auto-width {
     width: auto;
 }
@@ -464,14 +474,14 @@ label em {
     display: block;
     *width: 190px;
     margin: 0 0 -1px;
-    padding: 8px 14px;
+    padding: 7px 14px;
     border: 1px solid #e5e5e5;
 }
 .bs-docs-sidenav > li.nav-header {
     display: block;
     *width: 190px;
     margin: 0 0 -1px;
-    padding: 8px 14px;
+    padding: 7px 14px;
     border: 1px solid #e5e5e5;
     -webkit-border-radius: 6px 6px 0 0;
     -moz-border-radius: 6px 6px 0 0;
