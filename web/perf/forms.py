@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 import calendar
 
 from wtforms.ext.sqlalchemy.fields import  QuerySelectMultipleField
-from flask_wtf import Form, SelectField, SelectMultipleField
+from flask_wtf import Form, TextField, SelectField, SelectMultipleField
 
 from nodes.models import Vendor, Model, Node
 from tango.models import db, Category
@@ -100,6 +100,7 @@ def sampletime_filter(model, query, sampletime, intervals):
 
     
 class PerfFilterForm(Form):
+    keyword     = TextField()
     sampletime  = SelectField(u'时间', choices=DATES, default='today')
     intervals   = SelectMultipleField(u'时段', choices=pull_intervals('__None'), default=['__None'])
     vendors     = QuerySelectMultipleFieldFix(u'厂商', query_factory=lambda: Vendor.query,
