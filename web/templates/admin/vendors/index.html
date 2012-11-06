@@ -27,13 +27,15 @@
                 <a class="btn btn-small" id="multi-delete-btn" href="/admin/vendors/delete/all"><i class="icon-remove"></i>删除</a>
               </div>
             </div>
-
-            {% from "tango/_search_h.html" import render_keyword %}
-            <div class="alignleft actions">
-              {{ render_keyword(form=form) }}
-            </div>
             
-            <br class="clear">
+            {% from "tango/_search_h.html" import render_keyword %}
+            <form method="GET" class="form filter-form">
+                <div class="alignleft actions">
+                  {{ render_keyword(form, "名称/显示名") }}
+                </div>
+                <br class="clear">
+            </form>
+            
           </div>
           {% from "_table_h.html" import render_table %}
           {{ render_table(table) }}

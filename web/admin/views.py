@@ -32,7 +32,13 @@ def index():
 @adminview.route('/categories/')
 def categories():
     form = SearchForm(formdata=request.args)
-    table = make_table(Category.query, CategoryTable)
+    cls, table_cls = Category, CategoryTable
+    query = cls.query
+    if form.keyword.data:
+        ikeyword = '%' + form.keyword.data + '%'
+        query = query.filter(db.or_(cls.name.ilike(ikeyword),
+                                    cls.alias.ilike(ikeyword)))
+    table = make_table(query, table_cls)
     return render_template('admin/categories/index.html',
                            table = table, form=form)
 
@@ -119,7 +125,13 @@ def categories_delete_all():
 @adminview.route('/vendors/')
 def vendors():
     form = SearchForm(formdata=request.args)
-    table = make_table(Vendor.query, VendorTable)
+    cls, table_cls = Vendor, VendorTable
+    query = cls.query
+    if form.keyword.data:
+        ikeyword = '%' + form.keyword.data + '%'
+        query = query.filter(db.or_(cls.name.ilike(ikeyword),
+                                    cls.alias.ilike(ikeyword)))
+    table = make_table(query, table_cls)
     return render_template('admin/vendors/index.html',
                            table = table, form=form)
 
@@ -208,7 +220,13 @@ def vendors_delete_all():
 @adminview.route('/models/')
 def models():
     form = SearchForm(formdata=request.args)
-    table = make_table(Model.query, ModelTable)
+    cls, table_cls = Model, ModelTable
+    query = cls.query
+    if form.keyword.data:
+        ikeyword = '%' + form.keyword.data + '%'
+        query = query.filter(db.or_(cls.name.ilike(ikeyword),
+                                    cls.alias.ilike(ikeyword)))
+    table = make_table(query, table_cls)
     return render_template('admin/models/index.html',
                            table = table, form=form)
 
@@ -296,7 +314,15 @@ def models_delete_all():
 @adminview.route('/sysoids/')
 def sysoids():
     form = SearchForm(formdata=request.args)
-    table = make_table(SysOid.query, SysOidTable)
+    cls, table_cls = SysOid, SysOidTable
+    query = cls.query
+    if form.keyword.data:
+        ikeyword = '%' + form.keyword.data + '%'
+        query = query.filter(db.or_(cls.sysoid.ilike(ikeyword),
+                                    cls.disco.ilike(ikeyword),
+                                    cls.mib.ilike(ikeyword),
+                                    cls.remark.ilike(ikeyword)))
+    table = make_table(query, table_cls)
     return render_template('admin/sysoids/index.html',
                            table = table, form=form)
 
@@ -380,7 +406,13 @@ def sysoids_delete_all():
 @adminview.route('/modules/')
 def modules():
     form = SearchForm(formdata=request.args)
-    table = make_table(Module.query, ModuleTable)
+    cls, table_cls = Module, ModuleTable
+    query = cls.query
+    if form.keyword.data:
+        ikeyword = '%' + form.keyword.data + '%'
+        query = query.filter(db.or_(cls.name.ilike(ikeyword),
+                                    cls.alias.ilike(ikeyword)))
+    table = make_table(query, table_cls)
     return render_template('admin/modules/index.html',
                            table = table, form=form)
 
@@ -468,7 +500,14 @@ def modules_delete_all():
 @adminview.route('/monitors/')
 def monitors():
     form = SearchForm(formdata=request.args)
-    table = make_table(Monitor.query, MonitorTable)
+    cls, table_cls = Monitor, MonitorTable
+    query = cls.query
+    if form.keyword.data:
+        ikeyword = '%' + form.keyword.data + '%'
+        query = query.filter(db.or_(cls.category.ilike(ikeyword),
+                                    cls.vendor.ilike(ikeyword),
+                                    cls.remark.ilike(ikeyword)))
+    table = make_table(query, table_cls)
     return render_template('admin/monitors/index.html',
                            table = table, form=form)
 
@@ -553,8 +592,14 @@ def monitors_delete_all():
 @adminview.route('/miboids/<mib>')
 def miboids(mib='mib1'):
     form = SearchForm(formdata=request.args)
-    query = Miboid.query.filter_by(mib=mib)
-    table = make_table(query, MiboidTable)
+    cls, table_cls = Miboid, MiboidTable
+    query = cls.query.filter_by(mib=mib)
+    
+    if form.keyword.data:
+        ikeyword = '%' + form.keyword.data + '%'
+        query = query.filter(db.or_(cls.name.ilike(ikeyword),
+                                    cls.alias.ilike(ikeyword)))
+    table = make_table(query, table_cls)
     kwargs = {
         'menuid' : mib,
         'form'   : form,

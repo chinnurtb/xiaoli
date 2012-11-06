@@ -32,10 +32,13 @@
             </div>
 
             {% from "tango/_search_h.html" import render_keyword %}
-            <div class="alignleft actions">
-              {{ render_keyword(form=form) }}
-            </div>
-            <br class="clear">
+            <form method="GET" class="form filter-form">
+                <div class="alignleft actions">
+                  {{ render_keyword(form, "名称/显示名") }}
+                </div>
+                <br class="clear">
+            </form>
+            
           </div>
           {% from "_table_h.html" import render_table %}
           {{ render_table(table) }}
