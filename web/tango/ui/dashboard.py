@@ -4,6 +4,8 @@ class Dashboard(object):
     
     layout_meta = 'screen.layout'
 
+    refresh_meta = 'page.refresh'
+
     order_meta = 'box.order'
 
     closed_meta = 'closedbox' 
@@ -26,6 +28,8 @@ class Dashboard(object):
 
     def configure(self, profile):
         self.layout = int(profile.get(Dashboard.layout_meta, '2'))
+        self.refresh = int(profile.get(Dashboard.refresh_meta, '5'))
+        self.refreshsecs = self.refresh*60
         self.order = eval(profile.get(Dashboard.order_meta, '{}'))
         for col, val in self.order.items():
             self.order[col] = val.split(',')
