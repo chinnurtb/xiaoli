@@ -28,11 +28,11 @@ def onus():
     query = query.outerjoin(Area, NodeOnu.area_id==Area.id)
 
     query_dict = dict([(key, request.args.get(key))for key in form.data.keys()])
-    if query_dict.get("name"):
+    if query_dict.get("keyword"):
         query=query.filter(or_(
-            NodeOnu.name.like('%'+query_dict["name"]+'%'),
-            NodeOnu.alias.like('%'+query_dict["name"]+'%'),
-            NodeOnu.addr.like('%'+query_dict["name"]+'%')
+            NodeOnu.name.like('%'+query_dict["keyword"]+'%'),
+            NodeOnu.alias.like('%'+query_dict["keyword"]+'%'),
+            NodeOnu.addr.like('%'+query_dict["keyword"]+'%')
         ))
     if query_dict.get("area"):
         netloc = request.args.get('area_netloc')

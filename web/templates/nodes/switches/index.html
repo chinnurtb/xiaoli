@@ -45,11 +45,11 @@
                 </li>
             {% endfor %}
         </ul>
-        <form class="form-horizontal" method="GET" action="{{url_for('nodes.switches')}}" id="search_form">
+        <form method="GET" class="form filter-form">
+            {% from 'tango/_search_h.html' import render_keyword, render_advanced %}
+
             <div class="tablenav top">
-                <div class="alignleft">
-                    <input type="hidden" name="orderby" value="login">
-                    <input type="hidden" name="order" value="asc">
+                <div class="alignleft actions">
                     <div class="alignleft btn-group">
                         <a class="btn btn-small" href="{{ url_for('nodes.switches_new') }}"><i class="icon-plus"></i>添加</a>
                         <a class="btn btn-small" href="#" id="delete_btn"><i class="icon-remove"></i>删除</a>
@@ -57,20 +57,39 @@
                         <a class="btn btn-small" href="#"><i class="icon-upload"></i>导入</a>
                     </div>
                 </div>
-                <div class="alignleft" style="height: 26px;">
-                        {% set keyword = '名称、别名或IP' %}
-                        <div class="input-append alignleft" style="margin-left: 20px;">
-                            {{ form.name(placeholder=keyword,class="input-low input-medium") }}
-                            <button id="advance_sarch" class="btn btn-small">检索</button>
-                        </div>
-                        <div class="alignleft advance_search" title="高级检索"></div>
+                <div class="alignleft actions">
+                    {{ render_keyword(form, "名称/别名/IP", advanced=True) }}
                 </div>
                 <div class="pull-right actions">
                     <a class="btn btn-small" href="{{ request.url|replace('switches','switches.csv') }}" title="Excel导出"><i class="icon-download-alt"></i></a>
                 </div>
+                <br class="clear">
+
+                {% call render_advanced(request) %}
+                    <table class="table">
+                        <tbody>
+                        <tr>
+                            <td width="17.5%"> {{ form.area.label }} </td>
+                            <td width="32.5%"> {{ form.area(class="input-low ") }} </td>
+                            <td width="17.5%"> {{ form.status.label }} </td>
+                            <td width="32.5%"> {{ form.status(class="input-low ") }} </td>
+                        </tr>
+                        <tr>
+                            <td width="17.5%"> {{ form.vendor_id.label }}</td>
+                            <td width="32.5%"> {{ form.vendor_id(class="input-low ") }}</td>
+                            <td width="17.5%"> {{ form.model_id.label }}</td>
+                            <td width="32.5%"> {{ form.model_id(class="input-low ") }}</td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">
+                                <button class="btn btn-small" type="submit">应用</button>
+                                <button class="btn btn-small" type="reset">重置</button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                {% endcall %}
             </div>
-            {% from "_form_h.html" import render_search_form %}
-            {{ render_search_form("{{url_for('nodes.switches')}}",form.area, form.status, form.vendor_id, form.model_id) }}
         </form>
         <form action="" method="POST" id="node_form">
         {{ render_table(table) }}

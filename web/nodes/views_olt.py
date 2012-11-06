@@ -28,11 +28,11 @@ def olts():
     query = query.outerjoin(Area, NodeOlt.area_id==Area.id)
 
     query_dict = dict([(key, request.args.get(key))for key in form.data.keys()])
-    if query_dict.get("name"):
+    if query_dict.get("keyword"):
         query=query.filter(or_(
-            NodeOlt.name.like('%'+query_dict["name"]+'%'),
-            NodeOlt.alias.like('%'+query_dict["name"]+'%'),
-            NodeOlt.addr.like('%'+query_dict["name"]+'%')
+            NodeOlt.name.like('%'+query_dict["keyword"]+'%'),
+            NodeOlt.alias.like('%'+query_dict["keyword"]+'%'),
+            NodeOlt.addr.like('%'+query_dict["keyword"]+'%')
         ))
     if query_dict.get("area"):
         netloc = request.args.get('area_netloc')

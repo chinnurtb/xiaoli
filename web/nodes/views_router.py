@@ -28,11 +28,11 @@ def routers():
     query = query.outerjoin(Area, NodeRouter.area_id==Area.id)
 
     query_dict = dict([(key, request.args.get(key))for key in form.data.keys()])
-    if query_dict.get("name"):
+    if query_dict.get("keyword"):
         query=query.filter(or_(
-            NodeRouter.name.like('%'+query_dict["name"]+'%'),
-            NodeRouter.alias.like('%'+query_dict["name"]+'%'),
-            NodeRouter.addr.like('%'+query_dict["name"]+'%')
+            NodeRouter.name.like('%'+query_dict["keyword"]+'%'),
+            NodeRouter.alias.like('%'+query_dict["keyword"]+'%'),
+            NodeRouter.addr.like('%'+query_dict["keyword"]+'%')
         ))
     if query_dict.get("area"):
         netloc = request.args.get('area_netloc')
