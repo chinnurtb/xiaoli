@@ -50,6 +50,9 @@ def dashboard_setting():
     elif form['action'] == 'update-welcome-panel':
         Profile(uid, 'dashboard', 'welcome.panel', form['visible']).update()
         db.session.commit()
+    elif form['action'] == 'meta-page-refresh':
+        Profile(uid, form['page'], 'page.refresh', form['refresh']).update()
+        db.session.commit()
 
     return '0'
 

@@ -60,6 +60,15 @@ var postboxes;
 					self.save_order(page);
 				}
 			});
+
+			$('.refresh-prefs input[type="radio"]').bind('click.postboxes', function(){
+				var n = parseInt($(this).val());
+
+                alert(n);
+				if ( n ) {
+					self.save_refresh(page);
+				}
+			});
 		},
 
 		init : function(page, args) {
@@ -128,6 +137,19 @@ var postboxes;
 			$('.meta-box-sortables').each( function() {
 				postVars["order[" + this.id.split('-')[0] + "]"] = $(this).sortable( 'toArray' ).join(',');
 			} );
+			$.post( ajaxurl, postVars );
+		},
+
+
+		save_refresh: function(page) {
+			var postVars, page_refresh = $('.refresh-prefs input:checked').val() || 0;
+
+			postVars = {
+				action: 'meta-page-refresh',
+				_ajax_nonce: $('#meta-box-order-nonce').val(),
+				refresh: page_refresh,
+				page: page
+			}
 			$.post( ajaxurl, postVars );
 		},
 
