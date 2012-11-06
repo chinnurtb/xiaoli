@@ -2,7 +2,7 @@
     style="border: none; background-color:white;margin-bottom: -1px;">
     <tbody>
         {% for count, id, alias in data %}
-        <tr><td>{{ alias }}</td><td><a href="{{ url_for('alarms.index', alarm_class=id) }}">{{ count }}</a> </td></tr>
+        <tr><td>{{ alias }}</td><td><a href="{{ url_for('alarms.index', alarm_class=id, _advshow=1) }}">{{ count }}</a> </td></tr>
         {% endfor %}
     </tbody>
 </table>

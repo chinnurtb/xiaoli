@@ -1,8 +1,22 @@
 <table class="wp-list-table widefat fixed" cellspacing="0" 
     style="border: none; background-color:white;margin-bottom: -1px;">
+    <thead>
+        <tr>
+            <td>分类</td>
+            {% for severity in severities %}
+                <td> {{severity.alias }} </td>
+            {% endfor %}
+            <td>总数</td>
+        </tr>
+    </thead>
     <tbody>
-        {% for count, id, alias in data %}
-        <tr><td>{{ alias }}</td><td>{{ count }}</td></tr>
+        {% for (catid, alias), columns in data.iteritems() %}
+            <tr>
+                <td>{{ alias }}</td>
+                {% for col in columns %}
+                <td ><span class="label severity-{{loop.index-1}}">{{ col }}</span> </td>
+                {% endfor %}
+            </tr>
         {% endfor %}
     </tbody>
 </table>

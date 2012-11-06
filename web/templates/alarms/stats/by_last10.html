@@ -1,0 +1,14 @@
+
+<table class="wp-list-table widefat fixed" cellspacing="0" 
+    style="border: none; background-color:white;margin-bottom: -1px;">
+    <tbody>
+        {% for alarm in alarms %}
+        <tr>
+        <td><span class="label severity-{{alarm.severity}}">{{alarm.severity|alarm_severity_alias}}</span></td>
+        <td><a href="{{url_for('alarms.alarms_show', id=alarm.id)}}">{{alarm.alarm_alias}}</a></td>
+        <td>{{alarm.node_alias}}</td>
+        <td>{{alarm.last_occurrence}}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

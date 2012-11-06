@@ -13,6 +13,8 @@ from tango.form.fields import SelectFieldPro
 
 from .models import AlarmSeverity, AlarmClass
 
+from .constants import SEVERITIES
+
 class QueryNewForm(Form):
 
     tab         = HiddenField()
@@ -44,6 +46,7 @@ class AlarmKnowledgeForm(Form):
 
 class AlarmFilterForm(Form):
     keyword     = TextField()
+    alarm_severity        = QuerySelectField(u'告警级别', query_factory=lambda:AlarmSeverity.query, get_label="alias", allow_blank=True, blank_text=u'全部级别')
     alarm_class = QuerySelectField(u'告警类型:', query_factory=lambda: AlarmClass.query, get_label='alias', allow_blank=True, blank_text=u'全部告警')
     start_date  = DateTimeField(u'开始时间:', format='%Y-%m-%d')
     end_date    = DateTimeField(u'结束时间:', format='%Y-%m-%d')
