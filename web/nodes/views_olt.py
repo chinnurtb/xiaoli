@@ -14,7 +14,7 @@ from tango.login import current_user, login_required
 from tango.models import Profile, Category
 from tango.excel.CsvExport import CsvExport
 
-from .models import NodeOlt,NODE_STATUS_DICT, Area
+from .models import NodeOlt,NODE_STATUS_DICT, Area, Vendor, Model
 from .tables import OltTable
 from .forms import  OltSearchForm, OltNewForm
 from .views import nodeview
@@ -121,3 +121,43 @@ def olts_show(id):
     alarm_chart.min_width = str(220)+"px"
     alarm_chart["series"][0]["data"] = [{'name': u'完全故障', 'y':1},{'name': u'部分故障', 'y':2},{'name': u'完全正常', 'y':19},{'name': u'数据缺失', 'y':2}]
     return render_template('nodes/olts/show.html', node = node, traffic_chart = traffic_chart, alarm_chart = alarm_chart)
+
+import os
+from flask import Markup
+from werkzeug import secure_filename
+from tango.excel.CsvImport import CsvImport
+@nodeview.route('/nodes/olts/import/', methods=['POST'])
+@login_required
+def olts_import():
+    if request.method == 'POST':
+        file = request.files['file']
+        if file and file.filename.endswith('csv'):
+            filename = secure_filename(file.filename)
+            root_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','static','file','upload')
+            if not os.path.isdir(root_path): os.mkdir(root_path)
+            file_path = os.path.join(root_path, filename.split('.')[0]+datetime.now().strftime('(%Y-%m-%d %H-%M-%S %f)')+'.csv')
+            file.save(file_path)
+            validate = {
+                'category_id': {
+                    'allow_null': False,
+                    'existed_data': dict([(category.alias, category.id) for category in Category.query.filter(Category.is_valid==1)]),
+                },
+                'area_id': {
+                    'allow_null': False,
+                    'existed_data': dict([(area.full_name, area.id) for area in Area.query.filter(Area.area_type==3)]),
+                },
+                'vendor_id': {
+                    'allow_null': True,
+                    'existed_data': dict([(vendor.alias, vendor.id) for vendor in Vendor.query.filter(Vendor.is_valid==1)]),
+                },
+                'model_id': {
+                    'allow_null': True,
+                    'existed_data': dict([(model.alias, model.id) for model in Model.query.filter(Model.is_valid==1)]),
+                }
+            }
+            reader = CsvImport(session=db.session.bind, table='node_olts', primary_key=['addr',], validate=validate)
+            info = reader.read(file=file_path, is_update=True)
+            flash(Markup(info), 'success')
+        else:
+            flash(u"上传文件格式错误", 'error')
+    return redirect(url_for('nodes.olts'))

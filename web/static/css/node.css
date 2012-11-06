@@ -1,14 +1,33 @@
-.status-column.state-1, #status_statistics .status-1 a{
+#status_statistics .status-0 a{
+    color: #808080;
+}
+#status_statistics .status-1 a{
     color: lime;
 }
-.status-column.state-2, #status_statistics .status-2 a{
+#status_statistics .status-2 a{
     color: red;
 }
-.status-column.state-3, #status_statistics .status-3 a{
+#status_statistics .status-3 a{
     color: #F6983E;
 }
-.status-column.state-4, #status_statistics .status-4 a{
+#status_statistics .status-4 a{
     color: #43D5FA;
+}
+
+span.status-0{
+    background-color: #808080;
+}
+span.status-1{
+    background-color: lime;
+}
+span.status-2{
+    background-color: red;
+}
+span.status-3{
+    background-color: #F6983E;
+}
+span.status-4{
+    background-color: #43D5FA;
 }
 #search_form {
     margin-bottom: 5px;

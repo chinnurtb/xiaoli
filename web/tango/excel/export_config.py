@@ -51,6 +51,7 @@ cn = {
     'olts': {
         'status': u'状态',
         'name': u'名称',
+        'category.alias': u'节点类型',
         'alias': u'别名',
         'addr': u'IP地址',
         'area.full_name': u'所属区域',
@@ -61,6 +62,7 @@ cn = {
         'mask': u'子网掩码',
         'snmp_comm': u'读团体名',
         'snmp_wcomm': u'写团体名',
+        'snmp_ver': u'SNMP版本',
         'last_check': u'上次同步',
         'location': u'位置',
         'remark': u'备注',

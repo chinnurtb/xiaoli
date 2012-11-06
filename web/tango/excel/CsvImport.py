@@ -1,10 +1,11 @@
 # encoding: utf-8
 import os
 import csv
+from datetime import datetime
 
 from .import_config import tables
 
-class CsvReader(object):
+class CsvImport(object):
     """
         param:session       SQLAlchemy session对象，连接数据库执行语句
         param:table         字符串，导入表的表名
@@ -37,6 +38,7 @@ class CsvReader(object):
         self.table_dict = dict([(value,key) for key,value in self.header_dict.items()]) # 字段名与列名的字典：{'name': u'名称', 'ip': u'IP地址'}
         self.column_type = dict([(key, value[1]) for key, value in tables.get(table,{}).items()])
         self.header = []    # 保存csv文件首行信息，list
+        self.header_ori = []    # 保存csv文件首行信息，list
         self.key_col = {}   # 保存首行列索引与对应的列名，dict
 
     # file: 导入的文件
@@ -54,15 +56,15 @@ class CsvReader(object):
         file = os.path.join(os.path.dirname(os.path.abspath(__file__)),file)
         reader = csv.reader(open(file,'rb'))
         for row,row_data in enumerate(reader):
-            row_data = [data.decode('gbk') for data in row_data]
+            row_data = [data.decode('gbk','ignore') for data in row_data]
             if row == 0:
+                self.header_ori = row_data
                 self.header = [title for title in row_data if self.header_dict.has_key(title)]
                 for col_index, col_name in enumerate(row_data):
                     self.key_col[col_index] = col_name
             else:
                 action, data = self._validate_row(row_data)   # 验证每一行数据，返回操作动作(插入，更新，错误)和数据
                 key = tuple([data[self.header.index(self.table_dict.get(col_name))] for col_name in self.primary_key])
-                print key
                 if action == "insert" and update_dict.has_key(key):
                     action = "update"
                     data = [update_dict[key],] + data
@@ -73,9 +75,10 @@ class CsvReader(object):
         # 执行批量更新
         self._update(result.get("update",{}).values())
         # 错误数据回写
-        self._error(result.get("error",{}).values())
-
-        return u"成功导入"
+        error_file = self._error(result.get("error",{}).values())
+        if error_file:
+            error_file = u'<a href="/static/file/download/%s">下载错误数据</a>' % error_file
+        return u"成功导入%s表%s条，更新%s条记录。%s" % (self.table, len(result.get("insert",{}).values()), len(result.get("update",{}).values()), error_file)
 
     def _validate_row(self, row_data):
         error = ""
@@ -86,7 +89,7 @@ class CsvReader(object):
             error += info
             data_list.append(data)
         if error == "":
-            row_data = [data for col_index, data in enumerate(row_data) if self.header_dict.has_key(self.key_col[col_index])]
+            row_data = [data for col_index, data in enumerate(data_list) if self.header_dict.has_key(self.key_col[col_index])]
             return "insert", row_data
         else:
             return "error", row_data+[error,]
@@ -96,6 +99,8 @@ class CsvReader(object):
         validate = self.validate.get(col_en,{})
         if not validate.get("allow_null", True) and data == "":
             return u'%s不能为空' % col_name, data
+        if data == "":
+            return "",None
         if validate.get("format") and not validate.get("format")(data):
             return u'%s格式不正确' % col_name, data
         if validate.get("existed_data"):
@@ -126,6 +131,7 @@ class CsvReader(object):
         # connection.executemany(insert_data, datas)
         # update_data = ''' update mit_olts t1, temp_olts t2 set t1.name = t2.name where t1.id = t2.id; '''
         # connection.execute(update_data)
+        self.session.execute("drop table if exists temp_%s;"% self.table)
         create_temp_table = u'create temporary table temp_'+self.table + ' (id int,'
         for col_name in self.header:
             if self.header_dict.get(col_name):create_temp_table += self.header_dict[col_name] + ' '+self.column_type[col_name]+','
@@ -149,16 +155,16 @@ class CsvReader(object):
         self.session.execute(update_data)
 
     def _error(self, datas):
-        if len(datas) == 0: return
+        if len(datas) == 0: return ""
         root_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','..','static','file','download')
         if not os.path.isdir(root_path): os.mkdir(root_path)
         file = os.path.join(root_path,self.table+datetime.now().strftime('(%Y-%m-%d %H-%M-%S %f)')+'.csv')
         f = open(file,'wb')
         writer = csv.writer(f)
-        writer.writerow(self.header+[u'错误提示',])
+        writer.writerow([title.encode('gbk') for title in self.header_ori+[u'错误提示',]])
         for data_list in datas:
-            writer.writerow(data_list)
-        return file
+            writer.writerow([data.encode('gbk') for data in data_list])
+        return os.path.basename(file)
 
 if __name__ == "__main__":
     from sqlalchemy import create_engine
@@ -169,5 +175,5 @@ if __name__ == "__main__":
     #conn.commit()
 
     engine = create_engine('postgresql+psycopg2://postgres:postgres@192.168.100.71/ipon')
-    reader = CsvReader(session=engine, table='node_olts', primary_key=['addr',])
+    reader = CsvImport(session=engine, table='node_olts', primary_key=['addr',])
     reader.read(file='olts.csv', is_update=True)

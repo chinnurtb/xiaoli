@@ -145,7 +145,7 @@ class Model(db.Model):
 
     category          = db.relation('Category')
 
-NODE_STATUS_DICT = {1: u'正常', 2: u'宕机', 3: u'不可达', 4: u'未监控'}
+NODE_STATUS_DICT = {0: u'未知',1: u'正常', 2: u'宕机', 3: u'不可达'}
 SNMP_VER_DICT = {"v1":'v1',"v2c":'v2c'}
 
 class NodeMixin(object):
@@ -319,7 +319,7 @@ class NodeOlt(NodeMixin,db.Model):
 
     @staticmethod
     def export_columns():
-        return ['status','name','alias','addr','area.full_name','onu_count_plan','onu_count_unplan','vendor.alias','model.alias','mask','snmp_comm','snmp_wcomm','last_check','location','remark']
+        return ['status','category.alias','name','alias','addr','area.full_name','onu_count_plan','onu_count_unplan','vendor.alias','model.alias','mask','snmp_comm','snmp_wcomm','snmp_ver','last_check','location','remark']
 
 class NodeOnu(NodeMixin,db.Model):
     """ ONU """
