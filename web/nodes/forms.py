@@ -179,7 +179,7 @@ class OnuNewForm(FormPro):
     remark          = TextAreaField(u'备注信息')
 
 class OltSearchForm(FormPro):
-    name            = TextField(u'IP 地址')
+    keyword         = TextField()
     area            = AreaSelectField(u'所属区域')
     vendor_id       = SelectFieldPro(u'生产厂商',
         choices=lambda: [('', u'请选择生产厂商')] + [(unicode(r.id), r.alias) for r in Vendor.query])
@@ -189,7 +189,7 @@ class OltSearchForm(FormPro):
         choices=lambda: [('',u'请选择状态')]+NODE_STATUS_DICT.items())
 
 class EocSearchForm(FormPro):
-    name            = TextField(u'IP 地址')
+    keyword         = TextField()
     area            = AreaSelectField(u'所属区域')
     vendor_id       = SelectFieldPro(u'生产厂商',
         choices=lambda: [('', u'请选择生产厂商')] + [(unicode(r.id), r.alias) for r in Vendor.query])
@@ -199,7 +199,7 @@ class EocSearchForm(FormPro):
         choices=lambda: [('',u'请选择状态')]+NODE_STATUS_DICT.items())
 
 class CpeSearchForm(FormPro):
-    name            = TextField(u'IP 地址')
+    keyword         = TextField()
     area            = AreaSelectField(u'所属区域')
     vendor_id       = SelectFieldPro(u'生产厂商',
         choices=lambda: [('', u'请选择生产厂商')] + [(unicode(r.id), r.alias) for r in Vendor.query])
@@ -209,7 +209,7 @@ class CpeSearchForm(FormPro):
         choices=lambda: [('',u'请选择状态')]+NODE_STATUS_DICT.items())
 
 class OnuSearchForm(FormPro):
-    name            = TextField(u'IP 地址')
+    keyword         = TextField()
     area            = AreaSelectField(u'所属区域')
     vendor_id       = SelectFieldPro(u'生产厂商',
         choices=lambda: [('', u'请选择生产厂商')] + [(unicode(r.id), r.alias) for r in Vendor.query])
@@ -219,7 +219,7 @@ class OnuSearchForm(FormPro):
         choices=lambda: [('',u'请选择状态')]+NODE_STATUS_DICT.items())
 
 class SwitchSearchForm(FormPro):
-    name            = TextField(u'IP 地址')
+    keyword         = TextField()
     area            = AreaSelectField(u'所属区域')
     vendor_id       = SelectFieldPro(u'生产厂商',
         choices=lambda: [('', u'请选择生产厂商')] + [(unicode(r.id), r.alias) for r in Vendor.query])
@@ -229,7 +229,7 @@ class SwitchSearchForm(FormPro):
         choices=lambda: [('',u'请选择状态')]+NODE_STATUS_DICT.items())
 
 class RouterSearchForm(FormPro):
-    name            = TextField(u'IP 地址')
+    keyword         = TextField()
     area            = AreaSelectField(u'所属区域')
     vendor_id       = SelectFieldPro(u'生产厂商',
         choices=lambda: [('', u'请选择生产厂商')] + [(unicode(r.id), r.alias) for r in Vendor.query])

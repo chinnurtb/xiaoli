@@ -20,7 +20,7 @@
             <div class="tablenav top">
             {% from 'tango/_search_h.html' import render_keyword, render_advanced %}
               <div class="alignleft actions">
-                {{ render_keyword(filterForm, "结点名字", advanced=True) }}
+                {{ render_keyword(filterForm, "节点名字", advanced=True) }}
               </div>
               <div class="pull-right actions">
                 <a class="btn btn-small" href="{{ request.url|replace('nodes','nodes.csv') }}" title="Excel导出"><i class="icon-download-alt"></i></a>

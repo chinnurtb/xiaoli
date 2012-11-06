@@ -8,6 +8,8 @@ from tango.ui import navbar
 from tango.models import db
 from tango.ui.tables import make_table
 
+from nodes.models import Node
+
 from .models import *
 from .tables import *
 from .forms import PerfFilterForm, NodePerfFilterForm, pull_intervals, model_choices
@@ -47,6 +49,8 @@ def ping():
     form = NodePerfFilterForm(formdata=request.args)
     form.refresh_choices(request.args)
     query = form.filter(PingPerf)
+    if form.keyword.data:
+        query = query.filter(PingPerf.node.has(Node.alias=='%'+ form.keyword.data +'%'))
     table = make_table(query, PingTable)
     
     kwargs = {
@@ -159,7 +163,7 @@ def ponpower():
         'table'      : table,
         'filterForm' : form
     }
-    return render_template('/perf/pon/index.html', **kwargs)
+    return render_template('/perf/index.html', **kwargs)
 
     
 # ==============================================================================

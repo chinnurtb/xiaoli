@@ -28,11 +28,11 @@ def switches():
     query = query.outerjoin(Area, NodeSwitch.area_id==Area.id)
 
     query_dict = dict([(key, request.args.get(key))for key in form.data.keys()])
-    if query_dict.get("name"):
+    if query_dict.get("keyword"):
         query=query.filter(or_(
-            NodeSwitch.name.like('%'+query_dict["name"]+'%'),
-            NodeSwitch.alias.like('%'+query_dict["name"]+'%'),
-            NodeSwitch.addr.like('%'+query_dict["name"]+'%')
+            NodeSwitch.name.like('%'+query_dict["keyword"]+'%'),
+            NodeSwitch.alias.like('%'+query_dict["keyword"]+'%'),
+            NodeSwitch.addr.like('%'+query_dict["keyword"]+'%')
         ))
     if query_dict.get("area"):
         netloc = request.args.get('area_netloc')

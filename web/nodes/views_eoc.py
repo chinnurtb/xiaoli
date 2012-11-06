@@ -28,11 +28,11 @@ def eocs():
     query = query.outerjoin(Area, NodeEoc.area_id==Area.id)
 
     query_dict = dict([(key, request.args.get(key))for key in form.data.keys()])
-    if query_dict.get("name"):
+    if query_dict.get("keyword"):
         query=query.filter(or_(
-            NodeEoc.name.like('%'+query_dict["name"]+'%'),
-            NodeEoc.alias.like('%'+query_dict["name"]+'%'),
-            NodeEoc.addr.like('%'+query_dict["name"]+'%')
+            NodeEoc.name.like('%'+query_dict["keyword"]+'%'),
+            NodeEoc.alias.like('%'+query_dict["keyword"]+'%'),
+            NodeEoc.addr.like('%'+query_dict["keyword"]+'%')
         ))
     if query_dict.get("area"):
         netloc = request.args.get('area_netloc')
