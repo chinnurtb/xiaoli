@@ -22,7 +22,7 @@ class Monitor(db.Model):
 
     id          = db.Column(db.Integer, primary_key=True)
     category    = db.Column(db.String(20)) # 分类, 不关联
-    vendor      = db.Column(db.String(20)) # 供应商,
+    vendor      = db.Column(db.String(20)) # 厂商,
     sysoid      = db.Column(db.String(100)) # 不关联
     match       = db.Column(db.String(100)) # 匹配规则
     modid       = db.Column(db.Integer, db.ForeignKey('modules.id'))

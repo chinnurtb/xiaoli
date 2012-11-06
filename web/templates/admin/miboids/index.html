@@ -21,35 +21,31 @@
 {% block content %} 
     <div class="row-fluid content">
         <div class="span2">
-            {% set menuid = 'miboids' %}
             {% include "admin/_sidebar.html" %}
         </div>
         <div class="span10">
-          <div class="row-fluid content">
-            <div>
-              <div class="tabbable tabs-left">
-                <ul class="nav nav-tabs">
-                  {% for tmib in mibs %}
-                  {% set tmib = tmib[0] %}
-                  <li class="{% if mib == tmib %}active{% endif %}"><a href="#mib-{{ tmib }}" data-toggle="tab">{{ tmib }}</a></li>
-                  {% endfor %}
-                </ul>
-                <div class="tab-content">
-                  <div class="tab-pane active" id="mib-mib1">
-                    {% include "_alert.html" %}
-                    {{ render_table(table) }}
-                  </div>
-                  <div class="tab-pane" id="mib-mib2">
-                    <p>I'm in Section A.</p>
-                  </div>
-                  <div class="tab-pane" id="mib-mib3">
-                    <p>Howdy, I'm in Section B.</p>
-                  </div>
-                </div>
+          {% include "_alert.html" %}
+          <div class="tablenav top">
+            <div class="alignleft actions">
+              <div class="alignleft btn-group">
+                <a class="btn btn-small" href="/admin/miboids/new"><i class="icon-plus"></i>新建Miboid</a>
+                <a class="btn btn-small" id="multi-delete-btn" href="/admin/miboids/delete/all"><i class="icon-remove"></i>删除</a>
               </div>
             </div>
+
+            {% from "tango/_search_h.html" import render_keyword %}
+            <form method="GET" class="form filter-form">
+                <div class="alignleft actions">
+                  {{ render_keyword(form, "名称/显示名") }}
+                </div>
+                <br class="clear">
+            </form>
           </div>
+          {% from "_table_h.html" import render_table %}
+          {{ render_table(table) }}
         </div>
+        <div class="modal hide fade" id="myModal"></div>
+
     </div>
 {% endblock %}
 

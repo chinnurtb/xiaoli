@@ -5,7 +5,6 @@
 {% block content %}
 <div class="row-fluid content">
     <div class="span2">
-      {% set menuid = 'categories' %}
       {% include "admin/_sidebar.html" %}
     </div>
     
@@ -20,7 +19,6 @@
               {{ render_field(field) }}
             {% endif %}
             {% endfor %}
-            
 	    <div class="form-actions">
 	      <button type="submit" class="btn btn-primary">确定</button>
 	      <a href="#" class="btn">取消</a>

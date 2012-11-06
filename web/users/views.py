@@ -206,22 +206,25 @@ def users_delete(id):
     
 @userview.route('/users/delete/all', methods=['GET', 'POST'])
 def users_delete_all():
-    ids = dict(request.values.lists()).get('id', [])
     if request.method == 'POST':
-        for iid in ids:
-            db.session.delete(User.query.get(id))
+        ids = dict(request.values.lists()).get('id', [])
+        for i in ids:
+            db.session.delete(User.query.get(int(i)))
         db.session.commit()
-        flash(u'删除成功!', 'success')
+        flash(u'成功删除 %d 个用户!' % len(ids) , 'success')
         return redirect(url_for('users.users'))
-        
+
+    ids = dict(request.values.lists()).get('id[]', [])
+    users = User.query.filter(User.id.in_([int(i) for i in ids])).all()
     kwargs = {
         'title': u'批量删除用户',
         'action': url_for('users.users_delete_all'),
-        'fields': [(u'用户名', User.query.get(uid).username) for uid in ids],
+        'fields': [(u.id, u'用户名', u.username) for u in users],
         'type' : 'delete'
     }
-    return render_template('_modal.html', **kwargs)
-        
+    return render_template('_modal_del_all.html', **kwargs)
+
+    
 @userview.route('/users/reset-password/<int:id>', methods=['POST', 'GET'])
 def reset_password(id):
     '''管理员重置用户密码'''
