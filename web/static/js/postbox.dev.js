@@ -64,7 +64,6 @@ var postboxes;
 			$('.refresh-prefs input[type="radio"]').bind('click.postboxes', function(){
 				var n = parseInt($(this).val());
 
-                alert(n);
 				if ( n ) {
 					self.save_refresh(page);
 				}
