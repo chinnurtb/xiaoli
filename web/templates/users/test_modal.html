@@ -1,0 +1,19 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<a class="mm" href="{{ url_for('users.users_delete', id=12) }}">Delete</a>
+<a class="mm" href="{{ url_for('users.users_delete', id=11) }}">Delete</a>
+
+<div class="modal hide fade" id="myModal"></div>
+
+<script type="text/javascript">
+  $('.mm').click(function(){
+      $.get($(this).attr('href'), function(data){
+          console.log(data);
+          $('#myModal').html(data).modal('show');
+      });
+      return false;
+  });
+</script>
+  
+{% endblock content %}

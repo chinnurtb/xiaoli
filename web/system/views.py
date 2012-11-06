@@ -5,7 +5,7 @@ from flask import (Blueprint, request, url_for, redirect,
 
 from tango import db
 from tango.ui.tables import make_table
-from tango.models import Setting, DictCode
+from tango.models import Setting, DictCode, Category
 from tango.ui import navbar
 
 from nodes.models import NodeHost
@@ -102,6 +102,7 @@ def dict_codes_edit(id):
     form.process(obj=dict_code)
     return render_template('/system/dict-codes/new_edit.html', form=form,
                            action=url_for('system.dict_codes_edit', id=id), title=u'编辑字典')
+    
 
 # ==============================================================================
 #  阀值管理
@@ -130,16 +131,11 @@ def thresholds_edit(id):
     
     if form.is_submitted and form.validate_on_submit():
         form.populate_obj(threshold)
-        threshold.severity1 = threshold.severity1.id
-        threshold.severity2 = threshold.severity2.id
         db.session.commit()
-        
         flash(u'阀值 %s 修改成功' % threshold.name, 'success')
         return redirect(url_for('system.thresholds'))
         
     form.process(obj=threshold)
-    form.severity1.data = AlarmSeverity.query.get(threshold.severity1)
-    form.severity2.data = AlarmSeverity.query.get(threshold.severity2)
     return render_template("system/thresholds/edit.html", form=form, id=id)
 
     
@@ -149,8 +145,6 @@ def thresholds_new():
     if form.is_submitted and form.validate_on_submit():
         threshold = Threshold()
         form.populate_obj(threshold)
-        threshold.severity1 = threshold.severity1.id
-        threshold.severity2 = threshold.severity2.id
         db.session.add(threshold)
         db.session.commit()
         
@@ -346,5 +340,5 @@ def subsystems():
     return render_template('/system/subsystems.html', table=table)
 
 
-navbar.add('system', u'系统', '/system')
+navbar.add('system', u'系统', 'wrench', '/system')
 

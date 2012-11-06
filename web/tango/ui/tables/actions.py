@@ -13,13 +13,16 @@ __all__ = ['Action']
 class Action(object):
     creation_counter = 0
 
-    def __init__(self, name, endpoint=None, icon=None, attrs=None, url=None):
+    def __init__(self, name, endpoint=None, icon=None, modalable=False, attrs=None, url=None):
         self.name = name
         self.endpoint = endpoint
         self.icon = icon
         self.url = url
 
-        default_attrs = Attrs(a={'class': 'btn btn-small'})
+        css_class = 'btn btn-small '
+        if modalable:
+            css_class += 'modal-btn'
+        default_attrs = Attrs(a={'class': css_class})
         attrs = attrs or Attrs()
         if not isinstance(attrs, Attrs):
             warnings.warn('attrs must be Attrs object, not %s'

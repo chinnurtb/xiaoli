@@ -32,15 +32,19 @@ class Threshold(db.Model):
     
     occur_cond1    = db.Column(db.String(60))
     restore_cond1  = db.Column(db.String(60))
-    severity1      = db.Column(db.Integer, default=4)
+    severity1      = db.Column(db.Integer, db.ForeignKey('alarm_severities.id'), default=4 )
     
     occur_cond2    = db.Column(db.String(60))
     restore_cond2  = db.Column(db.String(60))
-    severity2      = db.Column(db.Integer, default=2)
+    severity2      = db.Column(db.Integer, db.ForeignKey('alarm_severities.id'), default=2)
 
-    category    = db.relationship('Category')
-    metric      = db.relationship('Metric')
-    alarm_class = db.relationship('AlarmClass')
+    severity1_obj = db.relationship('AlarmSeverity',
+                                    primaryjoin="AlarmSeverity.id==Threshold.severity1")
+    severity2_obj = db.relationship('AlarmSeverity',
+                                    primaryjoin="AlarmSeverity.id==Threshold.severity2")
+    category      = db.relationship('Category')
+    metric        = db.relationship('Metric')
+    alarm_class   = db.relationship('AlarmClass')
 
 
 

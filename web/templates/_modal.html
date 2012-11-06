@@ -1,0 +1,36 @@
+{% from "_form_h.html" import render_field %}
+<form class="form-horizontal" style="margin:0;" method="POST" action="{{ action }}">
+  <div class="modal-header">
+    <a class="close" data-dismiss="modal">×</a>
+    <h3>{{ title }}</h3>
+  </div>
+  <div class="modal-body">
+    <fieldset>
+      {% if fields %}
+        {% for label, value in fields %}
+          <div class="control-group ">
+            <label class="control-label" >{{ label }}</label>
+            <div class="controls">
+	      <input disabled="disabled" type="text" value="{{ value }}">
+            </div>
+          </div>
+        {% endfor %}
+      {% endif %}
+      
+      {% if form %}
+        {{ form.hidden_tag() }}
+        {% for field in form %}
+          {{ render_field(field) }}
+        {% endfor %}
+      {% endif %}
+    </fieldset>
+  </div>
+  <div class="modal-footer">
+    <a href="#" class="btn" data-dismiss="modal">取消</a>
+    {% if type and type=='delete' %}
+      <input type="submit" class="btn btn-primary btn-danger" value="删除">
+    {% else%}
+      <input type="submit" class="btn btn-primary" value="确认">
+    {% endif %} 
+  </div>
+</form>

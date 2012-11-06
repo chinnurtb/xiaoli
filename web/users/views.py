@@ -177,11 +177,13 @@ def users_edit(id):
         return redirect(url_for('users.users'))
         
     form.process(obj=user)
-    res = {
-        'title': u'编辑用户',
-        'body': render_template('users/edit.html', user=user, form=form)
+    kwargs = {
+        'title'  : u'编辑用户',
+        'action' : url_for('users.users_edit', id=id),
+        'form'   : form,
+        'type'   : 'edit'
     }
-    return json.dumps(res)
+    return render_template('_modal.html', **kwargs)
 
     
 @userview.route('/users/delete/<int:id>', methods=('GET', 'POST'))
@@ -192,25 +194,37 @@ def users_delete(id):
         db.session.commit()
         flash(u'用户(%s)删除成功' % user.username, 'success')
         return redirect(url_for('users.users'))
-
-    res = {
-        'title': u'删除用户',
-        'body': render_template('users/delete.html', user=user)
+        
+    kwargs = {
+        'title'  : u'删除用户',
+        'action' : url_for('users.users_delete', id=id),
+        'fields' : [(u'用户名', user.username), (u'真实姓名', user.name)],
+        'type'   : 'delete'
     }
-    return json.dumps(res)
+    return render_template('_modal.html', **kwargs)
 
     
 @userview.route('/users/delete/all', methods=['GET', 'POST'])
 def users_delete_all():
     if request.method == 'POST':
         ids = dict(request.values.lists()).get('id', [])
-        for iid in ids:
-            db.session.delete(User.query.get(id))
+        for i in ids:
+            db.session.delete(User.query.get(int(i)))
         db.session.commit()
-        flash(u'全部用户(%s)删除成功!' % str(ids), 'success')
+        flash(u'成功删除 %d 个用户!' % len(ids) , 'success')
         return redirect(url_for('users.users'))
 
-        
+    ids = dict(request.values.lists()).get('id[]', [])
+    users = User.query.filter(User.id.in_([int(i) for i in ids])).all()
+    kwargs = {
+        'title': u'批量删除用户',
+        'action': url_for('users.users_delete_all'),
+        'fields': [(u.id, u'用户名', u.username) for u in users],
+        'type' : 'delete'
+    }
+    return render_template('_modal_del_all.html', **kwargs)
+
+    
 @userview.route('/users/reset-password/<int:id>', methods=['POST', 'GET'])
 def reset_password(id):
     '''管理员重置用户密码'''
@@ -414,7 +428,7 @@ def domains_delete(id):
 # ==============================================================================
 #  [OTHER]
 # ==============================================================================
-navbar.add('users', u'用户', '/users/')
+navbar.add('users', u'用户', 'user', '/users/')
 
 @userview.route('/just-test/<name>/')
 def just_test(name='a'):
@@ -423,3 +437,7 @@ def just_test(name='a'):
     args.update(request.view_args)
     print args
     return name
+
+@userview.route('/test-modal')
+def test_modal():
+    return render_template('users/test_modal.html')

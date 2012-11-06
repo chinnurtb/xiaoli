@@ -5,8 +5,8 @@
 {% block content %}
 <div class="row-fluid content">
     <div class="span2">
-      {% set menuid = 'dict_codes' %}
-      {% include "system/_sidebar.html" %}
+      {% set menuid = 'modules' %}
+      {% include "admin/_sidebar.html" %}
     </div>
     
     <div class="span10">
@@ -14,11 +14,12 @@
 	  <form class="form-horizontal" method="POST" action="{{ action }}">
             {{ render_form_title(request, title) }}
 	    {{ form.hidden_tag() }}
-            {{ render_field(form.type) }}
-            {{ render_field(form.code_name) }}
-            {{ render_field(form.code_label) }}
-            {{ render_field(form.is_valid) }}
-            {{ render_field(form.remark) }}
+            
+            {% for field in form %}
+            {% if field.id != 'csrf_token' %}
+              {{ render_field(field) }}
+            {% endif %}
+            {% endfor %}
 	    <div class="form-actions">
 	      <button type="submit" class="btn btn-primary">确定</button>
 	      <a href="#" class="btn">取消</a>
@@ -30,3 +31,4 @@
 </div>
 
 {% endblock %}
+

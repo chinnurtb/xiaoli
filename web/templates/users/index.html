@@ -17,7 +17,7 @@
 
 {% block content %}
 
-<div class="row-fluid" style="margin-top:20px">
+<div class="row-fluid content">
 
   <div class="span2">
     {% set menuid = 'users' %}
@@ -30,7 +30,8 @@
       <div class="alignleft actions">
         <div class="alignleft btn-group">
           <a class="btn btn-small" href="{{url_for('users.users_new')}}"><i class="icon-plus"></i>新建用户</a>
-          <a class="btn btn-small" id="multi-delete-btn" href="#"><i class="icon-remove"></i>删除</a>
+          <a class="btn btn-small" id="multi-delete-btn"
+             href="{{ url_for('users.users_delete_all') }}"><i class="icon-remove"></i>删除</a>
         </div>
       </div>
       
@@ -46,12 +47,9 @@
       </div>
       <br class="clear">
      </div>
-    
-    <form method="POST" id="table-form" action="{{ url_for('users.users_delete_all') }}">
-      {{ render_table(table) }}
-    </form>
-    {{ render_modal(['edit', 'delete']) }}
+    {{ render_table(table) }}
   </div>
+  <div class="modal hide fade" id="myModal"></div>
 </div>
 {% endblock %}
 

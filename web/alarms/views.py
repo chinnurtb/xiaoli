@@ -52,6 +52,10 @@ def inject_navid():
 #===============================================================
 def alarm_filter(cls, query, form):
     """告警过滤"""
+    severity = form.alarm_severity.data
+    print severity
+    if severity is not None:
+        query = query.filter(cls.severity == severity.id)
     alarm_class = form.alarm_class.data
     if alarm_class:
         query = query.filter(cls.alarm_class_id == alarm_class.id)
@@ -73,6 +77,7 @@ def index():
     filterForm = AlarmFilterForm(formdata=request.args)
     query = alarm_filter(Alarm, Alarm.query, filterForm)
     severity = request.args.get('severity')
+    print severity
     if severity:
         query = query.filter(Alarm.severity == AlarmSeverity.name2id(severity))
     severities = query_severities()
@@ -306,9 +311,18 @@ def alarm_severity_filter(s):
 def alarm_state_filter(s):
     return constants.STATES[int(s)] 
 
+@alarmview.app_template_filter("alarm_severity_alias")
+def alarm_severity_alias(s):
+    return constants.SEVERITIES[int(s)]
+
 #==============================================
 #Statistics 
 #==============================================
+@alarmview.route('/alarms/stats/by_last10')
+def stats_by_last10():
+    alarms = Alarm.query.filter(Alarm.severity > 0).order_by(Alarm.last_occurrence.desc()).limit(10)
+    return render_template('alarms/stats/by_last10.html', alarms=alarms)
+
 @alarmview.route('/alarms/stats/by_severity')
 def stats_by_severity():
     data = [{'label': s.alias, 'color': s.color, 'value': s.count}
@@ -319,11 +333,23 @@ def stats_by_severity():
 
 @alarmview.route('/alarms/stats/by_category')
 def stats_by_category():
-    q = db.session.query(func.count(Alarm.id), Category.id, Category.alias)
+
+    severities = AlarmSeverity.query.order_by(AlarmSeverity.id).all()
+
+    q = db.session.query(func.count(Alarm.id), Alarm.severity, Category.id, Category.alias)
     q = q.outerjoin(AlarmClass, Alarm.alarm_class_id == AlarmClass.id)
     q = q.outerjoin(Category, AlarmClass.category_id == Category.id)
-    q = q.group_by(Category.id, Category.alias).order_by(Category.id)
-    return render_template('alarms/stats/by_category.html', data=q.all())
+    q = q.group_by(Alarm.severity, Category.id, Category.alias).order_by(Category.id)
+    #(id, alias): (clear, indeterminate, warning, minor, major, critical)
+    rows = {}
+    for count, severity, cat_id, cat_alias in q.all():
+        row = rows.get((cat_id, cat_alias), [0,0,0,0,0,0,0])
+        row[severity] = count
+        row[6] += count #total
+        rows[(cat_id, cat_alias)] = row
+    print rows
+    return render_template('alarms/stats/by_category.html',
+                            severities = severities, data=rows)
 
 @alarmview.route('/alarms/stats/by_class')
 def stats_by_class():
@@ -357,8 +383,9 @@ def nvd3_demo():
     return render_template('alarms/nvd3_demo.html', data=data)
 
     
-navbar.add('alarms', u'故障', '/alarms/console/')
+navbar.add('alarms', u'故障', 'warning-sign', '/alarms/console/')
 
+dashboard.add_widget('alarms_stats_by_last10', u'最近10条告警', url='/alarms/stats/by_last10')
 dashboard.add_widget('alarms_stats_by_severity', u'告警概况', url='/alarms/stats/by_severity')
 dashboard.add_widget('alarms_stats_by_category', u'告警分类', url='/alarms/stats/by_category')
 

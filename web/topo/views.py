@@ -273,5 +273,5 @@ def view_all():
         
     return render_template("topo/index.html", svg=svg, menuid = 'topo')
 
-navbar.add('topo', u'拓扑', '/topo')
+navbar.add('topo', u'拓扑', 'random', '/topo')
 

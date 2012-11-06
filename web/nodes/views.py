@@ -245,4 +245,4 @@ def nodes_import():
 def managers():
     return render_template('/managers/index.html')
 
-navbar.add('nodes', u'资源', '/nodes')
+navbar.add('nodes', u'资源', 'tasks', '/nodes')

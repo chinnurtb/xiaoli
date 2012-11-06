@@ -49,12 +49,12 @@ class ThresholdEditForm(Form):
     
     occur_cond1   = TextField(u'产生条件')
     restore_cond1 = TextField(u'恢复条件')
-    severity1     = QuerySelectField(u'产生告警', get_label='alias',
+    severity1_obj = QuerySelectField(u'产生告警', get_label='alias',
                                      query_factory=lambda:AlarmSeverity.query.order_by(AlarmSeverity.id.desc()))
 
     occur_cond2   = TextField(u'产生条件')
     restore_cond2 = TextField(u'恢复条件')
-    severity2     = QuerySelectField(u'产生告警', get_label='alias',
+    severity2_obj = QuerySelectField(u'产生告警', get_label='alias',
                                      query_factory=lambda:AlarmSeverity.query.order_by(AlarmSeverity.id.desc())) 
     
 class ThresholdNewForm(ThresholdEditForm):

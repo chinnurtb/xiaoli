@@ -16,10 +16,30 @@
             {% set menuid = 'models' %}
             {% include 'admin/_sidebar.html' %}
         </div>
+
         <div class="span10">
-            {% from "_table_h.html" import render_table %}
-            {{ render_table(table) }}
+          {% include "_alert.html" %}
+          <div class="tablenav top">
+            <div class="alignleft actions">
+              <div class="alignleft btn-group">
+                <a class="btn btn-small" href="/admin/models/new"><i class="icon-plus"></i>新建设备</a>
+                <a class="btn btn-small" id="multi-delete-btn" href="/admin/models/delete/all"><i class="icon-remove"></i>删除</a>
+              </div>
+            </div>
+
+            {% from "tango/_search_h.html" import render_keyword %}
+            <form method="GET" class="form filter-form">
+                <div class="alignleft actions">
+                  {{ render_keyword(form, "名称/显示名") }}
+                </div>
+                <br class="clear">
+            </form>
+
+          </div>
+          {% from "_table_h.html" import render_table %}
+          {{ render_table(table) }}
         </div>
+        <div class="modal hide fade" id="myModal"></div>
     </div>
 
 {% endblock %}

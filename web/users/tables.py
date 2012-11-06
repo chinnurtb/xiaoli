@@ -11,8 +11,8 @@ class UserTable(tables.Table):
 
     helpdoc = u"用户表: 管理维护用户信息"
 
-    edit   = tables.Action(name=u'编辑', endpoint='users.users_edit',  attrs=Attrs(a={"class": "edit-btn"}))
-    delete = tables.Action(name=u'删除', endpoint='users.users_delete', attrs=Attrs(a={"class": "delete-btn"}))
+    edit   = tables.Action(name=u'编辑', endpoint='users.users_edit', modalable=True)
+    delete = tables.Action(name=u'删除', endpoint='users.users_delete', modalable=True)
     reset  = tables.Action(name=u'重置密码', endpoint='users.reset_password')
     
     check      = tables.CheckBoxColumn()

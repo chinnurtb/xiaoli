@@ -48,7 +48,7 @@ def dashboard_setting():
         Profile(uid, form['page'], 'metaboxhidden', form['hidden']).update()
         db.session.commit()
     elif form['action'] == 'update-welcome-panel':
-        Profile(uid, form['page'], 'welcome.panel', form['visible']).update()
+        Profile(uid, 'dashboard', 'welcome.panel', form['visible']).update()
         db.session.commit()
 
     return '0'
