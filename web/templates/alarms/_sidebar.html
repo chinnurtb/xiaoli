@@ -3,15 +3,18 @@
 {{ render_sidebar('告警管理', menuid, [
     ('alarms_console',  '监视面板',     url_for('alarms.alarms_console')),
     ('alarms',          '当前告警',     url_for('alarms.index')),
-    ('histories',       '历史告警',     url_for('alarms.histories'))])
+    ('histories',       '历史告警',     url_for('alarms.histories')),
+    ('alarms_stats_active',  '告警统计', url_for('alarms.stats_active'))])
 }}
 
+<!--
 {{ render_sidebar('告警统计', menuid, [
-    ('alarms_stats_active',  '实时统计', url_for('alarms.stats_active')),
     ('alarms_stats_history', '历史统计', url_for('alarms.stats_history'))])
 }}
+-->
 
 {{ render_sidebar('告警设置', menuid, [
     ('alarms_classes',     '告警类型',     url_for('alarms.classes')),
     ('alarms_knowledges',      '告警知识库',   url_for('alarms.knowledges'))])
 }}
+
