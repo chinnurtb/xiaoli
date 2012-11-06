@@ -1,0 +1,33 @@
+{% extends 'layout.html' %}
+
+{% from "_form_h.html" import render_field, render_form_title %}
+
+{% block content %}
+<div class="row-fluid content">
+    <div class="span2">
+      {% include "admin/_sidebar.html" %}
+    </div>
+    
+    <div class="span10">
+	<div class="row-fluid">
+	  <form class="form-horizontal" method="POST" action="{{ action }}">
+            {{ render_form_title(request, title) }}
+	    {{ form.hidden_tag() }}
+            
+            {% for field in form %}
+            {% if field.id != 'csrf_token' %}
+              {{ render_field(field) }}
+            {% endif %}
+            {% endfor %}
+	    <div class="form-actions">
+	      <button type="submit" class="btn btn-primary">确定</button>
+	      <a href="#" class="btn">取消</a>
+	    </div>
+	  </form>
+	</div>
+        <br class="clear">
+    </div>
+</div>
+
+{% endblock %}
+

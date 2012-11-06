@@ -11,11 +11,16 @@ from nodes.models import Vendor, SysOid, Model
 
 from .models import Module, Monitor, Miboid
 from .forms import SearchForm, CategoryForm, VendorForm, ModelForm,\
-    SysoidForm, ModuleForm, MonitorForm
+    SysoidForm, ModuleForm, MonitorForm, MiboidForm
 from .tables import CategoryTable, VendorTable, ModuleTable, \
     ModelTable, SysOidTable, MonitorTable, MiboidTable
 
 adminview = Blueprint('admin', __name__, url_prefix='/admin')
+
+@adminview.context_processor
+def jnject_mibs():
+    return dict(mibs=[(m[0], m[0], url_for('admin.miboids', mib=m[0])) for m
+                      in db.session.query(Miboid.mib).order_by(Miboid.mib.asc()).distinct().all()])
 
 @adminview.route('/')
 def index():
@@ -545,11 +550,89 @@ def monitors_delete_all():
 #  MIB管理
 # ==============================================================================    
 @adminview.route('/miboids/')
-def miboids():
-    mib = request.args.get('mib', '')
-    query = Miboid.query
-    if mib:
-        query = query.filter_by(mib=mib)
+@adminview.route('/miboids/<mib>')
+def miboids(mib='mib1'):
+    form = SearchForm(formdata=request.args)
+    query = Miboid.query.filter_by(mib=mib)
     table = make_table(query, MiboidTable)
-    mibs = db.session.query(func.distinct(Miboid.mib)).all()
-    return render_template("admin/miboids/index.html", table=table, mibs=mibs, mib=mib)
+    kwargs = {
+        'menuid' : mib,
+        'form'   : form,
+        'table'  : table,
+        'mib'    : mib,
+    }
+    return render_template("admin/miboids/index.html", **kwargs)
+    
+    
+@adminview.route('/miboids/new', methods=['GET', 'POST'])
+def miboids_new():
+    form = MiboidForm()
+    if form.is_submitted and form.validate_on_submit():
+        miboid = Miboid()
+        form.populate_obj(miboid)
+        db.session.add(miboid)
+        db.session.commit()
+        return redirect(url_for('admin.miboids'))
+        
+    kwargs = {
+        'title'  : u'添加MIB',
+        'action' : url_for('admin.miboids_new'),
+        'form'   : form,
+    }
+    return render_template('admin/miboids/new-edit.html', **kwargs)
+
+@adminview.route('/miboids/edit/<int:id>', methods=['GET', 'POST'])
+def miboids_edit(id):
+    form = MiboidForm()
+    miboid = Miboid.query.get_or_404(id)
+    if form.is_submitted and form.validate_on_submit():
+        form.populate_obj(miboid)
+        db.session.commit()
+        return redirect(url_for('admin.miboids'))
+        
+    form.process(obj=miboid)
+    kwargs = {
+        'title'  : u'编辑MIB',
+        'menuid' : miboid.mib,
+        'action' : url_for('admin.miboids_edit', id=id),
+        'form'   : form,
+    }
+    return render_template('admin/miboids/new-edit.html', **kwargs)
+    
+@adminview.route('/miboids/delete/<int:id>', methods=['GET', 'POST'])
+def miboids_delete(id):
+    miboid = Miboid.query.get_or_404(id)
+    if request.method == 'POST':
+        db.session.delete(miboid)
+        db.session.commit()
+        return redirect(url_for('admin.miboids'))
+        
+    kwargs = {
+        'title'  : u'删除MIB',
+        'action' : url_for('admin.miboids_delete', id=id),
+        'fields' : [(u'备注', miboid.remark)],
+        'type'   : 'delete'
+    }
+    return render_template('_modal.html', **kwargs)
+
+    
+@adminview.route('/miboids/delete/all', methods=['GET', 'POST'])
+def miboids_delete_all():
+    name, alias, cls = 'miboids', u'MIB', Miboid
+    if request.method == 'POST':
+        ids = dict(request.values.lists()).get('id', [])
+        for i in ids:
+            db.session.delete(cls.query.get(int(i)))
+        db.session.commit()
+        flash(u'成功删除 %d 个%s!' % (len(ids), alias) , 'success')
+        return redirect(url_for('admin.%s' % name))
+
+    ids = dict(request.values.lists()).get('id[]', [])
+    objs = cls.query.filter(cls.id.in_([int(i) for i in ids])).all()
+    kwargs = {
+        'title'  : u'批量删除%s' % alias,
+        'action' : url_for('admin.%s_delete_all' % name),
+        'fields' : [(obj.id, alias, obj.alias) for obj in objs], # Diff
+        'type'   : 'delete'
+    }
+    return render_template('_modal_del_all.html', **kwargs)

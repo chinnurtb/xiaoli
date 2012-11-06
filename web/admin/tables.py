@@ -121,6 +121,12 @@ class MonitorTable(t.Table):
     
 
 class MiboidTable(t.Table):
+    helpdoc = u'Mib 表'
+
+    edit   = t.Action(name=u'编辑', endpoint='admin.miboids_edit')
+    delete = t.Action(name=u'删除', endpoint='admin.miboids_delete', modalable=True)
+    check  = t.CheckBoxColumn()
+    
     grp      = t.Column(u'分组')
     name     = t.Column(u'名称')
     oid      = t.Column(u'oid')

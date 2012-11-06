@@ -68,3 +68,15 @@ class  MonitorForm(Form):
     mib      = QuerySelectField(u'Mib文件', get_pk=lambda x: x, get_label=lambda x: x,
                                 query_factory=lambda: [m[0] for m in db.session.query(Miboid.mib).distinct().all()])
     remark   = TextAreaField(u'备注')
+
+
+class MiboidForm(Form):
+    mib      = TextField(u'mib', [required(message=u'必填')])
+    grp      = TextField(u'分组', [required(message=u'必填')])
+    name     = TextField(u'名称', [required(message=u'必填')])
+    alias    = TextField(u'显示名', [required(message=u'必填')])
+    oid      = TextField(u'oid')
+    is_valid = SelectField(u'有效性', [required(message=u'必填')], choices=[(u'0', u'无效'),(u'1', u'有效')])
+    remark   = TextAreaField(u'备注')
+
+    
