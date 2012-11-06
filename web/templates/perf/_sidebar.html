@@ -1,7 +1,7 @@
 {% from "tango/_sidebar_h.html" import render_sidebar %}
 
 {{ render_sidebar('节点性能', menuid, [
-    ('ping', 'PING时延', url_for('perf.ping')),
+    ('ping', 'PING时延', url_for('perf.ping', _advshow='1')),
     ('cpumem', 'CPU/内存', url_for('perf.cpumem')),
     ('intfusage', '端口占用', url_for('perf.intfusage', name='all')), 
     ('intftraffic', '端口流量', url_for('perf.intftraffic', name='all')) 
