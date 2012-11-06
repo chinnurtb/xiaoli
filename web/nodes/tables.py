@@ -31,16 +31,20 @@ def redirect_node_show(record):
 def redirect_node_edit(record):
     return u'/nodes/%s/edit/%s/' % (redirct_dict.get(record.category_id), record.id)
 
+class StatusColumn(tables.EnumColumn):
+
+    def __init__(self, attrs=None, **extra):
+        super(StatusColumn, self).__init__(u'状态', name='status', enums=NODE_STATUS_DICT,orderable=True)
+
+    def render(self, value, record, bound_column):
+        text = super(StatusColumn, self).render(value, record, bound_column)
+        return Markup('<span class="label status-%s">%s</span>' % (value, text))
+
 class NodeTable(tables.Table):
     edit = tables.Action(name=u'编辑',url=lambda record: redirect_node_edit(record))
     delete = tables.Action(name=u'删除', endpoint='nodes.nodes_delete',attrs=Attrs(a={"class": "delete"}))
     check = tables.CheckBoxColumn()
-    status = tables.EnumColumn(
-        u'状态',
-        name='state',
-        enums=NODE_STATUS_DICT,
-        orderable=True
-    )
+    status = StatusColumn()
     name = tables.LinkColumn(u'名称',orderable=True)
     alias = tables.Column(u'别名',orderable=True)
     category = tables.Column(u'节点类型',orderable=True, accessor='category.alias')
@@ -63,12 +67,7 @@ class OltTable(tables.Table):
     edit = tables.Action(name=u'编辑', endpoint='nodes.olts_edit')
     delete = tables.Action(name=u'删除', endpoint='nodes.olts_delete',attrs=Attrs(a={"class": "delete"}))
     check = tables.CheckBoxColumn()
-    status = tables.EnumColumn(
-        u'状态',
-        name='state',
-        enums=NODE_STATUS_DICT,
-        orderable=True
-    )
+    status = StatusColumn()
     name = tables.LinkColumn(u'名称', endpoint='nodes.olts_show', orderable=True)
     alias = tables.Column(u'别名',orderable=True)
     vendor_name = tables.Column(u'厂商', orderable=True, accessor='vendor.alias')
@@ -87,12 +86,7 @@ class EocTable(tables.Table):
     edit = tables.Action(name=u'编辑', endpoint='nodes.eocs_edit')
     delete = tables.Action(name=u'删除', endpoint='nodes.eocs_delete',attrs=Attrs(a={"class": "delete"}))
     check = tables.CheckBoxColumn()
-    status = tables.EnumColumn(
-        u'状态',
-        name='state',
-        enums=NODE_STATUS_DICT,
-        orderable=True
-    )
+    status = StatusColumn()
     name = tables.LinkColumn(u'名称', endpoint='nodes.eocs_show', orderable=True)
     alias = tables.Column(u'别名',orderable=True)
     vendor_name = tables.Column(u'厂商', orderable=True, accessor='vendor.alias')
@@ -115,12 +109,7 @@ class CpeTable(tables.Table):
     edit = tables.Action(name=u'编辑', endpoint='nodes.cpes_edit')
     delete = tables.Action(name=u'删除', endpoint='nodes.cpes_delete',attrs=Attrs(a={"class": "delete"}))
     check = tables.CheckBoxColumn()
-    status = tables.EnumColumn(
-        verbose_name=u'状态',
-        name='state',
-        enums=NODE_STATUS_DICT,
-        orderable=True
-    )
+    status = StatusColumn()
     name = tables.LinkColumn(endpoint='nodes.cpes_show',verbose_name=u'名称',orderable=True)
     alias = tables.Column(verbose_name=u'别名',orderable=True)
     vendor_name = tables.Column(verbose_name=u'厂商', orderable=True, accessor='vendor.alias')
@@ -139,12 +128,7 @@ class SwitchTable(tables.Table):
     edit = tables.Action(name=u'编辑', endpoint='nodes.switches_edit')
     delete = tables.Action(name=u'删除', endpoint='nodes.switches_delete',attrs=Attrs(a={"class": "delete"}))
     check = tables.CheckBoxColumn()
-    status = tables.EnumColumn(
-        u'状态',
-        name='state',
-        enums=NODE_STATUS_DICT,
-        orderable=True
-    )
+    status = StatusColumn()
     name = tables.LinkColumn(u'名称', endpoint='nodes.switches_show', orderable=True)
     addr = tables.Column(u'IP', orderable=True)
     area_name = tables.Column(u'所属区域', accessor='area.full_name')
@@ -161,12 +145,7 @@ class RouterTable(tables.Table):
     edit = tables.Action(name=u'编辑', endpoint='nodes.routers_edit')
     delete = tables.Action(name=u'删除', endpoint='nodes.routers_delete',attrs=Attrs(a={"class": "delete"}))
     check = tables.CheckBoxColumn()
-    status = tables.EnumColumn(
-        u'状态',
-        name='state',
-        enums=NODE_STATUS_DICT,
-        orderable=True
-    )
+    status = StatusColumn()
     name = tables.LinkColumn(u'名称', endpoint='nodes.routers_show', orderable=True)
     addr = tables.Column(u'IP', orderable=True)
     area_name = tables.Column(u'所属区域', accessor='area.full_name')
@@ -183,12 +162,7 @@ class OnuTable(tables.Table):
     edit = tables.Action(name=u'编辑', endpoint='nodes.onus_edit')
     delete = tables.Action(name=u'删除', endpoint='nodes.onus_delete',attrs=Attrs(a={"class": "delete"}))
     check = tables.CheckBoxColumn()
-    status = tables.EnumColumn(
-        u'状态',
-        name='state',
-        enums=NODE_STATUS_DICT,
-        orderable=True
-    )
+    status = StatusColumn()
     name = tables.LinkColumn(u'名称', endpoint='nodes.onus_show', orderable=True)
     addr = tables.Column(u'IP', orderable=True)
     area_name = tables.Column(u'所属区域', accessor='area.full_name')
