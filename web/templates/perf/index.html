@@ -16,16 +16,50 @@
             {% include "perf/_sidebar.html" %}
         </div>
         <div class="span10">
+            <form method="GET" class="form filter-form">
             <div class="tablenav top">
+            {% from 'tango/_search_h.html' import render_keyword, render_advanced %}
+              <div class="alignleft actions">
+                {{ render_keyword(filterForm, "节点名字", advanced=True) }}
+              </div>
+              <div class="pull-right actions">
+                <a class="btn btn-small" href="{{ request.url|replace('nodes','nodes.csv') }}" title="Excel导出"><i class="icon-download-alt"></i></a>
+              </div>
+              <br class="clear">
+                {% set _advshow = '1' %}
+                {% call render_advanced(request, filterForm) %}
+                  <table>
+                    <tbody>
+                      <tr>
+                        <td>{{ filterForm.sampletime(size="6", style="width:150px;") }}</td>
+                        <td>{{ filterForm.intervals(size="6", style="width:150px;") }}</td>
+                        {% if filterForm.categories is defined %}
+                          <td>{{ filterForm.categories(size="6", style="width:150px;") }}</td>
+                        {% endif %}
+                        <td>{{ filterForm.vendors(size="6", style="width:150px;") }}</td>
+                        <td>{{ filterForm.models(size="6", style="width:150px;") }}</td>
+                      </tr>
+                      <tr>
+                        <td colspan="2">
+                          <div style="margin-top:10px;">
+                            <button class="btn btn-small" type="submit">应用</button>
+                            <button class="btn btn-small" type="reset">重置</button>
+                          </div> 
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                {% endcall %}
+
+              {# {% from "tango/_search_h.html" import render_advanced %} #}
+              {# {% from "_form_h.html" import render_perf_filter_from %} #}
               
-              {% from "_form_h.html" import render_perf_filter_from %}
-              {{ render_perf_filter_from(filterForm) }}
-              
-                <div class="pull-right actions">
-                    <a title="Excel导出" href="#" class="btn btn-small"><i class="icon-download-alt"></i></a>
-                </div> 
+              {# {% call render_advanced(request, form) %} #}
+              {# {{ render_perf_filter_from(filterForm) }} #}
+                
                 <br class="clear">
             </div>
+            </form>
             {% from '_table_h.html' import render_table %}
             {{ render_table(table) }}
         </div>
