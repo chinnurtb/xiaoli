@@ -10,7 +10,8 @@ from tango.models import Category
 from nodes.models import Vendor, SysOid, Model
 
 from .models import Module, Monitor, Miboid
-from .forms import CategoryForm, VendorForm, ModelForm, SysoidForm, ModuleForm, MonitorForm
+from .forms import SearchForm, CategoryForm, VendorForm, ModelForm,\
+    SysoidForm, ModuleForm, MonitorForm
 from .tables import CategoryTable, VendorTable, ModuleTable, \
     ModelTable, SysOidTable, MonitorTable, MiboidTable
 
@@ -25,9 +26,10 @@ def index():
 # ==============================================================================    
 @adminview.route('/categories/')
 def categories():
+    form = SearchForm(formdata=request.args)
     table = make_table(Category.query, CategoryTable)
     return render_template('admin/categories/index.html',
-        table = table)
+                           table = table, form=form)
 
     
 @adminview.route('/categories/new', methods=['GET', 'POST'])
@@ -84,9 +86,26 @@ def categories_delete(id):
     return render_template('_modal.html', **kwargs)
     
     
-@adminview.route('/categories/delete/all')
+@adminview.route('/categories/delete/all', methods=['GET', 'POST'])
 def categories_delete_all():
-    pass
+    name, alias, cls = 'categories', u'类别', Category
+    if request.method == 'POST':
+        ids = dict(request.values.lists()).get('id', [])
+        for i in ids:
+            db.session.delete(cls.query.get(int(i)))
+        db.session.commit()
+        flash(u'成功删除 %d 个%s!' % (len(ids), alias) , 'success')
+        return redirect(url_for('admin.%s' % name))
+
+    ids = dict(request.values.lists()).get('id[]', [])
+    objs = cls.query.filter(cls.id.in_([int(i) for i in ids])).all()
+    kwargs = {
+        'title': u'批量删除%s' % alias,
+        'action': url_for('admin.%s_delete_all' % name),
+        'fields': [(obj.id, alias, obj.alias) for obj in objs], # Diff
+        'type' : 'delete'
+    }
+    return render_template('_modal_del_all.html', **kwargs)
 
     
 # ==============================================================================
@@ -94,9 +113,10 @@ def categories_delete_all():
 # ==============================================================================    
 @adminview.route('/vendors/')
 def vendors():
+    form = SearchForm(formdata=request.args)
     table = make_table(Vendor.query, VendorTable)
     return render_template('admin/vendors/index.html',
-        table = table)
+                           table = table, form=form)
 
     
 @adminview.route('/vendors/new', methods=['GET', 'POST'])
@@ -155,19 +175,37 @@ def vendors_delete(id):
     return render_template('_modal.html', **kwargs)
 
     
-@adminview.route('/vendors/delete/all')
+@adminview.route('/vendors/delete/all', methods=['GET', 'POST'])
 def vendors_delete_all():
-    pass    
+    name, alias, cls = 'vendors', u'供应商', Vendor
+    if request.method == 'POST':
+        ids = dict(request.values.lists()).get('id', [])
+        for i in ids:
+            db.session.delete(cls.query.get(int(i)))
+        db.session.commit()
+        flash(u'成功删除 %d 个%s!' % (len(ids), alias) , 'success')
+        return redirect(url_for('admin.%s' % name))
 
-    
+    ids = dict(request.values.lists()).get('id[]', [])
+    objs = cls.query.filter(cls.id.in_([int(i) for i in ids])).all()
+    kwargs = {
+        'title': u'批量删除%s' % alias,
+        'action': url_for('admin.%s_delete_all' % name),
+        'fields': [(obj.id, alias, obj.alias) for obj in objs], # Diff
+        'type' : 'delete'
+    }
+    return render_template('_modal_del_all.html', **kwargs)
+
+
 # ==============================================================================
 #  设备
 # ==============================================================================    
 @adminview.route('/models/')
 def models():
+    form = SearchForm(formdata=request.args)
     table = make_table(Model.query, ModelTable)
     return render_template('admin/models/index.html',
-        table = table)
+                           table = table, form=form)
 
     
 @adminview.route('/models/new', methods=['GET', 'POST'])
@@ -224,9 +262,27 @@ def models_delete(id):
     return render_template('_modal.html', **kwargs)
 
     
-@adminview.route('/models/delete/all')
+@adminview.route('/models/delete/all', methods=['GET', 'POST'])
 def models_delete_all():
-    pass    
+    name, alias, cls = 'models', u'设备', Model
+    if request.method == 'POST':
+        ids = dict(request.values.lists()).get('id', [])
+        for i in ids:
+            db.session.delete(cls.query.get(int(i)))
+        db.session.commit()
+        flash(u'成功删除 %d 个%s!' % (len(ids), alias) , 'success')
+        return redirect(url_for('admin.%s' % name))
+
+    ids = dict(request.values.lists()).get('id[]', [])
+    objs = cls.query.filter(cls.id.in_([int(i) for i in ids])).all()
+    kwargs = {
+        'title': u'批量删除%s' % alias,
+        'action': url_for('admin.%s_delete_all' % name),
+        'fields': [(obj.id, alias, obj.alias) for obj in objs], # Diff
+        'type' : 'delete'
+    }
+    return render_template('_modal_del_all.html', **kwargs)
+
 
     
 # ==============================================================================
@@ -234,9 +290,10 @@ def models_delete_all():
 # ==============================================================================    
 @adminview.route('/sysoids/')
 def sysoids():
+    form = SearchForm(formdata=request.args)
     table = make_table(SysOid.query, SysOidTable)
     return render_template('admin/sysoids/index.html',
-        table = table)
+                           table = table, form=form)
 
     
 @adminview.route('/sysoids/new', methods=['GET', 'POST'])
@@ -290,19 +347,37 @@ def sysoids_delete(id):
     return render_template('_modal.html', **kwargs)
 
     
-@adminview.route('/sysoids/delete/all')
+@adminview.route('/sysoids/delete/all', methods=['GET', 'POST'])
 def sysoids_delete_all():
-    pass    
+    name, alias, cls = 'sysoids', u'Sysoid', SysOid 
+    if request.method == 'POST':
+        ids = dict(request.values.lists()).get('id', [])
+        for i in ids:
+            db.session.delete(cls.query.get(int(i)))
+        db.session.commit()
+        flash(u'成功删除 %d 个%s!' % (len(ids), alias) , 'success')
+        return redirect(url_for('admin.%s' % name))
 
-    
+    ids = dict(request.values.lists()).get('id[]', [])
+    objs = cls.query.filter(cls.id.in_([int(i) for i in ids])).all()
+    kwargs = {
+        'title': u'批量删除%s' % alias,
+        'action': url_for('admin.%s_delete_all' % name),
+        'fields': [(obj.id, alias, obj.sysoid) for obj in objs], # Diff
+        'type' : 'delete'
+    }
+    return render_template('_modal_del_all.html', **kwargs)
+
+
 # ==============================================================================
 #  采集模块
 # ==============================================================================    
 @adminview.route('/modules/')
 def modules():
+    form = SearchForm(formdata=request.args)
     table = make_table(Module.query, ModuleTable)
     return render_template('admin/modules/index.html',
-        table=table)
+                           table = table, form=form)
 
     
 @adminview.route('/modules/new', methods=['GET', 'POST'])
@@ -359,9 +434,26 @@ def modules_delete(id):
     return render_template('_modal.html', **kwargs)
 
     
-@adminview.route('/modules/delete/all')
+@adminview.route('/modules/delete/all', methods=['GET', 'POST'])
 def modules_delete_all():
-    pass    
+    name, alias, cls = 'modules', u'采集模块', Module
+    if request.method == 'POST':
+        ids = dict(request.values.lists()).get('id', [])
+        for i in ids:
+            db.session.delete(cls.query.get(int(i)))
+        db.session.commit()
+        flash(u'成功删除 %d 个%s!' % (len(ids), alias) , 'success')
+        return redirect(url_for('admin.%s' % name))
+
+    ids = dict(request.values.lists()).get('id[]', [])
+    objs = cls.query.filter(cls.id.in_([int(i) for i in ids])).all()
+    kwargs = {
+        'title': u'批量删除%s' % alias,
+        'action': url_for('admin.%s_delete_all' % name),
+        'fields': [(obj.id, alias, obj.alias) for obj in objs], # Diff
+        'type' : 'delete'
+    }
+    return render_template('_modal_del_all.html', **kwargs)
 
 
     
@@ -370,9 +462,10 @@ def modules_delete_all():
 # ==============================================================================    
 @adminview.route('/monitors/')
 def monitors():
+    form = SearchForm(formdata=request.args)
     table = make_table(Monitor.query, MonitorTable)
     return render_template('admin/monitors/index.html',
-        table = table)
+                           table = table, form=form)
 
     
 @adminview.route('/monitors/new', methods=['GET', 'POST'])
@@ -426,10 +519,27 @@ def monitors_delete(id):
     return render_template('_modal.html', **kwargs)
 
     
-@adminview.route('/monitors/delete/all')
+@adminview.route('/monitors/delete/all', methods=['GET', 'POST'])
 def monitors_delete_all():
-    pass
+    name, alias, cls = 'monitors', u'监控器', Monitor
+    if request.method == 'POST':
+        ids = dict(request.values.lists()).get('id', [])
+        for i in ids:
+            db.session.delete(cls.query.get(int(i)))
+        db.session.commit()
+        flash(u'成功删除 %d 个%s!' % (len(ids), alias) , 'success')
+        return redirect(url_for('admin.%s' % name))
 
+    ids = dict(request.values.lists()).get('id[]', [])
+    objs = cls.query.filter(cls.id.in_([int(i) for i in ids])).all()
+    kwargs = {
+        'title': u'批量删除%s' % alias,
+        'action': url_for('admin.%s_delete_all' % name),
+        'fields': [(obj.id, alias, obj.remark) for obj in objs], # Diff
+        'type' : 'delete'
+    }
+    return render_template('_modal_del_all.html', **kwargs)
+    
     
 # ==============================================================================
 #  MIB管理

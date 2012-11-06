@@ -17,21 +17,21 @@
             {% include 'admin/_sidebar.html' %}
         </div>
 
-
         <div class="span10">
           {% include "_alert.html" %}
           <div class="tablenav top">
             <div class="alignleft actions">
               <div class="alignleft btn-group">
                 <a class="btn btn-small" href="/admin/sysoids/new"><i class="icon-plus"></i>新建SysOid</a>
-                <a class="btn btn-small" id="multi-delete-btn" href="/dict-codes/new"><i class="icon-remove"></i>删除</a>
+                <a class="btn btn-small" id="multi-delete-btn" href="/admin/sysoids/delete/all"><i class="icon-remove"></i>删除</a>
               </div>
             </div>
 
-            {% from "tango/_search_h.html" import search_form %}
+            {% from "tango/_search_h.html" import render_keyword %}
             <div class="alignleft actions">
-              {{ search_form(request) }}
+              {{ render_keyword(form=form) }}
             </div>
+            
             <br class="clear">
           </div>
           {% from "_table_h.html" import render_table %}

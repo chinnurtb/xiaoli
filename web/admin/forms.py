@@ -6,17 +6,23 @@ from .models import Miboid, Module
 from flask_wtf import (Form, TextField, PasswordField, HiddenField, SelectField, IntegerField, QuerySelectField,
                        TextAreaField, ValidationError, required, equal_to, email)
 
+
+    
+class SearchForm(Form):
+    keyword = TextField()
+    
+
 class CategoryForm(Form):
     id       = TextField(validators=[required(message=u'必填')])
     obj      = TextField(u'分组', [required(message=u'必填')])
     name     = TextField(u'名称', [required(message=u'必填')])
-    alias    = TextField(u'显示名')
+    alias    = TextField(u'显示名', [required(message=u'必填')])
     is_valid = SelectField(u'有效性', [required(message=u'必填')], choices=[(u'0', u'无效'),(u'1', u'有效')])
 
 
 class VendorForm(Form):
     name     = TextField(u'名称', [required(message=u'必填')])
-    alias    = TextField(u'显示名')
+    alias    = TextField(u'显示名', [required(message=u'必填')])
     url      = TextField(u'厂商主页')
     is_valid = SelectField(u'有效性', [required(message=u'必填')], choices=[(u'0', u'无效'),(u'1', u'有效')])
 
@@ -25,7 +31,7 @@ class ModelForm(Form):
     category = QuerySelectField(u'类别', get_label=u'alias',
                                 query_factory=lambda: Category.query)
     name     = TextField(u'名称', [required(message=u'必填')])
-    alias    = TextField(u'显示名')
+    alias    = TextField(u'显示名', [required(message=u'必填')])
     sysoid   = TextField(u'Sysoid')
     vendor   = QuerySelectField(u'厂商', get_label=u'alias',
                                 query_factory=lambda: Vendor.query)
@@ -34,7 +40,7 @@ class ModelForm(Form):
 
     
 class SysoidForm(Form):
-    sysoid = TextField()
+    sysoid = TextField(u'SysOid', [required(message=u'必填')])
     model  = QuerySelectField(u'设备型号', get_label=u'alias',
                               query_factory=lambda:Model.query)
     disco  = TextField(u'发现模块')
@@ -45,7 +51,7 @@ class SysoidForm(Form):
     
 class ModuleForm(Form):
     name    = TextField(u'名称', [required(message=u'必填')])
-    alias   = TextField(u'显示名')
+    alias   = TextField(u'显示名', [required(message=u'必填')])
     period  = IntegerField(u'周期(min)')
     retries = IntegerField(u'重试次数(次)')
     timeout = IntegerField(u'超时(s)')

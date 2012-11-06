@@ -11,35 +11,30 @@ $(function() {
 
 // Modal
 $(function(){
-  $('#multi-delete-btn').click(function(){
-    $('#')
+  $('#multi-delete-btn').click(function(e){
+    e.preventDefault();
+    ids = [];
+    $('table input:checkbox[name=id]:checked').each(function(){
+      ids.push($(this).attr('value'));
+    });
+    $.get($(this).attr('href'), {'id':ids}, function(data){
+      console.log(data);
+      $('#myModal').html(data).modal('show');
+    });
   });
   
-  $('.modal-btn').click(function(){
+  $('.modal-btn').click(function(e){
+    e.preventDefault();
     $.get($(this).attr('href'), function(data){
       console.log(data);
       $('#myModal').html(data).modal('show');
     });
-    return false;
   });
 });
 
-
-$(function(){
-  $('#multi-delete-btn').click(function() {
-    if ($('table tr th [type=checkbox]:checked').length > 0) {
-      if(confirm('删除所有?')){
-        $('#table-form').submit();
-      }
-    } else {
-      alert('请选择要删除的项!')
-      return false;
-    }
-  });
-});
 
 $(function() { 
-    $("[rel=tooltip]").tooltip(); 
+  $("[rel=tooltip]").tooltip(); 
 });
 
 
