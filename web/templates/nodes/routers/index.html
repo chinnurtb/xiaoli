@@ -61,7 +61,7 @@
                     {{ render_keyword(form, "名称/别名/IP", advanced=True) }}
                 </div>
                 <div class="pull-right actions">
-                    <a class="btn btn-small" href="{{ request.url|replace('routers','routers.csv') }}" title="Excel导出"><i class="icon-download-alt"></i></a>
+                    <a class="btn btn-small" href="{{ request.url|replace('routers','routers.csv') }}" data-placement="bottom" rel="tooltip" data-original-title="Excel导出"><i class="icon-download-alt"></i></a>
                 </div>
                 <br class="clear">
 

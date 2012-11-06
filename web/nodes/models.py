@@ -257,13 +257,14 @@ class NodeMixin(object):
     def status_name(self):
         return NODE_STATUS_DICT.get(self.status,"")
 
-    def __repr__(self):
-        return '<Node %r>' % self.name
 
 class Node(NodeMixin,db.Model):
     """ Node """
     __tablename__ = 'nodes'
     __table_args__ = {'implicit_returning':False}
+
+    def __repr__(self):
+        return u'<节点 %s>' % self.name
 
     @staticmethod
     def export_columns():
@@ -273,6 +274,9 @@ class NodeSwitch(NodeMixin, db.Model):
     """ Switchs """
     __tablename__ = 'node_switchs'
 
+    def __repr__(self):
+        return u'<交换机 %s>' % self.name
+
     @staticmethod
     def export_columns():
         return ['status','name','alias','addr','area.city_name','area.town_name','area.entrance_name','vendor.alias','model.alias','mask','snmp_comm','snmp_wcomm','last_check','location','remark']
@@ -280,6 +284,9 @@ class NodeSwitch(NodeMixin, db.Model):
 class NodeRouter(NodeMixin, db.Model):
     """ Routers """
     __tablename__ = 'node_routers'
+
+    def __repr__(self):
+        return u'<路由器 %s>' % self.name
 
     @staticmethod
     def export_columns():
@@ -296,11 +303,17 @@ class NodeHost(NodeMixin, db.Model):
     disk_info  = db.Column(db.String(200))
     worker_num = db.Column(db.Integer) # 采集进程数
 
+    def __repr__(self):
+        return u'<主机 %s>' % self.name
+
 class NodeOlt(NodeMixin,db.Model):
     """ OLT """
     __tablename__ = 'node_olts'
 
     onus = db.relationship("NodeOnu", backref="olt")
+
+    def __repr__(self):
+        return u'<OLT %s>' % self.name
 
     @property
     def onu_count_plan(self):
@@ -328,6 +341,9 @@ class NodeOnu(NodeMixin,db.Model):
     controller_id = db.Column(db.Integer, db.ForeignKey('node_olts.id'))
     eocs = db.relationship("NodeEoc", backref="onu")
 
+    def __repr__(self):
+        return u'<ONU %s>' % self.name
+
     @staticmethod
     def export_columns():
         return ['status','name','alias','addr','area.city_name','area.town_name','area.branch_name','area.entrance_name','olt.name','olt.addr','vendor.alias','model.alias','mask','snmp_comm','snmp_wcomm','last_check','location','remark']
@@ -343,6 +359,9 @@ class NodeEoc(NodeMixin, db.Model):
     controller_id = db.Column(db.Integer, db.ForeignKey('node_onus.id'))
     cpes = db.relationship("NodeCpe", backref="eoc")
 
+    def __repr__(self):
+        return u'<EOC %s>' % self.name
+
 class NodeCpe(NodeMixin, db.Model):
     """ Cpes """
     __tablename__ = 'node_cpes'
@@ -354,6 +373,9 @@ class NodeCpe(NodeMixin, db.Model):
 
     controller_id = db.Column(db.Integer, db.ForeignKey('node_eocs.id'))
 
+    def __repr__(self):
+        return u'<CPE %s>' % self.name
+
 class Board(db.Model):
     """板卡"""
     __tablename__ = 'boards'
@@ -362,6 +384,8 @@ class Board(db.Model):
     alias      = db.Column(db.String(40))
     created_at = db.Column(db.DateTime)
 
+    def __repr__(self):
+        return u'<板卡 %s>' % self.name
     
 class Port(db.Model):
     """端口"""
@@ -371,6 +395,8 @@ class Port(db.Model):
     alias      = db.Column(db.String(40))
     created_at = db.Column(db.DateTime)
 
+    def __repr__(self):
+        return u'<端口 %s>' % self.name
     
 class Server(db.Model):
     """Servers of the system"""

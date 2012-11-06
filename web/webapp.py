@@ -29,6 +29,8 @@ login_mgr.refresh_view = "/reauth"
 
 from flask_sqlalchemy import models_committed, before_models_committed
 def record_oplogs(app,changes):
+    if request.headers.environ.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest':
+        return
     from system.models import OperationLog, SecurityLog
     for change in changes:
         if isinstance(change[0], OperationLog) or isinstance(change[0], SecurityLog):
