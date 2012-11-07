@@ -8,6 +8,7 @@ web/venv
 .idea/*
 */.idea
 */.idea/*
+web/log/*
 web/local_settings.py
 web/static/file/download/*
 web/static/file/upload/*

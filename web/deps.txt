@@ -7,8 +7,11 @@ SQLAlchemy
 Flask-SQLAlchemy
 Flask-Auth
 Flask-Login
+flask_cache
 redis
 MySQL_python
 psycopg2
 pydot
 simplejson
+# signalling support
+blinker

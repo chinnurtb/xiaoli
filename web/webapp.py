@@ -125,7 +125,7 @@ ip_checker = ip_from(allowed=allowed_ips)
     
 def check_ip():
     if ip_checker.is_met({'REMOTE_ADDR':request.remote_addr}) is False:
-        print 'IP check failed'
+        print 'IP check failed: ' + str(request.remote_addr)
         abort(403)
 
 def check_permissions():
@@ -144,13 +144,12 @@ def brand():
 
 @app.before_request
 def before_request():
+    if not app.config['DEBUG']:
+        check_ip()
+        
     g.brand = brand()
-    check_ip()
     SAFE_ENDPOINTS = (None, 'static', 'users.login', 'users.logout')
     SUPER_USERS = ('root', 'admin')
-    # print 'request.endpoint::', request.endpoint
-    # print 'current_user::', current_user
-    # print 'current_user.is_anonymous::', current_user.is_anonymous()
 
     # Equal to @login_required
     if current_user.is_anonymous():
