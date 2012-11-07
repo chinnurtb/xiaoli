@@ -2,7 +2,7 @@
 
 {% block head %} {% endblock %}
 
-{% from "_table_h.html" import render_table, render_screen_meta %}
+{% from "tango/_table_h.html" import render_table, render_screen_meta %}
 
 {% block content %}
 
@@ -14,7 +14,7 @@
     </div>
 
     <div class="span10">
-        {% from "_chart_h.html" import render_highchart %}
+        {% from "tango/_chart_h.html" import render_highchart %}
         {{ render_highchart(chart) }}
         {{ render_table(table) }}
     </div>

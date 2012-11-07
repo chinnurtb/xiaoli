@@ -66,19 +66,6 @@ def test_nvd3charts(index):
     return render_template('users/test_nvd3charts.html', chart=chart)
 
 
-    
-@tangoview.route('/test-highcharts/<int:index>')
-def test_highcharts(index):
-    lst = [AreaStackedChart, PieBasicChart, SplinePlotBandsChart,
-           BarBasicChart, BarStacked, BarNegativeStackChart, ColumnRotatedLabels,
-           ColumnNegativeChart, LineTimeSeriesChart]
-
-    chart = lst[index]()
-    chart.set_html_id('TEST title')
-    
-    return render_template('users/test_highcharts.html', chart=chart)
-
-
 @tangoview.route('/highchart-export', methods=['POST'])
 def highchart_export():
     from tango.ui.cairosvg import svg2png, svg2pdf, svg2svg

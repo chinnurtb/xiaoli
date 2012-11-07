@@ -21,7 +21,7 @@
     </script>
 {% endblock %}
 
-{% from "_table_h.html" import render_table, render_screen_meta %}
+{% from "tango/_table_h.html" import render_table, render_screen_meta %}
 
 {% block screen_meta %}
 
@@ -69,7 +69,7 @@
                     <a class="btn btn-small" href="{{ request.url|replace('switches','switches.csv') }}" title="Excel导出"><i class="icon-download-alt"></i></a>
                 </div>
             </div>
-            {% from "_form_h.html" import render_search_form %}
+            {% from "tango/_form_h.html" import render_search_form %}
             {{ render_search_form("{{url_for('nodes.switches')}}",form.area, form.status, form.vendor_id, form.model_id) }}
         </form>
         <form action="" method="POST" id="node_form">

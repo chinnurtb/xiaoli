@@ -14,7 +14,7 @@
       {% endif %}
     {% endwith %}
 
-    {% from "_form_h.html" import render_fields %}
+    {% from "tango/_form_h.html" import render_fields %}
     <form method="POST" action="/login" class="form-horizontal">
         {{ render_fields(form, '登录') }}
     </form>

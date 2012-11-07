@@ -4,7 +4,7 @@
 
 {% block head %} 
 
-{% from "_table_h.html" import render_table_profile %}
+{% from "tango/_table_h.html" import render_table_profile %}
 
 <script type="text/javascript">
     {{ render_table_profile(table) }} 
@@ -12,7 +12,7 @@
 
 {% endblock %}
 
-{% from "_table_h.html" import render_table, render_screen_meta %}
+{% from "tango/_table_h.html" import render_table, render_screen_meta %}
 
 {% block screen_meta %}
 
