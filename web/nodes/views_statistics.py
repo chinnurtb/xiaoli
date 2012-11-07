@@ -8,7 +8,7 @@ from flask import json
 
 from sqlalchemy import func
 
-from tango import db,user_profile
+from tango import db,get_profile
 from tango.ui import navbar, dashboard
 from tango.ui.tables import make_table
 from tango.login import current_user, login_required

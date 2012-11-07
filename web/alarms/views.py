@@ -15,7 +15,7 @@ from tango import db
 
 from jinja2 import Markup
 
-from tango import user_profile
+from tango import get_profile
 
 from tango.ui.tables import make_table
 

@@ -1,12 +1,13 @@
 Flask
 Flask-Script
+Flask-Cache
 WTForms
 Flask-WTF
 SQLAlchemy
 Flask-SQLAlchemy
 Flask-Auth
 Flask-Login
-#redis
+redis
 MySQL_python
 psycopg2
 pydot

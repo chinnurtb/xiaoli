@@ -1,9 +1,11 @@
 # coding: utf-8
+
 from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
 
 import ast
+
 from datetime import datetime
 
 class Setting(db.Model):
@@ -20,6 +22,10 @@ class Setting(db.Model):
     def __init__(self, name, value):
         self.name = name
         self.value = value
+    
+    @staticmethod
+    def find(mod, name):
+        return Setting.query.filter_by(mod = mod, name = name).first()
 
 class DictCode(db.Model):
     __tablename__ = 'dict_codes'
@@ -46,8 +52,6 @@ class DictType(db.Model):
     type_name  = db.Column(db.String(100))
     type_label = db.Column(db.String(100))
     editable   = db.Column(db.Boolean)
-
-    
 
 class Profile(db.Model):
     __tablename__ = 'profiles'

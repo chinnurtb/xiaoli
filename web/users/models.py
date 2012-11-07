@@ -40,7 +40,6 @@ class User(db.Model, UserMixin):
     domain = db.relation('Domain')
     # group  = db.relation('UserGroup')
 
-
     def __init__(self):
         pass
 

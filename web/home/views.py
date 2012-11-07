@@ -3,7 +3,7 @@
 
 from flask import Blueprint, request, render_template
 
-from tango import user_profile
+from tango import get_profile
 
 from tango.ui import navbar, dashboard
 
@@ -15,7 +15,7 @@ def inject_navid():
 
 @homeview.route('/')
 def index():
-    dashboard.configure(user_profile('dashboard'))
+    dashboard.configure(get_profile('dashboard'))
     return render_template('/index.html', dashboard = dashboard)
 
 @homeview.route('/timeline')

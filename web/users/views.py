@@ -4,7 +4,7 @@
 from flask import json
 from flask import (Blueprint, request, url_for, redirect, render_template, flash)
 
-from tango import db
+from tango import db, cache, update_profile
 
 from tango.ui import navbar
 from tango.base import NestedDict
@@ -56,7 +56,6 @@ def login():
 @userview.route('/logout', methods=['GET'])
 def logout():
     logout_user()
-    #flash(u'退出成功', 'success')
     return redirect('/login')
 
     
@@ -70,12 +69,9 @@ def settings():
 
 @userview.route('/settings/profile', methods=['POST', 'GET'])
 def profile():
+    uid = current_user.id
     args = request.values
-    grp = args.get('grp')
-    key = args.get('key')
-    value = args.get('value')
-    profile = Profile(current_user.id, grp, key, value)
-    profile.update()
+    update_profile(args['grp'], args['key'], args['value'])
     db.session.commit()
     if request.method == 'GET':
         return redirect(request.referrer)
@@ -173,6 +169,7 @@ def users_edit(id):
         form.populate_obj(user)
         db.session.add(user)
         db.session.commit()
+        cache.delete("user-"+str(id))
         flash(u'修改用户(%s)成功' % user.username, 'success')
         return redirect(url_for('users.users'))
         
@@ -192,6 +189,7 @@ def users_delete(id):
     if request.method == 'POST':
         db.session.delete(user)
         db.session.commit()
+        cache.delete("user-"+str(id))
         flash(u'用户(%s)删除成功' % user.username, 'success')
         return redirect(url_for('users.users'))
         
@@ -209,6 +207,7 @@ def users_delete_all():
     if request.method == 'POST':
         ids = dict(request.values.lists()).get('id', [])
         for i in ids:
+            cache.delete("user-"+str(i))
             db.session.delete(User.query.get(int(i)))
         db.session.commit()
         flash(u'成功删除 %d 个用户!' % len(ids) , 'success')
@@ -441,3 +440,4 @@ def just_test(name='a'):
 @userview.route('/test-modal')
 def test_modal():
     return render_template('users/test_modal.html')
+

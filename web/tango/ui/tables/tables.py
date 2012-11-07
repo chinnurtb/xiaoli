@@ -246,9 +246,9 @@ class Table(object):
 
 def make_table(query, table_cls, profile=None):
     """ 一个方便使用 Table 的函数 """
-    from tango.base import user_profile
+    from tango import get_profile
     if profile is None:
-        profile = user_profile(table_cls._meta.profile)
+        profile = get_profile(table_cls._meta.profile)
     table = table_cls(query)
     TableConfig(request, profile).configure(table)
     return table

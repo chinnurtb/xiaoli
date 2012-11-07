@@ -13,8 +13,9 @@ from flask import Flask, session, redirect, url_for, \
 
 from tango.ui import navbar
 from tango.ip import ip_from
-from tango import db, login_mgr
+from tango import db, cache, login_mgr
 from tango.login import login_required, current_user
+from tango.models import Setting
 
 from users.models import User
 
@@ -22,6 +23,7 @@ app = Flask(__name__)
 app.config.from_pyfile('settings.py')
 db.init_app(app)
 db.app = app
+cache.init_app(app)
 
 login_mgr.login_view = "/login"
 login_mgr.login_message = u"请先登录系统."
@@ -45,8 +47,18 @@ def record_oplogs(app,changes):
 models_committed.connect(record_oplogs)
 before_models_committed.connect(record_oplogs)
 
+@login_mgr.user_loader
+def load_user(id):
+   return User.query.get(int(id))
+   # user = cache.get("user-"+id)
+   # if user is None:
+   #     user = User.query.get(int(id))
+   #     cache.set("user-"+id, user)
+   # return user
+
 from tango.login import user_logged_in, user_logged_out
-def record_login(app,user):
+def record_login(app, user):
+    #cache.set("user-"+str(user.id), user)
     from system.models import SecurityLog
     from datetime import datetime
     seclog = SecurityLog()
@@ -56,7 +68,11 @@ def record_login(app,user):
     seclog.login_at = datetime.now()
     db.session.add(seclog)
     db.session.commit()
-def record_logout(app,user):
+
+def record_logout(app, user):
+    #delete cache
+    print "delete cached user...", user
+    #cache.delete("user-"+str(user.id))
     from system.models import SecurityLog
     from datetime import datetime
     seclog = SecurityLog()
@@ -66,12 +82,10 @@ def record_logout(app,user):
     seclog.logout_at = datetime.now()
     db.session.add(seclog)
     db.session.commit()
+
 user_logged_in.connect(record_login)
 user_logged_out.connect(record_logout)
 
-@login_mgr.user_loader
-def load_user(id):
-    return User.query.get(int(id))
 
 login_mgr.init_app(app)
 
@@ -125,9 +139,14 @@ def check_permissions():
     abort(403)
 
 from alarms.models import query_severities
-    
+
+@cache.cached(key_prefix="product.brand")
+def brand():
+    return Setting.find('product', 'brand').value
+
 @app.before_request
 def before_request():
+    g.brand = brand()
     check_ip()
     SAFE_ENDPOINTS = (None, 'static', 'users.login', 'users.logout')
     SUPER_USERS = ('root', 'admin')
@@ -145,16 +164,16 @@ def before_request():
     # Not Anonymous User
     # Already Login
     if current_user:
-        g.navbar = navbar
-        #TODO: mv to alarms/ later
-        g.severities = query_severities() 
+        if not request.is_xhr:
+            g.navbar = navbar
+            g.severities = query_severities() 
+
         if current_user.username in SUPER_USERS \
            or request.endpoint in SAFE_ENDPOINTS:
             return
         check_permissions()
     else:
         abort(403)
-
 
 @app.errorhandler(403)
 def permission_denied(e):
