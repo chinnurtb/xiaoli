@@ -44,7 +44,7 @@
                 <td width="17.5%" scope="col">代理:</td><td>{{alarm.agent}}</td>
               </tr>
               <tr>
-                <td width="17.5%" scope="col">告警设备:</td><td><a href="{{ url_for("nodes.node_show", id = alarm.node_id)}}">{{alarm.node_alias}}</a></td>
+                <td width="17.5%" scope="col">告警设备:</td><td><a href="/nodes/{{alarm.node_id}}">{{alarm.node_alias}}</a></td>
                 <td width="17.5%" scope="col">设备地址:</td><td>{{alarm.node_addr}}</td>
               </tr>
               <tr>
@@ -75,7 +75,7 @@
         </div>
         
         <!-- Tabs -->
-        <div class="tabbable"> 
+        <div class="tabbable" style="margin-top:10px;"> 
           <ul class="nav nav-tabs">
             <li class="active"><a href="#tab1" data-toggle="tab">告警日志</a></li>
             <li><a href="#tab2" data-toggle="tab">告警变量</a></li>

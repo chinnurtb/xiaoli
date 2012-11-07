@@ -28,11 +28,11 @@ def cpes():
     query = query.outerjoin(Area, NodeCpe.area_id==Area.id)
 
     query_dict = dict([(key, request.args.get(key))for key in form.data.keys()])
-    if query_dict.get("name"):
+    if query_dict.get("keyword"):
         query=query.filter(or_(
-            NodeCpe.name.like('%'+query_dict["name"]+'%'),
-            NodeCpe.alias.like('%'+query_dict["name"]+'%'),
-            NodeCpe.addr.like('%'+query_dict["name"]+'%')
+            NodeCpe.name.like('%'+query_dict["keyword"]+'%'),
+            NodeCpe.alias.like('%'+query_dict["keyword"]+'%'),
+            NodeCpe.addr.like('%'+query_dict["keyword"]+'%')
         ))
     if query_dict.get("area"):
         netloc = request.args.get('area_netloc')

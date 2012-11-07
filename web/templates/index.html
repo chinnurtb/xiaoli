@@ -9,6 +9,12 @@
 
 {% block head %} 
 
+{% if dashboard.refresh %}
+
+<meta content="{{dashboard.refreshsecs}}" http-equiv="refresh">
+
+{% endif %}
+
 <script type="text/javascript">
     addLoadEvent = function(func){if(typeof jQuery!="undefined")jQuery(document).ready(func);else if(typeof wpOnload!='function'){wpOnload=func;}else{var oldonload=wpOnload;wpOnload=function(){oldonload();func();}}};
     var
@@ -22,7 +28,7 @@
 </script>
 
 <script type="text/javascript" src="static/js/wp-lists.js"></script>
-<script type="text/javascript" src="static/js/postbox.js"></script>
+<script type="text/javascript" src="static/js/postbox.dev.js"></script>
 <script type="text/javascript" src="static/js/dashboard.dev.js"></script>
 
 <link rel="stylesheet" href="/static/css/nv.d3.css" type="text/css" media="all">
@@ -71,6 +77,14 @@
                 <label class="columns-prefs-{{ col }}"><input name="screen_columns" value="{{ col }}" {% if dashboard.layout == col %} checked="checked" {% endif %} type="radio">{{ col }}</label>
             {% endfor %}
         </div>
+
+        <h5 class="screen-refresh">刷新频率(分钟)</h5>
+        <div class="refresh-prefs">
+            {% for i in [2,5,10] %}
+                <label class="refresh-prefs-{{ i  }}"><input name="screen_refresh" value="{{ i }}" {% if dashboard.refresh == i %} checked="checked" {% endif %} type="radio">{{ i }}</label>
+            {% endfor %}
+        </div>
+
         <div><input id="screenoptionnonce" name="screenoptionnonce" value="9fe52bb3f0" type="hidden"></div>
     </form>
     </div>

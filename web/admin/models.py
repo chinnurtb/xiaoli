@@ -14,6 +14,8 @@ class Module(db.Model):
     timeout     = db.Column(db.Integer) # 超时, 单位: second
     remark      = db.Column(db.String(100))
 
+    def __unicode__(self):
+        return u'<采集模块 %s>' % self.alias
     
 class Monitor(db.Model):
     """监控器表"""
@@ -31,6 +33,9 @@ class Monitor(db.Model):
     
     module      = db.relation('Module')
 
+    def __unicode__(self):
+        return u'<监控器>'
+
     
 class Miboid(db.Model):
     """Mib 文件"""
@@ -45,3 +50,5 @@ class Miboid(db.Model):
     is_valid = db.Column(db.Integer)
     remark   = db.Column(db.String(100))
 
+    def __unicode__(self):
+        return u'<Mib %s>' % self.alias
