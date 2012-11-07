@@ -4,13 +4,14 @@
 from flask import json
 from flask import (Blueprint, request, url_for, redirect, render_template, flash)
 
-from tango import db
+from tango import db, cache, update_profile
 
 from tango.ui import navbar
 from tango.base import NestedDict
 from tango.ui.tables import make_table
 from tango.login import logout_user, login_user, current_user
 from tango.models import Profile
+from tango.forms import SearchForm
 
 from nodes.models import Area
 from .models import User, Role, Permission, Domain
@@ -56,7 +57,6 @@ def login():
 @userview.route('/logout', methods=['GET'])
 def logout():
     logout_user()
-    #flash(u'退出成功', 'success')
     return redirect('/login')
 
     
@@ -70,12 +70,9 @@ def settings():
 
 @userview.route('/settings/profile', methods=['POST', 'GET'])
 def profile():
+    uid = current_user.id
     args = request.values
-    grp = args.get('grp')
-    key = args.get('key')
-    value = args.get('value')
-    profile = Profile(current_user.id, grp, key, value)
-    profile.update()
+    update_profile(args['grp'], args['key'], args['value'])
     db.session.commit()
     if request.method == 'GET':
         return redirect(request.referrer)
@@ -135,14 +132,16 @@ class UserQueryForm(QueryForm):
         
 @userview.route('/users/')
 def users():
-    keyword = request.args.get('keyword', '')
     query = User.query
-    if keyword:
-        query = query.filter(db.or_(User.name.ilike('%' + keyword + '%'),
-                                    User.email.ilike('%' + keyword + '%'),
-                                    User.role.has(Role.name.ilike('%' + keyword + '%'))))        
+    form = SearchForm(formdata=request.args)
+    keyword = form.keyword.data
+    if keyword and keyword != '':
+        kw = '%' + keyword + '%'
+        query = query.filter(db.or_(User.name.ilike(kw),
+                                    User.email.ilike(kw),
+                                    User.role.has(Role.name.ilike(kw))))        
     table = make_table(query, UserTable)
-    return render_template('users/index.html', table=table, keyword=keyword)
+    return render_template('users/index.html', table=table, form=form)
     
 @userview.route('/users/new', methods=['POST', 'GET'])
 def users_new():
@@ -173,6 +172,7 @@ def users_edit(id):
         form.populate_obj(user)
         db.session.add(user)
         db.session.commit()
+        cache.delete("user-"+str(id))
         flash(u'修改用户(%s)成功' % user.username, 'success')
         return redirect(url_for('users.users'))
         
@@ -192,6 +192,7 @@ def users_delete(id):
     if request.method == 'POST':
         db.session.delete(user)
         db.session.commit()
+        cache.delete("user-"+str(id))
         flash(u'用户(%s)删除成功' % user.username, 'success')
         return redirect(url_for('users.users'))
         
@@ -209,6 +210,7 @@ def users_delete_all():
     if request.method == 'POST':
         ids = dict(request.values.lists()).get('id', [])
         for i in ids:
+            cache.delete("user-"+str(i))
             db.session.delete(User.query.get(int(i)))
         db.session.commit()
         flash(u'成功删除 %d 个用户!' % len(ids) , 'success')
@@ -249,8 +251,13 @@ def reset_password(id):
 # ============================================================================== 
 @userview.route('/roles/')
 def roles():
-    table = make_table(Role.query, RoleTable)
-    return render_template('users/roles/index.html', table=table)
+    query = Role.query
+    form = SearchForm(formdata=request.args)
+    keyword = form.keyword.data
+    if keyword and keyword != '':
+        query = query.filter(Role.name.ilike('%'+keyword+'%'))
+    table = make_table(query, RoleTable)
+    return render_template('users/roles/index.html', table=table, form=form)
     
 @userview.route('/roles/new', methods=['GET', 'POST'])
 def roles_new():
@@ -323,8 +330,13 @@ def roles_delete(id):
 # ==============================================================================
 @userview.route('/domains/')
 def domains():
-    table = make_table(Domain.query, DomainTable)
-    return render_template('users/domains/index.html', table=table)
+    query = Domain.query
+    form = SearchForm(formdata=request.args)
+    keyword = form.keyword.data
+    if keyword and keyword != '':
+        query = query.filter(Domain.name.ilike('%'+keyword+'%'))
+    table = make_table(query, DomainTable)
+    return render_template('users/domains/index.html', table=table, form=form)
     
 @userview.route('/domains/load/nodes')
 def domain_load_nodes():
@@ -441,3 +453,4 @@ def just_test(name='a'):
 @userview.route('/test-modal')
 def test_modal():
     return render_template('users/test_modal.html')
+

@@ -1,9 +1,11 @@
 # coding: utf-8
+
 from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
 
 import ast
+
 from datetime import datetime
 
 class Setting(db.Model):
@@ -20,6 +22,10 @@ class Setting(db.Model):
     def __init__(self, name, value):
         self.name = name
         self.value = value
+    
+    @staticmethod
+    def find(mod, name):
+        return Setting.query.filter_by(mod = mod, name = name).first()
 
     def __unicode__(self):
         return u'<参数设置 %s>' % self.alias

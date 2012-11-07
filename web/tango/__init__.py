@@ -9,9 +9,11 @@ Tango is micro application framework for enterprise software.
 
 from tango.models import db
 
+from tango.cache import cache, Cache
+
 from tango.base import Tango, Page
 
-from tango.base import user_profile
+from tango.profile import get_profile, update_profile
 
 from tango.login import LoginManager
 

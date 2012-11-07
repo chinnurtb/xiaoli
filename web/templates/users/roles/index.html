@@ -31,7 +31,9 @@
 
     <div class="span10">
         {% include "_alert.html" %}
-	<div class="tablenav top">
+        <form method="GET" class="form filter-form">
+        {% from 'tango/_search_h.html' import render_keyword %}
+        <div class="tablenav top">
           
           <div class="alignleft actions">
             <div class="alignleft btn-group">
@@ -41,10 +43,8 @@
           </div>
 
           <div class="alignleft actions">
-            <form class="form-inline filter-form input-append" action="" method="GET">
-              <input type="text" name="keyword" value="{{keyword}}" class="input-low">
-              <button type="submit" class="btn btn-small">检索</button>
-            </form>
+            {{ render_keyword(form, "角色名称") }}
+    
           </div>
 
           <div class="alignright actions">
@@ -53,6 +53,8 @@
           </div>
           <br class="clear">
 	</div>
+
+    </form>
         {{ render_table(table) }}
         <br class="clear">
     </div>

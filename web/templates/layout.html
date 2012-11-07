@@ -9,12 +9,13 @@
 	<meta name="description" content="OPENGOSS">
 	<meta name="author" content="ery.lee at gmail.com">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>{% if title %}{{title}} - {% endif %}OPENGOSS</title>
+	<title>{% if title %} {{ title }} {% endif %}</title>
 
     {% from "tango/_base.html" import stylesheet, javascript %}
-    <link rel="stylesheet" href="/static/css/wp-admin.css" type="text/css" media="all">
-    <link rel="stylesheet" href="/static/css/thickbox.css" type="text/css" media="all">
-    <link rel="stylesheet" href="/static/css/colors-fresh.css" type="text/css" media="all">
+
+    {{ stylesheet("/static/css/wp-admin.css") }}
+    {{ stylesheet("/static/css/thickbox.css") }}
+    {{ stylesheet("/static/css/colors-fresh.css") }}
     {{ stylesheet("/static/css/bootstrap.css") }}
     {{ stylesheet("/static/css/datepicker.css") }}
     {{ stylesheet("/static/css/base.css") }}
@@ -24,6 +25,7 @@
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
+
     {{ javascript("/static/js/jquery.js") }}
     {{ javascript("/static/js/jquery-color.js") }}
     {{ javascript("/static/js/jquery-ui.js") }}
@@ -35,10 +37,12 @@
     {{ javascript("/static/js/base.js") }}
 
 	<script>$(function(){ $(".alert").alert() }); </script>
+
 	{% block head %} {% endblock %}
 </head>
 
 <body class="wp-admin js admin-color-fresh">
+
 <script type="text/javascript">
 	document.body.className = document.body.className.replace('no-js','js');
 </script>
@@ -46,7 +50,7 @@
 <div class="navbar navbar-fixed-top">
 	<div class="navbar-inner">
 		<div class="container-fluid">
-			<a class="brand" href="/">NGB综合网管系统</a>
+			<a class="brand" href="/"> {{g.brand}} </a>
             <ul class="nav pull-right">
                 {% if current_user.id %}
                     {% for s in g.severities %} 
@@ -65,14 +69,14 @@
                 </li>
                 {% endif %}
             </ul>
+            {% if current_user.id %}
             <hr class="clear" style="margin:0px;">
             <ul class="nav">
-                {% if current_user.id %}
-                    {% for nav in g.navbar %}
-                        {{ nav.render(navid)|safe }} 
-                    {% endfor %}
-                {% endif %}
+                {% for nav in g.navbar %}
+                    {{ nav.render(navid)|safe }} 
+                {% endfor %}
             </ul>
+            {% endif %}
 		</div>
 	</div>
 </div>
@@ -85,10 +89,10 @@
 
     {% block content %} {% endblock %}
 
-<script type="text/javascript">
-/* <![CDATA[ */
-var commonL10n = {"warnDelete":"You are about to permanently delete the selected items.\n  'Cancel' to stop, 'OK' to delete."};var wpAjax = {"noPerm":"You do not have permission to do that.","broken":"An unidentified error has occurred."};var quicktagsL10n = {"wordLookup":"Enter a word to look up:","dictionaryLookup":"Dictionary lookup","lookup":"lookup","closeAllOpenTags":"Close all open tags","closeTags":"close tags","enterURL":"Enter the URL","enterImageURL":"Enter the URL of the image","enterImageDescription":"Enter a description of the image","fullscreen":"fullscreen","toggleFullscreen":"Toggle fullscreen mode","textdirection":"text direction","toggleTextdirection":"Toggle Editor Text Direction"};var adminCommentsL10n = {"hotkeys_highlight_first":"","hotkeys_highlight_last":"","replyApprove":"Approve and Reply","reply":"Reply"};var thickboxL10n = {"next":"Next >","prev":"< Prev","image":"Image","of":"of","close":"Close","noiframes":"This feature requires inline frames. You have iframes disabled or your browser does not support them.","loadingAnimation":"http:\/\/wp34.webim20.cn\/wp-includes\/js\/thickbox\/loadingAnimation.gif","closeImage":"http:\/\/wp34.webim20.cn\/wp-includes\/js\/thickbox\/tb-close.png"};var plugininstallL10n = {"plugin_information":"Plugin Information:","ays":"Are you sure you want to install this plugin?"};var wordCountL10n = {"type":"w"};var wpLinkL10n = {"title":"Insert\/edit link","update":"Update","save":"Add Link","noTitle":"(no title)","noMatchesFound":"No matches found."};/* ]]> */
-</script>
+    <script type="text/javascript">
+    /* <![CDATA[ */
+    var commonL10n = {"warnDelete":"You are about to permanently delete the selected items.\n  'Cancel' to stop, 'OK' to delete."};var wpAjax = {"noPerm":"You do not have permission to do that.","broken":"An unidentified error has occurred."};var quicktagsL10n = {"wordLookup":"Enter a word to look up:","dictionaryLookup":"Dictionary lookup","lookup":"lookup","closeAllOpenTags":"Close all open tags","closeTags":"close tags","enterURL":"Enter the URL","enterImageURL":"Enter the URL of the image","enterImageDescription":"Enter a description of the image","fullscreen":"fullscreen","toggleFullscreen":"Toggle fullscreen mode","textdirection":"text direction","toggleTextdirection":"Toggle Editor Text Direction"};var adminCommentsL10n = {"hotkeys_highlight_first":"","hotkeys_highlight_last":"","replyApprove":"Approve and Reply","reply":"Reply"};var thickboxL10n = {"next":"Next >","prev":"< Prev","image":"Image","of":"of","close":"Close","noiframes":"This feature requires inline frames. You have iframes disabled or your browser does not support them.","loadingAnimation":"http:\/\/wp34.webim20.cn\/wp-includes\/js\/thickbox\/loadingAnimation.gif","closeImage":"http:\/\/wp34.webim20.cn\/wp-includes\/js\/thickbox\/tb-close.png"};var plugininstallL10n = {"plugin_information":"Plugin Information:","ays":"Are you sure you want to install this plugin?"};var wordCountL10n = {"type":"w"};var wpLinkL10n = {"title":"Insert\/edit link","update":"Update","save":"Add Link","noTitle":"(no title)","noMatchesFound":"No matches found."};/* ]]> */
+    </script>
 	<div style="display:none;">
 	<form id="wp-link" tabindex="-1">
 	<input id="_ajax_linking_nonce" name="_ajax_linking_nonce" value="d5c39d0f97" type="hidden">	<div id="link-selector">
@@ -140,15 +144,17 @@ var commonL10n = {"warnDelete":"You are about to permanently delete the selected
 	</div>
 	
 <div class="clear"></div>
-
     {% include "_footer.html" %}
 </div> <!-- /container -->
 
 <!-- Le javascript
 ================================================== -->
-<script type="text/javascript">if(typeof wpOnload=='function')wpOnload();</script>
+<script type="text/javascript">
+    if(typeof wpOnload=='function') wpOnload();
+</script>
 <!-- Placed at the end of the document so the pages load faster -->
 
 </body>
 
 </html>
+

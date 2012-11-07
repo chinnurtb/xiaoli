@@ -44,7 +44,7 @@
     <form id="adv-settings" action="" method="post">
         <h5>在屏幕上显示</h5>
         <div class="metabox-prefs">
-            {% from '_dashboard_h.html' import render_metabox %}
+            {% from 'tango/_dashboard_h.html' import render_metabox %}
             {{ render_metabox(dashboard) }}
             <br class="clear">
         </div>
@@ -82,7 +82,7 @@
 
         <div class="span10">
 
-            {% from '_dashboard_h.html' import render_dashboard %}
+            {% from 'tango/_dashboard_h.html' import render_dashboard %}
 
             {{ render_dashboard(dashboard) }}
 

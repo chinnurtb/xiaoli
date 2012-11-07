@@ -6,15 +6,7 @@ if __name__ == '__main__':
 
 from flask import Flask, Blueprint
 
-from .models import Profile
-from .login import current_user
 from tango.ui.tables.utils import SortedDict
-
-
-def user_profile(grp):
-    """ Get current user's profile. """
-    return Profile.load(current_user.id, grp)
-
 
 class Tango(Flask):
     #TODO:

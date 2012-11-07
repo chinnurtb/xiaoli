@@ -39,6 +39,7 @@ class User(db.Model, UserMixin):
     role   = db.relation('Role', order_by='Role.name')
     domain = db.relation('Domain')
     # group  = db.relation('UserGroup')
+
     def __unicode__(self):
         return u'<用户 %s>' % self.username
 
