@@ -68,6 +68,9 @@ class Alarm(db.Model):
     def __repr__(self):
         return '<Alarm%r>' % self.alarm_alias
 
+    def __unicode__(self):
+        return u'<当前告警 %s>'% self.alarm_alias
+
 class AlarmClass(db.Model):
 
     """告警类型表"""
@@ -93,7 +96,7 @@ class AlarmClass(db.Model):
         return '<AlarmClass %r>' % self.name
 
     def __unicode__(self):
-        return self.alias
+        return u'<告警类型 %s>'% self.alias
 
 class AlarmJournal(db.Model):
 
@@ -150,7 +153,7 @@ class AlarmSeverity(db.Model):
         return '<Severity%r>' % self.name
 
     def __unicode__(self):
-        return self.alias
+        return u'<告警级别 %s>' % self.alias
 
 def query_severities():
     return AlarmSeverity.query.order_by(AlarmSeverity.id.desc()).all()
@@ -170,6 +173,8 @@ class AlarmKnowledge(db.Model):
 
     alarm_class     = db.relation('AlarmClass')
 
+    def __unicode__(self):
+        return u'<告警知识库 %s>'% self.alarm_alias
 
 class History(db.Model):
 
@@ -224,3 +229,5 @@ class History(db.Model):
     updated_at              = db.Column(db.DateTime) 
 
     #node                    = db.relation('Node', backref=db.backref("histories"))
+    def __unicode__(self):
+        return u'<历史告警 %s>'% self.alarm_alias

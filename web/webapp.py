@@ -40,7 +40,7 @@ def record_oplogs(app,changes):
         oplog.module = request.endpoint
         oplog.action = change[1]
         oplog.terminal_ip = request.remote_addr
-        oplog.summary = str(change[0])
+        oplog.summary = unicode(change[0])
         db.session.add(oplog)
 models_committed.connect(record_oplogs)
 before_models_committed.connect(record_oplogs)
