@@ -21,7 +21,7 @@ __all__ = ['CpuMemTable',
 # ==============================================================================
 class NodeMixin(object):
     node_alias      = t.Column(u'节点', accessor='node.alias')
-    sampletime      = t.Column(u'时间')
+    sampletime      = t.Column(u'时间', orderable=True)
 
     
 class PingTable(t.Table, NodeMixin):

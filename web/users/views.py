@@ -183,7 +183,7 @@ def users_edit(id):
         'form'   : form,
         'type'   : 'edit'
     }
-    return render_template('_modal.html', **kwargs)
+    return render_template('tango/_modal.html', **kwargs)
 
     
 @userview.route('/users/delete/<int:id>', methods=('GET', 'POST'))
@@ -201,7 +201,7 @@ def users_delete(id):
         'fields' : [(u'用户名', user.username), (u'真实姓名', user.name)],
         'type'   : 'delete'
     }
-    return render_template('_modal.html', **kwargs)
+    return render_template('tango/_modal.html', **kwargs)
 
     
 @userview.route('/users/delete/all', methods=['GET', 'POST'])
@@ -222,7 +222,7 @@ def users_delete_all():
         'fields': [(u.id, u'用户名', u.username) for u in users],
         'type' : 'delete'
     }
-    return render_template('_modal_del_all.html', **kwargs)
+    return render_template('tango/_modal_del_all.html', **kwargs)
 
     
 @userview.route('/users/reset-password/<int:id>', methods=['POST', 'GET'])

@@ -94,7 +94,7 @@ def categories_delete(id):
         'fields': [(u'分组', category.obj), (u'显示名', category.alias)],
         'type' : 'delete'
     }
-    return render_template('_modal.html', **kwargs)
+    return render_template('tango/_modal.html', **kwargs)
     
     
 @adminview.route('/categories/delete/all', methods=['GET', 'POST'])
@@ -116,7 +116,7 @@ def categories_delete_all():
         'fields': [(obj.id, alias, obj.alias) for obj in objs], # Diff
         'type' : 'delete'
     }
-    return render_template('_modal_del_all.html', **kwargs)
+    return render_template('tango/_modal_del_all.html', **kwargs)
 
     
 # ==============================================================================
@@ -189,7 +189,7 @@ def vendors_delete(id):
         'fields': [(u'显示名', vendor.alias)], # Diff
         'type' : 'delete'
     }
-    return render_template('_modal.html', **kwargs)
+    return render_template('tango/_modal.html', **kwargs)
 
     
 @adminview.route('/vendors/delete/all', methods=['GET', 'POST'])
@@ -211,7 +211,7 @@ def vendors_delete_all():
         'fields': [(obj.id, alias, obj.alias) for obj in objs], # Diff
         'type' : 'delete'
     }
-    return render_template('_modal_del_all.html', **kwargs)
+    return render_template('tango/_modal_del_all.html', **kwargs)
 
 
 # ==============================================================================
@@ -282,7 +282,7 @@ def models_delete(id):
         'fields': [(u'显示名', model.alias)], # Diff
         'type' : 'delete'
     }
-    return render_template('_modal.html', **kwargs)
+    return render_template('tango/_modal.html', **kwargs)
 
     
 @adminview.route('/models/delete/all', methods=['GET', 'POST'])
@@ -304,7 +304,7 @@ def models_delete_all():
         'fields': [(obj.id, alias, obj.alias) for obj in objs], # Diff
         'type' : 'delete'
     }
-    return render_template('_modal_del_all.html', **kwargs)
+    return render_template('tango/_modal_del_all.html', **kwargs)
 
 
     
@@ -375,7 +375,7 @@ def sysoids_delete(id):
         'fields': [(u'Sysoid', sysoid.sysoid)],
         'type' : 'delete'
     }
-    return render_template('_modal.html', **kwargs)
+    return render_template('tango/_modal.html', **kwargs)
 
     
 @adminview.route('/sysoids/delete/all', methods=['GET', 'POST'])
@@ -397,7 +397,7 @@ def sysoids_delete_all():
         'fields': [(obj.id, alias, obj.sysoid) for obj in objs], # Diff
         'type' : 'delete'
     }
-    return render_template('_modal_del_all.html', **kwargs)
+    return render_template('tango/_modal_del_all.html', **kwargs)
 
 
 # ==============================================================================
@@ -468,7 +468,7 @@ def modules_delete(id):
         'fields': [(u'显示名', module.alias)], # Diff
         'type' : 'delete'
     }
-    return render_template('_modal.html', **kwargs)
+    return render_template('tango/_modal.html', **kwargs)
 
     
 @adminview.route('/modules/delete/all', methods=['GET', 'POST'])
@@ -490,7 +490,7 @@ def modules_delete_all():
         'fields': [(obj.id, alias, obj.alias) for obj in objs], # Diff
         'type' : 'delete'
     }
-    return render_template('_modal_del_all.html', **kwargs)
+    return render_template('tango/_modal_del_all.html', **kwargs)
 
 
     
@@ -560,7 +560,7 @@ def monitors_delete(id):
         'fields': [(u'备注', monitor.remark)],
         'type' : 'delete'
     }
-    return render_template('_modal.html', **kwargs)
+    return render_template('tango/_modal.html', **kwargs)
 
     
 @adminview.route('/monitors/delete/all', methods=['GET', 'POST'])
@@ -582,7 +582,7 @@ def monitors_delete_all():
         'fields': [(obj.id, alias, obj.remark) for obj in objs], # Diff
         'type' : 'delete'
     }
-    return render_template('_modal_del_all.html', **kwargs)
+    return render_template('tango/_modal_del_all.html', **kwargs)
     
     
 # ==============================================================================
@@ -658,7 +658,7 @@ def miboids_delete(id):
         'fields' : [(u'备注', miboid.remark)],
         'type'   : 'delete'
     }
-    return render_template('_modal.html', **kwargs)
+    return render_template('tango/_modal.html', **kwargs)
 
     
 @adminview.route('/miboids/delete/all', methods=['GET', 'POST'])
@@ -680,4 +680,4 @@ def miboids_delete_all():
         'fields' : [(obj.id, alias, obj.alias) for obj in objs], # Diff
         'type'   : 'delete'
     }
-    return render_template('_modal_del_all.html', **kwargs)
+    return render_template('tango/_modal_del_all.html', **kwargs)

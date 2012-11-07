@@ -215,7 +215,7 @@ def metrics_delete(id):
         'fields': [(u'名称', metric.name), (u'显示名', metric.alias)],
         'type'  : 'delete'
     }
-    return render_template('_modal.html', **kwargs)
+    return render_template('tango/_modal.html', **kwargs)
     
 # ==============================================================================
 #  采集规则管理
