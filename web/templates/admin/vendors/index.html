@@ -5,7 +5,7 @@
 {% set title = "供应商管理" %}
 
 {% block screen_meta %}
-    {% from "_table_h.html" import render_screen_meta %}
+    {% from "tango/_table_h.html" import render_screen_meta %}
     {{ render_screen_meta(table) }}
 {% endblock %}
 
@@ -37,7 +37,7 @@
             </form>
             
           </div>
-          {% from "_table_h.html" import render_table %}
+          {% from "tango/_table_h.html" import render_table %}
           {{ render_table(table) }}
         </div>
         <div class="modal hide fade" id="myModal"></div>

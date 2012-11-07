@@ -60,8 +60,8 @@ class Area(db.Model):
         fname = ''.join([name for name in name_list if name])
         return self.name if fname == '' else fname
 
-    def __repr__(self):
-        return u'<Area %r>' % self.name
+    def __unicode__(self):
+        return u'<区域 %r>' % self.alias
 
 
 class Manager(db.Model):
@@ -126,6 +126,9 @@ class Vendor(db.Model):
             where(and_(Node.vendor_id==self.id, Node.status == 4))
         )
 
+    def __unicode__(self):
+        return u'<厂商 %s>' % self.alias
+
 class Model(db.Model):
     """设备型号"""
     __tablename__     = 'models'
@@ -144,6 +147,9 @@ class Model(db.Model):
     remark            = db.Column(db.String(100))
 
     category          = db.relation('Category')
+
+    def __unicode__(self):
+        return u'<型号 %s>' % self.alias
 
 NODE_STATUS_DICT = {0: u'未知',1: u'正常', 2: u'宕机', 3: u'不可达'}
 SNMP_VER_DICT = {"v1":'v1',"v2c":'v2c'}
@@ -263,8 +269,8 @@ class Node(NodeMixin,db.Model):
     __tablename__ = 'nodes'
     __table_args__ = {'implicit_returning':False}
 
-    def __repr__(self):
-        return u'<节点 %s>' % self.name
+    def __unicode__(self):
+        return u'<节点 %s>' % self.alias
 
     @staticmethod
     def export_columns():
@@ -274,8 +280,8 @@ class NodeSwitch(NodeMixin, db.Model):
     """ Switchs """
     __tablename__ = 'node_switchs'
 
-    def __repr__(self):
-        return u'<交换机 %s>' % self.name
+    def __unicode__(self):
+        return u'<交换机 %s>' % self.alias
 
     @staticmethod
     def export_columns():
@@ -285,8 +291,8 @@ class NodeRouter(NodeMixin, db.Model):
     """ Routers """
     __tablename__ = 'node_routers'
 
-    def __repr__(self):
-        return u'<路由器 %s>' % self.name
+    def __unicode__(self):
+        return u'<路由器 %s>' % self.alias
 
     @staticmethod
     def export_columns():
@@ -303,8 +309,8 @@ class NodeHost(NodeMixin, db.Model):
     disk_info  = db.Column(db.String(200))
     worker_num = db.Column(db.Integer) # 采集进程数
 
-    def __repr__(self):
-        return u'<主机 %s>' % self.name
+    def __unicode__(self):
+        return u'<服务器 %s>' % self.alias
 
 class NodeOlt(NodeMixin,db.Model):
     """ OLT """
@@ -312,8 +318,8 @@ class NodeOlt(NodeMixin,db.Model):
 
     onus = db.relationship("NodeOnu", backref="olt")
 
-    def __repr__(self):
-        return u'<OLT %s>' % self.name
+    def __unicode__(self):
+        return u'<OLT %s>' % self.alias
 
     @property
     def onu_count_plan(self):
@@ -341,8 +347,8 @@ class NodeOnu(NodeMixin,db.Model):
     controller_id = db.Column(db.Integer, db.ForeignKey('node_olts.id'))
     eocs = db.relationship("NodeEoc", backref="onu")
 
-    def __repr__(self):
-        return u'<ONU %s>' % self.name
+    def __unicode__(self):
+        return u'<ONU %s>' % self.alias
 
     @staticmethod
     def export_columns():
@@ -359,8 +365,8 @@ class NodeEoc(NodeMixin, db.Model):
     controller_id = db.Column(db.Integer, db.ForeignKey('node_onus.id'))
     cpes = db.relationship("NodeCpe", backref="eoc")
 
-    def __repr__(self):
-        return u'<EOC %s>' % self.name
+    def __unicode__(self):
+        return u'<EOC %s>' % self.alias
 
 class NodeCpe(NodeMixin, db.Model):
     """ Cpes """
@@ -373,8 +379,8 @@ class NodeCpe(NodeMixin, db.Model):
 
     controller_id = db.Column(db.Integer, db.ForeignKey('node_eocs.id'))
 
-    def __repr__(self):
-        return u'<CPE %s>' % self.name
+    def __unicode__(self):
+        return u'<CPE %s>' % self.alias
 
 class Board(db.Model):
     """板卡"""
@@ -384,8 +390,8 @@ class Board(db.Model):
     alias      = db.Column(db.String(40))
     created_at = db.Column(db.DateTime)
 
-    def __repr__(self):
-        return u'<板卡 %s>' % self.name
+    def __unicode__(self):
+        return u'<板卡 %s>' % self.alias
     
 class Port(db.Model):
     """端口"""
@@ -395,8 +401,8 @@ class Port(db.Model):
     alias      = db.Column(db.String(40))
     created_at = db.Column(db.DateTime)
 
-    def __repr__(self):
-        return u'<端口 %s>' % self.name
+    def __unicode__(self):
+        return u'<端口 %s>' % self.alias
     
 class Server(db.Model):
     """Servers of the system"""
@@ -417,6 +423,8 @@ class Server(db.Model):
     created_at = db.Column(db.DateTime)
     updated_at = db.Column(db.DateTime)
 
+    def __unicode__(self):
+        return u'<服务器 %s>'% self.name
     
 class Maintain(db.Model):
     """维护人信息"""
@@ -434,7 +442,10 @@ class Maintain(db.Model):
     admin       = db.Column(db.String(50))
     remark      = db.Column(db.String(100))  
     created_at  = db.Column(db.DateTime)
-    updated_at  = db.Column(db.DateTime) 
+    updated_at  = db.Column(db.DateTime)
+
+    def __unicode__(self):
+        return u'<维护人 %s>'% self.alias
 
 class SysOid(db.Model):
 
@@ -450,4 +461,6 @@ class SysOid(db.Model):
     remark      = db.Column(db.String(100))
     
     model       = db.relation('Model')
-    
+
+    def __unicode__(self):
+        return u'<SysOid %s>'% self.sysoid

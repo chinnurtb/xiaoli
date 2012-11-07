@@ -12,7 +12,7 @@
 </div>
 {% endif %}
 
-{% from "_form_h.html" import render_text, render_submit %}
+{% from "tango/_form_h.html" import render_text, render_submit %}
 <form method="POST" action="/signup" class="form-horizontal">
     {{ render_text(form.username, help = '用来登录，只能是3到12位的小写字母和数字') }}
     {{ render_text(form.email, help = '接收通知邮件') }}

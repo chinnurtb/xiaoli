@@ -17,6 +17,9 @@ class Metric(db.Model):
     format = db.Column(db.String(200))
     descr  = db.Column(db.String(200))
 
+    def __unicode__(self):
+        return u'<指标 %s>' % self.alias
+
 class Threshold(db.Model):
     __tablename__ = 'thresholds'
     
@@ -46,7 +49,8 @@ class Threshold(db.Model):
     metric        = db.relationship('Metric')
     alarm_class   = db.relationship('AlarmClass')
 
-
+    def __unicode__(self):
+        return u'<阀值 %s>' % self.alias
 
 class TimePeriod(db.Model):
     """采集规则"""
@@ -69,7 +73,9 @@ class TimePeriod(db.Model):
     created_at  = db.Column(db.DateTime)
     updated_at  = db.Column(db.DateTime)
 
-    
+    def __unicode__(self):
+        return u'<采集规则 %s>' % self.alias
+
     @property
     def hour(self):
         return self._hour.split(',')
@@ -122,6 +128,9 @@ class OperationLog(db.Model):
     def oper_obj(self):
         return self.module + self.summary
 
+    def __unicode__(self):
+        return u'<操作日志 %s>' % self.user.name
+
 class SecurityLog(db.Model):
     __tablename__ = 'seclogs'
     id          = db.Column(db.Integer, primary_key=True)
@@ -142,6 +151,9 @@ class SecurityLog(db.Model):
         else:
             return self.logout_at
 
+    def __unicode__(self):
+        return u'<安全日志 %s>' % self.user.name
+
 
 class SubSystem(db.Model):
     """ 子采集 """
@@ -157,4 +169,6 @@ class SubSystem(db.Model):
     descr      = db.Column(db.String(200))
     started_at = db.Column(db.DateTime) # 启动采集的时间
     updated_at = db.Column(db.DateTime, onupdate=datetime.now)
- 
+
+    def __unicode__(self):
+        return u'<子采集 %s>' % self.alias

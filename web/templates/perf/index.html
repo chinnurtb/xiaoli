@@ -6,7 +6,7 @@
 {% endblock %}
     
 {% block screen_meta %}
-    {% from '_table_h.html' import render_screen_meta %}
+    {% from 'tango/_table_h.html' import render_screen_meta %}
     {{ render_screen_meta(table) }}
 {% endblock %}
 
@@ -16,7 +16,7 @@
             {% include "perf/_sidebar.html" %}
         </div>
         <div class="span10">
-            <form method="GET" class="form filter-form">
+          <form method="GET" class="form filter-form">
             <div class="tablenav top">
             {% from 'tango/_search_h.html' import render_keyword, render_advanced %}
               <div class="alignleft actions">
@@ -50,18 +50,11 @@
                     </tbody>
                   </table>
                 {% endcall %}
-
-              {# {% from "tango/_search_h.html" import render_advanced %} #}
-              {# {% from "_form_h.html" import render_perf_filter_from %} #}
-              
-              {# {% call render_advanced(request, form) %} #}
-              {# {{ render_perf_filter_from(filterForm) }} #}
-                
                 <br class="clear">
             </div>
-            </form>
-            {% from '_table_h.html' import render_table %}
-            {{ render_table(table) }}
+          </form>
+          {% from 'tango/_table_h.html' import render_table %}
+          {{ render_table(table) }}
         </div>
     </div>
 {% endblock %}

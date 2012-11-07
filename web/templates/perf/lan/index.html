@@ -6,7 +6,7 @@
 {% endblock %}
 
 {% block screen_meta %}
-    {% from '_table_h.html' import render_screen_meta %}
+    {% from 'tango/_table_h.html' import render_screen_meta %}
     {{ render_screen_meta(table) }}
 {% endblock %}
 
@@ -18,7 +18,7 @@
         <div class="span10">
             <div class="tablenav top">
               
-              {% from "_form_h.html" import render_perf_filter_from %}
+              {% from "tango/_form_h.html" import render_perf_filter_from %}
               {{ render_perf_filter_from(filterForm) }}
               
                 <div class="pull-right actions">
@@ -26,7 +26,7 @@
                 </div> 
                 <br class="clear">
             </div>
-            {% from '_table_h.html' import render_table %}
+            {% from 'tango/_table_h.html' import render_table %}
             {{ render_table(table) }}
         </div>
     </div>

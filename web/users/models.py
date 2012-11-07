@@ -40,6 +40,9 @@ class User(db.Model, UserMixin):
     domain = db.relation('Domain')
     # group  = db.relation('UserGroup')
 
+    def __unicode__(self):
+        return u'<用户 %s>' % self.username
+
     def __init__(self):
         pass
 
@@ -58,9 +61,6 @@ class User(db.Model, UserMixin):
 
     def __repr__(self):
         return '<User %r>' % self.username
-
-    def __unicode__(self):
-        return self.username
 
     @staticmethod
     def create_passwd(raw):
@@ -96,7 +96,9 @@ class UserGroup(db.Model):
 
     role   = db.relation('Role')
     domain = db.relation('Domain')
-    
+
+    def __unicode__(self):
+        return u'<用户组 %s>' % self.name
         
 class Domain(db.Model):
 
@@ -113,6 +115,9 @@ class Domain(db.Model):
     created_at	  = db.Column(db.DateTime, default=datetime.now)
     updated_at	  = db.Column(db.DateTime, default=datetime.now)
     description   = db.Column(db.String(255))
+
+    def __unicode__(self):
+        return u'<管理域 %s>' % self.name
 
     def dump_areas(self, domain_areas):
         domain_areas = [int(area_id) for area_id in domain_areas.split(',') if area_id]
@@ -164,6 +169,9 @@ class Role(db.Model):
     def __repr__(self):
         return '<Role%r>' % self.name
 
+    def __unicode__(self):
+        return u'<角色 %s>' % self.name
+
         
 class Permission(db.Model):
     __tablename__ = 'permissions'
@@ -190,6 +198,9 @@ class Permission(db.Model):
 
     def __repr__(self):
         return '<Permission %r>' % (self.endpoint + self.operation,)
+
+    def __unicode__(self):
+        return u'<权限 %s>' % self.name
     
     @staticmethod
     def make_tree(role_perms=None):

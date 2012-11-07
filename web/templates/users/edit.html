@@ -1,6 +1,6 @@
 <form class="form-horizontal" method="POST" id="test-wtf"
       action="{{url_for('users.users_edit', id=user.id)}}">
-  {% from "_form_h.html" import render_field %}
+  {% from "tango/_form_h.html" import render_field %}
   <fieldset>
     {{ form.hidden_tag() }}
     {{ render_field(form.name) }}

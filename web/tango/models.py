@@ -27,6 +27,9 @@ class Setting(db.Model):
     def find(mod, name):
         return Setting.query.filter_by(mod = mod, name = name).first()
 
+    def __unicode__(self):
+        return u'<参数设置 %s>' % self.alias
+
 class DictCode(db.Model):
     __tablename__ = 'dict_codes'
     
@@ -42,6 +45,8 @@ class DictCode(db.Model):
     type = db.relationship('DictType')
     parent = db.relationship('DictCode')
 
+    def __unicode__(self):
+        return u'<字典 %s>' % self.code_label
     
 class DictType(db.Model):
     __tablename__ = 'dict_types'
@@ -53,6 +58,9 @@ class DictType(db.Model):
     type_label = db.Column(db.String(100))
     editable   = db.Column(db.Boolean)
 
+    def __unicode__(self):
+        return u'<字典类型 %s>' % self.type_name
+
 class Profile(db.Model):
     __tablename__ = 'profiles'
     
@@ -63,6 +71,9 @@ class Profile(db.Model):
     value = db.Column(db.Text())
     created_at = db.Column(db.DateTime, default=datetime.now)
     updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
+
+    def __unicode__(self):
+        return u'<用户配置>'
 
     def __init__(self, uid, grp, key, value):
         self.uid = uid
@@ -147,3 +158,5 @@ class Category(db.Model):
     alias       = db.Column(db.String(100))
     is_valid    = db.Column(db.Boolean, default=True)
 
+    def __unicode__(self):
+        return u'<全局分类 %s>' % self.alias
