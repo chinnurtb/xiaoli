@@ -51,7 +51,7 @@ def settings_edit(id):
         old_value = setting.value
         setting.value = form.value.data
         db.session.commit()
-        flash(u'%s 被修改: %s --> %s' % (setting.name, str(old_value), str(form.value.data)), 'success')
+        flash(u'%s 被修改: %s --> %s' % (setting.name, old_value, form.value.data), 'success')
         return redirect('/system/settings/')
     form.process(obj=setting)
     return render_template('/system/settings/edit.html', form=form, setting=setting)
