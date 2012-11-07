@@ -49,12 +49,12 @@ before_models_committed.connect(record_oplogs)
 
 @login_mgr.user_loader
 def load_user(id):
-   return User.query.get(int(id))
-   # user = cache.get("user-"+id)
-   # if user is None:
-   #     user = User.query.get(int(id))
-   #     cache.set("user-"+id, user)
-   # return user
+    return User.query.get(int(id))
+    #user = cache.get("user-"+id)
+    #if user is None:
+    #   user = User.query.get(int(id))
+    #   cache.set("user-"+id, user)
+    #return user
 
 from tango.login import user_logged_in, user_logged_out
 def record_login(app, user):
@@ -70,8 +70,6 @@ def record_login(app, user):
     db.session.commit()
 
 def record_logout(app, user):
-    #delete cache
-    print "delete cached user...", user
     #cache.delete("user-"+str(user.id))
     from system.models import SecurityLog
     from datetime import datetime
