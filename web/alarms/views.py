@@ -11,21 +11,13 @@ from jinja2 import Markup
 from flask import Blueprint, request, session, url_for, \
     redirect, render_template, g, flash
 
-from tango import db
-
-from jinja2 import Markup
-
-from tango import get_profile
+from tango import db, get_profile
 
 from tango.ui.tables import make_table
 
-from tango.login import login_required, current_user
+from tango.login import current_user
 
-from tango.ui import navbar, dashboard
-
-from tango.ui import tables
-
-from tango.ui import Dashboard 
+from tango.ui import tables, navbar, dashboard, Dashboard 
 
 from tango.models import Query, Profile, Category, Setting
 
@@ -160,7 +152,7 @@ def alarms_console():
     data = [series(severity) for severity in severities]
     title = u'最近12小时接收告警'
 
-    alarmconsole.configure(user_profile('alarmconsole'))
+    alarmconsole.configure(get_profile('alarmconsole'))
     return render_template('alarms/console/index.html',
                            chartid = "alarm_demo_console",
                            chartdata = data,
@@ -217,7 +209,7 @@ def render_console_chart(id, query):
 
 @alarmview.route('/alarms/stats/active')
 def stats_active():
-    activestats.configure(user_profile('activestats'))
+    activestats.configure(get_profile('activestats'))
     return render_template('alarms/stats/active.html',
                            dashboard = activestats)
     
