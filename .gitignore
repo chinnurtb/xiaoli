@@ -11,3 +11,11 @@ web/venv
 web/local_settings.py
 web/static/file/download/*
 web/static/file/upload/*
+redis/mkreleasehdr.sh
+redis/redis-benchmark
+redis/redis-check-aof
+redis/redis-check-dump
+redis/redis-cli
+redis/redis-sentinel
+redis/redis-server
+redis/dump.rdb
