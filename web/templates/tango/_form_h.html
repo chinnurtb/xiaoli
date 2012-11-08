@@ -242,7 +242,7 @@
                     <i class="icon-ban-circle icon-white"></i>
                     <span>取消</span>
                 </button>
-                <button class="btn btn-primary btn-small" type="submit">
+                <button class="btn btn-primary btn-small btn-submit" type="submit" disabled="disabled">
                     <i class="icon-upload icon-white"></i>
                     <span>导入</span>
                 </button>
@@ -253,13 +253,21 @@
         $(function() {
             $(".fileinput-button input").change(function() {
                 var file = this.files[0];
-                var size = file.size / 1000
-                var type = file.name.substring(file.name.lastIndexOf('.') + 1).toLowerCase()
-                var html = "<table width='100%'><tr><td width='70%'>"+file.name+"</td><td width='15%'>"+size+" KB</td><td width='15%'>"+type+"</td></tr></table>"
-                $("#select_file").html(html)
+                var size = file.size / 1000;
+                var type = file.name.substring(file.name.lastIndexOf('.') + 1).toLowerCase();
+                if(type == "csv") {
+                    $("#import_form .btn-submit").removeAttr("disabled");
+                } else {
+                    $("#import_form .btn-submit").attr({"disabled":"disabled"});
+                    type += " <span class='label label-important'>格式错误</span>";
+                }
+                var html = "<table width='100%'><tr><td width='60%'>"+file.name+"</td><td width='20%'>"+size.toFixed(2)+" KB</td><td width='20%'>"+type+"</td></tr></table>";
+                $("#select_file").html(html);
             });
             $("#import_form .btn-cancel").click(function() {
-                $("#select_file").html('请选择导入文件')
+                $(".fileinput-button input").val(null);
+                $("#select_file").html('请选择导入文件');
+                $("#import_form .btn-submit").attr({"disabled":"disabled"});
             });
         })
     </script>

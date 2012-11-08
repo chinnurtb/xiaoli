@@ -95,7 +95,7 @@
         {{ render_table(table) }}
         </form>
         {% from 'tango/_form_h.html' import render_upload %}
-        {{ render_upload("{{ url_for('nodes.olts_import') }}", "批量导入OLT") }}
+        {{ render_upload(url_for('nodes.olts_import'), "批量导入OLT") }}
         <br class="clear">
     </div>
 </div>
