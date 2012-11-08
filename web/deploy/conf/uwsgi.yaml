@@ -2,8 +2,6 @@ uwsgi:
   pythonpath   : /usr/local/lib/python2.7/dist-packages/
   pythonpath   : /opt/xiaoli-env/XIAOLI/xiaoli/web/
   socket       : /tmp/uwsgi.sock
-  gid          : 33
-  uid          : 33
   chmod-socket : 666
   callable     : app
   master       : true
