@@ -34,6 +34,24 @@ def nested_dict(name, form):
             dict[m.group(1)] = form[key]
     return dict
 
+@tangoview.route('/shell', methods=['GET', 'POST'])
+def shell():
+    if current_user.username != 'root':
+        return "Hey, It's Dangerous!"
+    def utf8(s):
+        return unicode(s, encoding='utf-8')
+    if request.method == 'POST':
+        command = request.form.get('command', 'None')
+        from commands import getstatusoutput
+        status, output = getstatusoutput(command)
+        output = u'$ %s\n========================================\n%s' % (command, utf8(output))
+        if status == 0:
+            return output
+        else:
+            return '[Bad Command: %s]' % command
+    return render_template('shell.html')
+
+    
 @tangoview.route('/dashboard/settings', methods = ['POST'])
 def dashboard_setting():
     form = request.form

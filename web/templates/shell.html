@@ -1,0 +1,54 @@
+{% extends "layout.html" %}
+
+{% block head %}
+<style type="text/css" media="screen">
+    #shell {
+        margin-top: 20px;
+    }
+    #output pre{
+        background: #3A3A3A;
+        color: #DDD;
+        margin-bottom: 12px;
+        padding: 6px 10px;
+        min-height: 480px;
+        border-radius: 6px;
+        box-shadow: rgba(0, 0, 0, 0.3) 0 2px 3px;
+    }
+    
+    #command{
+    }
+    
+    #command input{
+        width: 99%;
+    }
+</style>
+  <script type="text/javascript">
+    $(function(){
+        $('#command form').submit(function(e){
+            var $cmd = $(this).find('input');
+            $.post($(this).attr('action'),
+                   {'command': $cmd.val()},
+                   function(data){
+                       $('#output >pre').text(data);
+                       $cmd.val('');
+                   }
+                  );
+            return false;
+        });
+    });        
+  </script>
+{% endblock head %}
+
+{% block content %}
+<div id="shell" >
+  <div id="output">
+    <pre>
+    </pre>
+  </div>
+  <div id="command">
+    <form method="POST" action="/shell">
+      <input type="text" name="command" value=""/>
+    </form>
+  </div>
+</div>
+{% endblock content %}
