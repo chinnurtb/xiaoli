@@ -1,0 +1,15 @@
+uwsgi: 
+  pythonpath   : /usr/local/lib/python2.7/dist-packages/
+  pythonpath   : /opt/xiaoli-env/XIAOLI/xiaoli/web/
+  socket       : /tmp/uwsgi.sock
+  gid          : 33
+  uid          : 33
+  chmod-socket : 666
+  callable     : app
+  master       : true
+  module       : webapp
+  workers      : 8
+  threads      : 10
+  idle         : 1800
+  logto        : /opt/xiaoli-env/XIAOLI/xiaoli/web/log/uwsgi.log
+  static-map   : /static=/opt/xiaoli-env/XIAOLI/xiaoli/web/static

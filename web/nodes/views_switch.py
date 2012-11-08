@@ -8,7 +8,7 @@ from flask import json,send_file
 
 from sqlalchemy import or_
 
-from tango import db,user_profile
+from tango import db,get_profile
 from tango.ui.tables import make_table
 from tango.login import current_user, login_required
 from tango.models import Profile, Category

@@ -60,7 +60,7 @@
                 </table>
               </div>
             </div>
-            {% from "_chart_h.html" import render_highchart %}
+            {% from "tango/_chart_h.html" import render_highchart %}
             <div class="span2">
                 {{ render_highchart(alarm_chart, height="220px", width="220px") }}
             </div>
@@ -76,7 +76,7 @@
             </ul>
             <div class="tab-content" >
                 <div class="tab-pane active" id="basic_info">
-                    {% from "_chart_h.html" import render_highchart %}
+                    {% from "tango/_chart_h.html" import render_highchart %}
                     {{ render_highchart(traffic_chart, height="250px") }}
                 </div>
                 <div class="tab-pane detail" id="snmp_info">

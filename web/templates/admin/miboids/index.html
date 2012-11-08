@@ -6,14 +6,14 @@
 
 {% block head %}
 
-{% from "_table_h.html" import render_table_profile %}
+{% from "tango/_table_h.html" import render_table_profile %}
 <script type="text/javascript">
     {{ render_table_profile(table) }}
 </script>
 {% endblock %}
 
 
-{% from "_table_h.html" import render_table, render_screen_meta %}
+{% from "tango/_table_h.html" import render_table, render_screen_meta %}
 {% block screen_meta %}
     {{ render_screen_meta(table) }}
 {% endblock %}
@@ -41,7 +41,7 @@
                 <br class="clear">
             </form>
           </div>
-          {% from "_table_h.html" import render_table %}
+          {% from "tango/_table_h.html" import render_table %}
           {{ render_table(table) }}
         </div>
         <div class="modal hide fade" id="myModal"></div>

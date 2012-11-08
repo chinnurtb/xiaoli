@@ -228,11 +228,13 @@ class Table(object):
     @property
     def page_url(self):
         def func(page, order_by=None):
-            req_args = request.args.to_dict()
+            req_args = dict(request.values.lists())
             req_args.update(request.view_args)
             req_args['page'] = page
             old_order_by = req_args.get('order_by', None)
-            
+            if isinstance(old_order_by, (list, tuple)):
+                old_order_by = old_order_by[0]
+                
             if order_by:
                 if old_order_by == order_by:
                     order_by = '-' + order_by
@@ -246,9 +248,9 @@ class Table(object):
 
 def make_table(query, table_cls, profile=None):
     """ 一个方便使用 Table 的函数 """
-    from tango.base import user_profile
+    from tango import get_profile
     if profile is None:
-        profile = user_profile(table_cls._meta.profile)
+        profile = get_profile(table_cls._meta.profile)
     table = table_cls(query)
     TableConfig(request, profile).configure(table)
     return table

@@ -51,7 +51,7 @@ def settings_edit(id):
         old_value = setting.value
         setting.value = form.value.data
         db.session.commit()
-        flash(u'%s 被修改: %s --> %s' % (setting.name, str(old_value), str(form.value.data)), 'success')
+        flash(u'%s 被修改: %s --> %s' % (setting.name, old_value, form.value.data), 'success')
         return redirect('/system/settings/')
     form.process(obj=setting)
     return render_template('/system/settings/edit.html', form=form, setting=setting)
@@ -209,12 +209,13 @@ def metrics_delete(id):
         flash(u'指标 (%s) 删除成功!' % metric.alias, 'success')
         return redirect(url_for('system.metrics'))
         
-    res = {
-        'title': u'删除指标',
-        'body': render_template('system/metrics/delete.html', metric=metric)
+    kwargs = {
+        'title' : u'删除指标',
+        'action': url_for('system.metrics_delete', id=id),
+        'fields': [(u'名称', metric.name), (u'显示名', metric.alias)],
+        'type'  : 'delete'
     }
-    return json.dumps(res)
-
+    return render_template('tango/_modal.html', **kwargs)
     
 # ==============================================================================
 #  采集规则管理

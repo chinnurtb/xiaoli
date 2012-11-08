@@ -2,7 +2,7 @@
 
 {% set title = '编辑角色' %}
 
-{% from "_form_h.html" import render_field, render_form_title %}
+{% from "tango/_form_h.html" import render_field, render_form_title %}
 
 {% block content %}
 <div class="row-fluid content">
@@ -14,7 +14,7 @@
   </div>
   
   <div class="span10">
-    {% from "_form_h.html" import render_csrf_error %}
+    {% from "tango/_form_h.html" import render_csrf_error %}
     {{ render_csrf_error(form) }}
     <div class="row-fluid">
       <div class="">

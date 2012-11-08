@@ -11,21 +11,13 @@ from jinja2 import Markup
 from flask import Blueprint, request, session, url_for, \
     redirect, render_template, g, flash
 
-from tango import db
-
-from jinja2 import Markup
-
-from tango import user_profile
+from tango import db, get_profile
 
 from tango.ui.tables import make_table
 
-from tango.login import login_required, current_user
+from tango.login import current_user
 
-from tango.ui import navbar, dashboard
-
-from tango.ui import tables
-
-from tango.ui import Dashboard 
+from tango.ui import tables, navbar, dashboard, Dashboard 
 
 from tango.models import Query, Profile, Category, Setting
 
@@ -58,7 +50,7 @@ def alarm_filter(cls, query, form):
         query = query.filter(cls.severity == severity.id)
     alarm_class = form.alarm_class.data
     if alarm_class:
-        query = query.filter(cls.alarm_class_id == alarm_class.id)
+        query = query.filter(cls.class_id == alarm_class.id)
     start_date = form.start_date.data
     if start_date:
         query = query.filter(cls.first_occurrence >= start_date)
@@ -160,7 +152,7 @@ def alarms_console():
     data = [series(severity) for severity in severities]
     title = u'最近12小时接收告警'
 
-    alarmconsole.configure(user_profile('alarmconsole'))
+    alarmconsole.configure(get_profile('alarmconsole'))
     return render_template('alarms/console/index.html',
                            chartid = "alarm_demo_console",
                            chartdata = data,
@@ -200,7 +192,7 @@ def console_category_system():
 
 def _console_category_query(cid):
     q = db.session.query(Alarm.severity, func.count(Alarm.id).label('count'))
-    q = q.outerjoin(AlarmClass, Alarm.alarm_class_id == AlarmClass.id)
+    q = q.outerjoin(AlarmClass, Alarm.class_id == AlarmClass.id)
     q = q.outerjoin(Category, AlarmClass.category_id == Category.id)
     return q.filter(Category.id == cid).group_by(Alarm.severity)
 
@@ -217,7 +209,7 @@ def render_console_chart(id, query):
 
 @alarmview.route('/alarms/stats/active')
 def stats_active():
-    activestats.configure(user_profile('activestats'))
+    activestats.configure(get_profile('activestats'))
     return render_template('alarms/stats/active.html',
                            dashboard = activestats)
     
@@ -339,7 +331,7 @@ def stats_by_category():
     severities = AlarmSeverity.query.order_by(AlarmSeverity.id).all()
 
     q = db.session.query(func.count(Alarm.id), Alarm.severity, Category.id, Category.alias)
-    q = q.outerjoin(AlarmClass, Alarm.alarm_class_id == AlarmClass.id)
+    q = q.outerjoin(AlarmClass, Alarm.class_id == AlarmClass.id)
     q = q.outerjoin(Category, AlarmClass.category_id == Category.id)
     q = q.group_by(Alarm.severity, Category.id, Category.alias).order_by(Category.id)
     #(id, alias): (clear, indeterminate, warning, minor, major, critical)
@@ -356,7 +348,7 @@ def stats_by_category():
 @alarmview.route('/alarms/stats/by_class')
 def stats_by_class():
     q = db.session.query(func.count(Alarm.id), AlarmClass.id, AlarmClass.alias)
-    q = q.outerjoin(AlarmClass, Alarm.alarm_class_id == AlarmClass.id)
+    q = q.outerjoin(AlarmClass, Alarm.class_id == AlarmClass.id)
     q = q.group_by(AlarmClass.id, AlarmClass.alias)
     return render_template('alarms/stats/by_class.html', data=q.all())
 

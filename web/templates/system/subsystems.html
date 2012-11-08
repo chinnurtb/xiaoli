@@ -5,13 +5,13 @@
 {% block head %}
 <link rel="stylesheet" href="/static/css/node.css" type="text/css" media="screen" />
 
-{% from "_table_h.html" import render_table_profile %}
+{% from "tango/_table_h.html" import render_table_profile %}
 <script type="text/javascript">
     {{ render_table_profile(table) }} 
 </script>
 {% endblock %}
 
-{% from "_table_h.html" import render_table, render_screen_meta %}
+{% from "tango/_table_h.html" import render_table, render_screen_meta %}
 {% block screen_meta %}
     {{ render_screen_meta(table) }}
 {% endblock %}

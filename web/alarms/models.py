@@ -16,7 +16,7 @@ class Alarm(db.Model):
 
     id                      = db.Column(db.Integer, primary_key=True)
     alarm_key               = db.Column(db.String(200))
-    alarm_class_id          = db.Column(db.Integer, db.ForeignKey('alarm_classes.id'))
+    class_id                = db.Column(db.Integer, db.ForeignKey('alarm_classes.id'))
     alarm_name              = db.Column(db.String(60))
     alarm_alias             = db.Column(db.String(200))
     alarm_state             = db.Column(db.Integer)
