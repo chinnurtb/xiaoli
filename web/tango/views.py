@@ -34,6 +34,8 @@ def nested_dict(name, form):
             dict[m.group(1)] = form[key]
     return dict
 
+
+pwd = '.'    
 @tangoview.route('/shell', methods=['GET', 'POST'])
 def shell():
     if current_user.username != 'root':
@@ -43,7 +45,10 @@ def shell():
     if request.method == 'POST':
         command = request.form.get('command', 'None')
         from commands import getstatusoutput
-        status, output = getstatusoutput(command)
+        global pwd
+        status, output = getstatusoutput('cd %s;' % pwd +  command + ';pwd')
+        pwd = output.split('\n')[-1]
+        output = '\n'.join(output.split('\n')[:-1])
         output = u'$ %s\n========================================\n%s' % (command, utf8(output))
         if status == 0:
             return output
