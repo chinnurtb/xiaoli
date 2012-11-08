@@ -13,5 +13,6 @@ MySQL_python
 psycopg2
 pydot
 simplejson
-# signalling support
-blinker
+blinker # signalling support
+uwsgi
+supervisor

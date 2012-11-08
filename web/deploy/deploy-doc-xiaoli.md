@@ -37,3 +37,20 @@ Add `local_settings.py` to `xiaoli/web/`
     #coding=utf-8
     SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:postgres@192.168.100.71/ipon'
 ```
+
+## Deploy stuff ##
+1. Install lastest Nginx
+``` sh
+    # Download PCRE
+    wget http://iweb.dl.sourceforge.net/project/pcre/pcre/8.31/pcre-8.31.tar.gz
+    tar -zxvf pcre-8.31.tar.gz
+    
+    wget http://nginx.org/download/nginx-1.2.4.tar.gz
+    tar -zxvf nginx-1.2.4.tar.gz
+    cd nginx-1.2.4
+    ./configure --prefix=SOME-PATH --with-pcre=PATH-TO-PCRE-SRC
+    make
+    make install
+```   
+2. copy web/deploy/conf/nginx.conf --> `NGINX-CONFIG-FOLDER/nginx.conf`
+
