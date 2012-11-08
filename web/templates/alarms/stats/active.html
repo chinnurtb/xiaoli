@@ -52,7 +52,7 @@
         <h5 class="screen-layout">布局</h5>
         <div class="columns-prefs">列数:
             {% for col in [1,2,3] %}
-                <label class="columns-prefs-{{ col }}"><input name="screen_columns" value="{{ col }}" {% if dashboard.layout == col %} checked="checked" {% endif %} type="radio">{{ col }}</label>
+                <label class="columns-prefs-{{ col }}"><input name="screen_columns" value="{{ col }}" {{ 'checked="checked"' if dashboard.layout == col }} type="radio">{{ col }}</label>
             {% endfor %}
         </div>
         <div><input id="screenoptionnonce" name="screenoptionnonce" value="9fe52bb3f0" type="hidden"></div>

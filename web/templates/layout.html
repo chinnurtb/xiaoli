@@ -9,7 +9,7 @@
 	<meta name="description" content="OPENGOSS">
 	<meta name="author" content="ery.lee at gmail.com">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>{% if title %} {{ title }} {% endif %}</title>
+	<title>{{ title if title }} </title>
 
     {% from "tango/_base.html" import stylesheet, javascript %}
 
