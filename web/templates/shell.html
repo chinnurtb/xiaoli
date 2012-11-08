@@ -10,7 +10,9 @@
         color: #DDD;
         margin-bottom: 12px;
         padding: 6px 10px;
-        min-height: 480px;
+        min-height: 380px;
+        height: 380px;
+        overflow-y: scroll;
         border-radius: 6px;
         box-shadow: rgba(0, 0, 0, 0.3) 0 2px 3px;
     }
@@ -41,14 +43,14 @@
 
 {% block content %}
 <div id="shell" >
-  <div id="output">
-    <pre>
-    </pre>
-  </div>
-  <div id="command">
-    <form method="POST" action="/shell">
-      <input type="text" name="command" value=""/>
-    </form>
-  </div>
+    <div id="command">
+        <form method="POST" action="/shell">
+            <input type="text" name="command" value=""/>
+        </form>
+    </div>
+    <div id="output">
+        <pre>
+        </pre>
+    </div>
 </div>
 {% endblock content %}
