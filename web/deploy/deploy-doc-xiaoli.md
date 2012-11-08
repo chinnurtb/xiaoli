@@ -64,7 +64,7 @@ Deploy stuff
     ./configure --prefix=SOME-PATH --with-pcre=PATH-TO-PCRE-SRC
     make
     make install
-```   
+```
 2. copy web/deploy/conf/nginx.conf --> `NGINX-CONFIG-FOLDER/nginx.conf`
 3. Change the paths in web/deploy/conf/*
 4. Start supervisor
