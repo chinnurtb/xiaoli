@@ -222,51 +222,45 @@
     </div>
 {% endmacro %}
 
-{% macro render_search_form(url) %}
-    <div style="margin: 0; display: none;" class="span12 well advance_search_form header">
-        <table>
-            <tbody>
-            {% for field in varargs %}
-                {% if loop.index is odd %}<tr>{% endif %}
-                <td style="padding: 8px;"><label for="{{ field.id }}">{{field.label.text}}</label></td>
-                <td>
-                    {{ field() }}
-                    {% if field.flags.required %}<strong><em>*</em></strong>{% endif %}
-                    {% if field.errors %}
-                        <span class="help-inline">
-                          {{ field.errors[0]|e }}
-                        </span>
-                    {% endif %}
-                </td>
-                {% if loop.index is even %}</tr>{% endif %}
-                {% if loop.last and loop.length is odd %}<td colspan="2"></td></tr>{% endif %}
-            {% endfor %}
-            <tr>
-                <td colspan="4">
-                    <div class="">
-                        <button type="submit" name="test" style="margin: 0 10px;" class="btn btn-small pull-right"><i class="icon-ok"></i>应用</button>
-                    </div>
-                </td>
-            </tr>
-            </tbody>
-        </table>
+{% macro render_upload(url, title) %}
+    <div id="import_form" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <form method=POST enctype=multipart/form-data action="{{ url }}" style="margin: 0;">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h5 id="myModalLabel">{{ title }}</h5>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-block" style="margin-bottom: 0;text-align: center; padding-right: 14px;" id="select_file">请选择导入文件</div>
+            </div>
+            <div class="modal-footer">
+                <span class="btn btn-success fileinput-button btn-small">
+                    <i class="icon-plus icon-white"></i>
+                    <span>浏览</span>
+                    <input type="file" name="file">
+                </span>
+                <button class="btn btn-small btn-warning btn-cancel" type="button">
+                    <i class="icon-ban-circle icon-white"></i>
+                    <span>取消</span>
+                </button>
+                <button class="btn btn-primary btn-small" type="submit">
+                    <i class="icon-upload icon-white"></i>
+                    <span>导入</span>
+                </button>
+            </div>
+        </form>
     </div>
     <script type="text/javascript">
-        $(function(){
-            $(".advance_search").toggle(
-                    function() {
-                        $(".advance_search_form").show();
-                        $(this).addClass("hidedetail");
-                    },
-                    function() {
-                        $(".advance_search_form").hide();
-                        $(this).removeClass("hidedetail");
-                    }
-            )
-            $("#advance_search").click(function() {
-                search_form = $("#search_form");
-                search_form.attr("action","{{ url }}").submit();
-            })
+        $(function() {
+            $(".fileinput-button input").change(function() {
+                var file = this.files[0];
+                var size = file.size / 1000
+                var type = file.name.substring(file.name.lastIndexOf('.') + 1).toLowerCase()
+                var html = "<table width='100%'><tr><td width='70%'>"+file.name+"</td><td width='15%'>"+size+" KB</td><td width='15%'>"+type+"</td></tr></table>"
+                $("#select_file").html(html)
+            });
+            $("#import_form .btn-cancel").click(function() {
+                $("#select_file").html('请选择导入文件')
+            });
         })
     </script>
 {% endmacro %}

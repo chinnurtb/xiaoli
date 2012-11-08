@@ -1,4 +1,10 @@
-状态,名称,别名,IP地址,地市,区县,分局,ONU数量,未规划ONU,厂商,型号,子网掩码,读团体名,写团体名,上次同步,位置,备注
-正常,admin,admin,127.0.0.1,银川市,兴庆区,西城分局,2,0,烽火,C100-C200v1.1,,public,private,,,
-正常,admin,admin,127.0.0.1,银川市,兴庆区,西城分局,0,0,华为,MA5680T,,public,private,,,
-正常,admin,admin,127.0.0.1,银川市,兴庆区,西城分局,0,0,华为,C100-C200v1.1,,public,private,,,
+节点类型,名称,别名,IP地址,所属区域,厂商,型号,子网掩码,读团体名,写团体名,SNMP版本,上次同步,位置,备注
+OLT,PONOLT-高德248局-MA5683T1,PONOLT-高德248局-MA5683T1,198.48.96.2,石嘴山市中宁县二长分局,中兴,ZTE-9806,,public2,private,v2c,,,
+OLT,PONOLT-万科-C220-03,PONOLT-万科-C220-03,12.4.4.49,石嘴山市中宁县二长分局,中兴,ZTE-9806,,public2,private,v2c,,,
+OLT,rrrrrr,rrrrrr,132.66.88.1,石嘴山市中宁县二长分局,中兴,ZTE-9806,,public2,private,v2c,,,
+OLT,PONOLT-胡家-C300-01,PONOLT-胡家-C300-01,10.12.39.2,石嘴山市中宁县二长分局,中兴,ZTE-9806,,public2,private,v2c,,,
+OLT,PONOLT-八道沟局C1-C220,PONOLT-八道沟局C1-C220,198.131.0.22,石嘴山市中宁县二长分局,中兴,ZTE-9806,,public2,private,v2c,,,
+OLT,PONOLT-望海5761局-MA5680T-01,PONOLT-望海5761局-MA5680T-01,10.82.0.36,石嘴山市中宁县二长分局,中兴,ZTE-9806,,public2,private,v2c,,,
+OLT,PONOLT-万家开发区63300局-MA5680T-01,PONOLT-万家开发区63300局-MA5680T-01,10.83.0.50,石嘴山市中宁县二长分局,中兴,ZTE-9806,,public2,private,v2c,,,
+OLT,PONOLT-郜家店712局-中兴ZXA10 C300-02,PONOLT-郜家店712局-中兴ZXA10 C300-02,172.21.6.2,石嘴山市中宁县二长分局,中兴,ZTE-9806,,public2,private,v2c,,,
+OLT,PONOLT-龙海滨城-C300-51,PONOLT-龙海滨城-C300-51,12.13.1.106,石嘴山市中宁县二长分局,中兴,ZTE-9806,,public2,private,v2c,,,
