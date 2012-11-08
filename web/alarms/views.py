@@ -50,7 +50,7 @@ def alarm_filter(cls, query, form):
         query = query.filter(cls.severity == severity.id)
     alarm_class = form.alarm_class.data
     if alarm_class:
-        query = query.filter(cls.alarm_class_id == alarm_class.id)
+        query = query.filter(cls.class_id == alarm_class.id)
     start_date = form.start_date.data
     if start_date:
         query = query.filter(cls.first_occurrence >= start_date)
@@ -192,7 +192,7 @@ def console_category_system():
 
 def _console_category_query(cid):
     q = db.session.query(Alarm.severity, func.count(Alarm.id).label('count'))
-    q = q.outerjoin(AlarmClass, Alarm.alarm_class_id == AlarmClass.id)
+    q = q.outerjoin(AlarmClass, Alarm.class_id == AlarmClass.id)
     q = q.outerjoin(Category, AlarmClass.category_id == Category.id)
     return q.filter(Category.id == cid).group_by(Alarm.severity)
 
@@ -331,7 +331,7 @@ def stats_by_category():
     severities = AlarmSeverity.query.order_by(AlarmSeverity.id).all()
 
     q = db.session.query(func.count(Alarm.id), Alarm.severity, Category.id, Category.alias)
-    q = q.outerjoin(AlarmClass, Alarm.alarm_class_id == AlarmClass.id)
+    q = q.outerjoin(AlarmClass, Alarm.class_id == AlarmClass.id)
     q = q.outerjoin(Category, AlarmClass.category_id == Category.id)
     q = q.group_by(Alarm.severity, Category.id, Category.alias).order_by(Category.id)
     #(id, alias): (clear, indeterminate, warning, minor, major, critical)
@@ -348,7 +348,7 @@ def stats_by_category():
 @alarmview.route('/alarms/stats/by_class')
 def stats_by_class():
     q = db.session.query(func.count(Alarm.id), AlarmClass.id, AlarmClass.alias)
-    q = q.outerjoin(AlarmClass, Alarm.alarm_class_id == AlarmClass.id)
+    q = q.outerjoin(AlarmClass, Alarm.class_id == AlarmClass.id)
     q = q.group_by(AlarmClass.id, AlarmClass.alias)
     return render_template('alarms/stats/by_class.html', data=q.all())
 
