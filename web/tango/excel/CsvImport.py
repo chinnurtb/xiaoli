@@ -1,128 +1,150 @@
 # encoding: utf-8
+'''
+   支持功能：
+       1. 设定某列不能为空
+       2. 单元格数据是否符合指定格式
+       3. 某些字段不允许更新
+       4. 当单元格为空时，指定默认值
+       5. 验证数据在网管中是否存在，如 导入数据的厂家，区域是否存在
+       6. 是否有权限操作,如 是否有更新此OLT的权限
+       7. 导入列可以无序
+   暂不支持功能：
+       1. 多sheet导入
+'''
 import os
 import csv
 from datetime import datetime
 
-from .import_config import tables
+class ImportColumn(object):
+    def __init__(self, name_cn, name_en, type, allow_null=True, format=None, existed_data={}, allow_update=True, is_key=False, default=None):
+        self.name_cn = name_cn
+        self.name_en = name_en
+        self.type = type
+        self.allow_null = allow_null
+        self.format = format
+        self.existed_data = existed_data
+        self.allow_update = allow_update
+        self.is_key = is_key
+        self.default = default
 
 class CsvImport(object):
-    """
-        param:session       SQLAlchemy session对象，连接数据库执行语句
-        param:table         字符串，导入表的表名
-        param:primary_key   表字段名的List,保存数据的key，判断数据是否重复，如导入OLT，primary_key=['ip']，IP不能重复
-        param:validate
-            验证数据的字典,包括：
-                allow_null      True/False 是否允许为空值，默认为True
-                format          函数，判断列值是否符合格式，返回True或False
-                existed_data    字典，网管中是否存在此数据，value为id，以便直接保存
-            example:
-                {
-                    'addr': {
-                        'allow_null': False,
-                        'format': lambda value: True,
-                    },
-                    'vendor_id': {
-                        'existed_data': {u'华为':1, u'中兴':2},
-                    },
-                    'area_id': {
-                        'existed_data': {u'':1,u'':2}
-                    }
-                }
-    """
-    def __init__(self, session, table, primary_key, validate={}):
+    def __init__(self, session, table):
+        self.columns = []
         self.session = session
         self.table = table
-        self.primary_key = primary_key
-        self.validate=validate
-        self.header_dict = dict([(key, value[0]) for key, value in tables.get(table,{}).items()]) # 导入excel 列名与对应的字段名 的字段：{u'名称': 'name', u'IP地址': 'ip'}
-        self.table_dict = dict([(value,key) for key,value in self.header_dict.items()]) # 字段名与列名的字典：{'name': u'名称', 'ip': u'IP地址'}
-        self.column_type = dict([(key, value[1]) for key, value in tables.get(table,{}).items()])
-        self.header = []    # 保存csv文件首行信息，list
-        self.header_ori = []    # 保存csv文件首行信息，list
-        self.key_col = {}   # 保存首行列索引与对应的列名，dict
+        self.update_dict = {}
+        self.permit_update_dict = {}
 
-    # file: 导入的文件
-    # is_update: 导入的时候，根据主键判断网管中是否已存在此数据，如果存在则更新数据
-    def read(self, file, is_update=True):
-        update_dict = {}    # 保存网管中已存在数据
-        if is_update:
-            result = self.session.execute(
-                "select id,%s from %s" % (','.join(self.primary_key), self.table)
-            )
-            for re in result:
-                update_dict[re[1:]] = re[0]
+    def addColumn(self, column):
+        self.columns.append(column)
+        return self
 
+    def load_update(self,permit_update_dict, update_dict):
+        self.permit_update_dict = permit_update_dict
+        self.update_dict = update_dict
+
+    def _read_init(self):
+        columns_cn_dict = {}
+        columns_en_dict = {}
+        key_list = []
+        for column in self.columns:
+            if column.is_key: key_list.append(column.name_cn)
+            columns_cn_dict[column.name_cn] = column
+            columns_en_dict[column.name_en] = column
+        self.columns_cn_dict = columns_cn_dict
+        self.columns_en_dict = columns_en_dict
+        self.key_list = key_list
+        self.key_col = {}
+
+    def read(self, file):
+        self._read_init()   # 读之前进行一些初始化处理
         result = {"insert": {}, 'update': {}, 'error': {}}
         file = os.path.join(os.path.dirname(os.path.abspath(__file__)),file)
         reader = csv.reader(open(file,'rb'))
         for row,row_data in enumerate(reader):
-            row_data = [data.decode('gbk','ignore') for data in row_data]
             if row == 0:
-                self.header_ori = row_data
-                self.header = [title for title in row_data if self.header_dict.has_key(title)]
                 for col_index, col_name in enumerate(row_data):
-                    self.key_col[col_index] = col_name
+                    self.key_col[col_index] = col_name.decode('gbk','ignore')
             else:
-                action, data = self._validate_row(row_data)   # 验证每一行数据，返回操作动作(插入，更新，错误)和数据
-                key = tuple([data[self.header.index(self.table_dict.get(col_name))] for col_name in self.primary_key])
-                if action == "insert" and update_dict.has_key(key):
-                    action = "update"
-                    data = [update_dict[key],] + data
-                result[action][key] = data
-
-        # 执行批量插入
-        self._insert(result.get("insert",{}).values())
-        # 执行批量更新
-        self._update(result.get("update",{}).values())
-        # 错误数据回写
-        error_file = self._error(result.get("error",{}).values())
+                row_dict = {}
+                for col_index, value in enumerate(row_data):
+                    row_dict[self.key_col[col_index]] = value.decode('gbk','ignore')
+                action, row_dict_process = self._validate_row(row_dict)      # 验证每一行数据，返回操作动作(插入，更新，错误)和数据
+                key = tuple([row_dict.get(key) for key in self.key_list])
+                if action == "insert" and self.update_dict.has_key(key):
+                    if self.permit_update_dict.has_key(key):    # 如果有权限，则验证更新限制条件
+                        action, row_dict = self._validate_update(row_dict_process, row_dict, self.permit_update_dict[key])
+                    else:
+                        action = "error"
+                        row_dict[u'错误提示'] = u'没有操作权限'
+                if action == "insert": row_dict = row_dict_process
+                result[action][key] = row_dict
+        self._insert(result.get("insert",{}).values())  # 执行批量插入
+        self._update(result.get("update",{}).values())  # 执行批量更新
+        error_file = self._error(result.get("error",{}).values())   # 错误数据回写
         if error_file:
             error_file = u'<a href="/static/file/download/%s">下载错误数据</a>' % error_file
         return u"成功导入%s表%s条，更新%s条记录。%s" % (self.table, len(result.get("insert",{}).values()), len(result.get("update",{}).values()), error_file)
 
-    def _validate_row(self, row_data):
-        error = ""
-        data_list = []
-        for col_index, data in enumerate(row_data):
-            col_name = self.key_col.get(col_index,'')
-            info, data = self._validate_data(col_name, data)
-            error += info
-            data_list.append(data)
-        if error == "":
-            row_data = [data for col_index, data in enumerate(data_list) if self.header_dict.has_key(self.key_col[col_index])]
-            return "insert", row_data
+    def _validate_update(self, row_dict_process, row_dict, existed_data_dict):   # 验证更新限制条件
+        error = ''
+        row_dict_process2 = {}
+        for col_name, column in self.columns_cn_dict.items():
+            info, data = self._validate_update_data(row_dict_process.get(col_name,''), column, existed_data_dict)
+            if info != "": error += info
+            row_dict_process2[col_name] = data
+        if error == '':
+            row_dict_process2['id'] = existed_data_dict['id']
+            return "update", row_dict_process2
         else:
-            return "error", row_data+[error,]
+            row_dict[u'错误提示'] = error
+            return "error", row_dict
 
-    def _validate_data(self, col_name,data):
-        col_en = self.header_dict.get(col_name,'')
-        validate = self.validate.get(col_en,{})
-        if not validate.get("allow_null", True) and data == "":
-            return u'%s不能为空' % col_name, data
-        if data == "":
-            return "",None
-        if validate.get("format") and not validate.get("format")(data):
-            return u'%s格式不正确' % col_name, data
-        if validate.get("existed_data"):
-            if validate.get("existed_data").has_key(data):
-                return '', validate.get("existed_data").get(data)
+    def _validate_update_data(self, data, column, existed_data_dict):
+        if  not column.allow_update and data != existed_data_dict.get(column.name_cn):
+            return u'%s不允许更新数据; '% column.name_cn, data
+        return '', data
+
+    def _validate_row(self, row_dict):
+        error = ''
+        row_dict_process = {}
+        for col_name, column in self.columns_cn_dict.items():
+            info, data = self._validate_data(row_dict.get(col_name,''), column)
+            if info != "": error += info
+            row_dict_process[col_name] = data
+        if error == '':
+            return "insert", row_dict_process
+        else:
+            row_dict[u'错误提示'] = error
+            return "error", row_dict
+
+    def _validate_data(self, data, column):
+        if not column.allow_null and data == "":       # 验证单元格不能为空
+            return u'%s不能为空; ' % column.name_cn, data
+        if data == "":                                  # 如果单元格为空，返回默认值
+            return '', column.default
+        if column.format and not column.format(data):   # 验证数据格式
+            return u'%s格式不正确; ' % column.name_cn, data
+        if column.existed_data:
+            if column.existed_data.has_key(data):
+                return '', column.existed_data[data]
             else:
-                return u'网管中不存在%s(%s)' % (col_name, data), data
-        return "", data
+                return u'网管中不存在%s(%s); ' % (column.name_cn, data), data
+        return '', data
 
     def _insert(self, datas):
-        if len(datas) == 0: return
+        if len(datas) == 0 or len(self.columns) == 0: return
         # 拼接插入sql语句：例sql = u'insert into mit_olts(ip, cityid) values(%s,%s);'
         sql = u'INSERT INTO '+ self.table + ' ('
-        for col_name in self.header:
-            if self.header_dict.get(col_name): sql += self.header_dict[col_name] + ','
-        if len(self.header) > 0: sql = sql[:-1]
-        sql += ') VALUES (' + '%s,'*len(self.header)
+        for column in self.columns:
+            sql += column.name_en + ','
+        sql = sql[:-1] + ') VALUES (' + '%s,'*len(self.columns)
         sql = sql[:-1] + ');'
-        self.session.execute(sql, datas)
+        data_list = [[data_dict.get(column.name_cn) for column in self.columns] for data_dict in datas]
+        self.session.execute(sql, data_list)
 
     def _update(self, datas):
-        if len(datas) == 0: return
+        if len(datas) == 0 or len(self.columns) == 0: return
         # 拼接更新sql语句
         # 1.创建临时表 2.临时表插入更新记录 3.临时表与原表进行关联更新
         # create_temp_table = ''' create temporary table if not exists temp_olts(id int, name varchar(50), index index_id(id) ); '''
@@ -133,25 +155,24 @@ class CsvImport(object):
         # connection.execute(update_data)
         self.session.execute("drop table if exists temp_%s;"% self.table)
         create_temp_table = u'create temporary table temp_'+self.table + ' (id int,'
-        for col_name in self.header:
-            if self.header_dict.get(col_name):create_temp_table += self.header_dict[col_name] + ' '+self.column_type[col_name]+','
-        if len(self.header) > 0: create_temp_table = create_temp_table[:-1]
-        create_temp_table += ');'
+        for column in self.columns:
+            create_temp_table += column.name_en + ' '+column.type+','
+        create_temp_table = create_temp_table[:-1] + ');'
         self.session.execute(create_temp_table)
         self.session.execute("CREATE INDEX index_id ON temp_%s(id)" % self.table)
+
         insert_data = u'insert into temp_'+self.table+' (id,'
-        for col_name in self.header:
-            if self.header_dict.get(col_name): insert_data += self.header_dict[col_name] + ','
-        if len(self.header) > 0: insert_data = insert_data[:-1]
-        insert_data += ') VALUES (' + '%s,'*(len(self.header)+1)
+        for column in self.columns:
+            insert_data += column.name_en + ','
+        insert_data = insert_data[:-1] + ') VALUES (' + '%s,'*(len(self.columns)+1)
         insert_data = insert_data[:-1] + ');'
-        self.session.execute(insert_data, datas)
+        data_list = [[data_dict.get('id')] + [data_dict.get(column.name_cn) for column in self.columns] for data_dict in datas]
+        self.session.execute(insert_data, data_list)
 
         update_data = u'update '+self.table+' set '
-        for col_name in self.header:
-            if self.header_dict.get(col_name): update_data += self.header_dict[col_name]+'=t2.'+self.header_dict[col_name]+ ','
-        if len(self.header) > 0: update_data = update_data[:-1]
-        update_data += ' from temp_%s as t2 where %s.id=t2.id;' % (self.table,self.table)
+        for column in self.columns:
+            update_data += column.name_en+'=t2.'+column.name_en+ ','
+        update_data = update_data[:-1] + ' from temp_%s as t2 where %s.id=t2.id;' % (self.table,self.table)
         self.session.execute(update_data)
 
     def _error(self, datas):
@@ -160,20 +181,43 @@ class CsvImport(object):
         if not os.path.isdir(root_path): os.mkdir(root_path)
         file = os.path.join(root_path,self.table+datetime.now().strftime('(%Y-%m-%d %H-%M-%S %f)')+'.csv')
         f = open(file,'wb')
+        fieldnames = [column.name_cn.encode('gbk') for column in self.columns]+[u'错误提示'.encode('gbk'),]
         writer = csv.writer(f)
-        writer.writerow([title.encode('gbk') for title in self.header_ori+[u'错误提示',]])
-        for data_list in datas:
-            writer.writerow([data.encode('gbk') for data in data_list])
+        writer.writerow(fieldnames)
+        data_list = [[data_dict.get(column.name_cn,'').encode('gbk') for column in self.columns]+[data_dict.get(u'错误提示','').encode('gbk')] for data_dict in datas]
+        for data in data_list:
+            writer.writerow(data)
         return os.path.basename(file)
 
 if __name__ == "__main__":
     from sqlalchemy import create_engine
-    from sqlalchemy.orm import sessionmaker
-    #import psycopg2
-    #conn = psycopg2.connect(database="ipon", user="postgres", password="postgres", host="192.168.100.71")
-    #cur = conn.cursor()
-    #conn.commit()
+    import re
+    import psycopg2
+    from datetime import datetime
+    engine = create_engine('postgresql+psycopg2://postgres:postgres@192.168.100.71:5432/ipon')
+    #reader = CsvImport(session=engine, table='node_olts')
+    #reader.read(file='olts.csv')
+    start = datetime.now()
+    url_list = re.split('[://|:|@|/]', 'postgresql+psycopg2://postgres:postgres@192.168.100.71:5432/ipon')
+    conn = psycopg2.connect(database=url_list[-1],port=url_list[-2],host=url_list[-3], password=url_list[-4], user=url_list[-5])
+    cur = conn.cursor()
+    io = open('copy_to.txt', 'w')
+    cur.copy_to(io, 'node_olts')
+    io.close()
+    rows = open('copy_to.txt', 'r').readlines()
+    print "   File has %d rows:" % len(rows)
+    end = datetime.now()
+    print end - start
 
-    engine = create_engine('postgresql+psycopg2://postgres:postgres@192.168.100.71/ipon')
-    reader = CsvImport(session=engine, table='node_olts', primary_key=['addr',])
-    reader.read(file='olts.csv', is_update=True)
+    cur.execute("select * from node_olts")
+    result = cur.fetchall()
+    end2 = datetime.now()
+    print end2 -end
+
+    cur.execute("select * from node_olts")
+    while True:
+        result = cur.fetchmany(5000)
+        if len(result) == 0:
+            break
+    end3 = datetime.now()
+    print end3 -end2
