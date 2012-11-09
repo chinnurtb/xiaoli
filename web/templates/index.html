@@ -104,7 +104,13 @@
 		
 {% block welcome %}
 
-{% include "_welcome.html" %}
+{{ dashboard.welcome }}
+
+{% if dashboard.welcome == '1' %} 
+
+    {% include "_welcome.html" %}
+
+{% endif %}
 
 {% endblock %}
 
