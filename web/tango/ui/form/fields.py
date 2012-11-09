@@ -3,14 +3,39 @@
 
 from wtforms.compat import text_type
 from wtforms import SelectField, Field
+from wtforms.ext.dateutil.fields import DateTimeField, DateField
 
-from tango.form.widgets import AreaSelectWidget
+from tango.ui.form.widgets import AreaSelectWidget
 
 class SelectFieldPro(SelectField):
     def __init__(self, label=None, validators=None, coerce=text_type, choices=None, **kwargs):
         if callable(choices):
             choices = choices()
         super(SelectFieldPro, self).__init__(label, validators, coerce, choices, **kwargs)
+
+class DateTimeFieldPro(DateTimeField):
+    '''允许日期时间为空'''
+    def __init__(self, label=None, validators=None, parse_kwargs=None,
+                 display_format='%Y-%m-%d', **kwargs):
+        super(DateTimeFieldPro, self).__init__(label, validators, parse_kwargs=parse_kwargs, display_format=display_format, **kwargs)
+
+    def process_formdata(self, valuelist):
+        if valuelist:
+            date_str = ' '.join(valuelist)
+            if not date_str:
+                self.data = None
+            else:
+                super(DateTimeFieldPro, self).process_formdata(valuelist)
+
+class DateFieldPro(DateTimeFieldPro):
+    def __init__(self, label=None, validators=None, parse_kwargs=None,
+                 display_format='%Y-%m-%d', **kwargs):
+        super(DateFieldPro, self).__init__(label, validators, parse_kwargs=parse_kwargs, display_format=display_format, **kwargs)
+
+    def process_formdata(self, valuelist):
+        super(DateFieldPro, self).process_formdata(valuelist)
+        if self.data is not None and hasattr(self.data, 'date'):
+            self.data = self.data.date()
         
 
 class AreaSelectField(Field):

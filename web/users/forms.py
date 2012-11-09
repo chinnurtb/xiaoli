@@ -5,7 +5,7 @@ import re
 
 from wtforms import BooleanField 
 from wtforms import validators as v
-from tango.form.fields import SelectFieldPro
+from tango.ui.form.fields import SelectFieldPro
 from .models import Domain, Role
 
 from flask_wtf import (Form, TextField, PasswordField, HiddenField,

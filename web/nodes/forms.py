@@ -7,11 +7,11 @@ from wtforms import validators as v
 from .models import NodeEoc, NodeOlt, NODE_STATUS_DICT, Area, Vendor, Model,SNMP_VER_DICT
 
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
-from flask_wtf import (Form, TextField, DecimalField, DateTimeField,NumberRange,SubmitField,RadioField,
+from flask_wtf import (Form, TextField, DecimalField,NumberRange,SubmitField,RadioField,
                        TextAreaField, ValidationError, required, equal_to, email)
 
-from tango.form.forms import FormPro
-from tango.form.fields import SelectFieldPro, AreaSelectField
+from tango.ui.form.forms import FormPro
+from tango.ui.form.fields import SelectFieldPro, AreaSelectField, DateTimeFieldPro, DateFieldPro
 from tango.ui.tables.utils import Attrs
 from tango.models import  Category
 
@@ -99,7 +99,7 @@ class EocNewForm(FormPro):
     owner           = TextField(u'维护人员')
     contact_tel     = TextField(u'联系电话')
     location        = TextField(u'安装地址')
-    install_time    = DateTimeField(u'安装时间')
+    install_time    = DateFieldPro(u'安装时间')
     remark          = TextAreaField(u'备注信息')
 
 class CpeNewForm(FormPro):
@@ -119,7 +119,7 @@ class CpeNewForm(FormPro):
     card_id         = TextField(u'身份证号')
     contact_tel     = TextField(u'联系电话')
     location        = TextField(u'安装地址')
-    install_time    = DateTimeField(u'安装时间')
+    install_time    = DateFieldPro(u'安装时间')
     remark          = TextAreaField(u'备注信息')
 
 class SwitchNewForm(FormPro):
