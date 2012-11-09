@@ -6,18 +6,18 @@
 
 {% block content %}
     
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        {% for category, message in messages %}
-            <div class="alert alert-{{ category }}">{{ message }}</div> 
-        {% endfor %}
-      {% endif %}
-    {% endwith %}
-    
     <div id="login" class="login">
 
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div> 
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
         {% from "tango/_form_h.html" import render_fields %}
-        <form id="loginform" method="POST" action="/login" class="form">
+        <form id="loginform" method="POST" action="/login" class="form" style="margin-left:0px;">
             {{ render_fields(form, '登录') }}
         </form>
 
