@@ -9,7 +9,7 @@ from wtforms import BooleanField
 
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 
-from tango.form.fields import SelectFieldPro
+from tango.ui.form.fields import SelectFieldPro
 
 from .models import AlarmSeverity, AlarmClass
 

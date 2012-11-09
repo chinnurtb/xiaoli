@@ -6,7 +6,7 @@
 from flask_wtf.form import Form
 from jinja2 import Markup
 from tango.ui.tables.utils import Attrs, AttributeDict
-from tango.form.widgets import Media
+from tango.ui.form.widgets import Media
 
 class  FormPro(Form):
     class Meta:
