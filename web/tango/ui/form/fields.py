@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 
 from wtforms.compat import text_type
-from wtforms import SelectField, Field
-from wtforms.ext.dateutil.fields import DateTimeField, DateField
+from wtforms import SelectField, Field, DecimalField
+from wtforms.ext.dateutil.fields import DateTimeField
 
 from tango.ui.form.widgets import AreaSelectWidget
 
@@ -36,7 +36,17 @@ class DateFieldPro(DateTimeFieldPro):
         super(DateFieldPro, self).process_formdata(valuelist)
         if self.data is not None and hasattr(self.data, 'date'):
             self.data = self.data.date()
-        
+
+class DecimalFieldPro(DecimalField):
+    def __init__(self, label=None, validators=None, places=2, rounding=None, **kwargs):
+        super(DecimalFieldPro, self).__init__(label=label, validators=validators, places=places, rounding=rounding, **kwargs)
+
+    def process_formdata(self, valuelist):
+        if valuelist:
+            if valuelist[0] == '':
+                self.data = None
+            else:
+                super(DecimalFieldPro, self).process_formdata(valuelist)
 
 class AreaSelectField(Field):
     widget = AreaSelectWidget()

@@ -7,11 +7,11 @@ from wtforms import validators as v
 from .models import NodeEoc, NodeOlt, NODE_STATUS_DICT, Area, Vendor, Model,SNMP_VER_DICT
 
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
-from flask_wtf import (Form, TextField, DecimalField,NumberRange,SubmitField,RadioField,
-                       TextAreaField, ValidationError, required, equal_to, email)
+from flask_wtf import TextField,RadioField,TextAreaField, required
+from wtforms.validators import IPAddress, NoneOf
 
 from tango.ui.form.forms import FormPro
-from tango.ui.form.fields import SelectFieldPro, AreaSelectField, DateTimeFieldPro, DateFieldPro
+from tango.ui.form.fields import SelectFieldPro, AreaSelectField, DateFieldPro, DecimalFieldPro
 from tango.ui.tables.utils import Attrs
 from tango.models import  Category
 
@@ -26,7 +26,7 @@ class NodeNewForm(FormPro):
     alias           = TextField(u'节点别名', validators=[required(message=u'必填')])
     category_id     = SelectFieldPro(u'节点类型',validators=[required(message=u'必填')],
         choices=lambda: [('', u'请选择节点类型')] + [(unicode(r.id), r.alias) for r in Category.query.filter(Category.obj=="node").filter(Category.is_valid==1)])
-    addr            = TextField(u'IP 地址', validators=[required(message=u'必填')])
+    addr            = TextField(u'IP 地址', validators=[required(message=u'必填'), IPAddress(message=u'IP地址格式不正确'), NoneOf(['0.0.0.0','255.255.255.255'], message=u'IP地址格式不正确')])
     snmp_comm       = TextField(u'读团体名', validators=[required(message=u'必填')])
     snmp_wcomm      = TextField(u'写团体名', validators=[required(message=u'必填')])
     snmp_ver       = RadioField(u'SNMP版本',default=SNMP_VER_DICT.keys()[0], validators=[required(message=u'必填')],
@@ -63,7 +63,7 @@ class OltNewForm(FormPro):
         choices=lambda: [('', u'请选择分局')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==3)])
     name            = TextField(u'OLT名称', validators=[required(message=u'必填')])
     alias           = TextField(u'OLT别名', validators=[required(message=u'必填')])
-    addr            = TextField(u'IP 地址', validators=[required(message=u'必填')])
+    addr            = TextField(u'IP 地址', validators=[required(message=u'必填'), IPAddress(message=u'IP地址格式不正确'), NoneOf(['0.0.0.0','255.255.255.255'], message=u'IP地址格式不正确')])
     snmp_comm       = TextField(u'读团体名', validators=[required(message=u'必填')])
     snmp_wcomm      = TextField(u'写团体名', validators=[required(message=u'必填')])
     snmp_ver       = RadioField(u'SNMP版本',default=SNMP_VER_DICT.keys()[0], validators=[required(message=u'必填')],
@@ -85,7 +85,7 @@ class EocNewForm(FormPro):
         choices=lambda: [('', u'请选择分局')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==3)])
     name            = TextField(u'EOC名称', validators=[required(message=u'必填')])
     alias           = TextField(u'EOC别名', validators=[required(message=u'必填')])
-    addr            = TextField(u'IP 地址', validators=[required(message=u'必填')])
+    addr            = TextField(u'IP 地址', validators=[required(message=u'必填'), IPAddress(message=u'IP地址格式不正确'), NoneOf(['0.0.0.0','255.255.255.255'], message=u'IP地址格式不正确')])
     snmp_comm       = TextField(u'读团体名', validators=[required(message=u'必填')])
     snmp_wcomm      = TextField(u'写团体名', validators=[required(message=u'必填')])
     snmp_ver       = RadioField(u'SNMP版本',default=SNMP_VER_DICT.keys()[0], validators=[required(message=u'必填')],
@@ -131,7 +131,7 @@ class SwitchNewForm(FormPro):
         choices=lambda: [('', u'请选择接入点')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==4)])
     name            = TextField(u'交换机名称', validators=[required(message=u'必填')])
     alias           = TextField(u'交换机别名', validators=[required(message=u'必填')])
-    addr            = TextField(u'IP 地址', validators=[required(message=u'必填')])
+    addr            = TextField(u'IP 地址', validators=[required(message=u'必填'), IPAddress(message=u'IP地址格式不正确'), NoneOf(['0.0.0.0','255.255.255.255'], message=u'IP地址格式不正确')])
     snmp_comm       = TextField(u'读团体名', validators=[required(message=u'必填')])
     snmp_wcomm       = TextField(u'写团体名', validators=[required(message=u'必填')])
     snmp_ver       = RadioField(u'SNMP版本',default=SNMP_VER_DICT.keys()[0], validators=[required(message=u'必填')],
@@ -149,7 +149,7 @@ class RouterNewForm(FormPro):
         choices=lambda: [('', u'请选择接入点')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==4)])
     name            = TextField(u'路由器名称', validators=[required(message=u'必填')])
     alias           = TextField(u'路由器别名', validators=[required(message=u'必填')])
-    addr            = TextField(u'IP 地址', validators=[required(message=u'必填')])
+    addr            = TextField(u'IP 地址', validators=[required(message=u'必填'), IPAddress(message=u'IP地址格式不正确'), NoneOf(['0.0.0.0','255.255.255.255'], message=u'IP地址格式不正确')])
     snmp_comm       = TextField(u'读团体名', validators=[required(message=u'必填')])
     snmp_wcomm       = TextField(u'写团体名', validators=[required(message=u'必填')])
     snmp_ver       = RadioField(u'SNMP版本',default=SNMP_VER_DICT.keys()[0], validators=[required(message=u'必填')],
@@ -165,7 +165,7 @@ class OnuNewForm(FormPro):
         choices=lambda: [('', u'请选择接入点')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==4)])
     name            = TextField(u'ONU名称', validators=[required(message=u'必填')])
     alias           = TextField(u'ONU别名', validators=[required(message=u'必填')])
-    addr            = TextField(u'IP 地址', validators=[required(message=u'必填')])
+    addr            = TextField(u'IP 地址', validators=[required(message=u'必填'), IPAddress(message=u'IP地址格式不正确'), NoneOf(['0.0.0.0','255.255.255.255'], message=u'IP地址格式不正确')])
     snmp_comm       = TextField(u'读团体名', validators=[required(message=u'必填')])
     snmp_wcomm      = TextField(u'写团体名', validators=[required(message=u'必填')])
     snmp_ver       = RadioField(u'SNMP版本',default=SNMP_VER_DICT.keys()[0], validators=[required(message=u'必填')],
@@ -245,8 +245,8 @@ class AreaStatisticsForm(FormPro):
 class CityNewForm(FormPro):
     name            = TextField(u'地市名称', validators=[required(message=u'必填')])
     alias           = TextField(u'地市别名', validators=[required(message=u'必填')])
-    longitude       = DecimalField(u'经度', default=0)
-    latitude        = DecimalField(u'纬度', default=0)
+    longitude       = DecimalFieldPro(u'经度')
+    latitude        = DecimalFieldPro(u'纬度')
     remark          = TextAreaField(u'备注')
 
 class TownNewForm(FormPro):
@@ -254,8 +254,8 @@ class TownNewForm(FormPro):
         choices=lambda: [('', u'请选择地市')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==1)])
     name            = TextField(u'区县名称', validators=[required(message=u'必填')])
     alias           = TextField(u'区县别名', validators=[required(message=u'必填')])
-    longitude       = DecimalField(u'经度', default=0)
-    latitude        = DecimalField(u'纬度', default=0)
+    longitude       = DecimalFieldPro(u'经度')
+    latitude        = DecimalFieldPro(u'纬度')
     remark          = TextAreaField(u'备注')
 
 class BranchNewForm(FormPro):
@@ -265,8 +265,8 @@ class BranchNewForm(FormPro):
         choices=lambda: [('', u'请选择区县')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==2)])
     name            = TextField(u'分局名称', validators=[required(message=u'必填')])
     alias           = TextField(u'分局别名', validators=[required(message=u'必填')])
-    longitude       = DecimalField(u'经度', default=0)
-    latitude        = DecimalField(u'纬度', default=0)
+    longitude       = DecimalFieldPro(u'经度')
+    latitude        = DecimalFieldPro(u'纬度')
     remark          = TextAreaField(u'备注')
 
 class EntranceNewForm(FormPro):
@@ -278,7 +278,7 @@ class EntranceNewForm(FormPro):
         choices=lambda: [('', u'请选择分局')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==3)])
     name            = TextField(u'接入点名称', validators=[required(message=u'必填')])
     alias           = TextField(u'接入点别名', validators=[required(message=u'必填')])
-    longitude       = DecimalField(u'经度', default=0)
-    latitude        = DecimalField(u'纬度', default=0)
+    longitude       = DecimalFieldPro(u'经度')
+    latitude        = DecimalFieldPro(u'纬度')
     remark          = TextAreaField(u'备注')
 
