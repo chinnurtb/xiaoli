@@ -2,10 +2,10 @@
 
 {% set title = '登录' %}
 
+{% set page = 'login' %}
+
 {% block content %}
-
-    <h1>登录</h1>
-
+    
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
         {% for category, message in messages %}
@@ -13,11 +13,15 @@
         {% endfor %}
       {% endif %}
     {% endwith %}
+    
+    <div id="login" class="login">
 
-    {% from "tango/_form_h.html" import render_fields %}
-    <form method="POST" action="/login" class="form-horizontal">
-        {{ render_fields(form, '登录') }}
-    </form>
+        {% from "tango/_form_h.html" import render_fields %}
+        <form id="loginform" method="POST" action="/login" class="form">
+            {{ render_fields(form, '登录') }}
+        </form>
+
+    </div>
 
 {% endblock %}
 

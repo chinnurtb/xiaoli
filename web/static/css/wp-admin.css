@@ -4923,7 +4923,7 @@ a.rsswidget {
 }
 #login {
     margin: auto;
-    padding: 114px 0 0;
+    padding: 90px 0 0;
     width: 320px;
 }
 #login_error, .login .message {
@@ -4938,8 +4938,10 @@ a.rsswidget {
 #backtoblog {
     padding: 12px 16px 0;
 }
-.login form .input, .login input[type="text"] {
-    background: none repeat scroll 0 0 #FBFBFB;
+
+
+.login form .input, .login input[type="text"], .login input[type="password"] {
+/*    background: none repeat scroll 0 0 #FBFBFB;
     border: 1px solid #E5E5E5;
     box-shadow: 1px 1px 2px rgba(200, 200, 200, 0.2) inset;
     color: #555555;
@@ -4950,9 +4952,10 @@ a.rsswidget {
     margin-right: 6px;
     margin-top: 2px;
     outline: 0 none;
-    padding: 3px;
-    width: 100%;
+    padding: 3px;*/
+    width: 95%;
 }
+
 .login #pass-strength-result {
     border-style: solid;
     border-width: 1px;

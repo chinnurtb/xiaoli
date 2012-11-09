@@ -38,6 +38,10 @@
 
 	<script>$(function(){ $(".alert").alert() }); </script>
 
+    <style>
+        body { background-color: #FBFBFB; }
+    </style>
+
 	{% block head %} {% endblock %}
 </head>
 
@@ -81,7 +85,7 @@
 	</div>
 </div>
 
-<div class="container-fluid" style="margin-top:52px;">
+<div class="container-fluid" {% if page != 'login' %} style="margin-top:52px;" {% endif %}>
 
     {% block screen_meta %} {% endblock %}
 
