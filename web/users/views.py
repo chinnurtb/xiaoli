@@ -36,9 +36,7 @@ def login():
         password = form.password.data
         next = form.next.data
         user, authenticated = User.authenticate(username, password)
-        DEBUG = True # For DEBUG
-        print 'DEBUG::', DEBUG
-        if user and authenticated or DEBUG: 
+        if user and authenticated:
             remember = (form.remember.data == 'y')
             if login_user(user, remember = remember):
                 #flash(u'登录成功', 'success')
