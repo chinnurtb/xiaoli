@@ -3,7 +3,7 @@
 
 from wtforms.compat import text_type
 from wtforms import SelectField, Field, DecimalField
-from wtforms.ext.dateutil.fields import DateTimeField
+from wtforms.fields import DateTimeField
 
 from tango.ui.form.widgets import AreaSelectWidget
 
@@ -15,9 +15,8 @@ class SelectFieldPro(SelectField):
 
 class DateTimeFieldPro(DateTimeField):
     '''允许日期时间为空'''
-    def __init__(self, label=None, validators=None, parse_kwargs=None,
-                 display_format='%Y-%m-%d', **kwargs):
-        super(DateTimeFieldPro, self).__init__(label, validators, parse_kwargs=parse_kwargs, display_format=display_format, **kwargs)
+    def __init__(self, label=None, validators=None, format='%Y-%m-%d %H:%M:%S', **kwargs):
+        super(DateTimeFieldPro, self). __init__(label=label, validators=validators, format=format, **kwargs)
 
     def process_formdata(self, valuelist):
         if valuelist:
@@ -28,9 +27,8 @@ class DateTimeFieldPro(DateTimeField):
                 super(DateTimeFieldPro, self).process_formdata(valuelist)
 
 class DateFieldPro(DateTimeFieldPro):
-    def __init__(self, label=None, validators=None, parse_kwargs=None,
-                 display_format='%Y-%m-%d', **kwargs):
-        super(DateFieldPro, self).__init__(label, validators, parse_kwargs=parse_kwargs, display_format=display_format, **kwargs)
+    def __init__(self, label=None, validators=None, format='%Y-%m-%d', **kwargs):
+        super(DateFieldPro, self).__init__(label, validators, format, **kwargs)
 
     def process_formdata(self, valuelist):
         super(DateFieldPro, self).process_formdata(valuelist)
