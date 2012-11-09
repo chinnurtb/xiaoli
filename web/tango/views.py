@@ -34,6 +34,7 @@ def nested_dict(name, form):
             dict[m.group(1)] = form[key]
     return dict
 
+
 @tangoview.route('/shell', methods=['GET', 'POST'])
 def shell():
     if current_user.username != 'root':

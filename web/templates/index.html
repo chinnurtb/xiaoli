@@ -104,13 +104,7 @@
 		
 {% block welcome %}
 
-<div id="welcome-panel" class="welcome-panel {% if not dashboard.welcome == '1' %} hidden {% endif %}">
-    <input id="welcomepanelnonce" name="welcomepanelnonce" value="b125a460c3" type="hidden"><a class="welcome-panel-close" href="#">关闭</a>
-
-    <div class="welcome-panel-content">
-        <div class="welcome-panel-column-container"> 欢迎使用OPENGOSS融合接入层网管... </div>
-    </div>
-</div>
+{% include "_welcome.html" %}
 
 {% endblock %}
 

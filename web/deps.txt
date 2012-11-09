@@ -1,3 +1,4 @@
+MarkupSafe
 Flask
 Flask-Script
 Flask-Cache
