@@ -65,7 +65,7 @@
             {% from 'tango/_dashboard_h.html' import render_metabox %}
             {{ render_metabox(dashboard) }}
             <label for="wp_welcome_panel-hide">
-                <input id="wp_welcome_panel-hide" type="checkbox" {% if dashboard.welcome %} checked="checked" {% endif %}>
+                <input id="wp_welcome_panel-hide" type="checkbox" {% if dashboard.welcome == '1' %} checked="checked" {% endif %}>
                 欢迎页
             </label>
             <br class="clear">
