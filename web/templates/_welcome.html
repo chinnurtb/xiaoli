@@ -1,9 +1,7 @@
-
-<div id="welcome-panel" class="welcome-panel hidden">
-    <input id="welcomepanelnonce" name="welcomepanelnonce" value="b125a460c3" type="hidden">	<a class="welcome-panel-close" href="http://wp34.webim20.cn/wp-admin/?welcome=0">Close</a>
-
+<div id="welcome-panel" class="welcome-panel {% if not dashboard.welcome == '1' %} hidden {% endif %}">
+    <input id="welcomepanelnonce" name="welcomepanelnonce" value="b125a460c3" type="hidden"><a class="welcome-panel-close" href="#">关闭</a>
     <div class="welcome-panel-content">
-        <div class="welcome-panel-column-container"> 欢迎使用新Dashboard... </div>
+        <div class="welcome-panel-column-container"> 欢迎使用NGB综合网管系统. </div>
     </div>
 </div>
 
