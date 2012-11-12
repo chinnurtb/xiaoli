@@ -33,6 +33,21 @@ jQuery.fn.select_change_ajax = function(config) {
             }
         });
     });
+    if($select.val() != "") {
+        var select_value = $("#"+default_config.id).val();
+        $.get(default_config.url, {key: $select.val()},function(data) {
+            var data = eval("("+data+")");
+            var options = [make_option('',default_config.option)];
+            for(var i=0; i< data.length; i++) {
+                options.push(make_option(data[i].value,data[i].name));
+            }
+            $("#"+default_config.id).html(options.join(""));
+            for(var i=0; i< default_config.empty.length; i++) {
+                empty_options(default_config.empty[i]);
+            }
+            $("#"+default_config.id).find("option[value='"+select_value+"']").attr("selected","selected");
+        });
+    }
 };
 
 $(function(){

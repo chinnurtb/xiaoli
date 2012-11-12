@@ -15,7 +15,7 @@ from tango.login import current_user, login_required
 from tango.models import Profile, Category
 from tango.excel.CsvExport import CsvExport
 
-from .models import Node, Area, Vendor, NODE_STATUS_DICT
+from .models import Node, Area, Vendor, NODE_STATUS_DICT, Model
 from .forms import NodeNewForm, NodeSearchForm
 from .tables import NodeTable
 
@@ -208,7 +208,11 @@ def nodes_delete():
 @nodeview.route('/nodes/ajax_models_for_vendor', methods=['GET'])
 def ajax_models_for_vendor():
     vendor_id = request.args.get('key')
-    models = Vendor.query.get(vendor_id).models
+    category_id = request.args.get('category_id')
+    if category_id:
+        models = Model.query.filter(Model.vendor_id==vendor_id).filter(Model.category_id==category_id)
+    else:
+        models = Vendor.query.get(vendor_id).models
     return json.dumps([{'value':model.id, 'name':model.alias} for model in models])
 
 @nodeview.route('/nodes/ajax_towns_for_city', methods=['GET'])

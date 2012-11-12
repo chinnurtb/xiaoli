@@ -9,7 +9,7 @@
         $(function() {
             $("#vendor_id").select_change_ajax({
                 id: "model_id",
-                url: "{{ url_for('nodes.ajax_models_for_vendor') }}",
+                url: "/nodes/ajax_models_for_vendor?category_id=21",
                 option: "请选择型号"
             });
             $("#controller_id").select_change_ajax({
