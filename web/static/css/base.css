@@ -536,7 +536,7 @@ label em {
     border: 1px solid #DDD;
     -webkit-border-radius: 15px;
     -moz-border-radius: 15px;
-    border-radius: 4px;
+    border-radius: 3px;
 }
 
 .accordion-toggle {
