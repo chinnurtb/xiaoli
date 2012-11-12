@@ -22,11 +22,9 @@ class QueryNewForm(Form):
     is_public   = BooleanField()
 
 class AlarmAckForm(Form):
-    id              = HiddenField(u'Id')
     acked_note        = TextAreaField(u'确认说明', validators=[required(message=u'必填')])
 
 class AlarmClearForm(Form):
-    id              = HiddenField(u'Id')
     cleared_note    = TextAreaField(u'清除说明', validators=[required(message=u'必填')])
  
 class AlarmClassForm(Form):
