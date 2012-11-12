@@ -8,10 +8,9 @@
 
     <script type="text/javascript">
         $(function() {
-            $(".datepicker").datepicker({format: "yyyy-mm-dd"});
-            $("#vendor_id").select_change_ajax({
-                id: "model_id",
-                url: "{{ url_for('nodes.ajax_models_for_vendor') }}",
+            $("#vendor").select_change_ajax({
+                id: "model",
+                url: "/nodes/ajax_models_for_vendor?category_id=50",
                 option: "请选择型号"
             });
             $("#cityid").select_change_ajax({
