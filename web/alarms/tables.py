@@ -33,8 +33,8 @@ class NodeLinkColumn(t.BaseLinkColumn):
 
 class AlarmTable(t.Table):
     
-    ack         = t.Action(name=u'确认', endpoint='alarms.alarms_ack')
-    clear       = t.Action(name=u'清除', endpoint='alarms.alarms_clear')
+    ack         = t.Action(name=u'确认', endpoint='alarms.alarms_ack', modalable=True)
+    clear       = t.Action(name=u'清除', endpoint='alarms.alarms_clear', modalable=True)
 
     check       = t.CheckBoxColumn()
 

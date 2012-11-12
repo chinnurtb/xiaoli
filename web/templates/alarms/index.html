@@ -58,7 +58,8 @@
     </div>
 
     <div class="span10">
-        <ul class="subsubsub">
+      {% include "_alert.html" %}
+          <ul class="subsubsub">
             <li><a href="/alarms">全部<span class="count">({{total}})</span></a>|</li>
             {% for severity in severities %}
             <li class="alarm-{{ severity.name }}"><a {% if request.args['severity'] == severity.name %} class="current" {% endif %} href="/alarms?severity={{ severity.name }}">{{ severity.alias }}<span class="count">({{ severity.count }})</span></a> {{ '|' if not loop.last }} </li>
@@ -124,6 +125,7 @@
         </div>
         
     </div>
+    <div class="modal hide fade" id="myModal"></div>
 </div>
 <script type="text/javascript">
     $(".datepicker").datepicker({format: "yyyy-mm-dd"});

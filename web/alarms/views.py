@@ -96,9 +96,20 @@ def alarms_ack(id):
         alarm.acked_note = form.acked_note.data
         db.session.commit()
         return redirect(url_for('.index'))
-    else: # request.method == 'GET':
-        form.process(obj=alarm)
-        return render_template('alarms/ack.html', alarm=alarm, form=form)
+        
+    elif form.errors:
+        flash(u'确认表单有误', 'error')
+        return redirect(url_for('.index'))
+        
+    # request.method == 'GET':
+    form.process(obj=alarm)
+    kwargs = {
+        'title'  : u'确认: %s / %s' % (alarm.node_alias, alarm.alarm_alias),
+        'action' : url_for('alarms.alarms_ack', id=id),
+        'form'   : form,
+    }
+    return render_template('tango/_modal.html', **kwargs)
+    
 
 @alarmview.route('/alarms/clear/<int:id>', methods=['GET', 'POST'])
 def alarms_clear(id=None):
@@ -113,9 +124,18 @@ def alarms_clear(id=None):
         alarm.cleared_note = form.cleared_note.data
         db.session.commit()
         return redirect(url_for('.index'))
-    else:
-        form.process(obj=alarm)
-        return render_template('alarms/clear.html', alarm=alarm, form=form)
+        
+    elif form.errors:
+        flash(u'清除表单有误', 'error')
+        return redirect(url_for('.index'))
+        
+    form.process(obj=alarm)
+    kwargs = {
+        'title'  : u'清除: %s / %s' % (alarm.node_alias, alarm.alarm_alias),
+        'action' : url_for('alarms.alarms_clear', id=id),
+        'form'   : form,
+    }
+    return render_template('tango/_modal.html', **kwargs)
 
 @alarmview.route('/histories')
 def histories():
