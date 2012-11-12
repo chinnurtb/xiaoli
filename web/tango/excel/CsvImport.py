@@ -123,7 +123,7 @@ class CsvImport(object):
             return u'%s不能为空; ' % column.name_cn, data
         if data == "":                                  # 如果单元格为空，返回默认值
             return '', column.default
-        if column.format and not column.format(data):   # 验证数据格式
+        if column.format and callable(column.format) and not column.format(data):   # 验证数据格式
             return u'%s格式不正确; ' % column.name_cn, data
         if column.existed_data:
             if column.existed_data.has_key(data):

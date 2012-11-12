@@ -1,18 +1,31 @@
 {% extends 'layout.html' %}
 
 {% block head %}
+    <link rel="stylesheet" href="/static/css/node.css" type="text/css" media="screen" />
     <style type="text/css">
         .widefat tbody th.check-column {
             padding: 7px 0 7px 0;
         }
     </style>
     <script type="text/javascript" src="/static/js/node.js"></script>
+    <script type="text/javascript">
+        $(function(){
+            $("#delete_btn").click(function() {
+                var ids = $("#node_form").find("input[name^=id]:checked");;
+                if(ids.length > 0){
+                    if(confirm("确认删除这些区县?")) {
+                        $("#node_form").attr("action","{{ url_for('nodes.towns_delete') }}").submit();
+                    }
+                }else{
+                    alert("请选择区县");
+                }
+                return false;
+            })
+        })
+    </script>
 {% endblock %}
 
-{% from "tango/_table_h.html" import render_table, render_screen_meta %}
-{% block screen_meta %}
-    {{ render_screen_meta(table) }}
-{% endblock %}
+{% from "tango/_table_h.html" import render_table %}
 
 {% block content %}
 
@@ -27,18 +40,26 @@
         {% include "_alert.html" %}
         <form class="form-horizontal" method="GET" action="{{url_for('nodes.towns')}}" id="search_form" style="margin-bottom: 0">
             <div class="tablenav top">
-                <div>
-                    <input type="hidden" name="orderby" value="login">
-                    <input type="hidden" name="order" value="asc">
-                    <div class="btn-group">
+                <div class="alignleft actions">
+                    <div class="alignleft btn-group">
                         <a class="btn btn-small" href="{{ url_for('nodes.towns_new') }}"><i class="icon-plus"></i>添加区县</a>
+                        <a class="btn btn-small" href="#" id="delete_btn"><i class="icon-remove"></i>删除</a>
+                        <a class="btn btn-small" href="{{ url_for('tango.download', file='/static/file/template/towns.csv') }}"><i class="icon-file"></i>模版</a>
+                        <a class="btn btn-small" href="#import_form" data-toggle="modal"><i class="icon-upload"></i>导入</a>
                     </div>
                 </div>
+                <div class="pull-right actions">
+                    <a class="btn btn-small" href="{{ request.url|replace('towns','towns.csv') }}" data-placement="bottom" rel="tooltip" data-original-title="Excel导出"><i class="icon-download-alt"></i></a>
+                </div>
+                <br class="clear">
             </div>
         </form>
         <form action="" method="POST" id="node_form">
             {{ render_table(table) }}
         </form>
+        {% from 'tango/_form_h.html' import render_upload %}
+        {{ render_upload(url_for('nodes.towns_import'), "批量导入区县") }}
+        <br class="clear">
     </div>
 
 </div>
