@@ -230,14 +230,16 @@ def cities_new():
 def cities_edit(id):
     form = CityNewForm()
     area = Area.query.get_or_404(id)
-    if request.method == 'POST' and form.validate_on_submit():
-        form.populate_obj(area)
-        area.updated_at = datetime.now()
-        db.session.add(area)
-        db.session.commit()
-        flash(u'修改地市成功','success')
-        return redirect(url_for('nodes.cities'))
-    form.process(obj=area)
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            form.populate_obj(area)
+            area.updated_at = datetime.now()
+            db.session.add(area)
+            db.session.commit()
+            flash(u'修改地市成功','success')
+            return redirect(url_for('nodes.cities'))
+    else:
+        form.process(obj=area)
     return render_template('/nodes/areas/cities_edit.html', area=area, form=form)
 
 @nodeview.route('/nodes/cities/delete/', methods=['POST'])
@@ -273,14 +275,16 @@ def towns_new():
 def towns_edit(id):
     form = TownNewForm()
     area = Area.query.get_or_404(id)
-    if request.method == 'POST' and form.validate_on_submit():
-        form.populate_obj(area)
-        area.updated_at = datetime.now()
-        db.session.add(area)
-        db.session.commit()
-        flash(u'修改区县成功','success')
-        return redirect(url_for('nodes.towns'))
-    form.process(obj=area)
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            form.populate_obj(area)
+            area.updated_at = datetime.now()
+            db.session.add(area)
+            db.session.commit()
+            flash(u'修改区县成功','success')
+            return redirect(url_for('nodes.towns'))
+    else:
+        form.process(obj=area)
     return render_template('/nodes/areas/towns_edit.html', area=area, form=form)
 
 @nodeview.route('/nodes/towns/delete/', methods=['POST'])
@@ -316,15 +320,17 @@ def branches_new():
 def branches_edit(id):
     form = BranchNewForm()
     area = Area.query.get_or_404(id)
-    if request.method == 'POST' and form.validate_on_submit():
-        del form._fields["cityid"]
-        form.populate_obj(area)
-        area.updated_at = datetime.now()
-        db.session.add(area)
-        db.session.commit()
-        flash(u'修改分局成功','success')
-        return redirect(url_for('nodes.branches'))
-    form.process(obj=area)
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            del form._fields["cityid"]
+            form.populate_obj(area)
+            area.updated_at = datetime.now()
+            db.session.add(area)
+            db.session.commit()
+            flash(u'修改分局成功','success')
+            return redirect(url_for('nodes.branches'))
+    else:
+        form.process(obj=area)
     return render_template('/nodes/areas/branches_edit.html', area=area, form=form)
 
 @nodeview.route('/nodes/branches/delete/', methods=['POST'])
@@ -360,16 +366,18 @@ def entrances_new():
 def entrances_edit(id):
     form = EntranceNewForm()
     area = Area.query.get_or_404(id)
-    if request.method == 'POST' and form.validate_on_submit():
-        del form._fields["cityid"]
-        del form._fields["town"]
-        form.populate_obj(area)
-        area.updated_at = datetime.now()
-        db.session.add(area)
-        db.session.commit()
-        flash(u'修改接入点成功','success')
-        return redirect(url_for('nodes.entrances'))
-    form.process(obj=area)
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            del form._fields["cityid"]
+            del form._fields["town"]
+            form.populate_obj(area)
+            area.updated_at = datetime.now()
+            db.session.add(area)
+            db.session.commit()
+            flash(u'修改接入点成功','success')
+            return redirect(url_for('nodes.entrances'))
+    else:
+        form.process(obj=area)
     return render_template('/nodes/areas/entrances_edit.html', area=area, form=form)
 
 @nodeview.route('/nodes/entrances/delete/', methods=['POST'])

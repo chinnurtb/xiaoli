@@ -75,14 +75,16 @@ def cpes_new():
 def cpes_edit(id):
     form = CpeNewForm()
     node = NodeCpe.query.get_or_404(id)
-    if request.method == 'POST' and form.validate_on_submit():
-        form.populate_obj(node)
-        node.updated_at = datetime.now()
-        db.session.add(node)
-        db.session.commit()
-        flash(u'修改CPE成功','success')
-        return redirect(url_for('nodes.cpes'))
-    form.process(obj=node)
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            form.populate_obj(node)
+            node.updated_at = datetime.now()
+            db.session.add(node)
+            db.session.commit()
+            flash(u'修改CPE成功','success')
+            return redirect(url_for('nodes.cpes'))
+    else:
+        form.process(obj=node)
     return render_template('/nodes/cpes/edit.html', node=node, form=form)
 
 @nodeview.route('/nodes/cpes/delete/', methods=['POST'])

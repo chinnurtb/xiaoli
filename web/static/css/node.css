@@ -29,21 +29,6 @@ span.status-3{
 span.status-4{
     background-color: #43D5FA;
 }
-#search_form {
-    margin-bottom: 5px;
-}
-#search_form label {
-    font-size: 12px;
-}
-#search_form input,#search_form select {
-    font-size: 12px;
-    height: 26px;
-    line-height: 26px;
-    width: 180px;
-}
-select#area_chosen {
-    width: 186px;
-}
 .tablenav .actions {
     padding: 2px 8px 2px 0;
 }

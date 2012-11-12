@@ -76,14 +76,16 @@ def onus_new():
 def onus_edit(id):
     form = OnuNewForm()
     node = NodeOnu.query.get_or_404(id)
-    if request.method == 'POST' and form.validate_on_submit():
-        form.populate_obj(node)
-        node.updated_at = datetime.now()
-        db.session.add(node)
-        db.session.commit()
-        flash(u'修改ONU成功','success')
-        return redirect(url_for('nodes.onus'))
-    form.process(obj=node)
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            form.populate_obj(node)
+            node.updated_at = datetime.now()
+            db.session.add(node)
+            db.session.commit()
+            flash(u'修改ONU成功','success')
+            return redirect(url_for('nodes.onus'))
+    else:
+        form.process(obj=node)
     return render_template('/nodes/onus/edit.html', node=node, form=form)
 
 @nodeview.route('/nodes/onus/delete/', methods=['POST'])

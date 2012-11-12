@@ -77,16 +77,18 @@ def eocs_new():
 def eocs_edit(id):
     form = EocNewForm()
     node = NodeEoc.query.get_or_404(id)
-    if request.method == 'POST' and form.validate_on_submit():
-        del form._fields["cityid"]
-        del form._fields["town"]
-        form.populate_obj(node)
-        node.updated_at = datetime.now()
-        db.session.add(node)
-        db.session.commit()
-        flash(u'修改EOC成功','success')
-        return redirect(url_for('nodes.eocs'))
-    form.process(obj=node)
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            del form._fields["cityid"]
+            del form._fields["town"]
+            form.populate_obj(node)
+            node.updated_at = datetime.now()
+            db.session.add(node)
+            db.session.commit()
+            flash(u'修改EOC成功','success')
+            return redirect(url_for('nodes.eocs'))
+    else:
+        form.process(obj=node)
     return render_template('/nodes/eocs/edit.html', node=node, form=form)
 
 @nodeview.route('/nodes/eocs/delete/', methods=['POST'])

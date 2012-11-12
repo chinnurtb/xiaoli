@@ -77,16 +77,18 @@ def switches_new():
 def switches_edit(id):
     form = SwitchNewForm()
     node = NodeSwitch.query.get_or_404(id)
-    if request.method == 'POST' and form.validate_on_submit():
-        del form._fields["cityid"]
-        del form._fields["town"]
-        form.populate_obj(node)
-        node.updated_at = datetime.now()
-        db.session.add(node)
-        db.session.commit()
-        flash(u'修改交换机成功','success')
-        return redirect(url_for('nodes.switches'))
-    form.process(obj=node)
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            del form._fields["cityid"]
+            del form._fields["town"]
+            form.populate_obj(node)
+            node.updated_at = datetime.now()
+            db.session.add(node)
+            db.session.commit()
+            flash(u'修改交换机成功','success')
+            return redirect(url_for('nodes.switches'))
+    else:
+        form.process(obj=node)
     return render_template('/nodes/switches/edit.html', node=node, form=form)
 
 @nodeview.route('/nodes/switches/delete/', methods=['POST'])
