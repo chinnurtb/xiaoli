@@ -4,11 +4,11 @@
 
 {% block head %} 
 
-{% from "tango/_table_h.html" import render_table_profile %}
+  {% from "tango/_table_h.html" import render_table_profile %}
 
-<script type="text/javascript">
+  <script type="text/javascript">
     {{ render_table_profile(table) }} 
-</script>
+  </script>
 
 {% endblock %}
 
@@ -16,13 +16,13 @@
 
 {% block screen_meta %}
 
-    {{ render_screen_meta(table) }}
+  {{ render_screen_meta(table) }}
 
 {% endblock %}
 
 {% block content %}
 
-<div class="row-fluid content">
+  <div class="row-fluid content">
 
     <div class="span2">
       {% set menuid = 'roles' %}
@@ -30,21 +30,21 @@
     </div>
 
     <div class="span10">
-        {% include "_alert.html" %}
-        <form method="GET" class="form filter-form">
+      {% include "_alert.html" %}
+      <form method="GET" class="form filter-form">
         {% from 'tango/_search_h.html' import render_keyword %}
         <div class="tablenav top">
           
           <div class="alignleft actions">
             <div class="alignleft btn-group">
               <a class="btn btn-small" href="{{url_for('users.roles_new')}}"><i class="icon-plus"></i>新建角色</a>
-              <button class="btn btn-small"><i class="icon-remove"></i>删除</button>
+              <a class="btn btn-small" id="multi-delete-btn"
+                 href="{{ url_for('users.roles_delete_all') }}"><i class="icon-remove"></i>删除</a>
             </div>
           </div>
 
           <div class="alignleft actions">
             {{ render_keyword(form, "角色名称") }}
-    
           </div>
 
           <div class="alignright actions">
@@ -52,14 +52,14 @@
                href="#"><i class="icon-download-alt"></i></a>
           </div>
           <br class="clear">
-	</div>
+        </div>
 
-    </form>
-        {{ render_table(table) }}
-        <br class="clear">
+      </form>
+      {{ render_table(table) }}
+      <br class="clear">
     </div>
-
-</div>
+    <div class="modal hide fade" id="myModal"></div>
+  </div>
 
 {% endblock %}
 

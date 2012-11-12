@@ -20,7 +20,9 @@ __all__ = ['CpuMemTable',
 #  Node
 # ==============================================================================
 class NodeMixin(object):
-    node_alias      = t.Column(u'节点', accessor='node.alias')
+    node_alias      = t.Column(u'节点别名', accessor='node.alias')
+    node_category   = t.Column(u'节点类型', accessor='node.category.name')
+    addr            = t.Column(u'IP', accessor='node.addr')
     sampletime      = t.Column(u'时间', orderable=True)
 
     
