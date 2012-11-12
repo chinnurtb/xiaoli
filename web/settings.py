@@ -26,7 +26,7 @@ SQLALCHEMY_POOL_TIMEOUT = 10
 #redis: RedisCache (Werkzeug 0.7 required)
 #filesystem: FileSystemCacheche config
 
-CACHE_TYPE = "simple"
+CACHE_TYPE = "redis"
 
 
 #Optional list to unpack and pass during the cache class instantiation.
@@ -48,10 +48,10 @@ CACHE_DEFAULT_TIMEOUT = 300
 #CACHE_MEMCACHED_SERVERS =
 
 #A Redis server host. Used only for RedisCache.
-#CACHE_REDIS_HOST = "127.0.0.1"
+CACHE_REDIS_HOST = "127.0.0.1"
 
 #A Redis server port. Default is 6379. Used only for RedisCache.
-#CACHE_REDIS_PORT = 6379
+CACHE_REDIS_PORT = 6379
 
 #A Redis password for server. Used only for RedisCache.
 #CACHE_REDIS_PASSWORD =
