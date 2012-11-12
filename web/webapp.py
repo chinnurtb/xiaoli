@@ -128,6 +128,11 @@ def check_ip():
         print 'IP check failed: ' + str(request.remote_addr)
         abort(403)
 
+def is_ie():
+    if request.headers['User-Agent'].find('MSIE') > -1:
+        return True
+    return False
+
 def check_permissions():
     permissions = current_user.role.permissions
     for p in permissions:
@@ -157,6 +162,10 @@ def before_request():
             return redirect(url_for('users.login', next=request.url))
             
         return None
+        
+    # Forbid IE User
+    if is_ie():
+        return render_template('browsers.html')
 
     # Not Anonymous User
     # Already Login
@@ -169,6 +178,7 @@ def before_request():
            or request.endpoint in SAFE_ENDPOINTS:
             return
         check_permissions()
+
     else:
         abort(403)
 
