@@ -323,6 +323,28 @@ def roles_delete(id):
     return redirect(url_for('users.roles'))
 
     
+@userview.route('/roles/delete/all', methods=['GET', 'POST'])
+def roles_delete_all():
+    if request.method == 'POST':
+        ids = dict(request.values.lists()).get('id', [])
+        for i in ids:
+            cache.delete("role-"+str(i))
+            db.session.delete(Role.query.get(int(i)))
+        db.session.commit()
+        flash(u'成功删除 %d 个角色!' % len(ids) , 'success')
+        return redirect(url_for('users.roles'))
+
+    ids = dict(request.values.lists()).get('id[]', [])
+    roles = Role.query.filter(Role.id.in_([int(i) for i in ids])).all()
+    kwargs = {
+        'title': u'批量删除角色',
+        'action': url_for('users.roles_delete_all'),
+        'fields': [(r.id, u'角色名', r.nameb) for r in roles],
+        'type' : 'delete'
+    }
+    return render_template('tango/_modal_del_all.html', **kwargs)
+
+    
 # ==============================================================================
 #  Domain
 # ==============================================================================
@@ -433,6 +455,28 @@ def domains_delete(id):
         db.session.commit()
         flash(u'管理域(%s)删除成功' % domain.name, 'success')
     return redirect(url_for('users.domains'))
+    
+    
+@userview.route('/domains/delete/all', methods=['GET', 'POST'])
+def domains_delete_all():
+    if request.method == 'POST':
+        ids = dict(request.values.lists()).get('id', [])
+        for i in ids:
+            cache.delete("domain-"+str(i))
+            db.session.delete(Domain.query.get(int(i)))
+        db.session.commit()
+        flash(u'成功删除 %d 个管理域!' % len(ids) , 'success')
+        return redirect(url_for('users.domains'))
+
+    ids = dict(request.values.lists()).get('id[]', [])
+    domains = Domain.query.filter(Domain.id.in_([int(i) for i in ids])).all()
+    kwargs = {
+        'title': u'批量删除管理域',
+        'action': url_for('users.domains_delete_all'),
+        'fields': [(d.id, u'管理域名', d.name) for d in domains],
+        'type' : 'delete'
+    }
+    return render_template('tango/_modal_del_all.html', **kwargs)
     
 
 # ==============================================================================
