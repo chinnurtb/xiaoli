@@ -57,6 +57,7 @@
 </div>
 {% endmacro %}
 
+
 <!-- render pagination the wordpress style -->
 {% macro render_paginate_wordpress(page_obj, page_url) %}
 <div class="tablenav bottom">
@@ -89,13 +90,6 @@
 	    {% endfor %}
 	</tr>
     </thead>
-    <tfoot>
-	<tr>
-	    {% for column in table.columns %}
-            {{ render_column(column, table.page_url, table.page_obj.page) }}
-	    {% endfor %}
-	</tr>
-    </tfoot>
     
     <tbody id="the-list" >
 	{% for row in table.rows %}

@@ -20,7 +20,9 @@
       {% if form %}
         {{ form.hidden_tag() }}
         {% for field in form %}
+          {% if field.id != 'csrf_token' %}
           {{ render_field(field) }}
+          {% endif %}
         {% endfor %}
       {% endif %}
     </fieldset>
