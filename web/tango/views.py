@@ -2,11 +2,11 @@
 
 # coding: utf-8
 
-import re
+import re, os
 
 from tango import db, update_profile
 
-from flask import Blueprint, request, make_response, render_template
+from flask import Blueprint, request, make_response, render_template, send_file
 
 from users.models import User
 
@@ -76,3 +76,10 @@ def dashboard_setting():
 
     return '0'
 
+@tangoview.route('/download', methods = ['get'])
+def download():
+    file = request.args.get("file")
+    if file:
+        root_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),'..')
+        file = os.path.join(root_path, *file.split("/"))
+        return send_file(file,as_attachment=True)

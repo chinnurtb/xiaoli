@@ -146,7 +146,7 @@ def olts_import():
             ).addColumn(
                 ImportColumn(u'别名', 'alias', 'character varying(200)')
             ).addColumn(
-                ImportColumn(u'节点类型', 'category_id', 'integer', allow_null=False, existed_data=dict([(category.alias, category.id) for category in Category.query.filter(Category.is_valid==1)]),)
+                ImportColumn(u'节点类型', 'category_id', 'integer', default=20)
             ).addColumn(
                 ImportColumn(u'IP地址', 'addr', 'character varying(200)', is_key=True)
             ).addColumn(
