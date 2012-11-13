@@ -9,7 +9,7 @@ from flask import json
 from sqlalchemy import func
 
 from tango import db,get_profile
-from tango.ui import navbar, dashboard
+from tango.ui import navbar, dashboard, Dashboard
 from tango.ui.tables import make_table
 from tango.login import current_user, login_required
 from tango.models import Profile, Category
@@ -158,6 +158,32 @@ def categories():
         chart.height = str(len(xAxis_categories)*50 + 100)+"px"
         return render_template('nodes/statistics/category_statistics.html', table = table, chart = chart)
 
+@nodeview.route("/nodes/statistics/category_vendors/")
+@login_required
+def category_vendors():
+    vendors = Vendor.query.filter(Vendor.is_valid==1).order_by(Vendor.id).all()
+    query = db.session.query(func.count(Node.id), Vendor.id, Category.id, Category.alias)
+    query = query.outerjoin(Category, Category.id==Node.category_id)
+    query = query.outerjoin(Vendor, Vendor.id==Node.vendor_id)
+    query = query.group_by(Vendor.id, Category.id, Category.alias).order_by(Category.id)
+    rows = {}
+    for count, vendor, category_id, category_name in query.all():
+        row = rows.get((category_id, category_name), {"total":0})
+        row[vendor] = count
+        row["total"] += count
+        rows[(category_id, category_name)] = row
+    if request.args.get("dashboard"):
+        return render_template('nodes/statistics/_category_vendors.html', vendors = vendors, rows = rows)
+    else:
+        def series(vendor):
+            values = [{'series': vendor.alias,'x': category[1],'y': row_dict.get(vendor.id,0)} for category, row_dict in rows.items()]
+            return {'key': vendor.alias,'values': values}
+        data = [series(vendor) for vendor in vendors]
+        return render_template('nodes/statistics/category_vendors.html', vendors = vendors, rows = rows,
+            chartid = "category_vendors_chart",chartdata = data,)
+
 dashboard.add_widget('category_statistic', u'分类统计', url='/nodes/statistics/categories/?dashboard=true', column = 'side')
 dashboard.add_widget('vendor_statistic', u'厂商统计', url='/nodes/statistics/vendors/?dashboard=true', column = 'side')
 dashboard.add_widget('area_statistic', u'区域统计',url='/nodes/statistics/areas/?dashboard=true', column = 'side')
+dashboard.add_widget('category_vendors', u'设备分类厂商统计',url='/nodes/statistics/category_vendors/?dashboard=true', column = 'side')
+
