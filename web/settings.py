@@ -2,6 +2,9 @@
 
 DEBUG = True
 
+SAFE_ENDPOINTS = ('static', 'users.login', 'users.logout')
+SUPER_USERS = ('root', 'admin')
+
 SECRET_KEY = 'public'
 
 SESSION_COOKIE_NAME = 'xiaoli'
