@@ -44,7 +44,7 @@ class CsvExport(object):
     # format: 格式化字典, key 为columns里的元素，value 为格式化函数，函数参数此列的值
     def export(self, query, is_save=False, format={}):
         return_fileobj = None
-        if type(query).__name__ != 'BaseQuery':
+        if type(query).__name__ != 'BaseQuery' and type(query).__name__ != 'Query':
             raise TypeError('The query argument should be sqlalchemy query object.')
         if not is_save:
             return_fileobj = StringIO()

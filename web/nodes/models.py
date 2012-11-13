@@ -285,7 +285,7 @@ class NodeSwitch(NodeMixin, db.Model):
 
     @staticmethod
     def export_columns():
-        return ['status','name','alias','addr','area.city_name','area.town_name','area.entrance_name','vendor.alias','model.alias','mask','snmp_comm','snmp_wcomm','last_check','location','remark']
+        return ['status','name','alias','addr','area.full_name','vendor.alias','model.alias','mask','snmp_comm','snmp_wcomm','last_check','location','remark']
 
 class NodeRouter(NodeMixin, db.Model):
     """ Routers """
@@ -296,7 +296,7 @@ class NodeRouter(NodeMixin, db.Model):
 
     @staticmethod
     def export_columns():
-        return ['status','name','alias','addr','area.city_name','area.town_name','area.entrance_name','vendor.alias','model.alias','mask','snmp_comm','snmp_wcomm','last_check','location','remark']
+        return ['status','name','alias','addr','area.full_name','vendor.alias','model.alias','mask','snmp_comm','snmp_wcomm','last_check','location','remark']
 
 class NodeHost(NodeMixin, db.Model):
     """ Hosts """
@@ -352,7 +352,7 @@ class NodeOnu(NodeMixin,db.Model):
 
     @staticmethod
     def export_columns():
-        return ['status','name','alias','addr','area.city_name','area.town_name','area.branch_name','area.entrance_name','olt.name','olt.addr','vendor.alias','model.alias','mask','snmp_comm','snmp_wcomm','last_check','location','remark']
+        return ['status','name','alias','addr','area.full_name','olt.name','olt.addr','vendor.alias','model.alias','mask','snmp_comm','snmp_wcomm','last_check','location','remark']
 
 class NodeEoc(NodeMixin, db.Model):
     """ Eocs """
@@ -368,6 +368,10 @@ class NodeEoc(NodeMixin, db.Model):
     def __unicode__(self):
         return u'<EOC %s>' % self.alias
 
+    @staticmethod
+    def export_columns():
+        return ['status','category.alias','name','alias','addr','area.full_name','vendor.alias','model.alias','mask','snmp_comm','snmp_wcomm','snmp_ver','last_check','location','remark']
+
 class NodeCpe(NodeMixin, db.Model):
     """ Cpes """
     __tablename__ = 'node_cpes'
@@ -381,6 +385,10 @@ class NodeCpe(NodeMixin, db.Model):
 
     def __unicode__(self):
         return u'<CPE %s>' % self.alias
+
+    @staticmethod
+    def export_columns():
+        return ['status','name','alias','addr','area.full_name','eoc.name','eoc.addr','vendor.alias','model.alias','mask','snmp_comm','snmp_wcomm','last_check','location','remark']
 
 class Board(db.Model):
     """板卡"""
