@@ -5,17 +5,19 @@
         {% for vendor in vendors %}
             <th>{{ vendor.alias }}</th>
         {% endfor %}
+        <th>未知</th>
         <th>总数</th>
     </tr>
     </thead>
 
     <tbody>
-    {% for category, vendor_dict in rows.items() %}
+    {% for category, vendor_dict in rows|dictsort %}
     <tr>
         <td>{{ category[1] }}</td>
         {% for vendor in vendors %}
             <td>{{ vendor_dict.get(vendor.id,0) }}</td>
         {% endfor %}
+        <td>{{ vendor_dict.get(None,0) }}</td>
         <td>{{ vendor_dict.get("total",0) }}</td>
     </tr>
     {% else %}

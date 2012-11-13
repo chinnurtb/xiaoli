@@ -97,6 +97,28 @@ def vendors():
 @nodeview.route("/nodes/statistics/categories/")
 @login_required
 def categories():
+    query = db.session.query(func.count(Node.id), Node.status, Category.id, Category.alias)
+    query = query.outerjoin(Category, Category.id==Node.category_id)
+    query = query.group_by(Node.status, Category.id, Category.alias).order_by(Category.id)
+    rows = {(u"总数",u"总数"): {}}
+    for count, status, category_id, category_name in query.all():
+        row = rows.get((category_id, category_name), {"total":0})
+        row[status] = count
+        row["total"] += count
+        rows[(u"总数",u"总数")][status] = rows[(u"总数",u"总数")].get(status,0)+count
+        rows[(u"总数",u"总数")]["total"] = rows[(u"总数",u"总数")].get("total",0)+count
+        rows[(category_id, category_name)] = row
+    if request.args.get("dashboard"):
+        return render_template('nodes/statistics/_category_vendors.html', vendors = vendors, rows = rows)
+    else:
+        def series(vendor):
+            values = [{'series': vendor.alias,'x': category[1],'y': row_dict.get(vendor.id,0)} for category, row_dict in sorted(rows.items(), key=lambda d:d[0])]
+            return {'key': vendor.alias,'values': values}
+        data = [series(vendor) for vendor in NODE_STATUS_DICT.items()]
+        data.append({'key': u'未知', 'values': [{'series': u'未知','x': category[1],'y': row_dict.get(None,0)} for category, row_dict in rows.items()]})
+        return render_template('nodes/statistics/category_vendors.html', vendors = vendors, rows = rows,
+            chartid = "category_vendors_chart",chartdata = data,)
+
     query_total = db.session.query(
         Node.category_id,func.count(Node.category_id).label("total_count")
     ).group_by(Node.category_id).subquery()
@@ -166,19 +188,22 @@ def category_vendors():
     query = query.outerjoin(Category, Category.id==Node.category_id)
     query = query.outerjoin(Vendor, Vendor.id==Node.vendor_id)
     query = query.group_by(Vendor.id, Category.id, Category.alias).order_by(Category.id)
-    rows = {}
+    rows = {(u"总数",u"总数"): {}}
     for count, vendor, category_id, category_name in query.all():
         row = rows.get((category_id, category_name), {"total":0})
         row[vendor] = count
         row["total"] += count
+        rows[(u"总数",u"总数")][vendor] = rows[(u"总数",u"总数")].get(vendor,0)+count
+        rows[(u"总数",u"总数")]["total"] = rows[(u"总数",u"总数")].get("total",0)+count
         rows[(category_id, category_name)] = row
     if request.args.get("dashboard"):
         return render_template('nodes/statistics/_category_vendors.html', vendors = vendors, rows = rows)
     else:
         def series(vendor):
-            values = [{'series': vendor.alias,'x': category[1],'y': row_dict.get(vendor.id,0)} for category, row_dict in rows.items()]
+            values = [{'series': vendor.alias,'x': category[1],'y': row_dict.get(vendor.id,0)} for category, row_dict in sorted(rows.items(), key=lambda d:d[0])]
             return {'key': vendor.alias,'values': values}
         data = [series(vendor) for vendor in vendors]
+        data.append({'key': u'未知', 'values': [{'series': u'未知','x': category[1],'y': row_dict.get(None,0)} for category, row_dict in rows.items()]})
         return render_template('nodes/statistics/category_vendors.html', vendors = vendors, rows = rows,
             chartid = "category_vendors_chart",chartdata = data,)
 

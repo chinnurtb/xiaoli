@@ -23,7 +23,7 @@
 
     <div class="span10">
         {% from "_nvd3_chart.html" import multi_bar_chart %}
-        {{ multi_bar_chart(chartid, chartdata, stacked=True,height=180) }}
+        {{ multi_bar_chart(chartid, chartdata, stacked=True) }}
         <table class="wp-list-table widefat fixed" cellspacing="0">
             <thead>
             <tr>
@@ -31,17 +31,19 @@
                 {% for vendor in vendors %}
                     <th>{{ vendor.alias }}</th>
                 {% endfor %}
+                <th>未知</th>
                 <th>总数</th>
             </tr>
             </thead>
 
             <tbody id="the-list" >
-            {% for category, vendor_dict in rows.items() %}
+            {% for category, vendor_dict in rows|dictsort %}
                 <tr class="{{ loop.cycle('alternate-white', '') }}">
                     <td>{{ category[1] }}</td>
                     {% for vendor in vendors %}
                         <td>{{ vendor_dict.get(vendor.id,0) }}</td>
                     {% endfor %}
+                    <td>{{ vendor_dict.get(None,0) }}</td>
                     <td>{{ vendor_dict.get("total",0) }}</td>
                 </tr>
             {% else %}
