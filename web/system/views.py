@@ -38,7 +38,6 @@ def inject_navid():
 @sysview.route('/system/')
 @sysview.route('/system/settings/')
 def settings():
-    #TODO: SettingTable()
     table = make_table(Setting.query, SettingTable)
     return render_template('/system/settings/index.html', table=table)
     

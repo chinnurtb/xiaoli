@@ -169,14 +169,6 @@ def ponpower():
 # ==============================================================================
 #  Other
 # ==============================================================================    
-@perfview.route('/olts/')
-def olts():
-    return render_template('perf/olts/index.html')
-
-@perfview.route('/olt_boards/')
-def olt_boards():
-    return render_template('/perf/boards/index.html')
-
 @perfview.route('/demo-table')
 def demo_table():
     return render_template('perf/demo_table.html')

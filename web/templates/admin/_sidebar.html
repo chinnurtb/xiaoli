@@ -3,8 +3,9 @@
 
 {{ render_sidebar('系统管理', menuid, [
     ('categories',   '分类',     url_for('admin.categories')),
+    ('permissions',   '权限',     url_for('admin.permissions')),
     ('vendors',     '供应商',     url_for('admin.vendors')),
-    ('models',      '型号',     url_for('admin.models')),
+    ('models',      '型号',      url_for('admin.models')),
     ('sysoids',     'SysOID',     url_for('admin.sysoids')),
     ('modules',     '监控模块',     url_for('admin.modules')),
     ('monitors',    '监控器',     url_for('admin.monitors')),])

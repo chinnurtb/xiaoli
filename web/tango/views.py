@@ -33,32 +33,10 @@ def nested_dict(name, form):
             dict[m.group(1)] = form[key]
     return dict
 
-
-MODULE_TEXT_DICT = {
-    'tango'  : u'公共',
-    'home'   : u'首页',
-    'topo'   : u'拓扑管理',
-    'nodes'  : u'节点管理',
-    'alarms' : u'故障管理',
-    'perf'   : u'性能管理',
-    'report' : u'报表管理',
-    'users'  : u'用户管理',
-    'system' : u'系统管理',
-    'admin'  : u'后台管理',
-}
-    
-OPERATIONS = {
-    'new'             : u'新建',
-    'edit'            : u'编辑',
-    'delete'          : u'删除',
-    ('delete', 'all') : u'批量删除',
-}
-
 def rebuild_permissions():
     from flask import current_app
     from users.models import Permission
     
-    perm_records = []
     for rule in current_app.url_map.iter_rules():
         endpoint = rule.endpoint
         if endpoint in current_app.config['SAFE_ENDPOINTS']:
