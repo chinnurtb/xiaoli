@@ -17,7 +17,7 @@
 <div class="row-fluid content">
 
     <div class="span2">
-        {% set menuid = 'category_vendors' %}
+        {% set menuid = 'categories' %}
         {% include 'nodes/_sidebar.html' %}
     </div>
 
@@ -28,10 +28,9 @@
             <thead>
             <tr>
                 <th>设备类型</th>
-                {% for vendor in vendors %}
-                    <th>{{ vendor.alias }}</th>
+                {% for status,status_name in NODE_STATUS_DICT|dictsort %}
+                    <th>{{ status_name }}</th>
                 {% endfor %}
-                <th>未知</th>
                 <th>总数</th>
             </tr>
             </thead>
@@ -40,10 +39,9 @@
             {% for category, vendor_dict in rows|dictsort %}
                 <tr class="{{ loop.cycle('alternate-white', '') }}">
                     <td>{{ category[1] }}</td>
-                    {% for vendor in vendors %}
-                        <td>{{ vendor_dict.get(vendor.id,0) }}</td>
+                    {% for status,status_name in NODE_STATUS_DICT|dictsort %}
+                        <td>{{ vendor_dict.get(status,0) }}</td>
                     {% endfor %}
-                    <td>{{ vendor_dict.get(None,0) }}</td>
                     <td>{{ vendor_dict.get("total",0) }}</td>
                 </tr>
             {% else %}
