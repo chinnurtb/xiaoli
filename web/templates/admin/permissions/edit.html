@@ -14,7 +14,7 @@
             {{ render_form_title(request, title) }}
 	    {{ form.hidden_tag() }}
             
-            {{ render_field(form.endpoint, disabled="disabled") }}
+            {{ render_field(form.endpoint, readonly="readonly") }}
             {{ render_field(form.module_text) }}
             {{ render_field(form.name) }}
             {{ render_field(form.operation) }}
