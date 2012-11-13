@@ -359,7 +359,7 @@ def domains():
     return render_template('users/domains/index.html', table=table, form=form)
     
 @userview.route('/domains/load/nodes')
-def domain_load_nodes():
+def domains_load_nodes():
     key = request.args.get('key', '')
     domain_areas = request.args.get('domain_areas', '')
     domain_areas = [int(area_id) for area_id in domain_areas.split(',') if area_id]\

@@ -1,0 +1,48 @@
+{% extends 'layout.html' %}
+{% set navid = 'admin' %}
+{% set title = "权限管理" %}
+
+{% block head %}
+
+{% from "tango/_table_h.html" import render_table_profile %}
+<script type="text/javascript">
+  {{ render_table_profile(table) }}
+</script>
+{% endblock %}
+
+{% block screen_meta %}
+    {% from "tango/_table_h.html" import render_screen_meta %}
+    {{ render_screen_meta(table) }}
+{% endblock %}
+
+{% block content %}
+    <div class="row-fluid content">
+        <div class="span2">
+            {% set menuid = 'permissions' %}
+            {% include 'admin/_sidebar.html' %}
+        </div>
+        <div class="span10">
+          {% include "_alert.html" %}
+          <div class="tablenav top">
+            <div class="alignleft actions">
+              <div class="alignleft btn-group">
+                <a class="btn btn-small" href="/admin/permissions/update"><i class="icon-refresh"></i>更新权限表</a>
+              </div>
+            </div>
+            
+            {% from "tango/_search_h.html" import render_keyword %}
+            <form method="GET" class="form filter-form">
+                <div class="alignleft actions">
+                  {{ render_keyword(form, "endpoint/子模块名/操作名") }}
+                </div>
+            </form>
+            <br class="clear" />
+          </div>
+
+          {% from "tango/_table_h.html" import render_table %}
+          {{ render_table(table) }}
+        </div>
+        <div class="modal hide fade" id="myModal"></div>
+    </div>
+{% endblock %}
+

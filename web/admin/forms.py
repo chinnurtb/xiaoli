@@ -1,11 +1,11 @@
 #coding=utf-8
+
 from tango.models import db, Category
 from nodes.models import Vendor, Model
 from .models import Miboid, Module
 
-from flask_wtf import (Form, TextField, PasswordField, HiddenField, SelectField, IntegerField, QuerySelectField,
-                       TextAreaField, ValidationError, required, equal_to, email)
-
+from flask_wtf import Form, TextField, PasswordField, HiddenField, SelectField, IntegerField, \
+    QuerySelectField, TextAreaField, widgets, ValidationError, required, equal_to, email
 
     
 class SearchForm(Form):
@@ -19,7 +19,15 @@ class CategoryForm(Form):
     alias    = TextField(u'显示名', [required(message=u'必填')])
     is_valid = SelectField(u'有效性', [required(message=u'必填')], choices=[(u'0', u'无效'),(u'1', u'有效')])
 
+    
+class PermissionForm(Form):
+    endpoint = TextField(u'Endpoint')
+    module_text = TextField(u'模块显示名')
+    name = TextField(u'子模块显示名')
+    operation = TextField(u'操作名')
+    default_permission = SelectField(u'有效性', [required(message=u'必填')], choices=[(u'0', u'无权限'),(u'1', u'有权限')])
 
+    
 class VendorForm(Form):
     name     = TextField(u'名称', [required(message=u'必填')])
     alias    = TextField(u'显示名', [required(message=u'必填')])

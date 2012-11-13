@@ -21,6 +21,7 @@ class Metric(db.Model):
         return u'<指标 %s>' % self.alias
 
 class Threshold(db.Model):
+    '''阀值表'''
     __tablename__ = 'thresholds'
     
     id             = db.Column(db.Integer, primary_key=True)

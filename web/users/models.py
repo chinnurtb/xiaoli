@@ -181,8 +181,8 @@ class Permission(db.Model):
     module             = db.Column(db.String(100)) # 模块的名字, 例如(users, nodes)
     module_text        = db.Column(db.String(255)) # 模块的中文名字, 如(拓扑, 资源, 用户, 系统)
     endpoint           = db.Column(db.String(100), nullable=False) # 一个flask的 endpoint 用来作为url_for的参数
-    
     operation          = db.Column(db.String(255))
+    
     default_permission = db.Column(db.Integer(1), default=0)
     created_at         = db.Column(db.DateTime, default=datetime.now)
     updated_at         = db.Column(db.DateTime, default=datetime.now)

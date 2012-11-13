@@ -1,0 +1,34 @@
+{% extends 'layout.html' %}
+
+{% from "tango/_form_h.html" import render_field, render_form_title %}
+
+{% block content %}
+<div class="row-fluid content">
+    <div class="span2">
+      {% include "admin/_sidebar.html" %}
+    </div>
+    
+    <div class="span10">
+	<div class="row-fluid">
+	  <form class="form-horizontal" method="POST" action="{{ action }}">
+            {{ render_form_title(request, title) }}
+	    {{ form.hidden_tag() }}
+            
+            {{ render_field(form.endpoint, disabled="disabled") }}
+            {{ render_field(form.module_text) }}
+            {{ render_field(form.name) }}
+            {{ render_field(form.operation) }}
+            {{ render_field(form.default_permission) }}
+            
+	    <div class="form-actions">
+	      <button type="submit" class="btn btn-primary">确定</button>
+            <a href="javascript:history.go(-1);" class="btn">取消</a>
+	    </div>
+	  </form>
+	</div>
+        <br class="clear">
+    </div>
+</div>
+
+{% endblock %}
+
