@@ -287,8 +287,9 @@ def roles_edit(id):
     perms = all_args['permissions']
     form = RoleForm()
     role = Role.query.get_or_404(id)
-    
+    print perms
     if request.method == 'POST' and form.validate_on_submit():
+        # 请空原来的数据
         while len(role.permissions) > 0:
             role.permissions.pop(0)
         for p in perms:
@@ -359,7 +360,7 @@ def domains():
     return render_template('users/domains/index.html', table=table, form=form)
     
 @userview.route('/domains/load/nodes')
-def domain_load_nodes():
+def domains_load_nodes():
     key = request.args.get('key', '')
     domain_areas = request.args.get('domain_areas', '')
     domain_areas = [int(area_id) for area_id in domain_areas.split(',') if area_id]\

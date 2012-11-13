@@ -1,6 +1,5 @@
 #!/usr/bin/env python
-
-# coding: utf-8
+#coding=utf-8
 
 import re, os
 
@@ -34,9 +33,47 @@ def nested_dict(name, form):
             dict[m.group(1)] = form[key]
     return dict
 
+def rebuild_permissions():
+    from flask import current_app
+    from users.models import Permission
+    
+    for rule in current_app.url_map.iter_rules():
+        endpoint = rule.endpoint
+        if endpoint in current_app.config['SAFE_ENDPOINTS']:
+            print 'Safe>> ', endpoint
+            continue
+        if endpoint.find('.') == -1:
+            raise ValueError('UnExcepted endpoint: %s' % endpoint)
+            
+        if Permission.query.filter_by(endpoint=endpoint).first():
+            print 'Exist>> ', endpoint
+            continue
+            
+        name = ''
+        module = endpoint.split('.')[0]
+        module_text = MODULE_TEXT_DICT[module]
+        pieces = endpoint.split('_')
+        operation = ''
+        if len(pieces) > 1:
+            if pieces[-1] in OPERATIONS:
+                operation = OPERATIONS[pieces[-1]]
+            elif tuple(pieces[-2:]) in OPERATIONS:
+                operation = OPERATIONS[tuple(pieces[-2:])]
+                
+        p = Permission()
+        p.name = name
+        p.module_text = module_text
+        p.operation = operation
+        p.module = module
+        p.endpoint = endpoint
+        db.session.add(p)
+        print 'Added>> ', endpoint, ' | ', operation
+    db.session.commit()
+        
 
 @tangoview.route('/shell', methods=['GET', 'POST'])
 def shell():
+    rebuild_permissions()
     if current_user.username != 'root':
         return "Hey, It's Dangerous!"
     def utf8(s):

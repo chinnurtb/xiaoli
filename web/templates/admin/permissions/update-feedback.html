@@ -1,0 +1,40 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="row-fluid content">
+    <div class="span2">
+      {% set menuid = 'permissions' %}
+      {% include "admin/_sidebar.html" %}
+    </div>
+    
+    <div class="span10">
+      {% include "_alert.html" %}
+      <div>
+        <h3>新添加的权限项({{ permissions['new'] | length }})</h3>
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th>Endpoint</th>
+              <th>模块名</th>
+              <th>子模块名</th>
+              <th>操作名</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for p in permissions['new'] %}
+            <tr>
+              <td>{{ p.endpoint }}</td>
+              <td>{{ p.module_text }}</td>
+              <td>{{ p.name }}</td>
+              <td>{{ p.operation }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div> 
+    </div>
+</div>
+
+{% endblock %}
+
+

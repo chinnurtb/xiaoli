@@ -1,0 +1,29 @@
+<table class="wp-list-table widefat fixed" cellspacing="0" style="border: none;background-color:white;margin-bottom: -1px;">
+    <thead>
+    <tr>
+        <th>设备类型</th>
+        {% for vendor in vendors %}
+            <th>{{ vendor.alias }}</th>
+        {% endfor %}
+        <th>未知</th>
+        <th>总数</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    {% for category, vendor_dict in rows|dictsort %}
+    <tr>
+        <td>{{ category[1] }}</td>
+        {% for vendor in vendors %}
+            <td>{{ vendor_dict.get(vendor.id,0) }}</td>
+        {% endfor %}
+        <td>{{ vendor_dict.get(None,0) }}</td>
+        <td>{{ vendor_dict.get("total",0) }}</td>
+    </tr>
+    {% else %}
+    <tr>
+        <td colspan="{{ vendors|length + 2 }}">当前没有数据</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>

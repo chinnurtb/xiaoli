@@ -1,18 +1,19 @@
 # coding: utf-8
 
 from sqlalchemy import func
-from flask import (Blueprint, request, url_for, redirect, render_template, flash)
+from flask import Blueprint, request, url_for, redirect, render_template, flash, current_app
 
 from tango import db
 from tango.ui.tables import make_table
-from tango.models import Category
 
+from tango.models import Category
 from nodes.models import Vendor, SysOid, Model
+from users.models import Permission
 
 from .models import Module, Monitor, Miboid
-from .forms import SearchForm, CategoryForm, VendorForm, ModelForm,\
+from .forms import SearchForm, CategoryForm, PermissionForm, VendorForm, ModelForm,\
     SysoidForm, ModuleForm, MonitorForm, MiboidForm
-from .tables import CategoryTable, VendorTable, ModuleTable, \
+from .tables import CategoryTable, PermissionTable, VendorTable, ModuleTable, \
     ModelTable, SysOidTable, MonitorTable, MiboidTable
 
 adminview = Blueprint('admin', __name__, url_prefix='/admin')
@@ -118,6 +119,206 @@ def categories_delete_all():
     }
     return render_template('tango/_modal_del_all.html', **kwargs)
 
+
+# ==============================================================================
+#  权限管理
+# ==============================================================================    
+
+MODULE_TEXTS = {
+    'tango'  : u'公共',
+    'home'   : u'首页',
+    'topo'   : u'拓扑管理',
+    'nodes'  : u'节点管理',
+    'alarms' : u'故障管理',
+    'perf'   : u'性能管理',
+    'report' : u'报表管理',
+    'users'  : u'用户管理',
+    'system' : u'系统管理',
+    'admin'  : u'后台管理',
+}
+
+NAMES = {
+    # Admin
+    'admin.categories'   : u'类别',
+    'admin.miboids'      : u'MIB文件',
+    'admin.models'       : u'设备型号',
+    'admin.modules'      : u'采集模块',
+    'admin.monitors'     : u'监控器',
+    'admin.permissions'  : u'权限',
+    'admin.sysoids'      : u'Sysoid',
+    'admin.vendors'      : u'厂商',
+    # Alarms
+    'alarms.classes'     : u'告警类型',
+    'alarms.histories'   : u'历史告警',
+    'alarms.knowledges'  : u'告警知识库',
+    'alarms.settings'    : u'',
+    # Nodes
+    'nodes.categories'   : u'类别',
+    'nodes.areas'        : u'区域',
+    'nodes.cities'       : u'城市',
+    'nodes.branches'     : u'',
+    'nodes.towns'        : u'镇',
+    'nodes.entrances'    : u'接入点',
+    'nodes.managers'     : u'',
+    'nodes.eocs'         : u'EOC',
+    'nodes.cpes'         : u'CPE',
+    'nodes.nodes'        : u'节点',
+    'nodes.olts'         : u'OLT',
+    'nodes.onus'         : u'ONU',
+    'nodes.routers'      : u'路由器',
+    'nodes.switches'     : u'交换机',
+    'nodes.vendors'      : u'厂商',
+    # 性能
+    'perf.ping'        : u'Ping延时',
+    'perf.cpumen'      : u'CPU/内存',
+    'perf.intfusage'   : u'流量/占用率',
+    'perf.intftraffic' : u'流量流速',
+    'perf.ponusage'    : u'PON口占用率',
+    'perf.ponpower'    : u'PON光功率',
+    # 系统
+    'system.dict_codes'  : u'字典',
+    'system.hosts'       : u'服务器',
+    'system.metrics'     : u'指标',
+    'system.oplogs'      : u'操作日志',
+    'system.seclogs'     : u'安全日志',
+    'system.settings'    : u'参数设置',
+    'system.subsystems'  : u'子系统',
+    'system.thresholds'  : u'阀值',
+    'system.timeperiods' : u'采集规则',
+    # 用户
+    'users.domains'      : u'管理域',
+    'users.roles'        : u'角色',
+    'users.users'        : u'用户'
+}
+    
+OPERATIONS = {
+    'new'             : u'新建',
+    'edit'            : u'编辑',
+    'delete'          : u'删除',
+    ('delete', 'all') : u'批量删除',
+}
+
+@adminview.route('/permissions/update')
+def permissions_update():
+    reset = request.args.get('reset', '')
+    if reset == 'yes':
+        db.session.execute('truncate permissions;')
+        db.session.commit()
+        
+    permissions = {
+        'exists' : [],
+        'new'    : []
+    }
+    for rule in current_app.url_map.iter_rules():
+        endpoint = rule.endpoint
+        if endpoint in current_app.config['SAFE_ENDPOINTS'] \
+           or endpoint.find('demo') > -1 or endpoint.find('test') > -1:
+            print 'Safe>> ', endpoint
+            continue
+        if endpoint.find('.') == -1:
+            raise ValueError('UnExcepted endpoint: %s' % endpoint)
+
+        p = Permission.query.filter_by(endpoint=endpoint).first()
+        if p:
+            permissions['exists'].append(p)
+            print 'Exists>> ', endpoint
+            continue
+            
+        name = ''
+        SPECIAL_NAMES = {
+            'index' : u'首页',
+            'timeline' : u'TimeLine',
+        }
+        endpoint_tail = endpoint.split('.')[-1]
+        if  endpoint_tail in SPECIAL_NAMES.keys():
+            name = SPECIAL_NAMES[endpoint_tail]
+        else:
+            for k in NAMES.keys():
+                if endpoint.find(k) == 0:
+                    name = NAMES[k]
+        module = endpoint.split('.')[0]
+        module_text = MODULE_TEXTS[module]
+        pieces = endpoint.split('_')
+        operation = ''
+        if endpoint in NAMES.keys():
+            operation = u'查看'
+        elif len(pieces) > 1:
+            if pieces[-1] in OPERATIONS:
+                operation = OPERATIONS[pieces[-1]]
+            elif tuple(pieces[-2:]) in OPERATIONS:
+                operation = OPERATIONS[tuple(pieces[-2:])]
+                
+        p = Permission()
+        p.name = name               # 子模块名
+        p.module_text = module_text # 模块显示名
+        p.operation = operation     # 操作名
+        p.module = module
+        p.endpoint = endpoint
+        db.session.add(p)
+        db.session.commit()
+        permissions['new'].append(p)
+        print 'New>> ', rule, endpoint
+    flash(u'权限列表更新成功', 'success')
+    
+    permissions['new'].sort(cmp=lambda x,y: cmp(x.endpoint, y.endpoint))
+    return render_template('admin/permissions/update-feedback.html',
+                           permissions=permissions)
+    
+    
+@adminview.route('/permissions/')
+def permissions():
+    form = SearchForm(formdata=request.args)
+    cls, table_cls = Permission, PermissionTable
+    query = cls.query
+    if form.keyword.data:
+        ikeyword = '%' + form.keyword.data + '%'
+        query = query.filter(db.or_(cls.endpoint.ilike(ikeyword),
+                                    cls.name.ilike(ikeyword),
+                                    cls.operation.ilike(ikeyword)))
+    table = make_table(query, table_cls)
+    return render_template('admin/permissions/index.html',
+                           table = table, form=form)
+    
+    
+@adminview.route('/permissions/edit/<int:id>', methods=['GET', 'POST'])
+def permissions_edit(id):
+    form = PermissionForm()
+    permission = Permission.query.get_or_404(id)
+    if form.is_submitted and form.validate_on_submit():
+        form.populate_obj(permission)
+        db.session.commit()
+        flash(u'权限项修改成功!', 'success')
+        return redirect(url_for('.permissions'))
+        
+    form.process(obj=permission)
+    kwargs = {
+        'menuid' : 'permissions',
+        'title'  : u'修改权限',
+        'action' : url_for('.permissions_edit', id=id),
+        'form'   : form
+    }
+    return render_template('admin/permissions/edit.html', **kwargs)
+    
+
+@adminview.route('/permissions/delete/<int:id>', methods=['GET', 'POST'])
+def permissions_delete(id):
+    permission = Permission.query.get_or_404(id)
+    if request.method == 'POST':
+        db.session.delete(permission)
+        db.session.commit()
+        flash(u'权限项 %s 已删除' % permission.endpoint, 'success')
+        return redirect(url_for('.permissions'))
+        
+    kwargs = {
+        'title': u'删除权限项',
+        'action': url_for('.permissions_delete', id=id),
+        'fields': [(u'Endpoint', permission.endpoint),
+                   (u'子模块名', permission.name),
+                   (u'操作名', permission.operation)],
+        'type' : 'delete'
+    }
+    return render_template('tango/_modal.html', **kwargs)
+    
     
 # ==============================================================================
 #  供应商

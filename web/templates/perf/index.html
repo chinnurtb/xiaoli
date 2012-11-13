@@ -23,7 +23,7 @@
                 {{ render_keyword(filterForm, "节点名字", advanced=True) }}
               </div>
               <div class="pull-right actions">
-                <a class="btn btn-small" href="{{ request.url|replace('nodes','nodes.csv') }}" title="Excel导出"><i class="icon-download-alt"></i></a>
+                <a class="btn btn-small" href="{{ request.url|replace(menuid.split('_')[0],menuid.split('_')[0]+'.csv') }}" title="Excel导出"><i class="icon-download-alt"></i></a>
               </div>
               <br class="clear">
                 {% set _advshow = '1' %}

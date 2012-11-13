@@ -152,6 +152,7 @@ class Model(db.Model):
         return u'<型号 %s>' % self.alias
 
 NODE_STATUS_DICT = {0: u'未知',1: u'正常', 2: u'宕机', 3: u'不可达'}
+NODE_STATUS_COLOR = {0: '#808080',1: 'lime', 2: 'red', 3: '#F6983E'}
 SNMP_VER_DICT = {"v1":'v1',"v2c":'v2c'}
 
 class NodeMixin(object):

@@ -1,0 +1,65 @@
+{% extends 'layout.html' %}
+
+{% block head %}
+    {% from 'tango/_base.html' import javascript, stylesheet %}
+    {{ javascript("/static/js/wp-lists.js") }}
+    {{ javascript("/static/js/postbox.js") }}
+    {{ javascript("/static/js/dashboard.dev.js") }}
+    {{ stylesheet("/static/css/nv.d3.css") }}
+    {{ javascript("/static/js/nvd3/d3.v2.min.js") }}
+    {{ javascript("/static/js/nvd3/nv.d3.min.js") }}
+{% endblock %}
+
+{% from "tango/_table_h.html" import render_table, render_screen_meta %}
+
+{% block content %}
+
+<div class="row-fluid content">
+
+    <div class="span2">
+        {% set menuid = 'category_vendors' %}
+        {% include 'nodes/_sidebar.html' %}
+    </div>
+
+    <div class="span10">
+        {% from "_nvd3_chart.html" import multi_bar_chart %}
+        {{ multi_bar_chart(chartid, chartdata, stacked=True) }}
+        <table class="wp-list-table widefat fixed" cellspacing="0">
+            <thead>
+            <tr>
+                <th>设备类型</th>
+                {% for vendor in vendors %}
+                    <th>{{ vendor.alias }}</th>
+                {% endfor %}
+                <th>未知</th>
+                <th>总数</th>
+            </tr>
+            </thead>
+
+            <tbody id="the-list" >
+            {% for category, vendor_dict in rows|dictsort %}
+                <tr class="{{ loop.cycle('alternate-white', '') }}">
+                    <td>{{ category[1] }}</td>
+                    {% for vendor in vendors %}
+                        <td>{{ vendor_dict.get(vendor.id,0) }}</td>
+                    {% endfor %}
+                    <td>{{ vendor_dict.get(None,0) }}</td>
+                    <td>{{ vendor_dict.get("total",0) }}</td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="{{ vendors|length + 2 }}">
+                        <div class="alert alert-block" style="text-align:center;">
+                            <button type="button" class="close" data-dismiss="alert">×</button>
+                            当前没有数据
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+{% endblock %}

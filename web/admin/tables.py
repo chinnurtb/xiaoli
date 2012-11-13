@@ -3,10 +3,9 @@
 from tango.ui import tables as t
 
 from tango.models import Category
-
-from .models import Module, Monitor, Miboid
-
 from nodes.models import Vendor, Model, SysOid
+from users.models import Permission
+from .models import Module, Monitor, Miboid
 
 class CategoryTable(t.Table):
 
@@ -26,6 +25,23 @@ class CategoryTable(t.Table):
         model = Category
         order_by = 'id'
 
+        
+class PermissionTable(t.Table):
+    helpdoc = u'权限表'
+
+    edit   = t.Action(name=u'编辑', endpoint='admin.permissions_edit')
+    delete = t.Action(name=u'删除', endpoint='admin.permissions_delete', modalable=True)
+    check  = t.CheckBoxColumn()
+
+    endpoint    = t.Column(u'endpoint', orderable=True)
+    module_text = t.Column(u'模块名', orderable=True)
+    name        = t.Column(u'子模块名')
+    operation   = t.Column(u'操作名', orderable=True)
+
+    class Meta():
+        model = Permission
+        order_by = 'endpoint'
+        
 class VendorTable(t.Table):
     helpdoc = u'厂商表'
     

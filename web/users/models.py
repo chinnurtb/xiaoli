@@ -181,20 +181,11 @@ class Permission(db.Model):
     module             = db.Column(db.String(100)) # 模块的名字, 例如(users, nodes)
     module_text        = db.Column(db.String(255)) # 模块的中文名字, 如(拓扑, 资源, 用户, 系统)
     endpoint           = db.Column(db.String(100), nullable=False) # 一个flask的 endpoint 用来作为url_for的参数
-    
     operation          = db.Column(db.String(255))
+    
     default_permission = db.Column(db.Integer(1), default=0)
     created_at         = db.Column(db.DateTime, default=datetime.now)
     updated_at         = db.Column(db.DateTime, default=datetime.now)
-    
-    # text               = db.Column(db.String(255), nullable=False)  
-    # controller_name    = db.Column(db.String(255))
-    # action_name        = db.Column(db.String(255))
-    # method             = db.Column(db.String(255), nullable=False, default='GET')
-    # format             = db.Column(db.String(255))
-    # module_text        = db.Column(db.String(255))
-    # order_seq          = db.Column(db.Integer)
-    # is_valid           = db.Column(db.Integer(1), default=1)
 
     def __repr__(self):
         return '<Permission %r>' % (self.endpoint + self.operation,)
@@ -204,24 +195,51 @@ class Permission(db.Model):
     
     @staticmethod
     def make_tree(role_perms=None):
+        # Prepare
         all_perms = Permission.query.all()
         perm_tree = AutoIncrSortedDict()
+        role_ids = []
+        role_names = []
+        role_modules = []
+        if role_perms:
+            role_ids = [p.id for p in role_perms]
+            role_names = [p.name for p in role_perms]
+            role_modules = [p.module for p in role_perms]
+
+        OPERATIONS = {
+            u'查看' : 0,
+            u'编辑' : 1,
+            u'新建' : 2,
+            u'删除' : 3,
+            u'批量删除': 4,
+        }
+        def cmp_operation(x, y):
+            if x not in OPERATIONS.keys() and y not in OPERATIONS.keys():
+                return 0
+            elif x not in OPERATIONS.keys():
+                return 1
+            elif y not in OPERATIONS.keys():
+                return -1
+            else:
+                return OPERATIONS[x] - OPERATIONS[y]
+                
         for p in all_perms:
             module_checked = ''
             name_checked = ''
             operation_checked = ''
-            if role_perms is not None:
-                for rp in role_perms:
-                    if p.module == rp.module:
-                        module_checked = 'checked'
-                    if p.name == rp.name:
-                        name_checked = 'checked'
-                    if p.id == rp.id:
-                        operation_checked = 'checked'
+
+            if role_perms:
+                if p.id in role_ids:
+                    operation_checked = 'checked'
+                if p.name in role_names:
+                    name_checked = 'checked'
+                if p.module in role_modules:
+                    module_checked = 'checked'
             module_key = (p.module_text, module_checked)
             name_key = (p.name, name_checked)
-            operation_key = (p.operation, operation_checked)
+            operation_key = p.operation
             
-            perm_tree[module_key][name_key][operation_key] = p.id
-            
+            perm_tree[module_key][name_key][operation_key] = (p.id, operation_checked)
+
+        perm_tree['cmpfunc'] = cmp_operation
         return perm_tree
