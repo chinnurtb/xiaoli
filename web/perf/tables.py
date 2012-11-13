@@ -75,7 +75,7 @@ class IntfUsageTable(t.Table, NodeMixin):
     intftotal      = t.Column(u'端口总数')
     intfused       = t.Column(u'端口使用数')
     intfusage      = t.Column(u'端口占用率')   
-    intfidle       = t.Column(u'端空空闲率') 
+    intfidle       = t.Column(u'端口空闲率')
 
     class Meta():
         model = IntfUsagePerf

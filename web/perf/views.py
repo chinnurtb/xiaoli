@@ -2,11 +2,12 @@
 
 from datetime import datetime, timedelta
 from flask import Blueprint, request, url_for, \
-    redirect, render_template, flash, json
+    redirect, render_template, flash, json, send_file
 
 from tango.ui import navbar
 from tango.models import db
 from tango.ui.tables import make_table
+from tango.excel.CsvExport import CsvExport
 
 from nodes.models import Node
 
@@ -43,7 +44,8 @@ def ajax_refresh_models():
     
 # ==============================================================================
 #  Normal view
-# ==============================================================================    
+# ==============================================================================
+@perfview.route('/node/ping.csv/')
 @perfview.route('/node/ping/')
 def ping():
     form = NodePerfFilterForm(formdata=request.args)
@@ -60,10 +62,15 @@ def ping():
         'table'      : table,
         'filterForm' : form
     }
-    return render_template('/perf/index.html', **kwargs)
+    if request.base_url.endswith(".csv/"):
+        csv = CsvExport('ping',columns=[str(column.accessor) for column in table.columns])
+        return send_file(csv.export(query),as_attachment=True,attachment_filename='ping.csv')
+    else:
+        return render_template('/perf/index.html', **kwargs)
 
 
-@perfview.route('/node/cpumem')
+@perfview.route('/node/cpumem.csv/')
+@perfview.route('/node/cpumem/')
 def cpumem():
     form = NodePerfFilterForm(formdata=request.args)
     form.refresh_choices(request.args)
@@ -77,9 +84,13 @@ def cpumem():
         'table'      : table,
         'filterForm' : form
     }
-    return render_template('/perf/index.html', **kwargs)
+    if request.base_url.endswith(".csv/"):
+        csv = CsvExport('cpumem',columns=[str(column.accessor) for column in table.columns])
+        return send_file(csv.export(query),as_attachment=True,attachment_filename='cpumem.csv')
+    else:
+        return render_template('/perf/index.html', **kwargs)
 
-
+@perfview.route('/node/intfusage.csv/<name>/')
 @perfview.route('/node/intfusage/<name>/')
 def intfusage(name):
     CONFIG = {
@@ -100,9 +111,13 @@ def intfusage(name):
         'table'      : table,
         'filterForm' : form
     }
-    return render_template('/perf/index.html', **kwargs)
-    
+    if ".csv/" in request.base_url:
+        csv = CsvExport('intfusage_'+name,columns=[str(column.accessor) for column in table.columns])
+        return send_file(csv.export(query),as_attachment=True,attachment_filename='intfusage_'+name+'.csv')
+    else:
+        return render_template('/perf/index.html', **kwargs)
 
+@perfview.route('/node/intftraffic.csv/<name>/')
 @perfview.route('/node/intftraffic/<name>/')
 def intftraffic(name):
     CONFIG = {
@@ -129,9 +144,13 @@ def intftraffic(name):
         'table'      : table,
         'filterForm' : form
     }
-    return render_template('/perf/index.html', **kwargs)
+    if ".csv/" in request.base_url:
+        csv = CsvExport('intftraffic_'+name,columns=[str(column.accessor) for column in table.columns])
+        return send_file(csv.export(query),as_attachment=True,attachment_filename='intftraffic_'+name+'.csv')
+    else:
+        return render_template('/perf/index.html', **kwargs)
 
-    
+@perfview.route('/olt/ponusage.csv/')
 @perfview.route('/olt/ponusage/')
 def ponusage():
     form = PerfFilterForm(formdata=request.args)
@@ -146,9 +165,13 @@ def ponusage():
         'table'      : table,
         'filterForm' : form
     }
-    return render_template('/perf/index.html', **kwargs)
-    
+    if request.base_url.endswith(".csv/"):
+        csv = CsvExport('ponusage',columns=[str(column.accessor) for column in table.columns])
+        return send_file(csv.export(query),as_attachment=True,attachment_filename='ponusage.csv')
+    else:
+        return render_template('/perf/index.html', **kwargs)
 
+@perfview.route('/olt/ponpower.csv/')
 @perfview.route('/olt/ponpower/')
 def ponpower():
     form = PerfFilterForm(formdata=request.args)
@@ -163,7 +186,11 @@ def ponpower():
         'table'      : table,
         'filterForm' : form
     }
-    return render_template('/perf/index.html', **kwargs)
+    if request.base_url.endswith(".csv/"):
+        csv = CsvExport('ponpower',columns=[str(column.accessor) for column in table.columns])
+        return send_file(csv.export(query),as_attachment=True,attachment_filename='ponpower.csv')
+    else:
+        return render_template('/perf/index.html', **kwargs)
 
     
 # ==============================================================================
