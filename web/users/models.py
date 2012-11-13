@@ -186,15 +186,6 @@ class Permission(db.Model):
     default_permission = db.Column(db.Integer(1), default=0)
     created_at         = db.Column(db.DateTime, default=datetime.now)
     updated_at         = db.Column(db.DateTime, default=datetime.now)
-    
-    # text               = db.Column(db.String(255), nullable=False)  
-    # controller_name    = db.Column(db.String(255))
-    # action_name        = db.Column(db.String(255))
-    # method             = db.Column(db.String(255), nullable=False, default='GET')
-    # format             = db.Column(db.String(255))
-    # module_text        = db.Column(db.String(255))
-    # order_seq          = db.Column(db.Integer)
-    # is_valid           = db.Column(db.Integer(1), default=1)
 
     def __repr__(self):
         return '<Permission %r>' % (self.endpoint + self.operation,)

@@ -9,7 +9,7 @@
 """
 
 from flask import Flask, session, redirect, url_for, \
-    render_template, g, request, abort
+    render_template, g, request, abort, current_app
 
 from tango.ui import navbar
 from tango.ip import ip_from
@@ -112,24 +112,26 @@ blueprints = [tangoview,
 for bp in blueprints:
     app.register_blueprint(bp)
 
-@app.route('/')
-@login_required
-def index():
-    return redirect('/dashboard')
+# @app.route('/')
+# @login_required
+# def index():
+#     return redirect('/dashboard')
 
 
 allowed_ips = ['192.168.1.1/24',
                '192.168.100.1/24',
                '127.0.0.1',]
 ip_checker = ip_from(allowed=allowed_ips)
-    
+        
+
 def check_ip():
     if ip_checker.is_met({'REMOTE_ADDR':request.remote_addr}) is False:
         print 'IP check failed: ' + str(request.remote_addr)
         abort(403)
 
 def is_ie():
-    if request.headers['User-Agent'].find('MSIE') > -1:
+    if 'User-Agent' not in request.headers.keys() \
+       or request.headers['User-Agent'].find('MSIE') > -1:
         return True
     return False
 
@@ -153,12 +155,9 @@ def before_request():
         check_ip()
         
     g.brand = brand()
-    SAFE_ENDPOINTS = (None, 'static', 'users.login', 'users.logout')
-    SUPER_USERS = ('root', 'admin')
-
     # Equal to @login_required
     if current_user.is_anonymous():
-        if request.endpoint not in SAFE_ENDPOINTS:
+        if request.endpoint not in current_app.config['SAFE_ENDPOINTS']:
             return redirect(url_for('users.login', next=request.url))
             
         return None
@@ -174,8 +173,8 @@ def before_request():
             g.navbar = navbar
             g.severities = query_severities() 
 
-        if current_user.username in SUPER_USERS \
-           or request.endpoint in SAFE_ENDPOINTS:
+        if current_user.username in current_app.config['SUPER_USERS'] \
+           or request.endpoint in current_app.config['SAFE_ENDPOINTS']:
             return
         check_permissions()
 
