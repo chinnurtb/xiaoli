@@ -14,7 +14,7 @@ from tango.ui.tables import make_table
 from tango.login import current_user, login_required
 from tango.models import Profile, Category
 
-from .models import Node,AREA_TYPE_DICT, Area, Vendor, NODE_STATUS_DICT
+from .models import Node,AREA_TYPE_DICT, Area, Vendor, NODE_STATUS_DICT,NODE_STATUS_COLOR
 from .tables import AreaStatisticsTable,VendorTable,CategoryTable
 from .views import nodeview
 from .forms import AreaStatisticsForm
@@ -72,27 +72,26 @@ def areas():
 @nodeview.route("/nodes/statistics/vendors/")
 @login_required
 def vendors():
-    table = make_table(Vendor.query, VendorTable)
+    query = db.session.query(func.count(Node.id), Node.status, Vendor.id, Vendor.alias)
+    query = query.outerjoin(Vendor, Vendor.id==Node.vendor_id)
+    query = query.group_by(Node.status, Vendor.id, Vendor.alias).order_by(Vendor.id)
+    rows = {(u"总数",u"总数"): {}}
+    for count, status, vendor_id, vendor_name in query.all():
+        row = rows.get((vendor_id, vendor_name), {"total":0})
+        row[status] = count
+        row["total"] += count
+        rows[(u"总数",u"总数")][status] = rows[(u"总数",u"总数")].get(status,0)+count
+        rows[(u"总数",u"总数")]["total"] = rows[(u"总数",u"总数")].get("total",0)+count
+        rows[(vendor_id, vendor_name)] = row
     if request.args.get("dashboard"):
-        return table.as_html()
+        return render_template('nodes/statistics/_vendors.html', NODE_STATUS_DICT = NODE_STATUS_DICT, rows = rows)
     else:
-        from tango.ui.charts.highcharts import BarStacked
-        chart = BarStacked()
-        xAxis_categories = [row["alias"] for row in table.rows]
-        name_dict = {
-            table.columns[2].name: table.columns[2].header,
-            table.columns[3].name: table.columns[3].header,
-            table.columns[4].name: table.columns[4].header,
-            table.columns[5].name: table.columns[5].header,
-            }
-        series = [{"name": name_dict[name], "data": [ row[name] for row in table.rows ]} for name in name_dict.keys() ]
-        chart.set_colors(['red', 'green'])
-        chart["series"] = series
-        chart["xAxis"]["categories"] = xAxis_categories
-        chart["title"]["text"] = u"资源厂商统计"
-        chart["yAxis"]["title"] = None
-        chart.height = str(len(xAxis_categories)*50 + 100)+"px"
-        return render_template('nodes/statistics/vendor_statistics.html', table = table, chart = chart)
+        def series(status):
+            values = [{'series': status[1],'x': vendor[1] if vendor[1] else u'未知','y': row_dict.get(status[0],0)} for vendor, row_dict in sorted(rows.items(), key=lambda d:d[0])]
+            return {'key': status[1], 'color': NODE_STATUS_COLOR.get(status[0]), 'values': values}
+        data = [series(status) for status in NODE_STATUS_DICT.items()]
+        return render_template('nodes/statistics/vendors.html', NODE_STATUS_DICT = NODE_STATUS_DICT, rows = rows,
+            chartid = "category_vendors_chart",chartdata = data,)
 
 @nodeview.route("/nodes/statistics/categories/")
 @login_required
@@ -109,76 +108,14 @@ def categories():
         rows[(u"总数",u"总数")]["total"] = rows[(u"总数",u"总数")].get("total",0)+count
         rows[(category_id, category_name)] = row
     if request.args.get("dashboard"):
-        return render_template('nodes/statistics/_category_vendors.html', vendors = vendors, rows = rows)
+        return render_template('nodes/statistics/_categories.html', NODE_STATUS_DICT = NODE_STATUS_DICT, rows = rows)
     else:
-        def series(vendor):
-            values = [{'series': vendor.alias,'x': category[1],'y': row_dict.get(vendor.id,0)} for category, row_dict in sorted(rows.items(), key=lambda d:d[0])]
-            return {'key': vendor.alias,'values': values}
-        data = [series(vendor) for vendor in NODE_STATUS_DICT.items()]
-        data.append({'key': u'未知', 'values': [{'series': u'未知','x': category[1],'y': row_dict.get(None,0)} for category, row_dict in rows.items()]})
-        return render_template('nodes/statistics/category_vendors.html', vendors = vendors, rows = rows,
+        def series(status):
+            values = [{'series': status[1],'x': category[1],'y': row_dict.get(status[0],0)} for category, row_dict in sorted(rows.items(), key=lambda d:d[0])]
+            return {'key': status[1], 'color':NODE_STATUS_COLOR.get(status[0]), 'values': values}
+        data = [series(status) for status in NODE_STATUS_DICT.items()]
+        return render_template('nodes/statistics/categories.html', NODE_STATUS_DICT = NODE_STATUS_DICT, rows = rows,
             chartid = "category_vendors_chart",chartdata = data,)
-
-    query_total = db.session.query(
-        Node.category_id,func.count(Node.category_id).label("total_count")
-    ).group_by(Node.category_id).subquery()
-
-    query_status1 = db.session.query(
-        Node.category_id,func.count(Node.category_id).label("status1_count")
-    ).filter(Node.status==1).group_by(Node.category_id).subquery()
-
-    query_status2 = db.session.query(
-        Node.category_id,func.count(Node.category_id).label("status2_count")
-    ).filter(Node.status==2).group_by(Node.category_id).subquery()
-
-    query_status3 = db.session.query(
-        Node.category_id,func.count(Node.category_id).label("status3_count")
-    ).filter(Node.status==3).group_by(Node.category_id).subquery()
-
-    query_status4 = db.session.query(
-        Node.category_id,func.count(Node.category_id).label("status4_count")
-    ).filter(Node.status==4).group_by(Node.category_id).subquery()
-
-    query = db.session.query(
-        Category.id, Category.alias.label("category_name"),
-        func.coalesce(query_total.c.total_count,0).label("total_count"),
-        func.coalesce(query_status1.c.status1_count,0).label("status1_count"),
-        func.coalesce(query_status2.c.status2_count,0).label("status2_count"),
-        func.coalesce(query_status3.c.status3_count,0).label("status3_count"),
-        func.coalesce(query_status4.c.status4_count,0).label("status4_count"),
-    ).outerjoin(
-        query_total, query_total.c.category_id==Category.id
-    ).outerjoin(
-        query_status1,Category.id==query_status1.c.category_id
-    ).outerjoin(
-        query_status2,Category.id==query_status2.c.category_id
-    ).outerjoin(
-        query_status3,Category.id==query_status3.c.category_id
-    ).outerjoin(
-        query_status4,Category.id==query_status4.c.category_id
-    ).filter(Category.obj == "node").filter(Category.is_valid == 1)
-
-    table = make_table(query, CategoryTable)
-    if request.args.get("dashboard"):
-        return table.as_html()
-    else:
-        from tango.ui.charts.highcharts import BarStacked
-        chart = BarStacked()
-        xAxis_categories = [row["category_name"] for row in table.rows]
-        name_dict = {
-            table.columns[2].name: table.columns[2].header,
-            table.columns[3].name: table.columns[3].header,
-            table.columns[4].name: table.columns[4].header,
-            table.columns[5].name: table.columns[5].header,
-        }
-        series = [{"name": name_dict[name], "data": [ row[name] for row in table.rows ]} for name in name_dict.keys() ]
-        chart.set_colors(['red', 'green'])
-        chart["series"] = series
-        chart["xAxis"]["categories"] = xAxis_categories
-        chart["title"]["text"] = u"资源分类统计"
-        chart["yAxis"]["title"] = None
-        chart.height = str(len(xAxis_categories)*50 + 100)+"px"
-        return render_template('nodes/statistics/category_statistics.html', table = table, chart = chart)
 
 @nodeview.route("/nodes/statistics/category_vendors/")
 @login_required
