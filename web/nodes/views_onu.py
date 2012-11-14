@@ -63,12 +63,19 @@ def onus_new():
     if request.method == 'POST' and form.validate_on_submit():
         node = NodeOnu()
         form.populate_obj(node)
-        node.status = 1
-        node.category_id = 21
-        db.session.add(node)
-        db.session.commit()
-        flash(u'添加ONU成功', 'success')
-        return redirect(url_for('nodes.onus'))
+        if NodeOnu.query.filter(NodeOnu.name==node.name).count() > 0:
+            flash(u'ONU名称不能重复','error')
+        elif NodeOnu.query.filter(NodeOnu.alias==node.alias).count() > 0:
+            flash(u'ONU别名不能重复','error')
+        elif NodeOnu.query.filter(NodeOnu.addr==node.addr).count() > 0:
+            flash(u'ONU IP地址不能重复','error')
+        else:
+            node.status = 1
+            node.category_id = 21
+            db.session.add(node)
+            db.session.commit()
+            flash(u'添加ONU %s 成功'% node.name, 'success')
+            return redirect(url_for('nodes.onus'))
     return render_template('nodes/onus/new.html', form = form)
 
 @nodeview.route('/nodes/onus/edit/<int:id>/', methods=['POST', 'GET'])
@@ -78,12 +85,19 @@ def onus_edit(id):
     node = NodeOnu.query.get_or_404(id)
     if request.method == 'POST':
         if form.validate_on_submit():
-            form.populate_obj(node)
-            node.updated_at = datetime.now()
-            db.session.add(node)
-            db.session.commit()
-            flash(u'修改ONU成功','success')
-            return redirect(url_for('nodes.onus'))
+            if node.name != form.name.data and NodeOnu.query.filter(NodeOnu.name==node.name).count() > 0:
+                flash(u'ONU名称不能重复','error')
+            elif node.alias != form.alias.data and NodeOnu.query.filter(NodeOnu.alias==node.alias).count() > 0:
+                flash(u'ONU别名不能重复','error')
+            elif node.addr != form.addr.data and NodeOnu.query.filter(NodeOnu.addr==node.addr).count() > 0:
+                flash(u'ONU IP地址不能重复','error')
+            else:
+                form.populate_obj(node)
+                node.updated_at = datetime.now()
+                db.session.add(node)
+                db.session.commit()
+                flash(u'修改ONU %s 成功'% node.name,'success')
+                return redirect(url_for('nodes.onus'))
     else:
         form.process(obj=node)
     return render_template('/nodes/onus/edit.html', node=node, form=form)
