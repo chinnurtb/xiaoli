@@ -17,6 +17,7 @@
     {% from "tango/_form_h.html" import render_csrf_error %}
     {{ render_csrf_error(form) }}
     <div class="row-fluid">
+      {% include "_alert.html" %}
       <div class="">
 	<form class="form-horizontal" method="POST" id="test-wtf" action="{{action}}">
           {{ render_form_title(request, title) }}
