@@ -1,15 +1,10 @@
 {% extends 'layout.html' %}
 
-{% set title = '编辑角色' %}
-
 {% from "tango/_form_h.html" import render_field, render_form_title %}
 
 {% block content %}
 <div class="row-fluid content">
   <div class="span2">
-    {% if request.endpoint == 'users.roles_new' %}
-        {% set menuid = 'roles-new' %}
-    {% endif %}
     {% include "users/_sidebar.html" %}
   </div>
   

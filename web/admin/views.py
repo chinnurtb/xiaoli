@@ -123,7 +123,6 @@ def categories_delete_all():
 # ==============================================================================
 #  权限管理
 # ==============================================================================    
-
 MODULE_TEXTS = {
     'tango'  : u'公共',
     'home'   : u'首页',
@@ -136,6 +135,9 @@ MODULE_TEXTS = {
     'system' : u'系统管理',
     'admin'  : u'后台管理',
 }
+
+ENDPOINT_IGNORE = ['tango.shell',
+                   'perf.add_time']
 
 NAMES = {
     # Admin
@@ -212,8 +214,9 @@ def permissions_update():
     for rule in current_app.url_map.iter_rules():
         endpoint = rule.endpoint
         if endpoint in current_app.config['SAFE_ENDPOINTS'] \
+           or endpoint in ENDPOINT_IGNORE \
            or endpoint.find('demo') > -1 or endpoint.find('test') > -1:
-            print 'Safe>> ', endpoint
+            print 'Safe or Very Danger>> ', endpoint
             continue
         if endpoint.find('.') == -1:
             raise ValueError('UnExcepted endpoint: %s' % endpoint)
@@ -288,9 +291,12 @@ def permissions_edit(id):
         form.populate_obj(permission)
         db.session.commit()
         flash(u'权限项修改成功!', 'success')
+        if form.next.data:
+            return redirect(form.next.data)
         return redirect(url_for('.permissions'))
         
     form.process(obj=permission)
+    form.next.data = request.referrer
     kwargs = {
         'menuid' : 'permissions',
         'title'  : u'修改权限',
