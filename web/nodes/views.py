@@ -142,25 +142,6 @@ def nodes():
         return render_template('nodes/index.html', table = table, form=form, status_statistcs=status_statistcs)
 
 
-@nodeview.route('/nodes/<int:id>/', methods=['GET'])
-@login_required
-def nodes_show(id):
-    node = Node.query.get_or_404(id)
-    from tango.ui.charts.highcharts import LineTimeSeriesChart
-    traffic_chart = LineTimeSeriesChart()
-    traffic_chart.set_html_id("traffic")
-    traffic_chart["title"]["text"] = None
-    traffic_chart["subtitle"]["text"] = None
-    traffic_chart["yAxis"]["title"] = None
-    traffic_chart.set_yformatter()
-
-    from tango.ui.charts.highcharts import PieBasicChart
-    alarm_chart = PieBasicChart()
-    alarm_chart.set_html_id("alarm")
-    alarm_chart["title"]["text"] = None
-    alarm_chart["plotOptions"]["pie"]["events"]["click"] = None
-    return render_template('nodes/show.html', node = node, traffic_chart = traffic_chart, alarm_chart = alarm_chart)
-
 @nodeview.route('/nodes/new/', methods=['GET','POST'])
 @login_required
 def nodes_new():
