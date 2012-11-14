@@ -37,6 +37,7 @@
     </div>
 
     <div class="span10">
+        {% include "_alert.html" %}
         {% from "tango/_form_h.html" import render_field %}
         <form class="form-horizontal" method="POST" action="{{url_for('nodes.cities_new')}}">
             <h5><i class="icon-plus"></i>添加地市</h5>

@@ -62,12 +62,19 @@ def cpes_new():
     if request.method == 'POST' and form.validate_on_submit():
         node = NodeCpe()
         form.populate_obj(node)
-        node.status = 1
-        node.category_id = 51
-        db.session.add(node)
-        db.session.commit()
-        flash(u'添加CPE成功', 'success')
-        return redirect(url_for('nodes.cpes'))
+        if NodeCpe.query.filter(NodeCpe.name==node.name).count() > 0:
+            flash(u'CPE名称不能重复','error')
+        elif NodeCpe.query.filter(NodeCpe.alias==node.alias).count() > 0:
+            flash(u'CPE别名不能重复','error')
+        elif NodeCpe.query.filter(NodeCpe.mac==node.mac).count() > 0:
+            flash(u'CPE MAC地址不能重复','error')
+        else:
+            node.status = 1
+            node.category_id = 51
+            db.session.add(node)
+            db.session.commit()
+            flash(u'添加CPE %s 成功'% node.name, 'success')
+            return redirect(url_for('nodes.cpes'))
     return render_template('nodes/cpes/new.html', form = form)
 
 @nodeview.route('/nodes/cpes/edit/<int:id>/', methods=['POST', 'GET'])
@@ -77,12 +84,19 @@ def cpes_edit(id):
     node = NodeCpe.query.get_or_404(id)
     if request.method == 'POST':
         if form.validate_on_submit():
-            form.populate_obj(node)
-            node.updated_at = datetime.now()
-            db.session.add(node)
-            db.session.commit()
-            flash(u'修改CPE成功','success')
-            return redirect(url_for('nodes.cpes'))
+            if node.name != form.name.data and NodeCpe.query.filter(NodeCpe.name==node.name).count() > 0:
+                flash(u'CPE名称不能重复','error')
+            elif node.alias != form.alias.data and NodeCpe.query.filter(NodeCpe.alias==node.alias).count() > 0:
+                flash(u'CPE别名不能重复','error')
+            elif node.mac != form.mac.data and NodeCpe.query.filter(NodeCpe.mac==node.mac).count() > 0:
+                flash(u'CPE MAC地址不能重复','error')
+            else:
+                form.populate_obj(node)
+                node.updated_at = datetime.now()
+                db.session.add(node)
+                db.session.commit()
+                flash(u'修改CPE %s 成功'% node.name,'success')
+                return redirect(url_for('nodes.cpes'))
     else:
         form.process(obj=node)
     return render_template('/nodes/cpes/edit.html', node=node, form=form)
