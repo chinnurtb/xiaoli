@@ -62,14 +62,6 @@ class ResetPasswordForm(Form):
         v.EqualTo('confirm', message=u'确认密码不匹配')
     ])
     confirm = PasswordField(u"确认密码", [v.Required(message=u'必填')])
-    
-    
-    
-class UserGroupNewForm(Form):
-    pass
-class UserGroupEditForm(Form):
-    pass
-    
 
 class RoleForm(Form):
     name        = TextField(u'角色名', validators=[required(message=u'必填')])

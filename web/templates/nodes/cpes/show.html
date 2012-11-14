@@ -2,6 +2,10 @@
 
 {% block head %}
     <link rel="stylesheet" href="/static/css/detail.css" type="text/css" media="all">
+    {% from 'tango/_base.html' import javascript, stylesheet %}
+    {{ stylesheet("/static/css/nv.d3.css") }}
+    {{ javascript("/static/js/nvd3/d3.v2.min.js") }}
+    {{ javascript("/static/js/nvd3/nv.d3.min.js") }}
 {% endblock %}
 
 {% block content %}
@@ -55,9 +59,9 @@
                 </table>
               </div>
             </div>
-            {% from "tango/_chart_h.html" import render_highchart %}
-            <div class="span2">
-                {{ render_highchart(alarm_chart, height="220px", width="220px") }}
+            <div class="span4">
+                {% from "_nvd3_chart.html" import pie_chart %}
+                {{ pie_chart("alarms_stats_by_severity", chartdata2) }}
             </div>
             <div class="clear"></div>
         <div style="height:20px"></div>
@@ -70,8 +74,8 @@
             </ul>
             <div class="tab-content" >
                 <div class="tab-pane active" id="basic_info">
-                    {% from "tango/_chart_h.html" import render_highchart %}
-                    {{ render_highchart(traffic_chart, height="250px") }}
+                    {% from "_nvd3_chart.html" import traffic_chart %}
+                    {{ traffic_chart("traffic", chartdata) }}
                 </div>
                 <div class="tab-pane detail" id="snmp_info">
                     <table class="table">
