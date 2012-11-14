@@ -20,13 +20,13 @@
         {{ render_form_title(request, title) }}
 	{{ form.hidden_tag() }}
         {{ render_field(form.name, class="input-medium") }}
-        {{ render_field(form.role_name, disabled="disabled") }}
-        {{ render_field(form.domain_name, disabled="disabled") }}
+        {{ render_field(form.role_name, readonly="readonly") }}
+        {{ render_field(form.domain_name, readonly="readonly") }}
         {{ render_field(form.department) }}
         {{ render_field(form.email) }}
-        {{ render_field(form.telephone, class="input-xlarge") }}
-        {{ render_field(form.mobile, class="input-xlarge") }}
-        {{ render_field(form.memo, rows=4, class="input-xlarge") }}
+        {{ render_field(form.telephone) }}
+        {{ render_field(form.mobile) }}
+        {{ render_field(form.memo, rows=4,) }}
 	<div class="form-actions">
 	  <button type="submit" class="btn btn-primary">保存修改</button>
 	</div>
