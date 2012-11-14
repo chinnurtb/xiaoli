@@ -50,7 +50,7 @@ def settings_edit(id):
         old_value = setting.value
         setting.value = form.value.data
         db.session.commit()
-        flash(u'%s 被修改: %s --> %s' % (setting.name, old_value, form.value.data), 'success')
+        flash(u'%s 被修改:(%s)--> %s' % (setting.name, old_value, form.value.data), 'success')
         return redirect('/system/settings/')
     form.process(obj=setting)
     return render_template('/system/settings/edit.html', form=form, setting=setting)
@@ -80,7 +80,7 @@ def dict_codes_new():
         form.populate_obj(dict_code)
         db.session.add(dict_code)
         db.session.commit()
-        flash(u'%s 添加成功' % dict_code.code_label, 'success')
+        flash(u'字典(%s)添加成功' % dict_code.code_label, 'success')
         return redirect('/dict-codes/')
         
     return render_template('/system/dict-codes/new_edit.html', form=form,
@@ -95,12 +95,12 @@ def dict_codes_edit(id):
     if form.is_submitted and form.validate_on_submit():
         form.populate_obj(dict_code)
         db.session.commit()
-        flash(u'%s 修改成功' % dict_code.code_label, 'success')
+        flash(u'字典(%s)修改成功' % dict_code.code_label, 'success')
         return redirect('/dict-codes/')
         
     form.process(obj=dict_code)
     return render_template('/system/dict-codes/new_edit.html', form=form,
-                           action=url_for('system.dict_codes_edit', id=id), title=u'编辑字典')
+                           action=url_for('system.dict_codes_edit', id=id), title=u'修改字典')
     
 
 # ==============================================================================
@@ -121,21 +121,6 @@ def thresholds():
     table = make_table(query, ThresholdTable)
     return render_template("system/thresholds/index.html",
                             filterForm = form, table=table)
-    
-    
-@sysview.route('/thresholds/edit/<int:id>', methods=['GET', 'POST'])
-def thresholds_edit(id):
-    form = ThresholdEditForm()
-    threshold = Threshold.query.get_or_404(id)
-    
-    if form.is_submitted and form.validate_on_submit():
-        form.populate_obj(threshold)
-        db.session.commit()
-        flash(u'阀值 %s 修改成功' % threshold.name, 'success')
-        return redirect(url_for('system.thresholds'))
-        
-    form.process(obj=threshold)
-    return render_template("system/thresholds/edit.html", form=form, id=id)
 
     
 @sysview.route('/thresholds/new', methods=['GET', 'POST'])
@@ -147,10 +132,25 @@ def thresholds_new():
         db.session.add(threshold)
         db.session.commit()
         
-        flash(u'阀值 %s 添加成功' % threshold.name, 'success')
+        flash(u'阀值(%s)添加成功' % threshold.name, 'success')
         return redirect(url_for('system.thresholds'))
         
     return render_template("system/thresholds/new.html", form=form, )
+    
+    
+@sysview.route('/thresholds/edit/<int:id>', methods=['GET', 'POST'])
+def thresholds_edit(id):
+    form = ThresholdEditForm()
+    threshold = Threshold.query.get_or_404(id)
+    
+    if form.is_submitted and form.validate_on_submit():
+        form.populate_obj(threshold)
+        db.session.commit()
+        flash(u'阀值(%s)修改成功' % threshold.name, 'success')
+        return redirect(url_for('system.thresholds'))
+        
+    form.process(obj=threshold)
+    return render_template("system/thresholds/edit.html", form=form, id=id)
 
 # ==============================================================================
 #  指标管理
@@ -191,12 +191,12 @@ def metrics_edit(id):
     if form.is_submitted and form.validate_on_submit():
         form.populate_obj(metric)
         db.session.commit()
-        flash(u'指标 (%s) 编辑成功' % metric.alias, 'success')
+        flash(u'指标 (%s) 修改成功' % metric.alias, 'success')
         return redirect(url_for('system.metrics'))
         
     form.process(obj=metric)
     return render_template('system/metrics/new-edit.html', form=form,
-                           action=url_for('system.metrics_edit', id=id), title=u'编辑指标')
+                           action=url_for('system.metrics_edit', id=id), title=u'修改指标')
 
 
 @sysview.route('/metric/delete/<int:id>', methods=['GET', 'POST'])
@@ -255,12 +255,12 @@ def timeperiods_edit(id):
     if form.is_submitted and form.validate_on_submit():
         form.populate_obj(timeperiod)
         db.session.commit()
-        flash(u'编辑成功!', 'success')
+        flash(u'修改成功!', 'success')
         return redirect(url_for('system.timeperiods'))
         
     form.process(obj=timeperiod)
     return render_template('/system/timeperiods/new-edit.html', form=form,
-                           action=url_for('system.timeperiods_edit', id=id), title=u'编辑规则')
+                           action=url_for('system.timeperiods_edit', id=id), title=u'修改规则')
 
 
 # ==============================================================================
@@ -322,10 +322,7 @@ def hosts_edit(id):
     form = NodeHostEditForm()
     
     if form.is_submitted and form.validate_on_submit():
-        alias = form.alias.data
-        remark = form.remark.data
-        host.alias = alias
-        host.remark = remark
+        form.populate_obj(host)
         db.session.commit()
         flash(u'%s 修改成功' % host.name, 'success')
         return redirect('/hosts/')

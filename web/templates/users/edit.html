@@ -1,19 +1,32 @@
-<form class="form-horizontal" method="POST" id="test-wtf"
-      action="{{url_for('users.users_edit', id=user.id)}}">
-  {% from "tango/_form_h.html" import render_field %}
-  <fieldset>
-    {{ form.hidden_tag() }}
-    {{ render_field(form.name) }}
-    {{ render_field(form.role_id) }}
-    {{ render_field(form.domain_id) }}
-    {{ render_field(form.department) }}
-    {{ render_field(form.email) }}
-    {{ render_field(form.telephone) }}
-    {{ render_field(form.mobile) }}
-    {{ render_field(form.memo, rows=4) }}
-    <div class="form-actions">
-      <button type="submit" class="btn btn-primary">确定</button>
-      <a href="#" class="btn">取消</a>
+{% extends 'layout.html' %}
+
+{% from "tango/_form_h.html" import render_field, render_form_title %}
+
+{% block content %}
+<div class="row-fluid content">
+    <div class="span2">
+      {% include "system/_sidebar.html" %}
     </div>
-  </fieldset>
-</form>
+    
+    <div class="span10">
+      <form class="form-horizontal" method="POST" action="{{ action }}">
+        {{ render_form_title(request, title) }}
+        {{ form.hidden_tag() }}
+        {{ render_field(form.name) }}
+        {{ render_field(form.role_id) }}
+        {{ render_field(form.domain_id) }}
+        {{ render_field(form.department) }}
+        {{ render_field(form.email) }}
+        {{ render_field(form.telephone) }}
+        {{ render_field(form.mobile) }}
+        {{ render_field(form.memo, rows=4) }}
+        
+	<div class="form-actions">
+	  <button type="submit" class="btn btn-primary">确定</button>
+        <a href="javascript:history.go(-1);" class="btn">取消</a>
+	</div>
+      </form>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,5 +1,6 @@
 {% from "tango/_form_h.html" import render_field %}
-<form class="form-horizontal" style="margin:0;" method="POST" action="{{ action }}">
+<form class="form-horizontal" style="margin:0;"
+      method="{% if method %}{{ method }}{% else %}POST{% endif %}"  action="{{ action }}">
   <div class="modal-header">
     <a class="close" data-dismiss="modal">×</a>
     <h3>{{ title }}</h3>
@@ -28,11 +29,11 @@
     </fieldset>
   </div>
   <div class="modal-footer">
-    <a href="#" class="btn" data-dismiss="modal">取消</a>
     {% if type and type=='delete' %}
       <input type="submit" class="btn btn-primary btn-danger" value="删除">
     {% else%}
       <input type="submit" class="btn btn-primary" value="确认">
     {% endif %} 
+    <a href="#" class="btn" data-dismiss="modal">取消</a>
   </div>
 </form>
