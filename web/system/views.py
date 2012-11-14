@@ -322,10 +322,7 @@ def hosts_edit(id):
     form = NodeHostEditForm()
     
     if form.is_submitted and form.validate_on_submit():
-        alias = form.alias.data
-        remark = form.remark.data
-        host.alias = alias
-        host.remark = remark
+        form.populate_obj(host)
         db.session.commit()
         flash(u'%s 修改成功' % host.name, 'success')
         return redirect('/hosts/')
