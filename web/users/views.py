@@ -263,7 +263,7 @@ def roles_new():
     perms = all_args['permissions']
     form = RoleForm()
     role = Role()
-    if request.method == 'POST' and form.validate_on_submit():
+    if request.method == 'POST' and form.validate_on_submit() and perms:
         for p in perms.keys():
             perm = Permission.query.get(int(p))
             role.permissions.append(perm)
@@ -274,9 +274,10 @@ def roles_new():
         flash(u'新建角色成功', 'success')
         return redirect(url_for('users.roles'))
 
+    if request.method == 'POST' and not perms:
+        flash(u'权限选项为必选!', 'error')
     perm_tree = Permission.make_tree()
-    
-    return render_template('users/roles/new_edit.html',
+    return render_template('users/roles/new-edit.html',
                            action=url_for('users.roles_new'),
                            form=form, perm_tree=perm_tree)
     
@@ -287,8 +288,9 @@ def roles_edit(id):
     perms = all_args['permissions']
     form = RoleForm()
     role = Role.query.get_or_404(id)
-    
-    if request.method == 'POST' and form.validate_on_submit():
+    print perms
+    if request.method == 'POST' and form.validate_on_submit() and perms:
+        # 请空原来的数据
         while len(role.permissions) > 0:
             role.permissions.pop(0)
         for p in perms:
@@ -300,10 +302,12 @@ def roles_edit(id):
         db.session.commit()
         flash(u'修改角色(%s)成功' % role.name, 'success')
         return redirect(url_for('users.roles'))
-    
+
+    if request.method == 'POST' and not perms:
+        flash(u'权限选项为必选!', 'error')
     perm_tree = Permission.make_tree(role.permissions)
     form.process(obj=role)
-    return render_template('users/roles/new_edit.html',
+    return render_template('users/roles/new-edit.html',
                            action=url_for('users.roles_edit', id=id),
                            form=form, perm_tree=perm_tree)
     

@@ -195,24 +195,51 @@ class Permission(db.Model):
     
     @staticmethod
     def make_tree(role_perms=None):
+        # Prepare
         all_perms = Permission.query.all()
         perm_tree = AutoIncrSortedDict()
+        role_ids = []
+        role_names = []
+        role_modules = []
+        if role_perms:
+            role_ids = [p.id for p in role_perms]
+            role_names = [p.name for p in role_perms]
+            role_modules = [p.module for p in role_perms]
+
+        OPERATIONS = {
+            u'查看' : 0,
+            u'编辑' : 1,
+            u'新建' : 2,
+            u'删除' : 3,
+            u'批量删除': 4,
+        }
+        def cmp_operation(x, y):
+            if x not in OPERATIONS.keys() and y not in OPERATIONS.keys():
+                return 0
+            elif x not in OPERATIONS.keys():
+                return 1
+            elif y not in OPERATIONS.keys():
+                return -1
+            else:
+                return OPERATIONS[x] - OPERATIONS[y]
+                
         for p in all_perms:
             module_checked = ''
             name_checked = ''
             operation_checked = ''
-            if role_perms is not None:
-                for rp in role_perms:
-                    if p.module == rp.module:
-                        module_checked = 'checked'
-                    if p.name == rp.name:
-                        name_checked = 'checked'
-                    if p.id == rp.id:
-                        operation_checked = 'checked'
+
+            if role_perms:
+                if p.id in role_ids:
+                    operation_checked = 'checked'
+                if p.name in role_names:
+                    name_checked = 'checked'
+                if p.module in role_modules:
+                    module_checked = 'checked'
             module_key = (p.module_text, module_checked)
             name_key = (p.name, name_checked)
-            operation_key = (p.operation, operation_checked)
+            operation_key = p.operation
             
-            perm_tree[module_key][name_key][operation_key] = p.id
-            
+            perm_tree[module_key][name_key][operation_key] = (p.id, operation_checked)
+
+        perm_tree['cmpfunc'] = cmp_operation
         return perm_tree

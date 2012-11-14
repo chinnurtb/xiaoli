@@ -285,13 +285,10 @@ def permissions_edit(id):
     form = PermissionForm()
     permission = Permission.query.get_or_404(id)
     if form.is_submitted and form.validate_on_submit():
-        permission.module_text = form.module_text.data
-        permission.name = form.name.data
-        permission.operation = form.operation.data
-        permission.default_permission = form.default_permission.data
+        form.populate_obj(permission)
         db.session.commit()
         flash(u'权限项修改成功!', 'success')
-        return redirect(request.referrer)
+        return redirect(url_for('.permissions'))
         
     form.process(obj=permission)
     kwargs = {

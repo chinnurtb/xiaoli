@@ -1,0 +1,119 @@
+{% extends 'layout.html' %}
+
+{% set title = '编辑角色' %}
+
+{% from "tango/_form_h.html" import render_field, render_form_title %}
+
+{% block content %}
+<div class="row-fluid content">
+  <div class="span2">
+    {% if request.endpoint == 'users.roles_new' %}
+        {% set menuid = 'roles-new' %}
+    {% endif %}
+    {% include "users/_sidebar.html" %}
+  </div>
+  
+  <div class="span10">
+    {% from "tango/_form_h.html" import render_csrf_error %}
+    {{ render_csrf_error(form) }}
+    <div class="row-fluid">
+      {% include "_alert.html" %}
+      <div class="">
+	<form class="form-horizontal" method="POST" id="test-wtf" action="{{action}}">
+          {{ render_form_title(request, title) }}
+	  <fieldset>
+            {{ form.hidden_tag() }}
+            {{ render_field(form.name) }}
+            <div id="" class="control-group">
+              <div id="" class="controls">
+                <table class=" table-bordered  widefat">
+                  <thead>
+                    <tr>
+                      <th>模块名</th>
+                      <th>子模块</th>
+                      <th>可用操作</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% set cmpfunc = perm_tree.pop('cmpfunc')%}
+                    {% for module, names in perm_tree.iteritems() %}
+                      {% set mindex = loop.index0 %}
+                      {% for name, operations in names.iteritems() %}
+                        <tr class="module-{{ mindex }}">
+                          {% if loop.index == 1 %}
+                            <td rowspan="{{ names.keys()|length}}">
+                              <label class="checkbox">
+                                <input type="checkbox" class="module-input" {{module[1]}}
+                                       name="{{ ['perm_module', module[0]]|join('.') }}" />{{module[0]}}
+                              </label>
+                            </td>
+                          {% endif %}
+                          <td>
+                            <label class="checkbox">
+                              <input type="checkbox" class="name-input"  {{name[1]}}
+                                     name="{{ ['perm_name', name[0]]|join('.') }}" />{{name[0]}}
+                            </label>
+                          </td>
+                          <td class="name-{{ mindex }}-{{ loop.index0 }} ">
+                            {# 为了给操作名排序 #}
+                            {% set operation_keys = operations.keys() %}
+                            {% set null = operation_keys.sort(cmp=cmpfunc) %}
+                            {% for key in operation_keys %}
+                              <label class="checkbox inline">
+                                <input type="checkbox" {% if key == '查看' %} onclick="return false;"{% endif %}
+                                       class="operation-input" {{ operations[key][1] }}
+                                       name="{{ ['permissions', operations[key][0]]|join('.') }}" />{{key}}
+                              </label>
+                            {% endfor %}
+                          </td>
+                        </tr>
+                      {% endfor %}
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+	    {{ render_field(form.description) }}
+	    <div class="form-actions">
+	      <button type="submit" class="btn btn-primary">确定</button>
+            <a href="javascript:history.go(-1);" class="btn">取消</a>
+	    </div>
+	  </fieldset>		    
+	</form>
+      </div>
+    </div>
+    <br class="clear">
+  </div>
+</div>
+
+<script type="text/javascript">
+
+  $('.module-input').each(function(index){
+      var mindex = index;
+      var $minput = $(this);
+      
+      $('.module-'+ mindex + ' .name-input').each(function(index){
+          var $ninput = $(this);
+          $ninput.change(function(){
+              var $subinput = $('.name-'+ mindex +'-'+ index + ' .operation-input');
+              console.log('.name-'+ mindex +'-'+ index + ' .operation-input');
+              console.log($subinput);
+              $subinput.each(function(index){
+                  $subinput.eq(index).prop('checked', $ninput.is(':checked'));
+              });
+          });
+      });
+
+      $minput.change(function(){
+          var $subinput = $('.module-'+ index + ' .name-input');
+          console.log($subinput);
+          $subinput.each(function(index){
+              $subinput.eq(index).prop('checked', $minput.is(':checked')).change();
+              
+          });
+      });
+  });
+
+</script>
+
+{% endblock %}
