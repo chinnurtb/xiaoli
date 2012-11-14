@@ -17,7 +17,7 @@
 	<fieldset>
 	  {{ form.hidden_tag() }}
           {{ render_field(form.name, disabled="disabled") }}
-          {{ render_field(form.alias, disabled="disabled", class="input-xxlarge") }}
+          {{ render_field(form.alias, disabled="disabled") }}
           {{ render_field(form.value) }}
 	  <div class="form-actions">
 	    <button type="submit" class="btn btn-primary">确定</button>
