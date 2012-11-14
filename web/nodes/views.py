@@ -16,7 +16,7 @@ from tango.models import Profile, Category
 from tango.excel.CsvExport import CsvExport
 
 from .models import Node, Area, Vendor, NODE_STATUS_DICT, Model
-from .forms import NodeNewForm, NodeSearchForm
+from .forms import NodeSearchForm
 from .tables import NodeTable
 
 nodeview = Blueprint('nodes', __name__)
@@ -141,39 +141,6 @@ def nodes():
     else:
         return render_template('nodes/index.html', table = table, form=form, status_statistcs=status_statistcs)
 
-
-@nodeview.route('/nodes/new/', methods=['GET','POST'])
-@login_required
-def nodes_new():
-    form = NodeNewForm()
-    if request.method == 'POST' and form.validate_on_submit():
-        del form._fields["cityid"]
-        del form._fields["town"]
-        node = Node()
-        form.populate_obj(node)
-        node.status = 1
-        db.session.add(node)
-        db.session.commit()
-        flash(u'添加节点成功', 'success')
-        return redirect(url_for('nodes.nodes'))
-    return render_template('nodes/new.html', form = form)
-
-@nodeview.route('/nodes/edit/<int:id>/', methods=['POST', 'GET'])
-@login_required
-def nodes_edit(id):
-    form = NodeNewForm()
-    node = Node.query.get_or_404(id)
-    if request.method == 'POST' and form.validate_on_submit():
-        del form._fields["cityid"]
-        del form._fields["town"]
-        form.populate_obj(node)
-        node.updated_at = datetime.now()
-        db.session.add(node)
-        db.session.commit()
-        flash(u'修改节点成功','success')
-        return redirect(url_for('nodes.nodes'))
-    form.process(obj=node)
-    return render_template('/nodes/edit.html', node=node, form=form)
 
 @nodeview.route('/nodes/delete/', methods=['POST'])
 def nodes_delete():
