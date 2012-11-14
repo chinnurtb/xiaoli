@@ -330,6 +330,19 @@ class NodeForm(QueryForm):
 #  Unit Test
 # ==============================================================================
 if __name__ == '__main__':
+    from users.models import User, Role, Domain
+    class UserQueryForm(QueryForm):
+        username  = TextField(u'用户名', operator='ilike')
+        name      = TextField(u'真实姓名', operator='ilike')
+        domain_id = SelectField(u'管理域', operator='==',
+                                choices=lambda: [('', u'请选择')] + [(unicode(d.id), d.name) for d in Domain.query])
+        role_id   = SelectField(u'角色名', operator='==',
+                                choices=lambda: [('', u'请选择')] + [(unicode(r.id), r.name) for r in Role.query])
+
+        class Meta():
+            model = User
+
+    
     kv_list = [
         ('filters.addr.operator' , 'ilike'),
         ('filters.addr.value', '127.0.0.1'),
