@@ -26,6 +26,7 @@
     </div>
 
     <div class="span10">
+        {% include "_alert.html" %}
         {% from "tango/_form_h.html" import render_field %}
         <form class="form-horizontal" method="POST" action="{{url_for('nodes.branches_edit', id=area.id)}}">
             <h5><i class="icon-pencil"></i>修改分局</h5>

@@ -237,12 +237,17 @@ def cities_new():
     if request.method == 'POST' and form.validate_on_submit():
         area = Area()
         form.populate_obj(area)
-        area.area_type = 1
-        area.parent_id = Area.query.filter(Area.area_type==0).first().id
-        db.session.add(area)
-        db.session.commit()
-        flash(u'添加地市成功', 'success')
-        return redirect(url_for('nodes.cities'))
+        if Area.query.filter(Area.area_type==1).filter(Area.name==area.name).count() > 0:
+            flash(u'地市名称不能重复','error')
+        elif Area.query.filter(Area.area_type==1).filter(Area.alias==area.alias).count() > 0:
+            flash(u'地市别名不能重复','error')
+        else:
+            area.area_type = 1
+            area.parent_id = Area.query.filter(Area.area_type==0).first().id
+            db.session.add(area)
+            db.session.commit()
+            flash(u'添加地市 %s 成功'% area.name, 'success')
+            return redirect(url_for('nodes.cities'))
     return render_template('nodes/areas/cities_new.html', form = form)
 
 @nodeview.route('/nodes/cities/edit/<int:id>/', methods=['POST', 'GET'])
@@ -252,12 +257,17 @@ def cities_edit(id):
     area = Area.query.get_or_404(id)
     if request.method == 'POST':
         if form.validate_on_submit():
-            form.populate_obj(area)
-            area.updated_at = datetime.now()
-            db.session.add(area)
-            db.session.commit()
-            flash(u'修改地市成功','success')
-            return redirect(url_for('nodes.cities'))
+            if area.name != form.name.data and Area.query.filter(Area.area_type==1).filter(Area.name==area.name).count() > 0:
+                flash(u'地市名称不能重复','error')
+            elif area.alias != form.alias.data and Area.query.filter(Area.area_type==1).filter(Area.alias==area.alias).count() > 0:
+                flash(u'地市别名不能重复','error')
+            else:
+                form.populate_obj(area)
+                area.updated_at = datetime.now()
+                db.session.add(area)
+                db.session.commit()
+                flash(u'修改地市 %s 成功'% area.name,'success')
+                return redirect(url_for('nodes.cities'))
     else:
         form.process(obj=area)
     return render_template('/nodes/areas/cities_edit.html', area=area, form=form)
@@ -283,11 +293,16 @@ def towns_new():
     if request.method == 'POST' and form.validate_on_submit():
         area = Area()
         form.populate_obj(area)
-        area.area_type = 2
-        db.session.add(area)
-        db.session.commit()
-        flash(u'添加区县成功', 'success')
-        return redirect(url_for('nodes.towns'))
+        if Area.query.filter(Area.area_type==2).filter(Area.name==area.name).count() > 0:
+            flash(u'区县名称不能重复','error')
+        elif Area.query.filter(Area.area_type==2).filter(Area.alias==area.alias).count() > 0:
+            flash(u'区县别名不能重复','error')
+        else:
+            area.area_type = 2
+            db.session.add(area)
+            db.session.commit()
+            flash(u'添加区县 %s 成功'% area.name, 'success')
+            return redirect(url_for('nodes.towns'))
     return render_template('nodes/areas/towns_new.html', form = form)
 
 @nodeview.route('/nodes/towns/edit/<int:id>/', methods=['POST', 'GET'])
@@ -297,12 +312,17 @@ def towns_edit(id):
     area = Area.query.get_or_404(id)
     if request.method == 'POST':
         if form.validate_on_submit():
-            form.populate_obj(area)
-            area.updated_at = datetime.now()
-            db.session.add(area)
-            db.session.commit()
-            flash(u'修改区县成功','success')
-            return redirect(url_for('nodes.towns'))
+            if area.name != form.name.data and Area.query.filter(Area.area_type==2).filter(Area.name==area.name).count() > 0:
+                flash(u'区县名称不能重复','error')
+            elif area.alias != form.alias.data and Area.query.filter(Area.area_type==2).filter(Area.alias==area.alias).count() > 0:
+                flash(u'区县别名不能重复','error')
+            else:
+                form.populate_obj(area)
+                area.updated_at = datetime.now()
+                db.session.add(area)
+                db.session.commit()
+                flash(u'修改区县 %s 成功'% area.name,'success')
+                return redirect(url_for('nodes.towns'))
     else:
         form.process(obj=area)
     return render_template('/nodes/areas/towns_edit.html', area=area, form=form)
@@ -328,11 +348,16 @@ def branches_new():
     if request.method == 'POST' and form.validate_on_submit():
         area = Area()
         form.populate_obj(area)
-        area.area_type = 3
-        db.session.add(area)
-        db.session.commit()
-        flash(u'添加分局成功', 'success')
-        return redirect(url_for('nodes.branches'))
+        if Area.query.filter(Area.area_type==3).filter(Area.name==area.name).count() > 0:
+            flash(u'分局名称不能重复','error')
+        elif Area.query.filter(Area.area_type==3).filter(Area.alias==area.alias).count() > 0:
+            flash(u'分局别名不能重复','error')
+        else:
+            area.area_type = 3
+            db.session.add(area)
+            db.session.commit()
+            flash(u'添加分局 %s 成功'% area.name, 'success')
+            return redirect(url_for('nodes.branches'))
     return render_template('nodes/areas/branches_new.html', form = form)
 
 @nodeview.route('/nodes/branches/edit/<int:id>/', methods=['POST', 'GET'])
@@ -342,13 +367,18 @@ def branches_edit(id):
     area = Area.query.get_or_404(id)
     if request.method == 'POST':
         if form.validate_on_submit():
-            del form._fields["cityid"]
-            form.populate_obj(area)
-            area.updated_at = datetime.now()
-            db.session.add(area)
-            db.session.commit()
-            flash(u'修改分局成功','success')
-            return redirect(url_for('nodes.branches'))
+            if area.name != form.name.data and Area.query.filter(Area.area_type==3).filter(Area.name==area.name).count() > 0:
+                flash(u'分局名称不能重复','error')
+            elif area.alias != form.alias.data and Area.query.filter(Area.area_type==3).filter(Area.alias==area.alias).count() > 0:
+                flash(u'分局别名不能重复','error')
+            else:
+                del form._fields["cityid"]
+                form.populate_obj(area)
+                area.updated_at = datetime.now()
+                db.session.add(area)
+                db.session.commit()
+                flash(u'修改分局 %s 成功'% area.name,'success')
+                return redirect(url_for('nodes.branches'))
     else:
         form.process(obj=area)
     return render_template('/nodes/areas/branches_edit.html', area=area, form=form)
@@ -374,11 +404,16 @@ def entrances_new():
     if request.method == 'POST' and form.validate_on_submit():
         area = Area()
         form.populate_obj(area)
-        area.area_type = 4
-        db.session.add(area)
-        db.session.commit()
-        flash(u'添加接入点成功', 'success')
-        return redirect(url_for('nodes.entrances'))
+        if Area.query.filter(Area.area_type==4).filter(Area.name==area.name).count() > 0:
+            flash(u'接入点名称不能重复','error')
+        elif Area.query.filter(Area.area_type==4).filter(Area.alias==area.alias).count() > 0:
+            flash(u'接入点别名不能重复','error')
+        else:
+            area.area_type = 4
+            db.session.add(area)
+            db.session.commit()
+            flash(u'添加接入点 %s 成功'% area.name, 'success')
+            return redirect(url_for('nodes.entrances'))
     return render_template('nodes/areas/entrances_new.html', form = form)
 
 @nodeview.route('/nodes/entrances/edit/<int:id>/', methods=['POST', 'GET'])
@@ -388,14 +423,19 @@ def entrances_edit(id):
     area = Area.query.get_or_404(id)
     if request.method == 'POST':
         if form.validate_on_submit():
-            del form._fields["cityid"]
-            del form._fields["town"]
-            form.populate_obj(area)
-            area.updated_at = datetime.now()
-            db.session.add(area)
-            db.session.commit()
-            flash(u'修改接入点成功','success')
-            return redirect(url_for('nodes.entrances'))
+            if area.name != form.name.data and Area.query.filter(Area.area_type==4).filter(Area.name==area.name).count() > 0:
+                flash(u'接入点名称不能重复','error')
+            elif area.alias != form.alias.data and Area.query.filter(Area.area_type==4).filter(Area.alias==area.alias).count() > 0:
+                flash(u'接入点别名不能重复','error')
+            else:
+                del form._fields["cityid"]
+                del form._fields["town"]
+                form.populate_obj(area)
+                area.updated_at = datetime.now()
+                db.session.add(area)
+                db.session.commit()
+                flash(u'修改接入点 %s 成功'% area.name,'success')
+                return redirect(url_for('nodes.entrances'))
     else:
         form.process(obj=area)
     return render_template('/nodes/areas/entrances_edit.html', area=area, form=form)

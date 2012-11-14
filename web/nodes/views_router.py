@@ -64,12 +64,19 @@ def routers_new():
         del form._fields["town"]
         node = NodeRouter()
         form.populate_obj(node)
-        node.status = 1
-        node.category_id = 1
-        db.session.add(node)
-        db.session.commit()
-        flash(u'添加路由器成功', 'success')
-        return redirect(url_for('nodes.routers'))
+        if NodeRouter.query.filter(NodeRouter.name==node.name).count() > 0:
+            flash(u'路由器名称不能重复','error')
+        elif NodeRouter.query.filter(NodeRouter.alias==node.alias).count() > 0:
+            flash(u'路由器别名不能重复','error')
+        elif NodeRouter.query.filter(NodeRouter.addr==node.addr).count() > 0:
+            flash(u'路由器 IP地址不能重复','error')
+        else:
+            node.status = 1
+            node.category_id = 1
+            db.session.add(node)
+            db.session.commit()
+            flash(u'添加路由器 %s 成功'% node.name, 'success')
+            return redirect(url_for('nodes.routers'))
     return render_template('nodes/routers/new.html', form = form)
 
 @nodeview.route('/nodes/routers/edit/<int:id>/', methods=['POST', 'GET'])
@@ -79,14 +86,21 @@ def routers_edit(id):
     node = NodeRouter.query.get_or_404(id)
     if request.method == 'POST':
         if form.validate_on_submit():
-            del form._fields["cityid"]
-            del form._fields["town"]
-            form.populate_obj(node)
-            node.updated_at = datetime.now()
-            db.session.add(node)
-            db.session.commit()
-            flash(u'修改路由器成功','success')
-            return redirect(url_for('nodes.routers'))
+            if node.name != form.name.data and NodeRouter.query.filter(NodeRouter.name==node.name).count() > 0:
+                flash(u'路由器名称不能重复','error')
+            elif node.alias != form.alias.data and NodeRouter.query.filter(NodeRouter.alias==node.alias).count() > 0:
+                flash(u'路由器别名不能重复','error')
+            elif node.addr != form.addr.data and NodeRouter.query.filter(NodeRouter.addr==node.addr).count() > 0:
+                flash(u'路由器 IP地址不能重复','error')
+            else:
+                del form._fields["cityid"]
+                del form._fields["town"]
+                form.populate_obj(node)
+                node.updated_at = datetime.now()
+                db.session.add(node)
+                db.session.commit()
+                flash(u'修改路由器 %s 成功'% node.name,'success')
+                return redirect(url_for('nodes.routers'))
     else:
         form.process(obj=node)
     return render_template('/nodes/routers/edit.html', node=node, form=form)

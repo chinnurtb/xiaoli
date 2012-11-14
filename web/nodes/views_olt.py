@@ -64,12 +64,19 @@ def olts_new():
         del form._fields["town"]
         node = NodeOlt()
         form.populate_obj(node)
-        node.status = 1
-        node.category_id = 20
-        db.session.add(node)
-        db.session.commit()
-        flash(u'添加OLT成功', 'success')
-        return redirect(url_for('nodes.olts'))
+        if NodeOlt.query.filter(NodeOlt.name==node.name).count() > 0:
+            flash(u'OLT名称不能重复','error')
+        elif NodeOlt.query.filter(NodeOlt.alias==node.alias).count() > 0:
+            flash(u'OLT别名不能重复','error')
+        elif NodeOlt.query.filter(NodeOlt.addr==node.addr).count() > 0:
+            flash(u'OLT IP地址不能重复','error')
+        else:
+            node.status = 1
+            node.category_id = 20
+            db.session.add(node)
+            db.session.commit()
+            flash(u'添加OLT %s 成功'% node.name, 'success')
+            return redirect(url_for('nodes.olts'))
     return render_template('nodes/olts/new.html', form = form)
 
 @nodeview.route('/nodes/olts/edit/<int:id>/', methods=['POST', 'GET'])
@@ -79,14 +86,21 @@ def olts_edit(id):
     node = NodeOlt.query.get_or_404(id)
     if request.method == 'POST':
         if form.validate_on_submit():
-            del form._fields["cityid"]
-            del form._fields["town"]
-            form.populate_obj(node)
-            node.updated_at = datetime.now()
-            db.session.add(node)
-            db.session.commit()
-            flash(u'修改OLT成功','success')
-            return redirect(url_for('nodes.olts'))
+            if node.name != form.name.data and NodeOlt.query.filter(NodeOlt.name==node.name).count() > 0:
+                flash(u'OLT名称不能重复','error')
+            elif node.alias != form.alias.data and NodeOlt.query.filter(NodeOlt.alias==node.alias).count() > 0:
+                flash(u'OLT别名不能重复','error')
+            elif node.addr != form.addr.data and NodeOlt.query.filter(NodeOlt.addr==node.addr).count() > 0:
+                flash(u'OLT IP地址不能重复','error')
+            else:
+                del form._fields["cityid"]
+                del form._fields["town"]
+                form.populate_obj(node)
+                node.updated_at = datetime.now()
+                db.session.add(node)
+                db.session.commit()
+                flash(u'修改OLT %s 成功'% node.name,'success')
+                return redirect(url_for('nodes.olts'))
     else:
         form.process(obj=node)
     return render_template('/nodes/olts/edit.html', node=node, form=form)

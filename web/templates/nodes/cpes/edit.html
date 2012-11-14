@@ -30,6 +30,7 @@
     </div>
 
     <div class="span10">
+        {% include "_alert.html" %}
         {% from "tango/_form_h.html" import render_field %}
         <form class="form-horizontal" method="POST" action="{{url_for('nodes.cpes_edit', id=node.id)}}">
             <h5><i class="icon-pencil"></i> 修改CPE</h5>
