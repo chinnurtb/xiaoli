@@ -11,7 +11,7 @@ class UserTable(tables.Table):
 
     helpdoc = u"用户表: 管理维护用户信息"
 
-    edit   = tables.Action(name=u'编辑', endpoint='users.users_edit', modalable=True)
+    edit   = tables.Action(name=u'编辑', endpoint='users.users_edit')
     delete = tables.Action(name=u'删除', endpoint='users.users_delete', modalable=True)
     reset  = tables.Action(name=u'重置密码', endpoint='users.reset_password')
     
@@ -32,7 +32,7 @@ class UserTable(tables.Table):
 
 class RoleTable(tables.Table):
     edit   = tables.Action(name=u'编辑', endpoint='users.roles_edit')
-    delete = tables.Action(name=u'删除', endpoint='users.roles_delete')
+    delete = tables.Action(name=u'删除', endpoint='users.roles_delete', modalable=True)
     
     check  = tables.CheckBoxColumn()
     
@@ -46,7 +46,7 @@ class RoleTable(tables.Table):
 
 class DomainTable(tables.Table):
     edit   = tables.Action(name=u'编辑', endpoint='users.domains_edit')
-    delete = tables.Action(name=u'删除', endpoint='users.domains_delete')
+    delete = tables.Action(name=u'删除', endpoint='users.domains_delete', modalable=True)
 
     check  = tables.CheckBoxColumn()
     

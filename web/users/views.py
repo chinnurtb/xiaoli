@@ -138,15 +138,10 @@ def users_new():
             form.populate_obj(user)
             db.session.add(user)
             db.session.commit()
-            flash(u'添加用户(%s)成功' % user.username, 'success')
+            flash(u'用户(%s)添加成功' % user.username, 'success')
             return redirect(url_for('users.users'))
     return render_template('users/new.html', form=form)
 
-
-@userview.route('/t-modal/<int:id>', methods=['POST', 'GET'])
-def test_modal(id):
-    return render_template('users/test-modal%d.html' % id)
-    
     
 @userview.route('/users/edit/<int:id>', methods=['POST', 'GET'])
 def users_edit(id):
@@ -157,17 +152,17 @@ def users_edit(id):
         db.session.add(user)
         db.session.commit()
         cache.delete("user-"+str(id))
-        flash(u'修改用户(%s)成功' % user.username, 'success')
+        flash(u'用户(%s)修改成功' % user.username, 'success')
         return redirect(url_for('users.users'))
         
     form.process(obj=user)
     kwargs = {
         'title'  : u'修改用户',
+        'menuid' : 'users',
         'action' : url_for('users.users_edit', id=id),
         'form'   : form,
-        'type'   : 'edit'
     }
-    return render_template('tango/_modal.html', **kwargs)
+    return render_template('users/edit.html', **kwargs)
 
     
 @userview.route('/users/delete/<int:id>', methods=('GET', 'POST'))
@@ -303,16 +298,27 @@ def roles_delete(id):
     user_cnt = User.query.filter(User.role_id == id).count()
     role = Role.query.get(id)
     if user_cnt > 0:
-        flash(u'删除失败: 有(%d)个用户依赖此角色' % user_cnt, 'error')
+        kwargs = {
+            'title'  : u'删除失败!!!',
+            'method' : 'GET',
+            'action' : url_for('.roles'),
+            'fields' : [(u'原因', u'删除失败: 有(%d)个用户依赖此角色' % user_cnt)],
+        }
+        return render_template('tango/_modal.html', **kwargs)
     elif request.method == 'GET':
-        return render_template('users/roles/delete.html', role=role)
+        kwargs = {
+            'title'  : u'删除角色',
+            'action' : url_for('users.roles_delete', id=id),
+            'fields' : [(u'角色名', role.name), (u'描述', role.description)],
+            'type'   : 'delete'
+        }
+        return render_template('tango/_modal.html', **kwargs)
     else:
         db.session.delete(role)
         cache.delete("role-"+str(id))
         db.session.commit()
         flash(u'删除角色(%s)成功' % role.name, 'success')
-    return redirect(url_for('users.roles'))
-
+        return redirect(url_for('users.roles'))
     
 @userview.route('/roles/delete/all', methods=['GET', 'POST'])
 def roles_delete_all():
@@ -439,14 +445,26 @@ def domains_delete(id):
     user_cnt = User.query.filter(User.domain_id == id).count()
     domain = Domain.query.get_or_404(id)
     if user_cnt > 0:
-        flash(u'删除失败: 有(%d)个用户依赖此管理域!' % user_cnt, 'error')
+        kwargs = {
+            'title'  : u'删除失败!!!',
+            'method' : 'GET',
+            'action' : url_for('.domains'),
+            'fields' : [(u'原因', u'删除失败: 有(%d)个用户依赖此管理域' % user_cnt)],
+        }
+        return render_template('tango/_modal.html', **kwargs)
     elif request.method == 'GET':
-        return render_template('users/domains/delete.html', domain=domain)        
+        kwargs = {
+            'title'  : u'删除管理域',
+            'action' : url_for('users.domains_delete', id=id),
+            'fields' : [(u'管理域名', domain.name), (u'描述', domain.description)],
+            'type'   : 'delete'
+        }
+        return render_template('tango/_modal.html', **kwargs)
     else:
         db.session.delete(domain)
         db.session.commit()
         flash(u'管理域(%s)删除成功' % domain.name, 'success')
-    return redirect(url_for('users.domains'))
+        return redirect(url_for('users.domains'))
     
     
 @userview.route('/domains/delete/all', methods=['GET', 'POST'])
