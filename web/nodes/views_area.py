@@ -15,7 +15,7 @@ from tango.login import current_user, login_required
 from tango.models import Profile, Category
 from tango.excel.CsvExport import CsvExport
 
-from .models import Node, Board, Port, Area, Vendor, NODE_STATUS_DICT, Model
+from .models import Node, Area, Vendor, NODE_STATUS_DICT, Model
 from .tables import CityTable, TownTable, BranchTable, EntranceTable
 from .forms import CityNewForm, TownNewForm, BranchNewForm, EntranceNewForm
 from .views import nodeview

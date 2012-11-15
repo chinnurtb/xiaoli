@@ -7,7 +7,7 @@ from tango.ui import tables
 from tango.ui.tables.utils import Attrs
 
 from nodes import constants
-from .models import Node, NodeSwitch, NodeRouter, NodeOlt, NodeOnu, NodeEoc, NodeCpe, Board, Port, NodeHost, NODE_STATUS_DICT,Area
+from .models import Node, NodeSwitch, NodeRouter, NodeOlt, NodeOnu, NodeEoc, NodeCpe, Port, NodeHost, NODE_STATUS_DICT,Area
 
 redirct_dict = {
     1:"routers",
@@ -199,24 +199,6 @@ class NodeHostTable(tables.Table):
 
     class Meta():
         model = NodeHost
-
-        
-class BoardTable(tables.Table):
-    check       = tables.CheckBoxColumn()
-    status      = tables.Column(u'状态')
-    alias       = tables.Column(u'名称', orderable=True)
-    class Meta():
-        model = Board
-        per_page = 30
-        order_by = '-alias'
-
-class PortTable(tables.Table):
-    check       = tables.CheckBoxColumn()
-    alias       = tables.Column(u'名称', orderable=True)
-    class Meta():
-        model = Port
-        per_page = 30
-        order_by = '-alias'
 
 class CityTable(tables.Table):
     edit = tables.Action(name=u'编辑', endpoint='nodes.cities_edit')

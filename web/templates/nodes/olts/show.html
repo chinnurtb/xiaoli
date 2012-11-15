@@ -130,88 +130,10 @@
                     </table>
                 </div>
                 <div id="board_info" class="tab-pane" style="height: auto; ">
-                    <table class="table table-hover">
-                        <thead>
-                        <tr>
-                            <th>槽位</th>
-                            <th>板卡类型</th>
-                            <th>板卡状态</th>
-                            <th>CPU负载</th>
-                            <th>内存占用</th>
-                            <th>硬件版本</th>
-                            <th>软件版本</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td>Mark</td>
-                            <td>Otto</td>
-                            <td>@mdo</td>
-                            <td>Otto</td>
-                            <td>@mdo</td>
-                            <td>@mdo</td>
-                        </tr>
-                        <tr>
-                            <td>2</td>
-                            <td>Jacob</td>
-                            <td>Thornton</td>
-                            <td>@fat</td>
-                            <td>Otto</td>
-                            <td>@mdo</td>
-                            <td>@mdo</td>
-                        </tr>
-                        <tr>
-                            <td>3</td>
-                            <td>Larry the Bird</td>
-                            <td>@twitter</td>
-                            <td>Otto</td>
-                            <td>@mdo</td>
-                            <td>@mdo</td>
-                            <td>@mdo</td>
-                        </tr>
-                        </tbody>
-                    </table>
+                    {% include "nodes/olts/_boards.html" %}
                 </div>
                 <div id="port_info" class="tab-pane">
-                    <table class="table table-hover">
-                        <thead>
-                        <tr>
-                            <th>槽位</th>
-                            <th>端口</th>
-                            <th>类型</th>
-                            <th>状态</th>
-                            <th>可达速率</th>
-                            <th>VLAN</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td>Mark</td>
-                            <td>Otto</td>
-                            <td>@mdo</td>
-                            <td>Otto</td>
-                            <td>@mdo</td>
-                        </tr>
-                        <tr>
-                            <td>2</td>
-                            <td>Jacob</td>
-                            <td>Thornton</td>
-                            <td>@fat</td>
-                            <td>Otto</td>
-                            <td>@mdo</td>
-                        </tr>
-                        <tr>
-                            <td>3</td>
-                            <td>Larry the Bird</td>
-                            <td>@twitter</td>
-                            <td>Otto</td>
-                            <td>@mdo</td>
-                            <td>@mdo</td>
-                        </tr>
-                        </tbody>
-                    </table>
+                    {% include "nodes/olts/_ports.html" %}
                 </div>
             </div>
         </div>
