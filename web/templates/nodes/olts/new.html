@@ -61,7 +61,8 @@
 
             <div class="form-actions span10">
                 <button type="submit" class="btn btn-primary btn-small">确定</button>
-                <a href="javascript:history.go(-1);" class="btn">取消</a>
+                <input id="next" name="next" type="hidden" value="{{ next }}">
+                <a href="javascript:document.location.href='{{ next }}'; return false;" class="btn btn-small">取消</a>
             </div>
         </form>
     </div>
