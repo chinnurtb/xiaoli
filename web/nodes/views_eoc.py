@@ -58,6 +58,7 @@ def eocs():
 @nodeview.route('/nodes/eocs/new/', methods=['GET','POST'])
 @login_required
 def eocs_new():
+    next = request.form["next"] if request.form.get("next") else request.referrer
     form = EocNewForm()
     if request.method == 'POST' and form.validate_on_submit():
         del form._fields["cityid"]
@@ -77,11 +78,12 @@ def eocs_new():
             db.session.commit()
             flash(u'添加EOC %s 成功'% node.name, 'success')
             return redirect(url_for('nodes.eocs'))
-    return render_template('nodes/eocs/new.html', form = form)
+    return render_template('nodes/eocs/new.html', form = form, next=next)
 
 @nodeview.route('/nodes/eocs/edit/<int:id>/', methods=['POST', 'GET'])
 @login_required
 def eocs_edit(id):
+    next = request.form["next"] if request.form.get("next") else request.referrer
     form = EocNewForm()
     node = NodeEoc.query.get_or_404(id)
     if request.method == 'POST':
@@ -103,7 +105,7 @@ def eocs_edit(id):
                 return redirect(url_for('nodes.eocs'))
     else:
         form.process(obj=node)
-    return render_template('/nodes/eocs/edit.html', node=node, form=form)
+    return render_template('/nodes/eocs/edit.html', node=node, form=form, next=next)
 
 @nodeview.route('/nodes/eocs/delete/', methods=['POST'])
 def eocs_delete():

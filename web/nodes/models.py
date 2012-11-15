@@ -366,6 +366,21 @@ class NodeEoc(NodeMixin, db.Model):
     controller_id = db.Column(db.Integer, db.ForeignKey('node_onus.id'))
     cpes = db.relationship("NodeCpe", backref="eoc")
 
+    @property
+    def cpe_count_plan(self):
+        return object_session(self).\
+        scalar(
+            select([func.count(NodeCpe.id)]).\
+            where(and_(NodeCpe.controller_id==self.id, NodeCpe.area_id != None))
+        )
+    @property
+    def cpe_count_unplan(self):
+        return object_session(self).\
+        scalar(
+            select([func.count(NodeCpe.id)]).\
+            where(and_(NodeCpe.controller_id==self.id, NodeCpe.area_id == None))
+        )
+
     def __unicode__(self):
         return u'<EOC %s>' % self.alias
 

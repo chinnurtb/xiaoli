@@ -116,13 +116,15 @@ class CpeTable(tables.Table):
     model_name = tables.Column(verbose_name=u'型号', orderable=True, accessor='model.alias')
     mac = tables.Column(verbose_name=u'Mac地址', orderable=True)
     area_name = tables.Column(verbose_name=u'所属区域', accessor='area.full_name')
-    eoc_name = tables.Column(verbose_name=u'所属EOC', accessor='eoc.name')
+    eoc_name = tables.LinkColumn(verbose_name=u'所属EOC', accessor='eoc.name')
     last_check = tables.Column(verbose_name=u'上次同步',orderable=True)
 
     class Meta():
         model = NodeCpe
         per_page = 30
-
+        url_makers = {
+            'eoc_name': lambda record: url_for('nodes.eocs_show',id=record.eoc.id),
+            }
 
 class SwitchTable(tables.Table):
     edit = tables.Action(name=u'编辑', endpoint='nodes.switches_edit')
