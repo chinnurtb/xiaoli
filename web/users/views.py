@@ -258,9 +258,15 @@ def roles_new():
     if request.method == 'POST' and not perms:
         flash(u'权限选项为必选!', 'error')
     perm_tree = Permission.make_tree()
-    return render_template('users/roles/new-edit.html',
-                           action=url_for('users.roles_new'),
-                           form=form, perm_tree=perm_tree)
+    
+    kwargs = {
+        'title'     : u'添加角色',
+        'menuid'    : 'roles-new',
+        'action'    : url_for('users.roles_new'),
+        'form'      : form,
+        'perm_tree' : perm_tree,
+    }
+    return render_template('users/roles/new-edit.html', **kwargs)
     
 
 @userview.route('/roles/edit/<int:id>', methods=['POST', 'GET'])
@@ -288,9 +294,16 @@ def roles_edit(id):
         flash(u'权限选项为必选!', 'error')
     perm_tree = Permission.make_tree(role.permissions)
     form.process(obj=role)
-    return render_template('users/roles/new-edit.html',
-                           action=url_for('users.roles_edit', id=id),
-                           form=form, perm_tree=perm_tree)
+    
+    kwargs = {
+        'title'     : u'修改角色',
+        'menuid'    : 'roles',
+        'action'    : url_for('users.roles_edit', id=id),
+        'form'      : form,
+        'perm_tree' : perm_tree,
+    }
+    return render_template('users/roles/new-edit.html', **kwargs)
+
     
 
 @userview.route('/roles/delete/<int:id>', methods=('GET', 'POST'))
