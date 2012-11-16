@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+    <title>Node-Link Tree (Radial)</title>
+    <script type="text/javascript" src="/static/js/topo/d3.v2.js"></script>
+    <link type="text/css" rel="stylesheet" href="/static/js/topo/tree.css"/>
+    <style type="text/css" media="screen">
+      body {
+          background-color: #111;
+      }
+      
+      #chart {
+          margin-bottom: 10px;
+          float: right;
+        font-family: Times, "宋体";
+      }
+      
+      svg {
+          background-color: #FFC;
+        font-family: Times, "宋体";
+      }
+      
+      rect {
+          fill: #ffc;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="chart"></div>
+  </body>
+
+    <script type="text/javascript">
+//////////////////////////////////////////////
+var radius = 640 / 2;
+    zoomTime = 4.5;
+/**
+ * 4级: 4.5/600 --> 3/400
+ */
+var tree = d3.layout.tree()
+    .size([360, radius * zoomTime * 0.8])
+    .separation(function(a, b) { return (a.parent == b.parent ? 1 : 2) / a.depth; });
+
+var diagonal = d3.svg.diagonal.radial()
+    .projection(function(d) { return [d.y, d.x / 180 * Math.PI]; });
+
+var width = radius * 2,
+    height = radius * 2;
+
+var x = d3.scale.linear()
+    .domain([-width / 2, width / 2])
+    .range([0, width]);
+
+var y = d3.scale.linear()
+    .domain([-height / 2, height / 2])
+    .range([height, 0]);
+
+function zoom() {
+    console.log(d3.event.translate, d3.event.scale);
+    vis.attr("transform", "translate(" + d3.event.translate + ")scale("+ d3.event.scale +")");
+}
+
+var vis = d3.select("#chart").append("svg")
+    .attr("width", radius * 2 + 400)
+    .attr("height", radius * 2)
+  .append("g")
+    .attr("transform", "translate(" + radius + "," + radius + ")scale("+ 1.0/zoomTime+")")
+    .call(d3.behavior.zoom().scaleExtent([1, 8]).on("zoom", zoom))
+  .append("g");
+
+vis.append("rect")
+    .attr("width", radius * 2 * zoomTime) // 3 = 1 / 0.33
+    .attr("height", radius * 2 * zoomTime)
+    .attr("transform", "translate(" + -radius*zoomTime + "," + -radius*zoomTime + ")");
+
+
+d3.json("/topo/test.json?na=6&nb=10&nc=10", function(json) {
+    var nodes = tree.nodes(json);
+
+    var link = vis.selectAll("path.link")
+        .data(tree.links(nodes))
+        .enter().append("path")
+        .attr("class", "link")
+        .attr("d", diagonal);
+
+    var node = vis.selectAll("g.node")
+        .data(nodes)
+        .enter().append("g")
+        .append("a")
+        .attr("xlink:href", function(d){return d.url;})
+        .attr("class", "node")
+        .attr("transform", function(d) { return "rotate(" + (d.x - 90) + ")translate(" + d.y + ")"; })
+
+    // node.append("circle")
+    //     .attr("r", 4.5);
+    node.append("image")
+        .attr("xlink:href", "http://img3.douban.com/icon/u25434827-6.jpg");
+
+    node.append("text")
+        .attr("dy", ".31em")
+        .attr("text-anchor", function(d) { return d.x < 180 ? "start" : "end"; })
+        .attr("transform", function(d) { return d.x < 180 ? "translate(8)" : "rotate(180)translate(-8)"; })
+        .text(function(d) { return d.name; });
+
+});
+
+    </script>
+</html>
+
