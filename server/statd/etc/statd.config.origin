@@ -1,4 +1,4 @@
-%% -*- mode: erlang;erlang-indent-level: 4;indent-tabs-mode: nil -*-
+%% mode: erlang;erlang-indent-level: 4;indent-tabs-mode: nil
 %% ex: ft=erlang ts=4 sw=4 et
 [{kernel, [
 	{start_timer, true}, 
@@ -14,14 +14,21 @@
 	{vm_memory_high_watermark, 0.2},
 	{proc, [{long_gc, 500}, {large_heap, 5000000}, busy_port]}
  ]},
- {emysql, [
-	{pool_size, 2},
-    {host, "MYSQL_HOST"}, 
-    {port, MYSQL_PORT}, 
-    {username, "MYSQL_USER"}, 
-    {password, "MYSQL_PASS"}, 
-    {database, "MYSQL_DB"},
-    {encoding, utf8}
+ {epgsql, [
+    {pools, [
+        {main, [
+            {pool_size, 2},
+            {host, "PG_HOST"},
+            {username, "PG_USER"},
+            {password, "PG_PASSWD"},
+            {database, "PG_DB"},
+            {port, 5432},
+            {timeout, 6000}
+        ]}
+    ]}
+ ]},
+ {epgqueue, [
+    {pool, main}
  ]},
  {amqp_client, [
     {broker, [

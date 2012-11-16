@@ -1,7 +1,7 @@
 *.log
 *.beam
 *.app
-server/lib
+server/lib/*
 errdb/
 web/venv
 \#*
