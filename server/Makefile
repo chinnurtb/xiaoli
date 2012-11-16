@@ -1,4 +1,3 @@
-
 all: deps
 	rebar compile
 
@@ -7,4 +6,3 @@ deps:
 
 clean:
 	rebar clean
-	
