@@ -114,20 +114,6 @@ def change_password():
 # ==============================================================================
 #  User
 # ==============================================================================
-from tango.ui.queries import QueryForm, TextField, SelectField
-
-class UserQueryForm(QueryForm):
-    username  = TextField(u'用户名', operator='ilike')
-    name      = TextField(u'真实姓名', operator='ilike')
-    domain_id = SelectField(u'管理域', operator='==',
-                            choices=lambda: [('', u'请选择')] + [(unicode(d.id), d.name) for d in Domain.query])
-    role_id   = SelectField(u'角色名', operator='==',
-                            choices=lambda: [('', u'请选择')] + [(unicode(r.id), r.name) for r in Role.query])
-
-    class Meta():
-        model = User
-
-        
 @userview.route('/users/')
 def users():
     query = User.query
@@ -152,15 +138,10 @@ def users_new():
             form.populate_obj(user)
             db.session.add(user)
             db.session.commit()
-            flash(u'添加用户(%s)成功' % user.username, 'success')
+            flash(u'用户(%s)添加成功' % user.username, 'success')
             return redirect(url_for('users.users'))
     return render_template('users/new.html', form=form)
 
-
-@userview.route('/t-modal/<int:id>', methods=['POST', 'GET'])
-def test_modal(id):
-    return render_template('users/test-modal%d.html' % id)
-    
     
 @userview.route('/users/edit/<int:id>', methods=['POST', 'GET'])
 def users_edit(id):
@@ -171,17 +152,17 @@ def users_edit(id):
         db.session.add(user)
         db.session.commit()
         cache.delete("user-"+str(id))
-        flash(u'修改用户(%s)成功' % user.username, 'success')
+        flash(u'用户(%s)修改成功' % user.username, 'success')
         return redirect(url_for('users.users'))
         
     form.process(obj=user)
     kwargs = {
-        'title'  : u'编辑用户',
+        'title'  : u'修改用户',
+        'menuid' : 'users',
         'action' : url_for('users.users_edit', id=id),
         'form'   : form,
-        'type'   : 'edit'
     }
-    return render_template('tango/_modal.html', **kwargs)
+    return render_template('users/edit.html', **kwargs)
 
     
 @userview.route('/users/delete/<int:id>', methods=('GET', 'POST'))
@@ -263,7 +244,7 @@ def roles_new():
     perms = all_args['permissions']
     form = RoleForm()
     role = Role()
-    if request.method == 'POST' and form.validate_on_submit():
+    if request.method == 'POST' and form.validate_on_submit() and perms:
         for p in perms.keys():
             perm = Permission.query.get(int(p))
             role.permissions.append(perm)
@@ -271,14 +252,21 @@ def roles_new():
         form.populate_obj(role)
         db.session.add(role)
         db.session.commit()
-        flash(u'新建角色成功', 'success')
+        flash(u'角色(%s)添加成功' % role.name , 'success')
         return redirect(url_for('users.roles'))
 
+    if request.method == 'POST' and not perms:
+        flash(u'权限选项为必选!', 'error')
     perm_tree = Permission.make_tree()
     
-    return render_template('users/roles/new_edit.html',
-                           action=url_for('users.roles_new'),
-                           form=form, perm_tree=perm_tree)
+    kwargs = {
+        'title'     : u'添加角色',
+        'menuid'    : 'roles-new',
+        'action'    : url_for('users.roles_new'),
+        'form'      : form,
+        'perm_tree' : perm_tree,
+    }
+    return render_template('users/roles/new-edit.html', **kwargs)
     
 
 @userview.route('/roles/edit/<int:id>', methods=['POST', 'GET'])
@@ -288,7 +276,7 @@ def roles_edit(id):
     form = RoleForm()
     role = Role.query.get_or_404(id)
     print perms
-    if request.method == 'POST' and form.validate_on_submit():
+    if request.method == 'POST' and form.validate_on_submit() and perms:
         # 请空原来的数据
         while len(role.permissions) > 0:
             role.permissions.pop(0)
@@ -299,14 +287,23 @@ def roles_edit(id):
         form.populate_obj(role)
         db.session.add(role)
         db.session.commit()
-        flash(u'修改角色(%s)成功' % role.name, 'success')
+        flash(u'角色(%s)修改成功' % role.name, 'success')
         return redirect(url_for('users.roles'))
-    
+
+    if request.method == 'POST' and not perms:
+        flash(u'权限选项为必选!', 'error')
     perm_tree = Permission.make_tree(role.permissions)
     form.process(obj=role)
-    return render_template('users/roles/new_edit.html',
-                           action=url_for('users.roles_edit', id=id),
-                           form=form, perm_tree=perm_tree)
+    
+    kwargs = {
+        'title'     : u'修改角色',
+        'menuid'    : 'roles',
+        'action'    : url_for('users.roles_edit', id=id),
+        'form'      : form,
+        'perm_tree' : perm_tree,
+    }
+    return render_template('users/roles/new-edit.html', **kwargs)
+
     
 
 @userview.route('/roles/delete/<int:id>', methods=('GET', 'POST'))
@@ -314,23 +311,35 @@ def roles_delete(id):
     user_cnt = User.query.filter(User.role_id == id).count()
     role = Role.query.get(id)
     if user_cnt > 0:
-        flash(u'删除失败: 有(%d)个用户依赖此角色' % user_cnt, 'error')
+        kwargs = {
+            'title'  : u'删除失败!!!',
+            'method' : 'GET',
+            'action' : url_for('.roles'),
+            'fields' : [(u'原因', u'删除失败: 有(%d)个用户依赖此角色' % user_cnt)],
+        }
+        return render_template('tango/_modal.html', **kwargs)
     elif request.method == 'GET':
-        return render_template('users/roles/delete.html', role=role)
+        kwargs = {
+            'title'  : u'删除角色',
+            'action' : url_for('users.roles_delete', id=id),
+            'fields' : [(u'角色名', role.name), (u'描述', role.description)],
+            'type'   : 'delete'
+        }
+        return render_template('tango/_modal.html', **kwargs)
     else:
         db.session.delete(role)
+        cache.delete("role-"+str(id))
         db.session.commit()
         flash(u'删除角色(%s)成功' % role.name, 'success')
-    return redirect(url_for('users.roles'))
-
+        return redirect(url_for('users.roles'))
     
 @userview.route('/roles/delete/all', methods=['GET', 'POST'])
 def roles_delete_all():
     if request.method == 'POST':
         ids = dict(request.values.lists()).get('id', [])
         for i in ids:
-            cache.delete("role-"+str(i))
             db.session.delete(Role.query.get(int(i)))
+            cache.delete("role-"+str(i))
         db.session.commit()
         flash(u'成功删除 %d 个角色!' % len(ids) , 'success')
         return redirect(url_for('users.roles'))
@@ -418,6 +427,7 @@ def domains_new():
         domain.dump_areas(request.form['domain_areas'])
         db.session.add(domain)
         db.session.commit()
+        flash(u'管理域(%s)添加成功!' % domain.name, 'success')
         return redirect(url_for('users.domains'))
     return render_template('users/domains/new_edit.html',
                            action=url_for('users.domains_new'),
@@ -448,14 +458,26 @@ def domains_delete(id):
     user_cnt = User.query.filter(User.domain_id == id).count()
     domain = Domain.query.get_or_404(id)
     if user_cnt > 0:
-        flash(u'删除失败: 有(%d)个用户依赖此管理域!' % user_cnt, 'error')
+        kwargs = {
+            'title'  : u'删除失败!!!',
+            'method' : 'GET',
+            'action' : url_for('.domains'),
+            'fields' : [(u'原因', u'删除失败: 有(%d)个用户依赖此管理域' % user_cnt)],
+        }
+        return render_template('tango/_modal.html', **kwargs)
     elif request.method == 'GET':
-        return render_template('users/domains/delete.html', domain=domain)        
+        kwargs = {
+            'title'  : u'删除管理域',
+            'action' : url_for('users.domains_delete', id=id),
+            'fields' : [(u'管理域名', domain.name), (u'描述', domain.description)],
+            'type'   : 'delete'
+        }
+        return render_template('tango/_modal.html', **kwargs)
     else:
         db.session.delete(domain)
         db.session.commit()
         flash(u'管理域(%s)删除成功' % domain.name, 'success')
-    return redirect(url_for('users.domains'))
+        return redirect(url_for('users.domains'))
     
     
 @userview.route('/domains/delete/all', methods=['GET', 'POST'])
@@ -485,6 +507,9 @@ def domains_delete_all():
 # ==============================================================================
 navbar.add('users', u'用户', 'user', '/users/')
 
+# ==============================================================================
+#  Test
+# ==============================================================================
 @userview.route('/just-test/<name>/')
 def just_test(name='a'):
     print '\n'.join([item for item in dir(request) if item.find('__') == -1])

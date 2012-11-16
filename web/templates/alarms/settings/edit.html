@@ -18,8 +18,8 @@
                        action="{{ url_for('alarms.settings_edit',id=setting.id) }}">
 		    <fieldset>
 			{{ form.hidden_tag() }}
-                        {{ render_field(form.name, disabled="disabled") }}
-                        {{ render_field(form.alias, disabled="disabled", class="input-xxlarge") }}
+                        {{ render_field(form.name, readonly="readonly") }}
+                        {{ render_field(form.alias, readonly="readonly") }}
                         {{ render_field(form.value) }}
 			<div class="control-group">
 			    <div class="controls">

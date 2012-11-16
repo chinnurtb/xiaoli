@@ -52,7 +52,7 @@ def categories_new():
         form.populate_obj(category)
         db.session.add(category)
         db.session.commit()
-        flash(u'%s 添加成功' % category.alias, 'success')
+        flash(u'类别(%s)添加成功' % category.alias, 'success')
         return redirect(url_for('admin.categories'))
         
     kwargs = {
@@ -69,12 +69,12 @@ def categories_edit(id):
     if form.is_submitted and form.validate_on_submit():
         form.populate_obj(category)
         db.session.commit()
-        flash(u'%s 修改成功' % category.alias, 'success')
+        flash(u'类别(%s)修改成功' % category.alias, 'success')
         return redirect(url_for('admin.categories'))
         
     form.process(obj=category)
     kwargs = {
-        'title': u'编辑类别',
+        'title': u'修改类别',
         'action': url_for('admin.categories_edit', id=id),
         'form': form
     }
@@ -86,7 +86,7 @@ def categories_delete(id):
     if request.method == 'POST':
         db.session.delete(category)
         db.session.commit()
-        flash(u'%s 已删除' % category.alias, 'success')
+        flash(u'类别(%s)已删除' % category.alias, 'success')
         return redirect(url_for('admin.categories'))
         
     kwargs = {
@@ -123,7 +123,6 @@ def categories_delete_all():
 # ==============================================================================
 #  权限管理
 # ==============================================================================    
-
 MODULE_TEXTS = {
     'tango'  : u'公共',
     'home'   : u'首页',
@@ -136,6 +135,9 @@ MODULE_TEXTS = {
     'system' : u'系统管理',
     'admin'  : u'后台管理',
 }
+
+ENDPOINT_IGNORE = ['tango.shell',
+                   'perf.add_time']
 
 NAMES = {
     # Admin
@@ -192,8 +194,8 @@ NAMES = {
 }
     
 OPERATIONS = {
-    'new'             : u'新建',
-    'edit'            : u'编辑',
+    'new'             : u'添加',
+    'edit'            : u'修改',
     'delete'          : u'删除',
     ('delete', 'all') : u'批量删除',
 }
@@ -212,8 +214,9 @@ def permissions_update():
     for rule in current_app.url_map.iter_rules():
         endpoint = rule.endpoint
         if endpoint in current_app.config['SAFE_ENDPOINTS'] \
+           or endpoint in ENDPOINT_IGNORE \
            or endpoint.find('demo') > -1 or endpoint.find('test') > -1:
-            print 'Safe>> ', endpoint
+            print 'Safe or Very Danger>> ', endpoint
             continue
         if endpoint.find('.') == -1:
             raise ValueError('UnExcepted endpoint: %s' % endpoint)
@@ -288,9 +291,12 @@ def permissions_edit(id):
         form.populate_obj(permission)
         db.session.commit()
         flash(u'权限项修改成功!', 'success')
+        if form.next.data:
+            return redirect(form.next.data)
         return redirect(url_for('.permissions'))
         
     form.process(obj=permission)
+    form.next.data = request.referrer
     kwargs = {
         'menuid' : 'permissions',
         'title'  : u'修改权限',
@@ -306,7 +312,7 @@ def permissions_delete(id):
     if request.method == 'POST':
         db.session.delete(permission)
         db.session.commit()
-        flash(u'权限项 %s 已删除' % permission.endpoint, 'success')
+        flash(u'权限项(%s)已删除' % permission.endpoint, 'success')
         return redirect(url_for('.permissions'))
         
     kwargs = {
@@ -345,7 +351,7 @@ def vendors_new():
         form.populate_obj(vendor)
         db.session.add(vendor)
         db.session.commit()
-        flash(u'%s 添加成功' % vendor.alias, 'success') # Diff
+        flash(u'厂商(%s)添加成功' % vendor.alias, 'success') # Diff
         return redirect(url_for('admin.vendors'))
         
     kwargs = {
@@ -363,12 +369,12 @@ def vendors_edit(id):
     if form.is_submitted and form.validate_on_submit():
         form.populate_obj(vendor)
         db.session.commit()
-        flash(u'%s 修改成功' % vendor.alias, 'success') # Diff
+        flash(u'厂商(%s)修改成功' % vendor.alias, 'success') # Diff
         return redirect(url_for('admin.vendors'))
         
     form.process(obj=vendor)
     kwargs = {
-        'title': u'编辑厂商',
+        'title': u'修改厂商',
         'action': url_for('admin.vendors_edit', id=id),
         'form': form
     }
@@ -381,7 +387,7 @@ def vendors_delete(id):
     if request.method == 'POST':
         db.session.delete(vendor)
         db.session.commit()
-        flash(u'%s 已删除' % vendor.alias, 'success') # Diff
+        flash(u'厂商(%s)已删除' % vendor.alias, 'success') # Diff
         return redirect(url_for('admin.vendors'))
         
     kwargs = {
@@ -440,7 +446,7 @@ def models_new():
         form.populate_obj(model)
         db.session.add(model)
         db.session.commit()
-        flash(u'%s 添加成功' % model.alias, 'success') # Diff
+        flash(u'设备(%s) 添加成功' % model.alias, 'success') # Diff
         return redirect(url_for('admin.models'))
         
     kwargs = {
@@ -457,12 +463,12 @@ def models_edit(id):
     if form.is_submitted and form.validate_on_submit():
         form.populate_obj(model)
         db.session.commit()
-        flash(u'%s 修改成功' % model.alias, 'success') # Diff
+        flash(u'设备(%s)修改成功' % model.alias, 'success') # Diff
         return redirect(url_for('admin.models'))
         
     form.process(obj=model)
     kwargs = {
-        'title': u'编辑设备',
+        'title': u'修改设备',
         'action': url_for('admin.models_edit', id=id),
         'form': form
     }
@@ -474,7 +480,7 @@ def models_delete(id):
     if request.method == 'POST':
         db.session.delete(model)
         db.session.commit()
-        flash(u'%s 已删除' % model.alias, 'success') # Diff
+        flash(u'设备(%s)已删除' % model.alias, 'success') # Diff
         return redirect(url_for('admin.models'))
         
     kwargs = {
@@ -536,6 +542,7 @@ def sysoids_new():
         form.populate_obj(sysoid)
         db.session.add(sysoid)
         db.session.commit()
+        flash(u'Sysoid添加成功', 'success')
         return redirect(url_for('admin.sysoids'))
         
     kwargs = {
@@ -552,11 +559,12 @@ def sysoids_edit(id):
     if form.is_submitted and form.validate_on_submit():
         form.populate_obj(sysoid)
         db.session.commit()
+        flash(u'Sysoid修改成功', 'success')
         return redirect(url_for('admin.sysoids'))
         
     form.process(obj=sysoid)
     kwargs = {
-        'title': u'编辑Sysoid',
+        'title': u'修改Sysoid',
         'action': url_for('admin.sysoids_edit', id=id),
         'form': form
     }
@@ -568,6 +576,7 @@ def sysoids_delete(id):
     if request.method == 'POST':
         db.session.delete(sysoid)
         db.session.commit()
+        flash(u'Sysoid删除成功', 'success')
         return redirect(url_for('admin.sysoids'))
         
     kwargs = {
@@ -626,7 +635,7 @@ def modules_new():
         form.populate_obj(module)
         db.session.add(module)
         db.session.commit()
-        flash(u'%s 添加成功' % module.alias, 'success') # Diff
+        flash(u'采集模块(%s)添加成功' % module.alias, 'success') # Diff
         return redirect(url_for('admin.modules'))
         
     kwargs = {
@@ -643,12 +652,12 @@ def modules_edit(id):
     if form.is_submitted and form.validate_on_submit():
         form.populate_obj(module)
         db.session.commit()
-        flash(u'%s 修改成功' % module.alias, 'success') # Diff
+        flash(u'采集模块(%s)修改成功' % module.alias, 'success') # Diff
         return redirect(url_for('admin.modules'))
         
     form.process(obj=module)
     kwargs = {
-        'title': u'编辑采集模块',
+        'title': u'修改采集模块',
         'action': url_for('admin.modules_edit', id=id),
         'form': form
     }
@@ -660,7 +669,7 @@ def modules_delete(id):
     if request.method == 'POST':
         db.session.delete(module)
         db.session.commit()
-        flash(u'%s 已删除' % module.alias, 'success') # Diff
+        flash(u'采集模块(%s)已删除' % module.alias, 'success') # Diff
         return redirect(url_for('admin.modules'))
         
     kwargs = {
@@ -721,6 +730,7 @@ def monitors_new():
         form.populate_obj(monitor)
         db.session.add(monitor)
         db.session.commit()
+        flash(u'监视器添加成功', 'success')
         return redirect(url_for('admin.monitors'))
         
     kwargs = {
@@ -737,11 +747,12 @@ def monitors_edit(id):
     if form.is_submitted and form.validate_on_submit():
         form.populate_obj(monitor)
         db.session.commit()
+        flash(u'监视器修改成功', 'success')
         return redirect(url_for('admin.monitors'))
         
     form.process(obj=monitor)
     kwargs = {
-        'title': u'编辑监控器',
+        'title': u'修改监控器',
         'action': url_for('admin.monitors_edit', id=id),
         'form': form
     }
@@ -753,6 +764,7 @@ def monitors_delete(id):
     if request.method == 'POST':
         db.session.delete(monitor)
         db.session.commit()
+        flash(u'监视器删除成功', 'success')
         return redirect(url_for('admin.monitors'))
         
     kwargs = {
@@ -818,6 +830,7 @@ def miboids_new():
         form.populate_obj(miboid)
         db.session.add(miboid)
         db.session.commit()
+        flash(u'Mib添加成功', 'success')
         return redirect(url_for('admin.miboids'))
         
     kwargs = {
@@ -834,11 +847,12 @@ def miboids_edit(id):
     if form.is_submitted and form.validate_on_submit():
         form.populate_obj(miboid)
         db.session.commit()
+        flash(u'Mib修改成功', 'success')
         return redirect(url_for('admin.miboids'))
         
     form.process(obj=miboid)
     kwargs = {
-        'title'  : u'编辑MIB',
+        'title'  : u'修改MIB',
         'menuid' : miboid.mib,
         'action' : url_for('admin.miboids_edit', id=id),
         'form'   : form,
@@ -851,6 +865,7 @@ def miboids_delete(id):
     if request.method == 'POST':
         db.session.delete(miboid)
         db.session.commit()
+        flash(u'Mib删除成功', 'success')
         return redirect(url_for('admin.miboids'))
         
     kwargs = {

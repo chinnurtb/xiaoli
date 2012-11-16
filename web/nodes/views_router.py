@@ -58,38 +58,54 @@ def routers():
 @nodeview.route('/nodes/routers/new/', methods=['GET','POST'])
 @login_required
 def routers_new():
+    next = request.form["next"] if request.form.get("next") else request.referrer
     form = RouterNewForm()
     if request.method == 'POST' and form.validate_on_submit():
         del form._fields["cityid"]
         del form._fields["town"]
         node = NodeRouter()
         form.populate_obj(node)
-        node.status = 1
-        node.category_id = 1
-        db.session.add(node)
-        db.session.commit()
-        flash(u'添加路由器成功', 'success')
-        return redirect(url_for('nodes.routers'))
-    return render_template('nodes/routers/new.html', form = form)
+        if NodeRouter.query.filter(NodeRouter.name==node.name).count() > 0:
+            flash(u'路由器名称不能重复','error')
+        elif NodeRouter.query.filter(NodeRouter.alias==node.alias).count() > 0:
+            flash(u'路由器别名不能重复','error')
+        elif NodeRouter.query.filter(NodeRouter.addr==node.addr).count() > 0:
+            flash(u'路由器 IP地址不能重复','error')
+        else:
+            node.status = 1
+            node.category_id = 1
+            db.session.add(node)
+            db.session.commit()
+            flash(u'添加路由器 %s 成功'% node.name, 'success')
+            return redirect(url_for('nodes.routers'))
+    return render_template('nodes/routers/new.html', form = form, next=next)
 
 @nodeview.route('/nodes/routers/edit/<int:id>/', methods=['POST', 'GET'])
 @login_required
 def routers_edit(id):
+    next = request.form["next"] if request.form.get("next") else request.referrer
     form = RouterNewForm()
     node = NodeRouter.query.get_or_404(id)
     if request.method == 'POST':
         if form.validate_on_submit():
-            del form._fields["cityid"]
-            del form._fields["town"]
-            form.populate_obj(node)
-            node.updated_at = datetime.now()
-            db.session.add(node)
-            db.session.commit()
-            flash(u'修改路由器成功','success')
-            return redirect(url_for('nodes.routers'))
+            if node.name != form.name.data and NodeRouter.query.filter(NodeRouter.name==node.name).count() > 0:
+                flash(u'路由器名称不能重复','error')
+            elif node.alias != form.alias.data and NodeRouter.query.filter(NodeRouter.alias==node.alias).count() > 0:
+                flash(u'路由器别名不能重复','error')
+            elif node.addr != form.addr.data and NodeRouter.query.filter(NodeRouter.addr==node.addr).count() > 0:
+                flash(u'路由器 IP地址不能重复','error')
+            else:
+                del form._fields["cityid"]
+                del form._fields["town"]
+                form.populate_obj(node)
+                node.updated_at = datetime.now()
+                db.session.add(node)
+                db.session.commit()
+                flash(u'修改路由器 %s 成功'% node.name,'success')
+                return redirect(url_for('nodes.routers'))
     else:
         form.process(obj=node)
-    return render_template('/nodes/routers/edit.html', node=node, form=form)
+    return render_template('/nodes/routers/edit.html', node=node, form=form, next=next)
 
 @nodeview.route('/nodes/routers/delete/', methods=['POST'])
 def routers_delete():
@@ -106,22 +122,12 @@ def routers_delete():
 @login_required
 def routers_show(id):
     node = NodeRouter.query.get_or_404(id)
-    from tango.ui.charts.highcharts import LineTimeSeriesChart
-    traffic_chart = LineTimeSeriesChart()
-    traffic_chart.set_html_id("traffic")
-    traffic_chart["title"]["text"] = None
-    traffic_chart["subtitle"]["text"] = None
-    traffic_chart["yAxis"]["title"] = None
-    traffic_chart.set_yformatter()
-
-    from tango.ui.charts.highcharts import PieBasicChart
-    alarm_chart = PieBasicChart()
-    alarm_chart.set_html_id("alarm")
-    alarm_chart["title"]["text"] = u'最近24小时可用率'
-    alarm_chart["plotOptions"]["pie"]["events"]["click"] = None
-    alarm_chart.min_width = str(220)+"px"
-    alarm_chart["series"][0]["data"] = [{'name': u'完全故障', 'y':1},{'name': u'部分故障', 'y':2},{'name': u'完全正常', 'y':19},{'name': u'数据缺失', 'y':2}]
-    return render_template('nodes/routers/show.html', node = node, traffic_chart = traffic_chart, alarm_chart = alarm_chart)
+    data = [{'label': u'完全故障', 'color': 'red', 'value': 1},
+            {'label': u'部分故障', 'color': 'yellow', 'value': 2},
+            {'label': u'完全正常', 'color': 'green', 'value': 19},
+            {'label': u'数据缺失', 'color': 'blue', 'value': 2}]
+    chartdata2 = [{'values': data}]
+    return render_template('nodes/routers/show.html', node = node, chartdata2 = chartdata2)
 
 import os
 import operator

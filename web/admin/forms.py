@@ -21,11 +21,12 @@ class CategoryForm(Form):
 
     
 class PermissionForm(Form):
-    endpoint = TextField(u'Endpoint')
-    module_text = TextField(u'模块显示名')
-    name = TextField(u'子模块显示名')
-    operation = TextField(u'操作名')
+    endpoint           = TextField(u'Endpoint')
+    module_text        = TextField(u'模块显示名')
+    name               = TextField(u'子模块显示名')
+    operation          = TextField(u'操作名')
     default_permission = SelectField(u'有效性', [required(message=u'必填')], choices=[(u'0', u'无权限'),(u'1', u'有权限')])
+    next               = HiddenField()    
 
     
 class VendorForm(Form):

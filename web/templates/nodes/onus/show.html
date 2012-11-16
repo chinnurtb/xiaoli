@@ -2,6 +2,10 @@
 
 {% block head %}
     <link rel="stylesheet" href="/static/css/detail.css" type="text/css" media="all">
+    {% from 'tango/_base.html' import javascript, stylesheet %}
+    {{ stylesheet("/static/css/nv.d3.css") }}
+    {{ javascript("/static/js/nvd3/d3.v2.min.js") }}
+    {{ javascript("/static/js/nvd3/nv.d3.min.js") }}
 {% endblock %}
 
 {% block content %}
@@ -60,9 +64,9 @@
                 </table>
               </div>
             </div>
-            {% from "tango/_chart_h.html" import render_highchart %}
-            <div class="span2">
-                {{ render_highchart(alarm_chart, height="220px", width="220px") }}
+            <div class="span4">
+                {% from "_nvd3_chart.html" import pie_chart %}
+                {{ pie_chart("alarms_stats_by_severity", chartdata2) }}
             </div>
             <div class="clear"></div>
         <div style="height:20px"></div>
@@ -75,8 +79,8 @@
             </ul>
             <div class="tab-content" >
                 <div class="tab-pane active" id="basic_info">
-                    {% from "tango/_chart_h.html" import render_highchart %}
-                    {{ render_highchart(traffic_chart, height="250px") }}
+                    {% from "_nvd3_chart.html" import traffic_chart %}
+                    {{ traffic_chart("traffic", chartdata) }}
                 </div>
                 <div class="tab-pane detail" id="snmp_info">
                     <table class="table">
@@ -125,88 +129,10 @@
                     </table>
                 </div>
                 <div id="board_info" class="tab-pane" style="height: auto; ">
-                    <table class="table table-hover">
-                        <thead>
-                        <tr>
-                            <th>槽位</th>
-                            <th>板卡类型</th>
-                            <th>板卡状态</th>
-                            <th>CPU负载</th>
-                            <th>内存占用</th>
-                            <th>硬件版本</th>
-                            <th>软件版本</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td>Mark</td>
-                            <td>Otto</td>
-                            <td>@mdo</td>
-                            <td>Otto</td>
-                            <td>@mdo</td>
-                            <td>@mdo</td>
-                        </tr>
-                        <tr>
-                            <td>2</td>
-                            <td>Jacob</td>
-                            <td>Thornton</td>
-                            <td>@fat</td>
-                            <td>Otto</td>
-                            <td>@mdo</td>
-                            <td>@mdo</td>
-                        </tr>
-                        <tr>
-                            <td>3</td>
-                            <td>Larry the Bird</td>
-                            <td>@twitter</td>
-                            <td>Otto</td>
-                            <td>@mdo</td>
-                            <td>@mdo</td>
-                            <td>@mdo</td>
-                        </tr>
-                        </tbody>
-                    </table>
+                    {% include "nodes/onus/_boards.html" %}
                 </div>
                 <div id="port_info" class="tab-pane">
-                    <table class="table table-hover">
-                        <thead>
-                        <tr>
-                            <th>槽位</th>
-                            <th>端口</th>
-                            <th>类型</th>
-                            <th>状态</th>
-                            <th>可达速率</th>
-                            <th>VLAN</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td>Mark</td>
-                            <td>Otto</td>
-                            <td>@mdo</td>
-                            <td>Otto</td>
-                            <td>@mdo</td>
-                        </tr>
-                        <tr>
-                            <td>2</td>
-                            <td>Jacob</td>
-                            <td>Thornton</td>
-                            <td>@fat</td>
-                            <td>Otto</td>
-                            <td>@mdo</td>
-                        </tr>
-                        <tr>
-                            <td>3</td>
-                            <td>Larry the Bird</td>
-                            <td>@twitter</td>
-                            <td>Otto</td>
-                            <td>@mdo</td>
-                            <td>@mdo</td>
-                        </tr>
-                        </tbody>
-                    </table>
+                    {% include "nodes/onus/_ports.html" %}
                 </div>
             </div>
         </div>

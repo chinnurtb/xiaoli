@@ -7,32 +7,13 @@ from wtforms import validators as v
 from .models import NodeEoc, NodeOlt, NODE_STATUS_DICT, Area, Vendor, Model,SNMP_VER_DICT
 
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
-from flask_wtf import TextField,RadioField,TextAreaField, required
+from flask_wtf import TextField,RadioField,TextAreaField, required, HiddenField
 from wtforms.validators import IPAddress, NoneOf
 
 from tango.ui.form.forms import FormPro
 from tango.ui.form.fields import SelectFieldPro, AreaSelectField, DateFieldPro, DecimalFieldPro
 from tango.ui.tables.utils import Attrs
 from tango.models import  Category
-
-class NodeNewForm(FormPro):
-    cityid          = SelectFieldPro(u'所属地市', validators=[required(message=u'必填')],
-        choices=lambda: [('', u'请选择地市')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==1)])
-    town         = SelectFieldPro(u'', validators=[required(message=u'必填')],
-        choices=lambda: [('', u'请选择区县')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==2)])
-    area_id         = SelectFieldPro(u'所属区域', validators=[required(message=u'必填')],
-        choices=lambda: [('', u'请选择分局')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==3)])
-    name            = TextField(u'节点名称', validators=[required(message=u'必填')])
-    alias           = TextField(u'节点别名', validators=[required(message=u'必填')])
-    category_id     = SelectFieldPro(u'节点类型',validators=[required(message=u'必填')],
-        choices=lambda: [('', u'请选择节点类型')] + [(unicode(r.id), r.alias) for r in Category.query.filter(Category.obj=="node").filter(Category.is_valid==1)])
-    addr            = TextField(u'IP 地址', validators=[required(message=u'必填'), IPAddress(message=u'IP地址格式不正确'), NoneOf(['0.0.0.0','255.255.255.255'], message=u'IP地址格式不正确')])
-    snmp_comm       = TextField(u'读团体名', validators=[required(message=u'必填')])
-    snmp_wcomm      = TextField(u'写团体名', validators=[required(message=u'必填')])
-    snmp_ver       = RadioField(u'SNMP版本',default=SNMP_VER_DICT.keys()[0], validators=[required(message=u'必填')],
-        choices=[(value, label) for value, label in SNMP_VER_DICT.items()])
-    location        = TextField(u'位置')
-    remark          = TextAreaField(u'备注信息')
 
 class NodeSearchForm(FormPro):
     keyword         = TextField()

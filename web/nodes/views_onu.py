@@ -59,34 +59,50 @@ def onus():
 @nodeview.route('/nodes/onus/new/', methods=['GET','POST'])
 @login_required
 def onus_new():
+    next = request.form["next"] if request.form.get("next") else request.referrer
     form = OnuNewForm()
     if request.method == 'POST' and form.validate_on_submit():
         node = NodeOnu()
         form.populate_obj(node)
-        node.status = 1
-        node.category_id = 21
-        db.session.add(node)
-        db.session.commit()
-        flash(u'添加ONU成功', 'success')
-        return redirect(url_for('nodes.onus'))
-    return render_template('nodes/onus/new.html', form = form)
+        if NodeOnu.query.filter(NodeOnu.name==node.name).count() > 0:
+            flash(u'ONU名称不能重复','error')
+        elif NodeOnu.query.filter(NodeOnu.alias==node.alias).count() > 0:
+            flash(u'ONU别名不能重复','error')
+        elif NodeOnu.query.filter(NodeOnu.addr==node.addr).count() > 0:
+            flash(u'ONU IP地址不能重复','error')
+        else:
+            node.status = 1
+            node.category_id = 21
+            db.session.add(node)
+            db.session.commit()
+            flash(u'添加ONU %s 成功'% node.name, 'success')
+            return redirect(url_for('nodes.onus'))
+    return render_template('nodes/onus/new.html', form = form, next=next)
 
 @nodeview.route('/nodes/onus/edit/<int:id>/', methods=['POST', 'GET'])
 @login_required
 def onus_edit(id):
+    next = request.form["next"] if request.form.get("next") else request.referrer
     form = OnuNewForm()
     node = NodeOnu.query.get_or_404(id)
     if request.method == 'POST':
         if form.validate_on_submit():
-            form.populate_obj(node)
-            node.updated_at = datetime.now()
-            db.session.add(node)
-            db.session.commit()
-            flash(u'修改ONU成功','success')
-            return redirect(url_for('nodes.onus'))
+            if node.name != form.name.data and NodeOnu.query.filter(NodeOnu.name==node.name).count() > 0:
+                flash(u'ONU名称不能重复','error')
+            elif node.alias != form.alias.data and NodeOnu.query.filter(NodeOnu.alias==node.alias).count() > 0:
+                flash(u'ONU别名不能重复','error')
+            elif node.addr != form.addr.data and NodeOnu.query.filter(NodeOnu.addr==node.addr).count() > 0:
+                flash(u'ONU IP地址不能重复','error')
+            else:
+                form.populate_obj(node)
+                node.updated_at = datetime.now()
+                db.session.add(node)
+                db.session.commit()
+                flash(u'修改ONU %s 成功'% node.name,'success')
+                return redirect(url_for('nodes.onus'))
     else:
         form.process(obj=node)
-    return render_template('/nodes/onus/edit.html', node=node, form=form)
+    return render_template('/nodes/onus/edit.html', node=node, form=form, next=next)
 
 @nodeview.route('/nodes/onus/delete/', methods=['POST'])
 def onus_delete():
@@ -103,22 +119,42 @@ def onus_delete():
 @login_required
 def onus_show(id):
     node = NodeOnu.query.get_or_404(id)
-    from tango.ui.charts.highcharts import LineTimeSeriesChart
-    traffic_chart = LineTimeSeriesChart()
-    traffic_chart.set_html_id("traffic")
-    traffic_chart["title"]["text"] = None
-    traffic_chart["subtitle"]["text"] = None
-    traffic_chart["yAxis"]["title"] = None
-    traffic_chart.set_yformatter()
-
-    from tango.ui.charts.highcharts import PieBasicChart
-    alarm_chart = PieBasicChart()
-    alarm_chart.set_html_id("alarm")
-    alarm_chart["title"]["text"] = u'最近24小时可用率'
-    alarm_chart["plotOptions"]["pie"]["events"]["click"] = None
-    alarm_chart.min_width = str(220)+"px"
-    alarm_chart["series"][0]["data"] = [{'name': u'完全故障', 'y':1},{'name': u'部分故障', 'y':2},{'name': u'完全正常', 'y':19},{'name': u'数据缺失', 'y':2}]
-    return render_template('nodes/onus/show.html', node = node, traffic_chart = traffic_chart, alarm_chart = alarm_chart)
+    chartdata = [
+            {
+            "area": True,
+            "key" : u"接收流量" ,
+            "color": 'lime',
+            "values" : [ {'x':1352937600000 , 'y':27.38478809681} ,
+                    { 'x':1352947600000 , 'y':27.371377218208} ,
+                    { 'x':1352957600000 , 'y':26.309915460827} ,
+                    {  'x':1352967600000 , 'y':26.425199957521} ,
+                    {  'x':1352977600000 ,'y': 26.823411519395} ,
+                    {  'x':1352987600000 ,'y': 23.850443591584} ,
+                    {  'x':1352997600000 ,'y': 23.158355444054} ,
+                    {  'x':1353007600000 , 'y':22.998689393694} ,
+                    {  'x':1353017600000 ,'y': 27.977128511299} ,]
+        } ,
+            {
+            "area": True,
+            "color": '#773EF7',
+            "key" : u"发送流量" ,
+            "values" :[{'x':1352937600000 , 'y':12} ,
+                    { 'x':1352947600000 , 'y':110} ,
+                    { 'x':1352957600000 , 'y':110} ,
+                    {  'x':1352967600000 , 'y':30} ,
+                    {  'x':1352977600000 ,'y': 60} ,
+                    {  'x':1352987600000 ,'y': 6} ,
+                    {  'x':1352997600000 ,'y': 12} ,
+                    {  'x':1353007600000 , 'y':10} ,
+                    {  'x':1353017600000 ,'y': 0} ,]
+        } ,
+    ];
+    data = [{'label': u'完全故障', 'color': 'red', 'value': 1},
+            {'label': u'部分故障', 'color': 'yellow', 'value': 2},
+            {'label': u'完全正常', 'color': 'green', 'value': 19},
+            {'label': u'数据缺失', 'color': 'blue', 'value': 2}]
+    chartdata2 = [{'values': data}]
+    return render_template('nodes/onus/show.html', node = node, chartdata = chartdata, chartdata2 = chartdata2)
 
 @nodeview.route('/nodes/onus/ajax_entrances_for_olt', methods=['GET'])
 def ajax_entrances_for_olt():

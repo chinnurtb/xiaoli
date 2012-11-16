@@ -2,7 +2,8 @@
 
 import pydot
 
-from flask import Blueprint, request, url_for, render_template
+from flask import Blueprint, request, url_for, \
+    render_template, json
 
 from tango.ui import navbar
 
@@ -56,6 +57,44 @@ images = {
 node_categories = ['olt', 'onu', 'dslam', 'eoc', 'switch']
 table_template = '<<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" ALIGN="center"><TR><TD><IMG SRC="%(src)s"/></TD></TR> <TR><TD>%(name)s</TD></TR> <TR><TD>%(addr)s</TD></TR> </TABLE>>'
 
+
+@topoview.route('/topo/test')
+def test():
+    return render_template('topo/test.html')
+
+@topoview.route('/topo/test.json', methods=['GET', 'POST'])
+def test_json():
+    # 1. 缩放 DONE
+    # 2. 拖拽 DONE
+    # 3. 链接 DONE
+    # 4. 显示图片 HOLD
+    # 5. 表达节点的状态 DONE
+    # 6. 右键菜单 DONE
+    na = request.args.get('na', 6, type=int)
+    nb = request.args.get('nb', 6, type=int)
+    nnc = request.args.get('nc', 6, type=int)
+    data = {'name': 'OLT', 'children': []}
+    from random import Random
+    rand = Random()
+    for a in range(na):         # ONU
+        A = {'name': 'ONU-' + str(a), 'children': []}
+        for b in range(nb):     # EOC
+            B = {'name': 'EOC-' + str(b), 'children': []}
+            nc = rand.randint(nnc-8, nnc+4)
+            for c in range(nc): # CPE
+                C = {'name': 'CPE-' + str(c), 'url': 'http://www.stackoverflow.com'}
+                C['status'] = 1 if c % rand.randint(2, 6) != 0 else 0
+                B['children'].append(C)
+            A['children'].append(B)
+        data['children'].append(A)
+        
+    return json.dumps(data)
+
+
+
+# ==============================================================================
+#  The Past
+# ==============================================================================
 @topoview.route('/topo/')
 def index():
     root_id = request.args.get('root_id', 1000, type=int)

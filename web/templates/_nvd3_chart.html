@@ -92,3 +92,22 @@
  
 {% endmacro %}
 
+{% macro traffic_chart(chartid, chartdata, height=280) %}
+
+    {% call _render_chart(chartid, chartdata, height) %}
+        var chart = nv.models.lineChart()
+        chart.x(function(d,i) {
+            return i
+        })
+        var chartdata = {{ chartdata|tojson|safe }}
+        chart.xAxis.tickFormat(function(d) {
+            var dx = chartdata[0].values[d] && chartdata[0].values[d].x || 0;
+            return d3.time.format('%m-%d %H:%M:%S')(new Date(dx))
+        });
+        chart.yAxis.tickFormat(function(d) {
+            return d3.format(',.2f')(d)+'M'
+        });
+    {% endcall %}
+
+{% endmacro %}
+

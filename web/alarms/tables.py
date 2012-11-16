@@ -9,6 +9,7 @@ from tango.ui import tables as t
 from tango.models import Query
 
 from .models import Alarm, AlarmSeverity, History, AlarmClass, AlarmKnowledge
+from nodes.tables import redirect_node_show
 
 class SeverityColumn(t.EnumColumn):
 
@@ -27,10 +28,6 @@ class AlarmAliasColumn(t.Column):
     def render(self, value, record, bound_column):
         return Markup('<a data-toggle="modal" data-remote="/alarms/%d" href="/alarms/%d" data-target="#alarm-show-model">%s</a>' % (record.id, record.id, value))
 
-class NodeLinkColumn(t.BaseLinkColumn):
-    def render(self, value, record, bound_column):
-        return self.render_link("/nodes/%d" % record.node_id, value)
-
 class AlarmTable(t.Table):
     
     ack         = t.Action(name=u'确认', endpoint='alarms.alarms_ack', modalable=True)
@@ -41,7 +38,7 @@ class AlarmTable(t.Table):
     severity    = SeverityColumn()
     alarm_state = t.EnumColumn(u'状态', name='alarm-state', enums=constants.STATES,  orderable=True)
     alarm_alias = t.LinkColumn(u'名称', endpoint='alarms.alarms_show', orderable=True)
-    node_alias  = NodeLinkColumn(u'节点', orderable=True) #accessor='node.alias', 
+    node_alias  = t.LinkColumn(u'节点', orderable=True) #accessor='node.alias',
     node_addr   = t.Column(u'节点地址') #, accessor='node.addr'
     summary     = t.Column(u'详细')
     occur_count = t.Column(u'发生次数')
@@ -51,6 +48,9 @@ class AlarmTable(t.Table):
         model = Alarm
         per_page = 30
         order_by = '-last_occurrence'
+        url_makers = {
+            'node_alias': lambda record: redirect_node_show(record.node)
+        }
 
 class QueryTable(t.Table):
     #edit       = t.Action(name=u'Edit', endpoint='alarms.query_edit')
@@ -69,7 +69,7 @@ class QueryTable(t.Table):
 class HistoryTable(t.Table):
     severity    = SeverityColumn()
     alarm_alias = t.LinkColumn(u'名称', endpoint='alarms.history_show', orderable=True)
-    node_alias  = NodeLinkColumn(u'节点', orderable=True) #accessor='node.alias', 
+    node_alias  = t.LinkColumn(u'节点', orderable=True) #accessor='node.alias',
     node_addr   = t.Column(u'节点地址')
     summary     = t.Column(u'详细')
     occur_count = t.Column(u'发生次数')
@@ -80,6 +80,9 @@ class HistoryTable(t.Table):
         model = History
         per_page = 30
         order_by = '-created_at'
+        url_makers = {
+            'node_alias': lambda record: redirect_node_show(record.node)
+        }
 
 class AlarmClassTable(t.Table):
     name        = t.LinkColumn(u'名称', endpoint='alarms.classes_edit', orderable=True)

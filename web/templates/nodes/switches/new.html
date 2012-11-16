@@ -32,6 +32,7 @@
     </div>
 
     <div class="span10">
+        {% include "_alert.html" %}
         {% from "tango/_form_h.html" import render_field %}
         <form class="form-horizontal" method="POST" action="{{url_for('nodes.switches_new')}}">
             <h5><i class="icon-plus"></i> 添加交换机</h5>
@@ -52,7 +53,8 @@
             {{ render_field(form.remark) }}
             <div class="form-actions span10">
                 <button type="submit" class="btn btn-primary btn-small">确定</button>
-                <a href="javascript:history.go(-1);" class="btn">取消</a>
+                <input id="next" name="next" type="hidden" value="{{ next }}">
+                <a href="javascript:document.location.href='{{ next }}'; return false;" class="btn btn-small">取消</a>
             </div>
         </form>
     </div>

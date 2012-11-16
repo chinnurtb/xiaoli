@@ -1,0 +1,30 @@
+<table class="table table-hover">
+    <thead>
+    <tr>
+        <th>槽位</th>
+        <th>板卡名称</th>
+        <th>板卡类型</th>
+        <th>板卡状态</th>
+        <th>CPU负载</th>
+        <th>内存占用</th>
+        <th>硬件版本</th>
+        <th>软件版本</th>
+        <th>端口数量</th>
+    </tr>
+    </thead>
+    <tbody>
+        {% for board in node.boards %}
+            <tr>
+                <td>{{ board.slot_no|ifnull }}</td>
+                <td>{{ board.name|ifnull }}</td>
+                <td>{{ board.board_type|ifnull }}</td>
+                <td>{{ board.board_status|ifnull }}</td>
+                <td>{{ board.cpu_load|ifnull }}</td>
+                <td>{{ board.mem_usage|ifnull }}</td>
+                <td>{{ board.hardware_vsn|ifnull }}</td>
+                <td>{{ board.software_vsn|ifnull }}</td>
+                <td>{{ board.port_count|ifnull }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>

@@ -58,38 +58,54 @@ def switches():
 @nodeview.route('/nodes/switches/new/', methods=['GET','POST'])
 @login_required
 def switches_new():
+    next = request.form["next"] if request.form.get("next") else request.referrer
     form = SwitchNewForm()
     if request.method == 'POST' and form.validate_on_submit():
         del form._fields["cityid"]
         del form._fields["town"]
         node = NodeSwitch()
         form.populate_obj(node)
-        node.status = 1
-        node.category_id = 2
-        db.session.add(node)
-        db.session.commit()
-        flash(u'添加交换机成功', 'success')
-        return redirect(url_for('nodes.switches'))
-    return render_template('nodes/switches/new.html', form = form)
+        if NodeSwitch.query.filter(NodeSwitch.name==node.name).count() > 0:
+            flash(u'交换机名称不能重复','error')
+        elif NodeSwitch.query.filter(NodeSwitch.alias==node.alias).count() > 0:
+            flash(u'交换机别名不能重复','error')
+        elif NodeSwitch.query.filter(NodeSwitch.addr==node.addr).count() > 0:
+            flash(u'交换机 IP地址不能重复','error')
+        else:
+            node.status = 1
+            node.category_id = 2
+            db.session.add(node)
+            db.session.commit()
+            flash(u'添加交换机 %s 成功'% node.name, 'success')
+            return redirect(url_for('nodes.switches'))
+    return render_template('nodes/switches/new.html', form = form, next=next)
 
 @nodeview.route('/nodes/switches/edit/<int:id>/', methods=['POST', 'GET'])
 @login_required
 def switches_edit(id):
+    next = request.form["next"] if request.form.get("next") else request.referrer
     form = SwitchNewForm()
     node = NodeSwitch.query.get_or_404(id)
     if request.method == 'POST':
         if form.validate_on_submit():
-            del form._fields["cityid"]
-            del form._fields["town"]
-            form.populate_obj(node)
-            node.updated_at = datetime.now()
-            db.session.add(node)
-            db.session.commit()
-            flash(u'修改交换机成功','success')
-            return redirect(url_for('nodes.switches'))
+            if node.name != form.name.data and NodeSwitch.query.filter(NodeSwitch.name==node.name).count() > 0:
+                flash(u'交换机名称不能重复','error')
+            elif node.alias != form.alias.data and NodeSwitch.query.filter(NodeSwitch.alias==node.alias).count() > 0:
+                flash(u'交换机别名不能重复','error')
+            elif node.addr != form.addr.data and NodeSwitch.query.filter(NodeSwitch.addr==node.addr).count() > 0:
+                flash(u'交换机 IP地址不能重复','error')
+            else:
+                del form._fields["cityid"]
+                del form._fields["town"]
+                form.populate_obj(node)
+                node.updated_at = datetime.now()
+                db.session.add(node)
+                db.session.commit()
+                flash(u'修改交换机 %s 成功'% node.name,'success')
+                return redirect(url_for('nodes.switches'))
     else:
         form.process(obj=node)
-    return render_template('/nodes/switches/edit.html', node=node, form=form)
+    return render_template('/nodes/switches/edit.html', node=node, form=form, next=next)
 
 @nodeview.route('/nodes/switches/delete/', methods=['POST'])
 def switches_delete():
@@ -106,22 +122,12 @@ def switches_delete():
 @login_required
 def switches_show(id):
     node = NodeSwitch.query.get_or_404(id)
-    from tango.ui.charts.highcharts import LineTimeSeriesChart
-    traffic_chart = LineTimeSeriesChart()
-    traffic_chart.set_html_id("traffic")
-    traffic_chart["title"]["text"] = None
-    traffic_chart["subtitle"]["text"] = None
-    traffic_chart["yAxis"]["title"] = None
-    traffic_chart.set_yformatter()
-
-    from tango.ui.charts.highcharts import PieBasicChart
-    alarm_chart = PieBasicChart()
-    alarm_chart.set_html_id("alarm")
-    alarm_chart["title"]["text"] = u'最近24小时可用率'
-    alarm_chart["plotOptions"]["pie"]["events"]["click"] = None
-    alarm_chart.min_width = str(220)+"px"
-    alarm_chart["series"][0]["data"] = [{'name': u'完全故障', 'y':1},{'name': u'部分故障', 'y':2},{'name': u'完全正常', 'y':19},{'name': u'数据缺失', 'y':2}]
-    return render_template('nodes/switches/show.html', node = node, traffic_chart = traffic_chart, alarm_chart = alarm_chart)
+    data = [{'label': u'完全故障', 'color': 'red', 'value': 1},
+            {'label': u'部分故障', 'color': 'yellow', 'value': 2},
+            {'label': u'完全正常', 'color': 'green', 'value': 19},
+            {'label': u'数据缺失', 'color': 'blue', 'value': 2}]
+    chartdata2 = [{'values': data}]
+    return render_template('nodes/switches/show.html', node = node, chartdata2 = chartdata2)
 
 import os
 import operator
