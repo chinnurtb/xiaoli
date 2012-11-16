@@ -67,26 +67,34 @@ def test_json():
     # 1. 缩放 DONE
     # 2. 拖拽 DONE
     # 3. 链接 DONE
-    # 4. 显示图片 
-    # 5. 表达节点得状态
-    # 6. 右键菜单
+    # 4. 显示图片 HOLD
+    # 5. 表达节点的状态 DONE
+    # 6. 右键菜单 DONE
     na = request.args.get('na', 6, type=int)
-    nb = request.args.get('nb', 6, type=int)    
-    nc = request.args.get('nc', 6, type=int)
+    nb = request.args.get('nb', 6, type=int)
+    nnc = request.args.get('nc', 6, type=int)
     data = {'name': 'OLT', 'children': []}
-    
+    from random import Random
+    rand = Random()
     for a in range(na):         # ONU
         A = {'name': 'ONU-' + str(a), 'children': []}
         for b in range(nb):     # EOC
             B = {'name': 'EOC-' + str(b), 'children': []}
+            nc = rand.randint(nnc-8, nnc+4)
             for c in range(nc): # CPE
-                C = {'name': 'CPE-' + str(c), 'url': 'http://www.baidu.com'}
+                C = {'name': 'CPE-' + str(c), 'url': 'http://www.stackoverflow.com'}
+                C['status'] = 1 if c % rand.randint(2, 6) != 0 else 0
                 B['children'].append(C)
             A['children'].append(B)
         data['children'].append(A)
-                
+        
     return json.dumps(data)
-    
+
+
+
+# ==============================================================================
+#  The Past
+# ==============================================================================
 @topoview.route('/topo/')
 def index():
     root_id = request.args.get('root_id', 1000, type=int)

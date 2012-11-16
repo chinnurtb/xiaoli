@@ -1,39 +1,116 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
-    <title>Node-Link Tree (Radial)</title>
+{% extends 'layout.html' %}
+{% set title="Node-Link Tree (Radial)" %}
+{% block head %}
     <script type="text/javascript" src="/static/js/topo/d3.v2.js"></script>
+    <script type="text/javascript" src="/static/js/topo/jquery.ui.position.js"></script>
+    <script type="text/javascript" src="/static/js/topo/jquery.contextMenu.js"></script>
     <link type="text/css" rel="stylesheet" href="/static/js/topo/tree.css"/>
+    <link type="text/css" rel="stylesheet" href="/static/js/topo/jquery.contextMenu.css"/>
     <style type="text/css" media="screen">
-      body {
-          background-color: #111;
-      }
-      
-      #chart {
-          margin-bottom: 10px;
-          float: right;
+    #chart {
+        float: left;
         font-family: Times, "宋体";
-      }
-      
-      svg {
-          background-color: #FFC;
+    }
+    #toolbar {
+        float: left;
+        width: 100px;
+        margin-left: -120px;
+        padding: 8px;
+    }
+    #zoom {
+        float: right;
+    }
+    #info {
+        color: #777;
+        padding: 8px;
+        margin: 6px 0;
+        border-radius: 6px;
+        border: 1px dotted #DFDFDF;
+    }
+    #info ul {
+        margin: 0;
+    }
+    #info ul li {
+        border-bottom: 1px dotted #EFEFEF;
+    }
+    
+    svg {
+        background-color: #FAFAFA;
+        border-radius: 12px;
+        border: 1px solid #999;
         font-family: Times, "宋体";
-      }
-      
-      rect {
-          fill: #ffc;
-      }
-    </style>
-  </head>
-  <body>
-    <div id="chart"></div>
-  </body>
+    }
+    rect {
+        fill: #FAFAFA;
+    }
 
+    .node circle {
+        stroke: #D5D5D5;
+        stroke-width: 1px;
+    }
+
+    .node {
+        font: 10px sans-serif;
+    }
+
+
+    .node text{
+        fill: #333;
+    }
+
+    .link {
+        fill: none;
+        stroke: #BBB;
+        stroke-width: 1.5px;
+    }
+    #help ul {
+      margin: 0;
+    }
+    #help ul li {
+        float: left;
+        background: #FFD;
+        border: 1px solid #999;
+        border-radius: 6px;
+        padding: 6px 12px;
+        margin: 0px 6px 6px 2px;
+    }
+    </style>
+{% endblock head %}
+    
+{% block content %}
+    <div class="row-fluid content">
+      <div class="span2">
+        {% set menuid = 'topo-test' %}
+        {% include "topo/_sidebar.html" %}
+      </div>
+      
+      <div class="span10">
+        <div id="print">
+          <div id="chart"></div>
+          <div id="toolbar">
+            <div id="info">
+              <ul>
+                <li><strong>Information</strong></li>
+                <li>Apple</li>
+                <li>Twitter</li>
+                <li>IBM</li>
+                <li>Facebook</li>
+              </ul>
+            </div>
+            <div id="zoom" class="btn-group ">
+              <button type="button" id="zoom-out" class="btn"><i class="icon-minus"></i></button>
+              <button type="button" id="zoom-in" class="btn"><i class="icon-plus"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
     <script type="text/javascript">
+    $('.dropdown-toggle').dropdown();
 //////////////////////////////////////////////
-var radius = 640 / 2;
-    zoomTime = 4.5;
+var radius = 600 / 2;
+zoomTime = 4.5;
 /**
  * 4级: 4.5/600 --> 3/400
  */
@@ -45,7 +122,7 @@ var diagonal = d3.svg.diagonal.radial()
     .projection(function(d) { return [d.y, d.x / 180 * Math.PI]; });
 
 var width = radius * 2,
-    height = radius * 2;
+height = radius * 2;
 
 var x = d3.scale.linear()
     .domain([-width / 2, width / 2])
@@ -55,23 +132,42 @@ var y = d3.scale.linear()
     .domain([-height / 2, height / 2])
     .range([height, 0]);
 
-function zoom() {
-    console.log(d3.event.translate, d3.event.scale);
-    vis.attr("transform", "translate(" + d3.event.translate + ")scale("+ d3.event.scale +")");
+
+function getTransform(selector){
+    var transform = $(selector).attr("transform");
+    console.log($(selector).attr("transform"));
+    if (!transform){
+        transform = "translate(0,0)scale(1)";
+    }
+    var re = /^translate\((\S+),(\S+)\)scale\((\S+)\)/;
+    var arr = re.exec(transform);
+    return arr
 }
 
+var dragGroup = d3.behavior.drag()
+    .on('dragstart', function() {
+        console.log('Start Dragging Group');
+    })
+    .on('drag', function(d, i) {
+        d.x += d3.event.dx;
+        d.y += d3.event.dy;
+        d3.select(this).attr("transform", "translate(" + d.x + "," + d.y + ")scale("+ 1.0/zoomTime+")");
+    });
+
 var vis = d3.select("#chart").append("svg")
-    .attr("width", radius * 2 + 400)
+    .attr("width", radius * 2 + 200)
     .attr("height", radius * 2)
-  .append("g")
-    .attr("transform", "translate(" + radius + "," + radius + ")scale("+ 1.0/zoomTime+")")
-    .call(d3.behavior.zoom().scaleExtent([1, 8]).on("zoom", zoom))
-  .append("g");
+    .append("g")
+    .data([{x:(radius+100),y:radius}])
+    .attr("transform", "translate(" + (radius+100) + "," + radius + ")scale("+ 1.0/zoomTime+")")
+    .call(dragGroup)
+    .append("g");
 
 vis.append("rect")
     .attr("width", radius * 2 * zoomTime) // 3 = 1 / 0.33
     .attr("height", radius * 2 * zoomTime)
     .attr("transform", "translate(" + -radius*zoomTime + "," + -radius*zoomTime + ")");
+
 
 
 d3.json("/topo/test.json?na=6&nb=10&nc=10", function(json) {
@@ -86,24 +182,70 @@ d3.json("/topo/test.json?na=6&nb=10&nc=10", function(json) {
     var node = vis.selectAll("g.node")
         .data(nodes)
         .enter().append("g")
-        .append("a")
-        .attr("xlink:href", function(d){return d.url;})
         .attr("class", "node")
-        .attr("transform", function(d) { return "rotate(" + (d.x - 90) + ")translate(" + d.y + ")"; })
+        .attr("transform", function(d) { return "rotate(" + (d.x - 90) + ")translate(" + d.y + ")"; });
 
-    // node.append("circle")
-    //     .attr("r", 4.5);
-    node.append("image")
-        .attr("xlink:href", "http://img3.douban.com/icon/u25434827-6.jpg");
+    node.append("a")
+        .attr("xlink:href", function(d){return d.url;});
+
+    node.append("circle")
+        .style("fill", function(d) { return d.status == 0 ? "red" : "green"})
+        .attr("r", 4.5);
 
     node.append("text")
         .attr("dy", ".31em")
         .attr("text-anchor", function(d) { return d.x < 180 ? "start" : "end"; })
         .attr("transform", function(d) { return d.x < 180 ? "translate(8)" : "rotate(180)translate(-8)"; })
         .text(function(d) { return d.name; });
-
 });
 
-    </script>
-</html>
+function zoom() {
+    console.log(d3.event.translate, d3.event.scale);
+    vis.attr("transform", "translate(" + d3.event.translate + ")");
+}
+
+$('#zoom-in').click(function(){
+    var arr = getTransform('svg>g>g')
+    var scale = 1.0;
+    if (arr.length>3){
+        f = parseFloat(arr[3]);
+        scale = f < 6.0 ? f * 1.1 : f;
+    }
+    $('svg>g>g').attr('transform', "translate("+arr[1]+","+arr[2]+")scale("+scale+")");
+});
+
+$('#zoom-out').click(function(){
+    var arr = getTransform('svg>g>g')
+    var scale = 1.0;
+    if (arr.length>3){
+        f = parseFloat(arr[3]);
+        scale = f > 1.0 ? f / 1.1 : 1.0;
+    }
+    $('svg>g>g').attr('transform', "translate("+arr[1]+","+arr[2]+")scale("+scale+")");
+});
+
+
+// Right click menu
+$.contextMenu({
+    selector: '.node', 
+    callback: function(key, options) {
+        var m = "clicked: " + $(this).find('text').text() + "\r\n\r\nAction: "
+            + key + "\r\n\r\nTarget: " + $(this).find('a').attr('href');
+        window.console && console.log(m) || alert(m); 
+    },
+    items: {
+        "view": {name: "View", callback:function(key, options){
+            window.location = $(this).find('a').attr('href');
+        }},
+        "edit": {name: "Edit", icon: "edit"},
+        "cut": {name: "Cut", icon: "cut"},
+        "copy": {name: "Copy", icon: "copy"},
+        "paste": {name: "Paste", icon: "paste"},
+        "delete": {name: "Delete", icon: "delete"},
+        "sep1": "---------",
+        "quit": {name: "Quit", icon: "quit"}
+    }
+});
+</script>
+{% endblock content %}
 
