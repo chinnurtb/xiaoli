@@ -59,6 +59,7 @@ def onus():
 @nodeview.route('/nodes/onus/new/', methods=['GET','POST'])
 @login_required
 def onus_new():
+    next = request.form["next"] if request.form.get("next") else request.referrer
     form = OnuNewForm()
     if request.method == 'POST' and form.validate_on_submit():
         node = NodeOnu()
@@ -76,11 +77,12 @@ def onus_new():
             db.session.commit()
             flash(u'添加ONU %s 成功'% node.name, 'success')
             return redirect(url_for('nodes.onus'))
-    return render_template('nodes/onus/new.html', form = form)
+    return render_template('nodes/onus/new.html', form = form, next=next)
 
 @nodeview.route('/nodes/onus/edit/<int:id>/', methods=['POST', 'GET'])
 @login_required
 def onus_edit(id):
+    next = request.form["next"] if request.form.get("next") else request.referrer
     form = OnuNewForm()
     node = NodeOnu.query.get_or_404(id)
     if request.method == 'POST':
@@ -100,7 +102,7 @@ def onus_edit(id):
                 return redirect(url_for('nodes.onus'))
     else:
         form.process(obj=node)
-    return render_template('/nodes/onus/edit.html', node=node, form=form)
+    return render_template('/nodes/onus/edit.html', node=node, form=form, next=next)
 
 @nodeview.route('/nodes/onus/delete/', methods=['POST'])
 def onus_delete():

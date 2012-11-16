@@ -7,7 +7,7 @@ from tango.ui import tables
 from tango.ui.tables.utils import Attrs
 
 from nodes import constants
-from .models import Node, NodeSwitch, NodeRouter, NodeOlt, NodeOnu, NodeEoc, NodeCpe, Board, Port, NodeHost, NODE_STATUS_DICT,Area
+from .models import Node, NodeSwitch, NodeRouter, NodeOlt, NodeOnu, NodeEoc, NodeCpe, Port, NodeHost, NODE_STATUS_DICT,Area
 
 redirct_dict = {
     1:"routers",
@@ -116,13 +116,15 @@ class CpeTable(tables.Table):
     model_name = tables.Column(verbose_name=u'型号', orderable=True, accessor='model.alias')
     mac = tables.Column(verbose_name=u'Mac地址', orderable=True)
     area_name = tables.Column(verbose_name=u'所属区域', accessor='area.full_name')
-    eoc_name = tables.Column(verbose_name=u'所属EOC', accessor='eoc.name')
+    eoc_name = tables.LinkColumn(verbose_name=u'所属EOC', accessor='eoc.name')
     last_check = tables.Column(verbose_name=u'上次同步',orderable=True)
 
     class Meta():
         model = NodeCpe
         per_page = 30
-
+        url_makers = {
+            'eoc_name': lambda record: url_for('nodes.eocs_show',id=record.eoc.id),
+            }
 
 class SwitchTable(tables.Table):
     edit = tables.Action(name=u'编辑', endpoint='nodes.switches_edit')
@@ -197,24 +199,6 @@ class NodeHostTable(tables.Table):
 
     class Meta():
         model = NodeHost
-
-        
-class BoardTable(tables.Table):
-    check       = tables.CheckBoxColumn()
-    status      = tables.Column(u'状态')
-    alias       = tables.Column(u'名称', orderable=True)
-    class Meta():
-        model = Board
-        per_page = 30
-        order_by = '-alias'
-
-class PortTable(tables.Table):
-    check       = tables.CheckBoxColumn()
-    alias       = tables.Column(u'名称', orderable=True)
-    class Meta():
-        model = Port
-        per_page = 30
-        order_by = '-alias'
 
 class CityTable(tables.Table):
     edit = tables.Action(name=u'编辑', endpoint='nodes.cities_edit')

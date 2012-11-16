@@ -264,6 +264,10 @@ class NodeMixin(object):
     def status_name(self):
         return NODE_STATUS_DICT.get(self.status,"")
 
+    @property
+    def boards(self):
+        return Board.query.filter(Board.node_id==self.id)
+
 
 class Node(NodeMixin,db.Model):
     """ Node """
@@ -280,6 +284,7 @@ class Node(NodeMixin,db.Model):
 class NodeSwitch(NodeMixin, db.Model):
     """ Switchs """
     __tablename__ = 'node_switchs'
+    ports   = db.relationship("PortSwitch", backref="switch")
 
     def __unicode__(self):
         return u'<交换机 %s>' % self.alias
@@ -317,7 +322,8 @@ class NodeOlt(NodeMixin,db.Model):
     """ OLT """
     __tablename__ = 'node_olts'
 
-    onus = db.relationship("NodeOnu", backref="olt")
+    onus    = db.relationship("NodeOnu", backref="olt")
+    ports   = db.relationship("PortOlt", backref="olt")
 
     def __unicode__(self):
         return u'<OLT %s>' % self.alias
@@ -346,7 +352,8 @@ class NodeOnu(NodeMixin,db.Model):
     __tablename__ = 'node_onus'
 
     controller_id = db.Column(db.Integer, db.ForeignKey('node_olts.id'))
-    eocs = db.relationship("NodeEoc", backref="onu")
+    eocs    = db.relationship("NodeEoc", backref="onu")
+    ports   = db.relationship("PortOnu", backref="onu")
 
     def __unicode__(self):
         return u'<ONU %s>' % self.alias
@@ -365,6 +372,22 @@ class NodeEoc(NodeMixin, db.Model):
 
     controller_id = db.Column(db.Integer, db.ForeignKey('node_onus.id'))
     cpes = db.relationship("NodeCpe", backref="eoc")
+    ports   = db.relationship("PortEoc", backref="eoc")
+
+    @property
+    def cpe_count_plan(self):
+        return object_session(self).\
+        scalar(
+            select([func.count(NodeCpe.id)]).\
+            where(and_(NodeCpe.controller_id==self.id, NodeCpe.area_id != None))
+        )
+    @property
+    def cpe_count_unplan(self):
+        return object_session(self).\
+        scalar(
+            select([func.count(NodeCpe.id)]).\
+            where(and_(NodeCpe.controller_id==self.id, NodeCpe.area_id == None))
+        )
 
     def __unicode__(self):
         return u'<EOC %s>' % self.alias
@@ -391,28 +414,7 @@ class NodeCpe(NodeMixin, db.Model):
     def export_columns():
         return ['status','name','alias','addr','area.full_name','eoc.name','eoc.addr','vendor.alias','model.alias','mask','snmp_comm','snmp_wcomm','last_check','location','remark']
 
-class Board(db.Model):
-    """板卡"""
-    __tablename__ = 'boards'
-    id         = db.Column(db.Integer, primary_key=True)
-    name       = db.Column(db.String(60), unique = True)
-    alias      = db.Column(db.String(40))
-    created_at = db.Column(db.DateTime)
 
-    def __unicode__(self):
-        return u'<板卡 %s>' % self.alias
-    
-class Port(db.Model):
-    """端口"""
-    __tablename__ = 'ports'
-    id         = db.Column(db.Integer, primary_key=True)
-    name       = db.Column(db.String(60), unique = True)
-    alias      = db.Column(db.String(40))
-    created_at = db.Column(db.DateTime)
-
-    def __unicode__(self):
-        return u'<端口 %s>' % self.alias
-    
 class Server(db.Model):
     """Servers of the system"""
     __tablename__ = 'servers'
@@ -473,3 +475,124 @@ class SysOid(db.Model):
 
     def __unicode__(self):
         return u'<SysOid %s>'% self.sysoid
+
+class Board(db.Model):
+    """板卡"""
+    __tablename__ = 'boards'
+    node_id     = db.Column(db.Integer)
+    id          = db.Column(db.Integer, primary_key=True)
+    name        = db.Column(db.String(60), unique = True)
+    alias       = db.Column(db.String(40))
+    vendor_id   = db.Column(db.Integer) # 厂商
+    shelf_no    = db.Column(db.Integer) # 机架号
+    slot_no     = db.Column(db.Integer) # 槽位号
+    board_no    = db.Column(db.Integer) # 板卡号
+    board_type  = db.Column(db.Integer) # 板卡类型
+    board_status= db.Column(db.Integer) # 板卡状态
+    software_vsn= db.Column(db.String(200)) #软件版本
+    hardware_vsn= db.Column(db.String(200)) #硬件版本
+    fpga_vsn    = db.Column(db.String(100)) #FPGA版本
+    cpld_vsn    = db.Column(db.String(100)) #CPLD版本
+    max_ports   = db.Column(db.Integer) # 端口数量
+    admin_status= db.Column(db.Integer) # 管理状态
+    oper_status = db.Column(db.Integer) # 运行状态
+    standby_status  = db.Column(db.Integer) #主备状态
+    lock_status = db.Column(db.Integer) # 锁状态
+    cpu_load    = db.Column(db.Integer) # CPU负载
+    mem_usage   = db.Column(db.Integer) # 内存占用
+    temperature = db.Column(db.Integer) # 温度
+    serial_no   = db.Column(db.String(100)) # 序列号
+    uptime      = db.Column(db.Integer) # 运行时间
+    remark      = db.Column(db.String(100))
+    last_update = db.Column(db.DateTime)
+    created_at  = db.Column(db.DateTime)
+    updated_at  = db.Column(db.DateTime)
+
+    category_id = db.Column(db.Integer, db.ForeignKey('categories.id'))
+    category    = db.relationship("Category")
+
+    @property
+    def port_count(self):
+        return object_session(self).\
+        scalar(
+            select([func.count(Port.id)]).\
+            where(Port.board_id==self.id)
+        )
+
+class PortMixin(object):
+    id          = db.Column(db.Integer, primary_key=True)
+    name        = db.Column(db.String(60), unique = True)
+    alias       = db.Column(db.String(40))
+    board_id    = db.Column(db.Integer)
+    # 业务端口类型，   1.FE  2.GE  3.PON  4.POTS  5.DSL  6.E1  7.SDH  8.RF  9.VI  10.AGGREGATION
+    biz_type    = db.Column(db.Integer)
+    ifindex     = db.Column(db.Integer) # 端口索引
+    ifdescr     = db.Column(db.String(100)) # 端口名称
+    iftype      = db.Column(db.Integer) # 端口物理类型
+    ifphysaddr  = db.Column(db.String(50))  # 端口物理地址
+    ifadminstatus   = db.Column(db.Integer) # 管理状态
+    ifoperstatus    = db.Column(db.Integer) # 运行状态
+    ifspeed     = db.Column(db.Integer) # 端口速率
+    ifmtu       = db.Column(db.Integer) # 端口MTU
+    iflastchange    = db.Column(db.DateTime)    # 端口最后变化时间
+    uplink_port     = db.Column(db.Integer) # 上联端口
+    slot_no     = db.Column(db.Integer) # 槽位号
+    port_no     = db.Column(db.Integer) # 端口号
+    downassuredbw   = db.Column(db.Integer) # 下行限速
+    downmaximumbw   = db.Column(db.Integer) # 下行带宽
+    upassuredbw = db.Column(db.Integer) # 上行限速
+    upmaximumbw = db.Column(db.Integer) # 上行带宽
+    temperature = db.Column(db.Integer) # 温度
+    received_power  = db.Column(db.Integer) # 接受功率
+    led_power   = db.Column(db.Integer) # 发光功率
+    e_current   = db.Column(db.Integer) # 电流
+    voltage     = db.Column(db.Integer) # 电压
+    telno       = db.Column(db.String(50))
+    duplex      = db.Column(db.Integer) # 双工状态
+    tid         = db.Column(db.String(50))  # 协议终端标识
+    physaddress = db.Column(db.String(50))
+    mgid        = db.Column(db.String(20))
+    created_at  = db.Column(db.DateTime)
+    updated_at  = db.Column(db.DateTime)
+
+    @declared_attr
+    def category_id(cls):
+        return db.Column(db.Integer, db.ForeignKey('categories.id'))
+
+    @declared_attr
+    def category(cls):
+        return db.relationship("Category")
+
+    @declared_attr
+    def vendor_id(cls):
+        return db.Column(db.Integer, db.ForeignKey('vendors.id'))
+
+    @declared_attr
+    def vendor(cls):
+        return db.relationship("Vendor")
+
+class Port(PortMixin,db.Model):
+    """ Port """
+    __tablename__ = 'ports'
+    __table_args__ = {'implicit_returning':False}
+    node_id      = db.Column(db.Integer, db.ForeignKey('nodes.id'))
+
+class PortOlt(PortMixin,db.Model):
+    """ OLT Port """
+    __tablename__ = 'port_olts'
+    node_id      = db.Column(db.Integer, db.ForeignKey('node_olts.id'))
+
+class PortOnu(PortMixin,db.Model):
+    """ ONU Port """
+    __tablename__ = 'port_onus'
+    node_id      = db.Column(db.Integer, db.ForeignKey('node_onus.id'))
+
+class PortEoc(PortMixin,db.Model):
+    """ EOC Port """
+    __tablename__ = 'port_eocs'
+    node_id      = db.Column(db.Integer, db.ForeignKey('node_eocs.id'))
+
+class PortSwitch(PortMixin,db.Model):
+    """ 交换机 Port """
+    __tablename__ = 'port_switchs'
+    node_id      = db.Column(db.Integer, db.ForeignKey('node_switchs.id'))

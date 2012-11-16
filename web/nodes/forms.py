@@ -7,7 +7,7 @@ from wtforms import validators as v
 from .models import NodeEoc, NodeOlt, NODE_STATUS_DICT, Area, Vendor, Model,SNMP_VER_DICT
 
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
-from flask_wtf import TextField,RadioField,TextAreaField, required
+from flask_wtf import TextField,RadioField,TextAreaField, required, HiddenField
 from wtforms.validators import IPAddress, NoneOf
 
 from tango.ui.form.forms import FormPro

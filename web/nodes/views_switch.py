@@ -58,6 +58,7 @@ def switches():
 @nodeview.route('/nodes/switches/new/', methods=['GET','POST'])
 @login_required
 def switches_new():
+    next = request.form["next"] if request.form.get("next") else request.referrer
     form = SwitchNewForm()
     if request.method == 'POST' and form.validate_on_submit():
         del form._fields["cityid"]
@@ -77,11 +78,12 @@ def switches_new():
             db.session.commit()
             flash(u'添加交换机 %s 成功'% node.name, 'success')
             return redirect(url_for('nodes.switches'))
-    return render_template('nodes/switches/new.html', form = form)
+    return render_template('nodes/switches/new.html', form = form, next=next)
 
 @nodeview.route('/nodes/switches/edit/<int:id>/', methods=['POST', 'GET'])
 @login_required
 def switches_edit(id):
+    next = request.form["next"] if request.form.get("next") else request.referrer
     form = SwitchNewForm()
     node = NodeSwitch.query.get_or_404(id)
     if request.method == 'POST':
@@ -103,7 +105,7 @@ def switches_edit(id):
                 return redirect(url_for('nodes.switches'))
     else:
         form.process(obj=node)
-    return render_template('/nodes/switches/edit.html', node=node, form=form)
+    return render_template('/nodes/switches/edit.html', node=node, form=form, next=next)
 
 @nodeview.route('/nodes/switches/delete/', methods=['POST'])
 def switches_delete():

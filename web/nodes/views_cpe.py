@@ -58,6 +58,7 @@ def cpes():
 @nodeview.route('/nodes/cpes/new/', methods=['GET','POST'])
 @login_required
 def cpes_new():
+    next = request.form["next"] if request.form.get("next") else request.referrer
     form = CpeNewForm()
     if request.method == 'POST' and form.validate_on_submit():
         node = NodeCpe()
@@ -75,11 +76,12 @@ def cpes_new():
             db.session.commit()
             flash(u'添加CPE %s 成功'% node.name, 'success')
             return redirect(url_for('nodes.cpes'))
-    return render_template('nodes/cpes/new.html', form = form)
+    return render_template('nodes/cpes/new.html', form = form, next=next)
 
 @nodeview.route('/nodes/cpes/edit/<int:id>/', methods=['POST', 'GET'])
 @login_required
 def cpes_edit(id):
+    next = request.form["next"] if request.form.get("next") else request.referrer
     form = CpeNewForm()
     node = NodeCpe.query.get_or_404(id)
     if request.method == 'POST':
@@ -99,7 +101,7 @@ def cpes_edit(id):
                 return redirect(url_for('nodes.cpes'))
     else:
         form.process(obj=node)
-    return render_template('/nodes/cpes/edit.html', node=node, form=form)
+    return render_template('/nodes/cpes/edit.html', node=node, form=form, next=next)
 
 @nodeview.route('/nodes/cpes/delete/', methods=['POST'])
 def cpes_delete():

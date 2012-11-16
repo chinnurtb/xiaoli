@@ -58,6 +58,7 @@ def routers():
 @nodeview.route('/nodes/routers/new/', methods=['GET','POST'])
 @login_required
 def routers_new():
+    next = request.form["next"] if request.form.get("next") else request.referrer
     form = RouterNewForm()
     if request.method == 'POST' and form.validate_on_submit():
         del form._fields["cityid"]
@@ -77,11 +78,12 @@ def routers_new():
             db.session.commit()
             flash(u'添加路由器 %s 成功'% node.name, 'success')
             return redirect(url_for('nodes.routers'))
-    return render_template('nodes/routers/new.html', form = form)
+    return render_template('nodes/routers/new.html', form = form, next=next)
 
 @nodeview.route('/nodes/routers/edit/<int:id>/', methods=['POST', 'GET'])
 @login_required
 def routers_edit(id):
+    next = request.form["next"] if request.form.get("next") else request.referrer
     form = RouterNewForm()
     node = NodeRouter.query.get_or_404(id)
     if request.method == 'POST':
@@ -103,7 +105,7 @@ def routers_edit(id):
                 return redirect(url_for('nodes.routers'))
     else:
         form.process(obj=node)
-    return render_template('/nodes/routers/edit.html', node=node, form=form)
+    return render_template('/nodes/routers/edit.html', node=node, form=form, next=next)
 
 @nodeview.route('/nodes/routers/delete/', methods=['POST'])
 def routers_delete():

@@ -58,6 +58,7 @@ def olts():
 @nodeview.route('/nodes/olts/new/', methods=['GET','POST'])
 @login_required
 def olts_new():
+    next = request.form["next"] if request.form.get("next") else request.referrer
     form = OltNewForm()
     if request.method == 'POST' and form.validate_on_submit():
         del form._fields["cityid"]
@@ -77,11 +78,12 @@ def olts_new():
             db.session.commit()
             flash(u'添加OLT %s 成功'% node.name, 'success')
             return redirect(url_for('nodes.olts'))
-    return render_template('nodes/olts/new.html', form = form)
+    return render_template('nodes/olts/new.html', form = form, next=next)
 
 @nodeview.route('/nodes/olts/edit/<int:id>/', methods=['POST', 'GET'])
 @login_required
 def olts_edit(id):
+    next = request.form["next"] if request.form.get("next") else request.referrer
     form = OltNewForm()
     node = NodeOlt.query.get_or_404(id)
     if request.method == 'POST':
@@ -103,7 +105,7 @@ def olts_edit(id):
                 return redirect(url_for('nodes.olts'))
     else:
         form.process(obj=node)
-    return render_template('/nodes/olts/edit.html', node=node, form=form)
+    return render_template('/nodes/olts/edit.html', node=node, form=form, next=next)
 
 @nodeview.route('/nodes/olts/delete/', methods=['POST'])
 def olts_delete():
