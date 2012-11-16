@@ -2,9 +2,6 @@
 {% from "tango/_sidebar_h.html" import render_sidebar %}
 
 {{ render_sidebar('拓扑管理', menuid, [
-    ('topo',          '区域拓扑',     url_for('topo.index')),
-    ('topo/network',  '网络拓扑',     url_for('topo.network')),
-    ('gis',           'GIS地图',     url_for('topo.gis')),
-    ('topo/system',   '系统视图',     url_for('topo.system'))])
+    ('topo-test',  'OLTS',     url_for('topo.test'))])
 }}
 
