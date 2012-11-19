@@ -61,7 +61,7 @@ table_template = '<<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" ALIGN="cent
 
 @topoview.route('/topo/test')
 def test():
-    form = SearchForm()
+    form = SearchForm(formdata=request.args)
     return render_template('topo/test.html', form=form)
 
 @topoview.route('/topo/test.json', methods=['GET', 'POST'])
@@ -79,18 +79,22 @@ def test_json():
     data = {'name': 'OLT', 'children': [], 'level': 0}
     from random import Random
     rand = Random()
-    
+
+    count = 0
     for a in range(na):         # ONU
-        A = {'name': 'ONU-' + str(a), 'children': [], 'level': 1}
+        A = {'name': 'ONU-' + str(a), 'children': [], 'level': 1, 'id': 'onu-'+str(count)}
         for b in range(nb):     # EOC
-            B = {'name': 'EOC-' + str(b), 'children': [], 'level': 2}
+            B = {'name': 'EOC-' + str(b), 'children': [], 'level': 2, 'id': 'eoc-'+str(count)}
             nc = rand.randint(nnc-4, nnc+4)
             for c in range(nc): # CPE
-                C = {'name': 'CPE-' + str(c), 'url': 'http://www.stackoverflow.com', 'level': 3}
+                C = {'name': 'CPE-' + str(c), 'url': 'http://www.stackoverflow.com', 'level': 3, 'id': 'cpe-'+str(count)}
                 C['status'] = 1 if c % rand.randint(2, 6) != 0 else 0
                 B['children'].append(C)
+                count += 1
             A['children'].append(B)
+            count += 1
         data['children'].append(A)
+        count += 1
         
     return json.dumps(data)
 

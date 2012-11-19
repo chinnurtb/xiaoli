@@ -1,6 +1,8 @@
 var nodes;
 $(function(){
-  var vis, obZoom;
+  var vis, zoomTime, obZoom, keyword,
+  innerScale = 1.0,
+  chartWidth = $('#chart').width();
   
   function getTransform(selector){
     var transform = $(selector).attr("transform");
@@ -13,20 +15,30 @@ $(function(){
     return arr;
   }
 
-  function focus(){
-    
+  function  checkNodes(){
+    d3.selectAll('g.node').style("opacity", 0.2);
+    var $targetNode = $('#chart g.node:contains('+ keyword +')');
+    //console.log($targetNode);
+    $targetNode.each(function(){
+      //console.log($(this));
+      var id = $(this).attr('id');
+      d3.select('#'+ id).style("opacity", 1);
+    });
   }
 
   function reColorNodes(scale){
-    if (scale >= 2.0){
+    if (keyword){
+      checkNodes();
+    } else if (scale >= 1.8){
       vis.selectAll("g.node").style("opacity", 1);
     } else {
-      vis.selectAll("g.node").style("opacity", function(d){ return d.level < 3 ? 1 : 0.3});
+      vis.selectAll("g.node").style("opacity", function(d){return d.level < 3 ? 1 : 0.3 });
     }
   }
   
   function zoom() {
-    console.log(d3.event.translate, ":", d3.event.scale);
+    console.log(d3.event.translate + ", [" + d3.event.scale + "], " 
+                + d3.event.translate[0]/d3.event.scale + ", " + d3.event.translate[1]/d3.event.scale);
     reColorNodes(d3.event.scale);
     vis.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
   }
@@ -52,14 +64,12 @@ $(function(){
 
   d3.json("/topo/test.json?na=6&nb=10&nc=6", function(json) {
     
-    var radius = 600 / 2,
-    zoomTime = 1.0,
-    innerScale = 1.0;
-    
+    var radius = 600 / 2;
     /**
      * 4级: 4.5/600 --> 3/400
      * zoomTime = nodeCount * 3 / 400;
      */
+    
     zoomTime = countNodes(json) * 3 / 400;
 
     var tree = d3.layout.tree()
@@ -81,6 +91,7 @@ $(function(){
       .domain([-height / 2, height / 2])
       .range([height, 0]);
 
+    /*
     var dragGroup = d3.behavior.drag()
       .on('dragstart', function() {
         console.log('Start Dragging Group');
@@ -90,8 +101,9 @@ $(function(){
         d.y += d3.event.dy;
         d3.select(this).attr("transform", "translate(" + d.x + "," + d.y + ")scale("+ 1.0/zoomTime+")");
       });
+    */
 
-    obZoom = d3.behavior.zoom().scaleExtent([1, 8]).on("zoom", zoom);
+    obZoom = d3.behavior.zoom().scaleExtent([1, zoomTime+2]).on("zoom", zoom);
     vis = d3.select("#chart").append("svg")
       .attr("height", radius * 2)
       .append("g")
@@ -119,6 +131,7 @@ $(function(){
     var node = vis.selectAll("g.node")
       .data(nodes)
       .enter().append("g")
+      .attr("id", function(d){ return d.id })
       .attr("class", "node")
       .style("opacity", function(d){ return d.level < 3 ? 1 : 0.4})
       .attr("transform", function(d) { return "rotate(" + (d.x - 90) + ")translate(" + d.y + ")"; });
@@ -151,57 +164,63 @@ $(function(){
     var arr = getTransform('svg>g>g')
     if (arr.length>3){
       f = parseFloat(arr[3]);
-      innerScale = f < 6.0 ? f * 1.5 : f;
+      scale = f < 6.0 ? f * 1.5 : f;
     }
     var x = arr[1];
     var y = arr[2];
-    syncZoom([x,y], innerScale);
-    $('svg>g>g').attr('transform', "translate("+ x +","+ y +")scale("+innerScale+")");
+    syncZoom([x,y], scale);
+    vis.attr('transform', "translate("+ x +","+ y +")scale("+scale+")");
   });
 
   $('#zoom-out').click(function(){
     var arr = getTransform('svg>g>g')
     if (arr.length>3){
       f = parseFloat(arr[3]);
-      innerScale = f > 1.0 ? f / 1.5 : 1.0;
+      scale = f > 1.0 ? f / 1.5 : 1.0;
     }
     var x = arr[1];
     var y = arr[2];
-    syncZoom([x,y], innerScale);
-    $('svg>g>g').attr('transform', "translate("+ x +","+ y +")scale("+innerScale+")");
+    syncZoom([x,y], scale);
+    vis.attr('transform', "translate("+ x +","+ y +")scale("+scale+")");
   });
 
   $('#zoom-reset').click(function(){
-    innerScale = 1.0;
+    scale = 1.0;
     var x = 0.0, y = 0.0;
-    syncZoom([x,y], innerScale);
-    $('svg>g>g').attr('transform', "translate("+ x +","+ y +")scale("+innerScale+")");
+    syncZoom([x,y], scale);
+    vis.attr('transform', "translate("+ x +","+ y +")scale("+scale+")");
   });
 
   console.log('set zoom');
 
-  /*
+  
+  $('#toolbar form').submit(function(){
+    keyword = $('#keyword').val();
+    reColorNodes(innerScale);
+    return false;
+  });
+
+
   // Right click menu
   $.contextMenu({
-  selector: '.node', 
-  callback: function(key, options) {
-  var m = "clicked: " + $(this).find('text').text() + "\r\n\r\nAction: "
-  + key + "\r\n\r\nTarget: " + $(this).find('a').attr('href');
-  window.console && console.log(m) || alert(m); 
-  },
-  items: {
-  "view": {name: "View", callback:function(key, options){
-  window.location = $(this).find('a').attr('href');
-  }},
-  "edit": {name: "Edit", icon: "edit"},
-  "cut": {name: "Cut", icon: "cut"},
-  "copy": {name: "Copy", icon: "copy"},
-  "paste": {name: "Paste", icon: "paste"},
-  "delete": {name: "Delete", icon: "delete"},
-  "sep1": "---------",
-  "quit": {name: "Quit", icon: "quit"}
-  }
+    selector: '.node', 
+    callback: function(key, options) {
+      var m = "clicked: " + $(this).find('text').text() + "\r\n\r\nAction: "
+        + key + "\r\n\r\nTarget: " + $(this).find('a').attr('href');
+      window.console && console.log(m) || alert(m); 
+    },
+    items: {
+      "view": {name: "View", callback:function(key, options){
+        window.location = $(this).find('a').attr('href');
+      }},
+      "edit": {name: "Edit", icon: "edit"},
+      "cut": {name: "Cut", icon: "cut"},
+      "copy": {name: "Copy", icon: "copy"},
+      "paste": {name: "Paste", icon: "paste"},
+      "delete": {name: "Delete", icon: "delete"},
+      "sep1": "---------",
+      "quit": {name: "Quit", icon: "quit"}
+    }
   });
-  */
   console.log('click menu');
 });

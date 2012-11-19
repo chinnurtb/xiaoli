@@ -21,16 +21,17 @@
       <div class="span10">
         <div id="panel">
           <div id="toolbar">
-            <div id="zoom" class="btn-group t-item">
+            <div id="zoom" class="btn-group tb-item">
               <button type="button" id="zoom-out" class="btn btn-small"><i class="icon-minus"></i></button>
               <button type="button" id="zoom-in" class="btn btn-small"><i class="icon-plus"></i></button>
               <button type="button" id="zoom-reset" class="btn btn-small">1:1</button>
             </div>
             
-            <form method="GET" class="form filter-form t-item">
+            <form method="GET" class="form filter-form tb-item">
               {% from 'tango/_search_h.html' import render_keyword %}
               {{ render_keyword(form, "节点名称") }}
             </form>
+            <div id="info" class="tb-item"></div>
             <br class="clear" />
           </div>
          <div id="chart"></div>
