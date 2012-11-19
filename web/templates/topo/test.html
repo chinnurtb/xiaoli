@@ -192,8 +192,12 @@ d3.json("/topo/test.json?na=6&nb=10&nc=10", function(json) {
         .attr("class", "node")
         .attr("transform", function(d) { return "rotate(" + (d.x - 90) + ")translate(" + d.y + ")"; });
 
-    node.append("a")
-        .attr("xlink:href", function(d){return d.url;});
+    node.append("svg:image")
+        .attr("xlink:href", function(d){return "http://ww2.sinaimg.cn/large/412e82dbjw1dsbny7igx2j.jpg";})
+        .attr("x", "-32px")
+        .attr("y", "-32px")
+        .attr("width", "64px")
+        .attr("height", "64px");
 
     node.append("circle")
         .style("fill", function(d) { return d.status == 0 ? "red" : "green"})

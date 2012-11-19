@@ -5,7 +5,7 @@
 %%% Created : 05 July 2011
 %%% License : http://www.opengoss.com
 %%%
-%%% Copyright (C) 2011, www.opengoss.com 
+%%% Copyright (C) 2012, www.opengoss.com 
 %%%----------------------------------------------------------------------
 -module(mit_server).
 
@@ -136,16 +136,6 @@ handle_entry({entry, fitap, ApDn, Attrs}) ->
 	{false, _} ->
 		?ERROR("failed to lookup ap ~s", [ApDn])
 	end;
-
-handle_entry({entry, omcfitaps, _OmcDn, OmcFitAp}) ->
-	lists:foreach(fun({AcIp, FitAps}) ->
-		case mit:lookup({ip, AcIp}) of 
-		{ok, #entry{dn=AcDn}} ->
-			mit_ap:insert(fitaps, AcDn, FitAps);
-		{false, {ip, AcIp}} ->
-			?ERROR("not find AcIp: ~s", [AcIp])
-		end
-	end, OmcFitAp);
 
 handle_entry({entry, fitaps, AcDn, FitAps}) ->
 	mit_ap:update(fitaps, AcDn, FitAps);
