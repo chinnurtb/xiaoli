@@ -23,7 +23,7 @@
 start() ->
 	%start libs
     [start_app(App) || App <- [sasl, crypto, extlib, elog, mnesia, worker_pool]],
-    [start_app(App) || App <- [amqp_client, emysql, mit, coord]],
+    [start_app(App) || App <- [amqp_client, epgsql, mit, coord]],
     log_version(),
 	wait_for_tables(),
     ?INFO_MSG("startup finished.").
@@ -38,6 +38,9 @@ start_app(mnesia) ->
     end,
     mnesia:start();
 
+start_app(epgsql) ->
+    epgsql_app:start();
+
 start_app(App) ->
     application:start(App).
 
@@ -46,6 +49,7 @@ log_version() ->
     Apps = application:which_applications(),
     case lists:keysearch(coord, 1, Apps) of
 	{value, {_, _, Ver}} ->
+        %TODO: should log to subsystems table
 		emysql:update(versions, [{version, Ver}, {updated_at, UpdatedAt}], 
 			{'or', {subsystem, "coord"}, {subsystem, "node"}});
 	false ->

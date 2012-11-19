@@ -6,7 +6,7 @@
 %%% Updated : 23 Oct 2009
 %%% License : http://www.opengoss.com
 %%%
-%%% Copyright (C) 2010, www.opengoss.com 
+%%% Copyright (C) 2012, www.opengoss.com 
 %%%----------------------------------------------------------------------
 -module(coord).
 
@@ -37,7 +37,7 @@
 
 -record(state, {channel}).
 
--define(HOUR, 3600000).
+-define(TIMEOUT, 600000).
 
 %%--------------------------------------------------------------------
 %% Function: start_link() -> {ok,Pid} | ignore | {error,Error}
@@ -60,8 +60,8 @@ presences() ->
 %% Description: Initiates the server
 %%--------------------------------------------------------------------
 init([]) ->
-    process_flag(trap_exit, true),
-    mnesia:create_table(presence, [{ram_copies, [node()]}, {index, [type]},
+    mnesia:create_table(presence, [
+        {ram_copies, [node()]}, {index, [type]},
         {attributes, record_info(fields, presence)}]),
 	{ok, Conn} = amqp:connect(),
     Channel = open(Conn),
@@ -92,9 +92,6 @@ handle_call(status, _From, State) ->
     %Reply = [{dispatch, mnesia:table_info(dispatch, size)}],
     {reply, {ok, []}, State};
 
-handle_call(stop, _From, State) ->
-    {stop, normal, ok, State};
-
 handle_call(Req, _From, State) ->
     {stop, {error, {badreq, Req}}, State}.
 
@@ -112,11 +109,11 @@ handle_info({deliver, <<"host">>, _, Payload}, State) ->
         DateTime = {datetime, {date(), time()}},
         %%save hostinfo into db
         {value, JID} = dataset:get_value(jid, HostInfo),
-        case emysql:select(servers, [id], {jid, JID}) of
+        case epgsql:select(main, servers, [id], {jid, JID}) of
             {ok, [_Record|_]} ->
-                emysql:update(servers, [{updated_at, DateTime} | HostInfo], {jid, JID});
+                epgsql:update(main, servers, [{updated_at, DateTime} | HostInfo], {jid, JID});
             {ok, []} ->
-                emysql:insert(servers, [{created_at, DateTime}, {updated_at, DateTime} | HostInfo]);
+                epgsql:insert(main, servers, [{created_at, DateTime}, {updated_at, DateTime} | HostInfo]);
             {error, Reason} ->
                 ?ERROR("~p",[Reason])
         end;
@@ -135,8 +132,7 @@ handle_info({deliver, <<"presence">>, _, Payload}, State) ->
         [] ->
             ok
         end,
-        %FIXME: for hpux
-        Tref = undefined, %send_after(?HOUR, self(), {offline, Node}),
+        Tref = send_after(?TIMEOUT, self(), {offline, Node}),
         mnesia:dirty_write(#presence{node = Node, type = Type, 
             status = Status, vsn = Vsn, summary = Summary, tref = Tref});
 	Term ->
@@ -151,8 +147,7 @@ handle_info({deliver, <<"heartbeat">>, _, Payload}, State) ->
         case mnesia:dirty_read(presence, Node) of
         [Presence] ->
             cancel_timer(Presence#presence.tref),
-            %FIXME: for hpux
-            Tref = undefined, %send_after(?HOUR, self(), {offline, Node}),
+            Tref = send_after(?TIMEOUT, self(), {offline, Node}),
             mnesia:dirty_write(Presence#presence{node = Node, summary = Summary, 
                 metrics = Metrics, tref = Tref});
         [] ->
@@ -209,18 +204,18 @@ cancel_timer(Ref) ->
 
 handle_presence({Node, node, unavailable, _Summary}) ->
     DateTime = {datetime, {date(), time()}},
-    emysql:update(servers, [{presence, 0}, {updated_at, DateTime}], {jid, Node});
+    epgsql:update(main, servers, [{presence, 0}, {updated_at, DateTime}], {jid, Node});
 
 handle_presence({Node, node, available, _Summary}) ->
     DateTime = {datetime, {date(), time()}},
-    emysql:update(servers, [{presence, 1}, {updated_at, DateTime}], {jid, Node});
+    epgsql:update(main, servers, [{presence, 1}, {updated_at, DateTime}], {jid, Node});
 
 handle_presence(_) ->
 	ignore.
 
 handle_offline(#presence{node = Node, type = node}) ->
     DateTime = {datetime, {date(), time()}},
-    emysql:update(servers, [{presence, 0}, {updated_at, DateTime}], {jid, Node});
+    epgsql:update(main, servers, [{presence, 0}, {updated_at, DateTime}], {jid, Node});
 
 handle_offline(_Presence) ->
     ignore.

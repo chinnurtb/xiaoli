@@ -42,9 +42,7 @@
         terminate/2, 
         code_change/3]).
 
--record(dispatch, {id, dn, node, tref}).
-
--record(state, {channel, is_sharded, shards}).
+-record(state, {channel, shards}).
 
 -define(HOUR, 3600000).
 
@@ -63,55 +61,48 @@ dispatches(Dn) ->
 offline(Presence) ->
 	gen_server2:cast(?MODULE, {offline, Presence}).
 
-dispatch(#entry{dn = Dn, attrs = Attrs} = Entry) ->
-    case is_device(Entry) of
-    true -> 
-        dispatch({discover, Dn, Attrs}),
-        case need_monitor(Entry) of
-        true ->
-            dispatch({monitor, Dn, Attrs});
-        false ->
-            ?INFO("dont monitor ~s", [Dn]),
-            ok
-        end;
-    false -> 
-        ok
-    end;
+dispatch(Node) when is_record(Node, node) ->
+    gen_server2:call(?MODULE, {dispatch, node, Node});
 
 dispatch(Task) ->
-    gen_server2:call(?MODULE, {dispatch, Task}).
+    gen_server2:call(?MODULE, {dispatch, task, Task}).
     
 init([Env]) ->
     mnesia:create_table(dispatch, [
         {ram_copies, [node()]}, {index, [dn, node]}, 
         {attributes, record_info(fields, dispatch)}]),
-    IsSharded = proplists:get_value(is_sharded, Env, false),
 	{ok, Conn} = amqp:connect(),
-    Channel = open(Conn),
+    Ch = open(Conn),
     ?INFO_MSG("coord_dist is started...[ok]"),
-    {ok, #state{channel = Channel, is_sharded = IsSharded, shards = []}}.
+    {ok, #state{channel = Ch, shards = []}}.
 
 open(Conn) ->
-	{ok, Channel} = amqp:open_channel(Conn),
+    %open channel and declare queue
+	{ok, Ch} = amqp:open_channel(Conn),
+	{ok, Q} = amqp:queue(Ch, node()),
+
 	%shards
-	amqp:queue(Channel, <<"shard">>),
-	amqp:consume(Channel, <<"shard">>),
+	amqp:queue(Ch, <<"shard">>),
+	amqp:consume(Ch, <<"shard">>),
+
+    %mit topic
+	amqp:topic(Ch, <<"mit.event">>),
+	amqp:bind(Ch, <<"mit.event">>, Q, <<"#">>),
+    amqp:topic(Ch, <<"mit.node">>),
+    amqp:bind(Ch, <<"mit.node">>, Q, <<"node.dist">>), 
 
 	%tasks
-	amqp:queue(Channel, <<"task">>),
-	amqp:queue(Channel, <<"task.reply">>),
-	amqp:consume(Channel, <<"task.reply">>),
+	amqp:queue(Ch, <<"task">>),
+	amqp:queue(Ch, <<"task.reply">>),
+	amqp:consume(Ch, <<"task.reply">>),
 
 	%async tasks from webport
-	amqp:queue(Channel, <<"async_task">>),
-	amqp:consume(Channel, <<"async_task">>),
+	amqp:queue(Ch, <<"async_task">>),
+	amqp:consume(Ch, <<"async_task">>),
 
-	{ok, Q} = amqp:queue(Channel, node()),
-	amqp:topic(Channel, <<"oss.mit">>),
-	amqp:bind(Channel, <<"oss.mit">>, Q, <<"#">>),
-	amqp:consume(Channel, Q),
+	amqp:consume(Ch, Q),
 
-	Channel.
+	Ch.
 
 handle_call(shards, _From, #state{shards = Shards} = State) ->
     {reply, Shards, State};
@@ -124,145 +115,58 @@ handle_call(status, _From, State) ->
     Reply = [{dispatch, mnesia:table_info(dispatch, size)}],
     {reply, {ok, Reply}, State};
 
-handle_call({dispatch, {discover, Dn, Entry}}, _From, #state{channel = Channel,
-    is_sharded = IsSharded, shards = Shards} = State) ->
-    ?INFO("dispatch 'discover ~s' task", [Dn]),
-    Payload = term_to_binary({discover, Dn, Entry}),
-    Timer = send_after(?HOUR, self(), {timeout, {disco, Dn}}),
+handle_call({dispatch, node, Node}, _From, 
+    #state{channel = Ch, shards = Shards} = State) ->
+    Payload = term_to_binary({node, Node}),
+    Dn = Node#node.rdn,
+    Timer = send_after(?HOUR, self(), {timeout, {node, Node#node.rdn}}),
     NewState = 
-    case mnesia:dirty_read(dispatch, {disco, Dn}) of
-    [] -> %still not be discovered
-        case IsSharded of
-        false ->
-            amqp:send(Channel, <<"task">>, Payload),
-            mnesia:dirty_write(#dispatch{id = {disco, Dn}, dn = Dn, tref=Timer}),
-            State;
-        true ->
-            case find_shard_for_disco(binary_to_list(Dn), Shards) of
-            {Node, Scope, DiscoTasks, MonTasks} ->
-                amqp:send(Channel, atom_to_list(Node), Payload),
-                mnesia:dirty_write(#dispatch{id = {disco, Dn}, dn = Dn, node = Node, tref=Timer}),
-                NewShard = {Node, Scope, DiscoTasks+1, MonTasks},
-                NewShards = lists:keyreplace(Node, 1, Shards, NewShard),
-                State#state{shards = NewShards};
-            false ->
-                ?ERROR("no shard for ~p", [Dn]),
-                State
-            end
-        end;
-    [#dispatch{node = N, tref = TRef} = Dispatch] ->  %has been monitored
+    case mnesia:dirty_read(dispatch, {node, Node#node.rdn}) of
+    [] -> %still not be dispatched
+        RouteKey = list_to_binary(["node.", Node#node.city]),
+        ?INFO("dispatch node ~s to ~s ", [Node#node.rdn, RouteKey]),
+        amqp:publish(Ch, <<"mit.node">>, Payload, RouteKey), 
+        mnesia:dirty_write(#dispatch{id = {node, Dn}, dn = Dn, tref=Timer}),
+        State;
+    [#dispatch{node = N, tref = TRef} = Dispatch] ->  %has been dispatched
         cancel_timer(TRef),
-        amqp:send(Channel, atom_to_list(N), Payload),
+        ?INFO("dispatch node ~s to ~s ", [Node#node.rdn, N]),
+        amqp:send(Ch, atom_to_list(N), Payload),
         mnesia:dirty_write(Dispatch#dispatch{tref=Timer}),
         State
     end,
     {reply, ok, NewState};
 
-handle_call({dispatch, {reset, Dn, Entry}}, _From, #state{channel = Channel, 
-    is_sharded = IsSharded, shards = Shards} = State) ->
-    ?INFO("dispatch 'reset ~s' task", [Dn]),
-    Payload = term_to_binary({reset, Dn, Entry}),
-	NewState = 
-    case IsSharded of
-    false ->
-        amqp:send(Channel, <<"task">>, Payload),
-		State;
-    true ->
-        case find_shard_for_disco(binary_to_list(Dn), Shards) of
-        {Node, Scope, DiscoTasks, MonTasks} ->
-            amqp:send(Channel, atom_to_list(Node), Payload),
-            NewShard = {Node, Scope, DiscoTasks+1, MonTasks},
-            NewShards = lists:keyreplace(Node, 1, Shards, NewShard),
-            State#state{shards = NewShards};
-        false ->
-            ?ERROR("no shard for ~p", [Dn]),
-            State
-        end
-    end,
-	{reply, ok, NewState};
-
-handle_call({dispatch, {monitor, Dn, Entry}}, _From, #state{channel = Channel,
-    is_sharded = IsSharded, shards = Shards} = State) ->
-    ?INFO("dispatch 'monitor ~s' task", [Dn]),
-    Payload = term_to_binary({monitor, Dn, Entry}),
-    Timer = send_after(?HOUR, self(), {timeout, {monitor, Dn}}),
-    NewState = 
-    case mnesia:dirty_read(dispatch, {monitor, Dn}) of
-    [] -> %still not be monitored
-        case IsSharded of
-        false ->
-            amqp:send(Channel, <<"task">>, Payload), 
-            mnesia:dirty_write(#dispatch{id = {monitor, Dn}, dn = Dn, tref=Timer}),
-            State;
-        true ->
-            case find_shard_for_monitor(binary_to_list(Dn), Shards) of
-            {Node, Scope, DiscoTasks, MonTasks} ->
-                amqp:send(Channel, atom_to_list(Node), Payload),
-                mnesia:dirty_write(#dispatch{id = {monitor, Dn},
-					dn = Dn, node = Node, tref=Timer}),
-                NewShard = {Node, Scope, DiscoTasks, MonTasks+1},
-                NewShards = lists:keyreplace(Node, 1, Shards, NewShard),
-                State#state{shards = NewShards};
-            false ->
-                ?ERROR("no shard for ~p", [Dn]),
-                State
-            end
-        end;
-    [#dispatch{node = N, tref = TRef} = Dispatch] ->  %has been monitored
-        cancel_timer(TRef),
-        amqp:send(Channel, atom_to_list(N), Payload),
-        mnesia:dirty_write(Dispatch#dispatch{tref=Timer}),
-        State
-    end,
-    {reply, ok, NewState};
-
-handle_call({dispatch, {update, Dn, Entry}}, _From, #state{channel = Channel} = State) ->
-    %fix bug #858
+handle_call({dispatch, {update, Node}}, _From, #state{channel = Ch} = State) ->
     %dispatch monitor update task
-    ?INFO("dispatch 'update ~s' task", [Dn]),
-    case mnesia:dirty_read(dispatch, {monitor, Dn}) of
-    [] -> %still not be monitored, monitor it????
-        spawn(fun() -> dispatch({monitor, Dn, Entry}) end);
+    Dn = Node#node.rdn,
+    ?INFO("dispatch 'update ~s' task", [Node#node.rdn]),
+    Payload = term_to_binary({node, update, Node}),
+    case mnesia:dirty_read(dispatch, {node, Node#node.rdn}) of
+    [] -> %still not be dispatched
+        RouteKey = list_to_binary(["node.", Node#node.city]),
+        amqp:publish(Ch, <<"mit.node">>, Payload, RouteKey), 
+        mnesia:dirty_write(#dispatch{id = {node, Dn}, dn = Dn, tref=undefined}); %TODO: FIX LATER
     [#dispatch{node = undefined}] ->
-        ?WARNING("node is undefined: ~p", [{monitor, Dn}]);
-    [#dispatch{node = Node}] ->
-        amqp:send(Channel, atom_to_list(Node), 
-            term_to_binary({monitor, update, Dn, Entry}))
-    end,
-    %dispatch disco update task
-    case mnesia:dirty_read(dispatch, {disco, Dn}) of
-    [] ->
-        ?WARNING("no dispatch found: ~p", [{disco, Dn}]);
-    [#dispatch{node = undefined}] ->
-        ?WARNING("node is undefined: ~p", [{disco, Dn}]);
-    [#dispatch{node = DiscoNode}] ->
-        amqp:send(Channel, atom_to_list(DiscoNode), 
-            term_to_binary({disco, update, Dn, Entry}))
+        ?WARNING("node is undefined for ~p", [Node#node.rdn]);
+    [#dispatch{node = N}] ->
+        amqp:send(Ch, atom_to_list(N), Payload)
     end,
     {reply, ok, State};
 
-handle_call({dispatch, {delete, Dn}}, _From, #state{channel = Channel} = State) ->
-    case mnesia:dirty_read(dispatch, {disco, Dn}) of
+handle_call({dispatch, {delete, Dn}}, _From, #state{channel = Ch} = State) ->
+    case mnesia:dirty_read(dispatch, {node, Dn}) of
     [] ->
         ignore;
     [#dispatch{node = undefined}] ->
         ignore;
-    [#dispatch{node = Node1}] ->
-        ?INFO("dispatch 'delete ~s' to disco node: ~p", [Dn, Node1]),
-        amqp:send(Channel, atom_to_list(Node1),
-			term_to_binary({undiscover, Dn}))
+    [#dispatch{node = N}] ->
+        ?INFO("dispatch 'delete ~s' to monitor node: ~p", [Dn, N]),
+        Payload = term_to_binary({node, delete, Dn}),
+        amqp:send(Ch, atom_to_list(N), Payload)
     end,
-    case mnesia:dirty_read(dispatch, {monitor, Dn}) of
-    [] ->
-        ignore;
-    [#dispatch{node = undefined}] ->
-        ignore;
-    [#dispatch{node = Node2}] ->
-        ?INFO("dispatch 'delete ~s' to monitor node: ~p", [Dn, Node2]),
-        amqp:send(Channel, atom_to_list(Node2), term_to_binary({unmonitor, Dn}))
-    end,
-    Tasks = mnesia:dirty_index_read(dispatch, Dn, #dispatch.dn),
-    [mnesia:dirty_delete(dispatch, T#dispatch.id) || T <- Tasks],
+    Dispatches = mnesia:dirty_index_read(dispatch, Dn, #dispatch.dn),
+    [mnesia:dirty_delete(dispatch, D#dispatch.id) || D <- Dispatches],
     {reply, ok, State};
 
 handle_call({dispatch, Event}, _From, State) ->
@@ -322,68 +226,13 @@ handle_info({deliver, <<"mit.inserted">>, _Props, Payload}, State) ->
 
 handle_info({deliver, <<"mit.updated">>, _Props, Payload}, State) ->
     case binary_to_term(Payload) of
-	{updated, Dn, #entry{attrs = Attrs} = Entry} ->
-		?INFO("mit updated: ~s", [Dn]),
-		case is_device(Entry) of
-		true -> 
-			DiscoveryState = get_value(discovery_state, Attrs),
-			Task = 
-			case DiscoveryState of
-			9 -> {reset, Dn, Attrs}; %reset
-			2 -> {discover, Dn, Attrs}; %rediscover
-			_ -> {update, Dn, Attrs} %update
-			end,
-			spawn(fun() -> dispatch(Task) end);
-		false -> 
-			ok
-		end;
+	{updated, #node{rdn=Dn, attrs = Attrs}} ->
+		?INFO("mit updated: ~s", [Dn]);
+        %redispatch 
 	BadTerm ->
 		?ERROR("badterm: ~p", [BadTerm])
 	end,
     {noreply, State};
-
-handle_info({deliver, <<"async_task">>, _Props, Payload}, #state{channel = Channel,
-	is_sharded = IsSharded, shards = Shards} = State) ->
-    ?INFO("async task from webport: ~p", [Payload]),
-    case binary_to_list(Payload) of
-    "taskid:" ++ S ->
-        Id = list_to_integer(S),
-        case emysql:select({async_tasks, {id, Id}}) of
-        {ok, []} ->
-            ?ERROR("cannot found async_task: ~p", [Id]);
-        {ok, [AsyncTask]} ->
-            {value, Dn} = dataset:get_value(mo, AsyncTask),
-            {value, Timeout} = dataset:get_value(timeout, AsyncTask),
-            Timer = send_after(Timeout*1000, self(), {timeout, {async_task, Id}}),
-            Queue = 
-            case IsSharded of
-            false ->
-                <<"task">>;
-            true ->
-                case find_shard_for_disco(binary_to_list(Dn), Shards) of %TODO: should refactor name of '_for_disco'
-                {Node, _, _, _} ->
-                    atom_to_list(Node);
-                false ->
-                    ?ERROR("no shard for ~p", [Dn]),
-                    false
-                end
-            end,
-            case Queue of
-            false ->
-                ?ERROR("no available node for async_task: ~p", [Id]); %TODO: should update mysql
-            _ ->
-                amqp:send(Channel, Queue, term_to_binary({async_task, Id, AsyncTask})), 
-                mnesia:dirty_write(#dispatch{id = {async_task, Id}, dn = Dn, tref=Timer}),
-                DateTime = {datetime, {date(), time()}},
-                emysql:update(async_tasks, [{executed_at, DateTime}], {id, Id})
-            end;
-        {error, Reason} ->
-            ?ERROR("~p", [Reason])
-        end;
-    _ ->
-        ?ERROR("unexpected async_task: ~p", [Payload])
-    end,
-	{noreply, State};
 
 handle_info({deliver, <<"task.reply">>, _, Payload}, State) ->
     handle_reply(binary_to_term(Payload), State),
@@ -395,19 +244,13 @@ handle_info({deliver, <<"shard">>, _, Payload}, #state{shards = Shards} = State)
         Shards1 =
         case lists:keysearch(Node, 1, Shards) of
         {value, _} -> Shards;
-        false -> [{Node, Scope, 0, 0}|Shards]
+        false -> [{Node, Scope, 0}|Shards]
         end,
         {noreply, State#state{shards = Shards1}};
     Term ->
         ?ERROR("error shard: ~p", [Term]),
         {noreply, State}
     end;
-
-handle_info({timeout, {async_task, Id}}, State) ->
-    DateTime = {datetime, {date(), time()}},
-    emysql:update(async_tasks, [{status, <<"TIMEOUT">>}, {finished_at, DateTime}], {id, Id}),
-    mnesia:dirty_delete(dispatch, Id),
-    {noreply, State};
 
 handle_info({timeout, Id}, State) ->
     ?ERROR("dispatch timeout: ~p", [Id]),
@@ -444,34 +287,9 @@ cancel_timer(undefined) ->
 cancel_timer(Ref) ->
     erlang:cancel_timer(Ref).
 
-handle_reply({async_task_result, Id, Status, Result} = R, _State) ->
-    case mnesia:dirty_read(dispatch, {async_task, Id}) of
-    [Dispatch] ->
-        ?ERROR("async_task_reply: ~p, ~p", [Status, Result]),
-        cancel_timer(Dispatch#dispatch.tref),
-        mnesia:dirty_delete(dispatch, Dispatch#dispatch.id),
-        DateTime = {datetime, {date(), time()}},
-        Result1 = emysql:escape(Result),
-        Record = [{status, Status}, {result, Result1}, {finished_at, DateTime}],
-        Res = emysql:update(async_tasks, Record, {id, Id}),
-        ?ERROR("~p", [Res]);
-    [] -> 
-        ?ERROR("unexpected reply: ~p", [R])
-    end;
-
-handle_reply({discovered, Dn, Node}, _State) ->
-    ?INFO("~s is discovering by ~s", [Dn, Node]),
-    case mnesia:dirty_read(dispatch, {disco, Dn}) of
-    [Dispatch] ->
-        cancel_timer(Dispatch#dispatch.tref),
-        mnesia:dirty_write(Dispatch#dispatch{node = Node, tref=undefined}); 
-    [] -> 
-        ?ERROR("bad_disco_reply for ~s", [Dn])
-    end;
-
-handle_reply({monitored, Dn, Node}, _State) ->
+handle_reply({managed, Dn, Node}, _State) ->
     ?INFO("~s is monitored by ~s", [Dn, Node]),
-    case mnesia:dirty_read(dispatch, {monitor, Dn}) of
+    case mnesia:dirty_read(dispatch, {node, Dn}) of
     [#dispatch{node = OldNode} = Dispatch] ->
         if 
         OldNode == undefined -> ok;
@@ -486,84 +304,4 @@ handle_reply({monitored, Dn, Node}, _State) ->
 
 handle_reply(Reply, _State) ->
     ?ERROR("badreply: ~p", [Reply]).
-
-find_shard_for_disco(Dn, Shards) ->
-    find_shard_for_disco(Dn, Shards, false).
-
-find_shard_for_disco(_Dn, [], Ret) ->
-    Ret;
-find_shard_for_disco(Dn, [{_, Scope, _, _} = Shard | Shards], false) ->
-    case scope_match(Scope, Dn) of
-    true ->
-        find_shard_for_disco(Dn, Shards, Shard);
-    false ->
-        find_shard_for_disco(Dn, Shards, false)
-    end;
-find_shard_for_disco(Dn, [{_, Scope, DiscoTasks1, _} = Shard | Shards], {_, _, DiscoTasks2, _} = LastShard) ->
-    case scope_match(Scope, Dn) of
-    true ->
-        if
-        DiscoTasks1 < DiscoTasks2 ->
-            find_shard_for_disco(Dn, Shards, Shard);
-        true ->
-            find_shard_for_disco(Dn, Shards, LastShard)
-        end;
-    false ->
-        find_shard_for_disco(Dn, Shards, LastShard)
-    end.
-
-find_shard_for_monitor(Dn, Shards) ->
-    find_shard_for_monitor(Dn, Shards, false).
-
-find_shard_for_monitor(_Dn, [], Ret) ->
-    Ret;
-find_shard_for_monitor(Dn, [{_, Scope, _, _} = Shard | Shards], false) ->
-    case scope_match(Scope, Dn) of
-    true ->
-        find_shard_for_monitor(Dn, Shards, Shard);
-    false ->
-        find_shard_for_monitor(Dn, Shards, false)
-    end;
-find_shard_for_monitor(Dn, [{_, Scope, _, MonTasks1} = Shard | Shards], {_, _, _, MonTasks2} = LastShard) ->
-    case scope_match(Scope, Dn) of
-    true ->
-        if
-        MonTasks1 < MonTasks2 ->
-            find_shard_for_monitor(Dn, Shards, Shard);
-        true ->
-            find_shard_for_monitor(Dn, Shards, LastShard)
-        end;
-    false ->
-        find_shard_for_monitor(Dn, Shards, LastShard)
-    end.
-
-scope_match({endwith, Suffix}, Dn) ->
-    lists:suffix(Suffix, Dn);
-scope_match({endwithout, Suffix}, Dn) ->
-    (not lists:suffix(Suffix, Dn));
-scope_match({startwith, Prefix}, Dn) ->
-    lists:prefix(Prefix, Dn);
-scope_match({startwithout, Prefix}, Dn) ->
-    (not lists:prefix(Prefix, Dn)).
-    
-is_device(#entry{class = ObjectClass}) ->
-    lists:member(<<"ossIpDevice">>, binary:split(ObjectClass, <<"/">>, [global])).
-
-need_monitor(#entry{attrs = Attrs}) ->
-    {value, ApFit} = dataset:get_value(ap_fit, Attrs, 0),
-    {value, DiscoverState} = dataset:get_value(discovery_state, Attrs, 0),
-    case {ApFit, DiscoverState} of
-    {2, ?UNDISCOVERED} ->
-        false;
-    {2, _} ->
-        true;
-    {1, _} ->
-        true;
-    {_, ?DISCOVERED} ->
-        true;
-    {_, ?REDISCOVER} ->
-        true;
-    _ ->
-        false
-    end.
 
