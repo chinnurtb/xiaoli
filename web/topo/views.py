@@ -67,7 +67,7 @@ def test_json():
     # 1. 缩放 DONE
     # 2. 拖拽 DONE
     # 3. 链接 DONE
-    # 4. 显示图片 HOLD
+    # 4. 显示图片 DONE
     # 5. 表达节点的状态 DONE
     # 6. 右键菜单 DONE
     na = request.args.get('na', 6, type=int)

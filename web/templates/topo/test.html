@@ -41,7 +41,7 @@
         font-family: Times, "宋体";
     }
     rect {
-        fill: #FAFAFA;
+        fill: #FFC;
     }
 
     .node circle {
@@ -98,8 +98,8 @@
               </ul>
             </div>
             <div id="zoom" class="btn-group ">
-              <button type="button" id="zoom-out" class="btn"><i class="icon-minus"></i></button>
-              <button type="button" id="zoom-in" class="btn"><i class="icon-plus"></i></button>
+              <button type="button" id="zoom-out" class="btn btn-small"><i class="icon-minus"></i></button>
+              <button type="button" id="zoom-in" class="btn btn-small"><i class="icon-plus"></i></button>
             </div>
           </div>
         </div>
@@ -109,8 +109,10 @@
     <script type="text/javascript">
     $('.dropdown-toggle').dropdown();
 //////////////////////////////////////////////
-var radius = 600 / 2;
-zoomTime = 4.5;
+var radius = 600 / 2,
+    zoomTime = 4.5,
+    extraWidth = 0,
+    innerScale = 1.0;
 /**
  * 4级: 4.5/600 --> 3/400
  */
@@ -141,7 +143,7 @@ function getTransform(selector){
     }
     var re = /^translate\((\S+),(\S+)\)scale\((\S+)\)/;
     var arr = re.exec(transform);
-    return arr
+    return arr;
 }
 
 var dragGroup = d3.behavior.drag()
@@ -154,20 +156,25 @@ var dragGroup = d3.behavior.drag()
         d3.select(this).attr("transform", "translate(" + d.x + "," + d.y + ")scale("+ 1.0/zoomTime+")");
     });
 
+function zoom() {
+    console.log(d3.event.translate);
+    vis.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+}
+
+var obZoom = d3.behavior.zoom().scaleExtent([1, 8]).on("zoom", zoom);
 var vis = d3.select("#chart").append("svg")
-    .attr("width", radius * 2 + 200)
+    .attr("width", radius * 2 + extraWidth)
     .attr("height", radius * 2)
     .append("g")
-    .data([{x:(radius+100),y:radius}])
-    .attr("transform", "translate(" + (radius+100) + "," + radius + ")scale("+ 1.0/zoomTime+")")
-    .call(dragGroup)
+    .data([{x: (radius + extraWidth/2), y: radius, scale: 1.0/zoomTime}])
+    .attr("transform", "translate(" + (radius + extraWidth/2) + "," + radius + ")scale("+ 1.0/zoomTime+")")
+    .call(obZoom)
     .append("g");
 
 vis.append("rect")
     .attr("width", radius * 2 * zoomTime) // 3 = 1 / 0.33
     .attr("height", radius * 2 * zoomTime)
     .attr("transform", "translate(" + -radius*zoomTime + "," + -radius*zoomTime + ")");
-
 
 
 d3.json("/topo/test.json?na=6&nb=10&nc=10", function(json) {
@@ -199,29 +206,33 @@ d3.json("/topo/test.json?na=6&nb=10&nc=10", function(json) {
         .text(function(d) { return d.name; });
 });
 
-function zoom() {
-    console.log(d3.event.translate, d3.event.scale);
-    vis.attr("transform", "translate(" + d3.event.translate + ")");
+function syncZoom(translate, scale){
+    obZoom.translate(translate);
+    obZoom.scale(scale);
 }
 
 $('#zoom-in').click(function(){
     var arr = getTransform('svg>g>g')
-    var scale = 1.0;
     if (arr.length>3){
         f = parseFloat(arr[3]);
-        scale = f < 6.0 ? f * 1.1 : f;
+        innerScale = f < 6.0 ? f * 1.5 : f;
     }
-    $('svg>g>g').attr('transform', "translate("+arr[1]+","+arr[2]+")scale("+scale+")");
+    var x = arr[1];
+    var y = arr[2];
+    syncZoom([x,y], innerScale);
+    $('svg>g>g').attr('transform', "translate("+ x +","+ y +")scale("+innerScale+")");
 });
 
 $('#zoom-out').click(function(){
     var arr = getTransform('svg>g>g')
-    var scale = 1.0;
     if (arr.length>3){
         f = parseFloat(arr[3]);
-        scale = f > 1.0 ? f / 1.1 : 1.0;
+        innerScale = f > 1.0 ? f / 1.5 : 1.0;
     }
-    $('svg>g>g').attr('transform', "translate("+arr[1]+","+arr[2]+")scale("+scale+")");
+    var x = arr[1];
+    var y = arr[2];
+    syncZoom([x,y], innerScale);
+    $('svg>g>g').attr('transform', "translate("+ x +","+ y +")scale("+innerScale+")");
 });
 
 
