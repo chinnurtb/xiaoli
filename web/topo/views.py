@@ -76,17 +76,17 @@ def test_json():
     na = request.args.get('na', 6, type=int)
     nb = request.args.get('nb', 6, type=int)
     nnc = request.args.get('nc', 6, type=int)
-    data = {'name': 'OLT', 'children': []}
+    data = {'name': 'OLT', 'children': [], 'level': 0}
     from random import Random
     rand = Random()
     
     for a in range(na):         # ONU
-        A = {'name': 'ONU-' + str(a), 'children': []}
+        A = {'name': 'ONU-' + str(a), 'children': [], 'level': 1}
         for b in range(nb):     # EOC
-            B = {'name': 'EOC-' + str(b), 'children': []}
+            B = {'name': 'EOC-' + str(b), 'children': [], 'level': 2}
             nc = rand.randint(nnc-4, nnc+4)
             for c in range(nc): # CPE
-                C = {'name': 'CPE-' + str(c), 'url': 'http://www.stackoverflow.com'}
+                C = {'name': 'CPE-' + str(c), 'url': 'http://www.stackoverflow.com', 'level': 3}
                 C['status'] = 1 if c % rand.randint(2, 6) != 0 else 0
                 B['children'].append(C)
             A['children'].append(B)

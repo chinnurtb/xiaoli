@@ -1,6 +1,6 @@
 #panel {
     background-color: #F7F7F7;
-    border-radius: 6px;
+    border-radius: 6px 6px 0 0;
     box-shadow: 0 1px 4px rgba(0, 0, 0, .065);
     border: 1px solid #D5D5D5;
 }
@@ -25,12 +25,12 @@
 }
 
 svg {
-    background-color: #FAFAFA;
+    background-color: #FFF;
     border-right: 1px solid #D5D5D5;
     font-family: Times, "宋体";
 }
 rect {
-    fill: #FFC;
+    fill: #FFF;
 }
 
 .node circle {
