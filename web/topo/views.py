@@ -6,8 +6,9 @@ from flask import Blueprint, request, url_for, \
     render_template, json
 
 from tango.ui import navbar
-
 from nodes.models import Node, Area, AREA_PROVINCE
+
+from .forms import SearchForm
 
 topoview = Blueprint('topo', __name__)
 
@@ -60,33 +61,40 @@ table_template = '<<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" ALIGN="cent
 
 @topoview.route('/topo/test')
 def test():
-    return render_template('topo/test.html')
+    form = SearchForm(formdata=request.args)
+    return render_template('topo/test.html', form=form)
 
 @topoview.route('/topo/test.json', methods=['GET', 'POST'])
 def test_json():
     # 1. 缩放 DONE
     # 2. 拖拽 DONE
     # 3. 链接 DONE
-    # 4. 显示图片 HOLD
+    # 4. 显示图片 DONE
     # 5. 表达节点的状态 DONE
     # 6. 右键菜单 DONE
+    # 7. 搜索跳转
     na = request.args.get('na', 6, type=int)
     nb = request.args.get('nb', 6, type=int)
     nnc = request.args.get('nc', 6, type=int)
-    data = {'name': 'OLT', 'children': []}
+    data = {'name': 'OLT', 'children': [], 'level': 0}
     from random import Random
     rand = Random()
+
+    count = 0
     for a in range(na):         # ONU
-        A = {'name': 'ONU-' + str(a), 'children': []}
+        A = {'name': 'ONU-' + str(a), 'children': [], 'level': 1, 'id': 'onu-'+str(count)}
         for b in range(nb):     # EOC
-            B = {'name': 'EOC-' + str(b), 'children': []}
-            nc = rand.randint(nnc-8, nnc+4)
+            B = {'name': 'EOC-' + str(b), 'children': [], 'level': 2, 'id': 'eoc-'+str(count)}
+            nc = rand.randint(nnc-4, nnc+4)
             for c in range(nc): # CPE
-                C = {'name': 'CPE-' + str(c), 'url': 'http://www.stackoverflow.com'}
+                C = {'name': 'CPE-' + str(c), 'url': 'http://www.stackoverflow.com', 'level': 3, 'id': 'cpe-'+str(count)}
                 C['status'] = 1 if c % rand.randint(2, 6) != 0 else 0
                 B['children'].append(C)
+                count += 1
             A['children'].append(B)
+            count += 1
         data['children'].append(A)
+        count += 1
         
     return json.dumps(data)
 
