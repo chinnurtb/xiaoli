@@ -6,8 +6,9 @@ from flask import Blueprint, request, url_for, \
     render_template, json
 
 from tango.ui import navbar
-
 from nodes.models import Node, Area, AREA_PROVINCE
+
+from .forms import SearchForm
 
 topoview = Blueprint('topo', __name__)
 
@@ -60,7 +61,8 @@ table_template = '<<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" ALIGN="cent
 
 @topoview.route('/topo/test')
 def test():
-    return render_template('topo/test.html')
+    form = SearchForm()
+    return render_template('topo/test.html', form=form)
 
 @topoview.route('/topo/test.json', methods=['GET', 'POST'])
 def test_json():
@@ -70,17 +72,19 @@ def test_json():
     # 4. 显示图片 DONE
     # 5. 表达节点的状态 DONE
     # 6. 右键菜单 DONE
+    # 7. 搜索跳转
     na = request.args.get('na', 6, type=int)
     nb = request.args.get('nb', 6, type=int)
     nnc = request.args.get('nc', 6, type=int)
     data = {'name': 'OLT', 'children': []}
     from random import Random
     rand = Random()
+    
     for a in range(na):         # ONU
         A = {'name': 'ONU-' + str(a), 'children': []}
         for b in range(nb):     # EOC
             B = {'name': 'EOC-' + str(b), 'children': []}
-            nc = rand.randint(nnc-8, nnc+4)
+            nc = rand.randint(nnc-4, nnc+4)
             for c in range(nc): # CPE
                 C = {'name': 'CPE-' + str(c), 'url': 'http://www.stackoverflow.com'}
                 C['status'] = 1 if c % rand.randint(2, 6) != 0 else 0
