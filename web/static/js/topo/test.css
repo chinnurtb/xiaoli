@@ -1,0 +1,65 @@
+#panel {
+    background-color: #F7F7F7;
+    border-radius: 6px 6px 0 0;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, .065);
+    border: 1px solid #D5D5D5;
+}
+#chart {
+    font-family: Times, "宋体";
+}
+
+/* Toolbar */
+#toolbar {
+    padding: 8px 2px;
+    border-bottom: 1px solid #D5D5D5;
+}
+
+.t-item {
+    float: left;
+    margin-left: 8px;
+    padding-right: 8px;
+    /* border-right: 1px solid #D5D5D5; */
+}
+
+#zoom {
+}
+
+svg {
+    background-color: #FFF;
+    border-right: 1px solid #D5D5D5;
+    font-family: Times, "宋体";
+}
+rect {
+    fill: #FFF;
+}
+
+.node circle {
+    stroke: #D5D5D5;
+    stroke-width: 1px;
+}
+
+.node {
+    font: 10px sans-serif;
+}
+
+
+.node text{
+    fill: #333;
+}
+
+.link {
+    fill: none;
+    stroke: #BBB;
+    stroke-width: 1.5px;
+}
+#help ul {
+    margin: 0;
+}
+#help ul li {
+    float: left;
+    background: #FFD;
+    border: 1px solid #999;
+    border-radius: 6px;
+    padding: 6px 12px;
+    margin: 0px 6px 6px 2px;
+}

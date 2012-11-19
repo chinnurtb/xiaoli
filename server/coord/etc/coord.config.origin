@@ -8,14 +8,18 @@
  {mnesia, [
 	{dir, "var/mnesia"}
  ]},
- {emysql, [
-	{pool_size, 4},
-    {host, "MYSQL_HOST"}, 
-    {port, MYSQL_PORT}, 
-    {username, "MYSQL_USER"}, 
-    {password, "MYSQL_PASS"}, 
-    {database, "MYSQL_DB"},
-    {encoding, utf8}
+ {epgsql, [
+    {pools, [
+        {main, [
+            {pool_size, 2},
+            {host, "192.168.100.71"},
+            {username, "postgres"},
+            {password, "postgres"},
+            {database, "ipon"},
+            {port, 5432},
+            {timeout, 6000}
+        ]}
+    ]}
  ]},
  {amqp_client, [
     {broker, [

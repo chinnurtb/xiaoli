@@ -1,0 +1,73 @@
+#!/bin/bash
+#: Title       : setting
+#: Date        : 2012-04-24
+#: Author      : "Ery Lee" <ery.lee@gmail.com> from opengoss.com
+#: Version     : 1.0 
+#: Description : mysql, amqp, errdb settings
+
+# Identify the script name
+SCRIPT=`basename $0`
+ROOTDIR=$(cd ${0%/*} && pwd)
+VERSION=1.0
+DATE_OF_CREATION=2012-04-26
+AUTHOR="Ery Lee <ery.lee@gmail.com>"
+
+#pg
+PG_HOST=192.168.100.71
+PG_USER=postgres
+PG_PASSWD=postgres
+PG_DB=ipon
+
+#oracle
+ORA_HOME=\\/oracle\\/11g
+ORA_SID=orcl
+ORA_USER=rms
+ORA_PASSWD=rms
+ORA_SERVICE=orcl
+
+#amqp
+AMQP_HOST=localhost
+AMQP_VHOST=mobile
+AMQP_USER=mobile
+AMQP_PASS=public
+
+#errdb
+ERRDB_HOST=localhost
+ERRDB_PORT=7272
+ERRDB_HOME=\\/opt\\/errdb
+
+#evabus
+FORWARD_HOST=x.x.x.x
+FORWARD_PORT=51022
+
+APPS="mit statd wifioss wifista evabus metrix"
+
+OS_TYPE=`uname`
+if [ "$OS_TYPE" == "Darwin" ]; then
+	SED_OPTS="-i ''"
+else
+	SED_OPTS="-i"
+fi
+
+for APP in $APPS
+do
+if [ -d $ROOTDIR/$APP ]; then
+	cd $ROOTDIR/$APP/etc/
+	echo "configuring $APP/etc/$APP.config..."
+	cp $APP.config.origin $APP.config
+	sed -e "s/MYSQL_HOST/$MYSQL_HOST/g" \
+		-e "s/MYSQL_PORT/$MYSQL_PORT/g" \
+		-e "s/MYSQL_USER/$MYSQL_USER/g" \
+		-e "s/MYSQL_PASS/$MYSQL_PASS/g" \
+		-e "s/MYSQL_DB/$MYSQL_DB/g" \
+		-e "s/AMQP_HOST/$AMQP_HOST/g" \
+		-e "s/AMQP_VHOST/$AMQP_VHOST/g" \
+		-e "s/AMQP_USER/$AMQP_USER/g" \
+		-e "s/AMQP_PASS/$AMQP_PASS/g" \
+		-e "s/ERRDB_HOST/$ERRDB_HOST/g" \
+		-e "s/ERRDB_PORT/$ERRDB_PORT/g" \
+		-e "s/FORWARD_HOST/$FORWARD_HOST/g" \
+		-e "s/FORWARD_PORT/$FORWARD_PORT/g" \
+		$SED_OPTS $APP.config
+fi
+done
