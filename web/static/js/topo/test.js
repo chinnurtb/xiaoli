@@ -7,7 +7,7 @@ $(function(){
   
   function getTransform(selector){
     var transform = $(selector).attr("transform");
-    console.log($(selector).attr("transform"));
+    //console.log($(selector).attr("transform"));
     if (!transform){
       transform = "translate(0,0)scale(1)";
     }
@@ -38,49 +38,33 @@ $(function(){
         var x = extra - Math.sin(px) * d.y * scale;
         var y = Math.cos(px) * d.y * scale;
         
-        console.log(extra, Math.sin(px) * d.y, ", x:", x, ", y: ", y, ", s: ", scale);
-        
         //vis.attr("transform", "translate("+ x +","+ y +")scale(" + scale + ")");
-        var arr = getTransform('svg>g>g');
+        var arr = getTransform('#chart svg>g>g');
         var oldScale = arr.length > 3 ? parseFloat(arr[3]) : 1.0;
-        var p0 = [parseFloat(arr[1]), parseFloat(arr[2]), oldScale*80],
-        p1 = [x, y, scale*80];
+        var p0 = [parseFloat(arr[1]), parseFloat(arr[2]), oldScale],
+        p1 = [x, y, scale];
         
-        console.error("p0:", p0);
-        console.error("p1:", p1);
         vis.call(transition, p0, p1);
-        syncZoom([x, y], scale);
+        syncZoom(x, y, scale, false);
       }
     });
   }
 
   function transition(tar, start, end) {
-    var center = [getExtraWidth(), 0.0],
-    i = d3.interpolateZoom(start, end);
-    
-    //console.error("center:", center);
     tar.attr("transform", transform(start))
       .transition()
       .delay(250)
-      .duration(i.duration)
-      .attrTween("transform", function() {return function(t) {return transform(i(t));}});
-
-    /*
-    1. k = F(p[2])
-    2. p0[2] = F(p0[2])
-    3. p1[2] = F(p1[2])
-    4. F(p[2]) >= 1
-
-    1. x = G(p[0], k)
-    2. p0[0] = G(p0[0], p0[2])
-    2. p1[0] = G(p1[0], p0[2])
-    */
+      .duration(1000)
+      .attrTween("transform", function() {return function(t) {return transform(t);}});
     
-    function transform(p) {
-      var k = p[2]/80;
-      //console.log(p);
-      //console.log("translate(" + (p[0]) + "," + ([1]) + ")scale(" + k + ")");
-      return "translate(" + p[0] + "," + p[1] + ")scale(" + k + ")";
+    function transform(t) {
+      t = typeof(t) == "object" ? 0 : t;
+      //console.log("t:", t);
+      var x = t * (end[0]-start[0]) + start[0],
+      y = t * (end[1]-start[1]) + start[1]
+      k = t * (end[2]-start[2]) + start[2];
+      //console.log("transform", "translate("+ x +","+ y +")scale(" + k + ")");
+      return "transform", "translate("+ x +","+ y +")scale(" + k + ")";
     }
   }
   
@@ -94,7 +78,7 @@ $(function(){
         var id = $(this).attr('id');
         d3.select('#'+ id).style("opacity", 1);
         var d = d3.select('#'+ id).data()[0];
-        console.log(d.x, d.y);
+        //console.log(d.x, d.y);
       }
     });
   }
@@ -109,19 +93,16 @@ $(function(){
   
   function zoom() {
     //console.log(d3.event.translate + ", [" + d3.event.scale + "],", zoomTime);
-    var ids = ['#olt-0', '#onu-1', '#onu-2', '#onu-3', '#onu-4', '#onu-5'];
-    for(var i in ids){
-      var t = d3.select(ids[i]).data()[0];
-      console.log(t.x, ' ',t.y);
-    }
-    console.log('---------------------------');
     
     reColorNodes(d3.event.scale);
     vis.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
   }
 
-  function syncZoom(translate, scale){
-    obZoom.translate(translate);
+  function syncZoom(x, y, scale, action){
+    if(action){
+      vis.attr('transform', "translate("+ x +","+ y +")scale("+scale+")");
+    }
+    obZoom.translate([x, y]);
     obZoom.scale(scale);
     reColorNodes(scale);
   }
@@ -139,6 +120,149 @@ $(function(){
     return count;
   }
 
+  // Sidebar
+  function makeSidebar(){
+    var w = 200,
+    h = 600,
+    i = 0,
+    barHeight = 20,
+    barWidth = w * .5,
+    duration = 400,
+    root;
+
+    var tree = d3.layout.tree()
+      .size([h, 100]);
+
+    var diagonal = d3.svg.diagonal()
+      .projection(function(d) { return [d.y, d.x]; });
+
+    var tvis = d3.select("#tree").append("svg:svg")
+      .attr("width", w)
+      .attr("height", h)
+      .append("svg:g")
+      .attr("transform", "translate(0, 12)");
+    
+    d3.json("/topo/test.json?na=6&nb=10&nc=6", function(json) {
+      json.x0 = 0;
+      json.y0 = 0;
+      root = json;
+      function collapse(d) {
+        if (d.children) {
+          d._children = d.children;
+          d._children.forEach(collapse);
+          d.children = null;
+        }
+      }
+      
+      root.children.forEach(collapse);
+      update(root);
+    });
+    
+    function update(source) {
+
+      // Compute the flattened node list. TODO use d3.layout.hierarchy.
+      var nodes = tree.nodes(root);
+      
+      // Compute the "layout".
+      nodes.forEach(function(n, i) {
+        n.x = i * barHeight ;
+      });
+      
+      // Update the nodes…
+      var node = tvis.selectAll("g.node")
+        .data(nodes, function(d) { return d.id || (d.id = ++i); });
+      
+      var nodeEnter = node.enter().append("svg:g")
+        .attr("class", "node")
+        .attr("transform", function(d) { return "translate(" + source.y0 + "," + source.x0 + ")"; })
+        .style("opacity", 1e-6);
+
+      // Enter any new nodes at the parent's previous position.
+      nodeEnter.append("svg:rect")
+        .attr("y", -barHeight / 2)
+        .attr("height", barHeight)
+        .attr("width", barWidth)
+        .style("fill", color)
+        .on("click", click);
+      
+      nodeEnter.append("svg:text")
+        .attr("dy", 3.5)
+        .attr("dx", 5.5)
+        .text(function(d) { return d.name; });
+      
+      // Transition nodes to their new position.
+      nodeEnter.transition()
+        .duration(duration)
+        .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; })
+        .style("opacity", 1);
+      
+      node.transition()
+        .duration(duration)
+        .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; })
+        .style("opacity", 1)
+        .select("rect")
+        .style("fill", color);
+      
+      // Transition exiting nodes to the parent's new position.
+      node.exit().transition()
+        .duration(duration)
+        .attr("transform", function(d) { return "translate(" + source.y + "," + source.x + ")"; })
+        .style("opacity", 1e-6)
+        .remove();
+      
+      // Update the links…
+      var link = tvis.selectAll("path.link")
+        .data(tree.links(nodes), function(d) { return d.target.id; });
+      
+      // Enter any new links at the parent's previous position.
+      link.enter().insert("svg:path", "g")
+        .attr("class", "link")
+        .attr("d", function(d) {
+          var o = {x: source.x0, y: source.y0};
+          return diagonal({source: o, target: o});
+        })
+        .transition()
+        .duration(duration)
+        .attr("d", diagonal);
+      
+      // Transition links to their new position.
+      link.transition()
+        .duration(duration)
+        .attr("d", diagonal);
+      
+      // Transition exiting nodes to the parent's new position.
+      link.exit().transition()
+        .duration(duration)
+        .attr("d", function(d) {
+          var o = {x: source.x, y: source.y};
+          return diagonal({source: o, target: o});
+        })
+        .remove();
+      
+      // Stash the old positions for transition.
+      nodes.forEach(function(d) {
+        d.x0 = d.x;
+        d.y0 = d.y;
+      });
+    }
+
+    // Toggle children on click.
+    function click(d) {
+      if (d.children) {
+        d._children = d.children;
+        d.children = null;
+      } else {
+        d.children = d._children;
+        d._children = null;
+      }
+      update(d);
+    }
+
+    function color(d) {
+      return d._children ? "#3182bd" : d.children ? "#c6dbef" : "#fd8d3c";
+    }
+  }
+
   d3.json("/topo/test.json?na=6&nb=10&nc=6", function(json) {
     
     /**
@@ -147,6 +271,7 @@ $(function(){
      */
     
     zoomTime = countNodes(json) * 3 / 400;
+    makeSidebar();
     //zoomTime = 3.0;
 
     var tree = d3.layout.tree()
@@ -232,41 +357,38 @@ $(function(){
       .attr("transform", function(d) { return d.x < 180 ? "translate(8)" : "rotate(180)translate(-8)"; })
       .text(function(d) { return d.name; });
 
+    $('#zoom-reset').click();    
     console.log('dump nodes');
-
   });
   
   // Zoom button
   $('#zoom-in').click(function(){
-    var arr = getTransform('svg>g>g')
+    var arr = getTransform('#chart svg>g>g')
     if (arr.length>3){
       f = parseFloat(arr[3]);
       scale = f < 6.0 ? f * 1.5 : f;
     }
     var x = arr[1];
     var y = arr[2];
-    syncZoom([x,y], scale);
-    vis.attr('transform', "translate("+ x +","+ y +")scale("+scale+")");
+    syncZoom(x, y, scale, true);
   });
 
   $('#zoom-out').click(function(){
-    var arr = getTransform('svg>g>g')
+    var arr = getTransform('#chart svg>g>g')
     if (arr.length>3){
       f = parseFloat(arr[3]);
       scale = f > 1.0 ? f / 1.5 : 1.0;
     }
     var x = arr[1];
     var y = arr[2];
-    syncZoom([x,y], scale);
-    vis.attr('transform', "translate("+ x +","+ y +")scale("+scale+")");
+    syncZoom(x, y, scale, true);
   });
 
   $('#zoom-reset').click(function(){
     var scale = 1.0;
     var x = 0.0, y = 0.0;
     x += getExtraWidth();
-    syncZoom([x,y], scale);
-    vis.attr('transform', "translate("+ x +","+ y +")scale("+scale+")");
+    syncZoom(x, y, scale, true);
   });
 
   console.log('set zoom');
@@ -291,20 +413,17 @@ $(function(){
       return item;
     }
   });
-
+  
   
   // Right click menu
   $.contextMenu({
-    selector: '.node', 
+    selector: '#chart .node', 
     callback: function(key, options) {
       var m = "clicked: " + $(this).find('text').text() + "\r\n\r\nAction: "
         + key + "\r\n\r\nTarget: " + $(this).find('a').attr('href');
       window.console && console.log(m) || alert(m); 
     },
     items: {
-      "view": {name: "View", callback:function(key, options){
-        window.location = $(this).find('a').attr('href');
-      }},
       "edit": {name: "Edit", icon: "edit"},
       "cut": {name: "Cut", icon: "cut"},
       "copy": {name: "Copy", icon: "copy"},
