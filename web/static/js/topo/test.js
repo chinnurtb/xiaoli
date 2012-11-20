@@ -212,15 +212,15 @@ $(function(){
       .attr("class", "node")
       .style("opacity", function(d){ return d.level < 3 ? 1 : 0.4})
       .attr("transform", function(d) { return "rotate(" + (d.x - 90) + ")translate(" + d.y + ")"; });
+
     
-    /*
       node.append("svg:image")
       .attr("xlink:href", function(d){return "http://ww2.sinaimg.cn/large/412e82dbjw1dsbny7igx2j.jpg";})
       .attr("x", "-32px")
       .attr("y", "-32px")
-      .attr("width", "64px")
-      .attr("height", "64px");
-    */
+      .attr("width", "32px")
+      .attr("height", "32px");
+    
     
     node.append("circle")
       .style("fill", function(d) { return d.status == 0 ? "red" : "green"})
@@ -294,27 +294,25 @@ $(function(){
 
   
   // Right click menu
-  /*
-    $.contextMenu({
+  $.contextMenu({
     selector: '.node', 
     callback: function(key, options) {
-    var m = "clicked: " + $(this).find('text').text() + "\r\n\r\nAction: "
-    + key + "\r\n\r\nTarget: " + $(this).find('a').attr('href');
-    window.console && console.log(m) || alert(m); 
+      var m = "clicked: " + $(this).find('text').text() + "\r\n\r\nAction: "
+        + key + "\r\n\r\nTarget: " + $(this).find('a').attr('href');
+      window.console && console.log(m) || alert(m); 
     },
     items: {
-    "view": {name: "View", callback:function(key, options){
-    window.location = $(this).find('a').attr('href');
-    }},
-    "edit": {name: "Edit", icon: "edit"},
-    "cut": {name: "Cut", icon: "cut"},
-    "copy": {name: "Copy", icon: "copy"},
-    "paste": {name: "Paste", icon: "paste"},
-    "delete": {name: "Delete", icon: "delete"},
-    "sep1": "---------",
-    "quit": {name: "Quit", icon: "quit"}
+      "view": {name: "View", callback:function(key, options){
+        window.location = $(this).find('a').attr('href');
+      }},
+      "edit": {name: "Edit", icon: "edit"},
+      "cut": {name: "Cut", icon: "cut"},
+      "copy": {name: "Copy", icon: "copy"},
+      "paste": {name: "Paste", icon: "paste"},
+      "delete": {name: "Delete", icon: "delete"},
+      "sep1": "---------",
+      "quit": {name: "Quit", icon: "quit"}
     }
-    });
-  */
+  });
   console.log('click menu');
 });

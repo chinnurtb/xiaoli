@@ -61,9 +61,6 @@ table_template = '<<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" ALIGN="cent
 
 @topoview.route('/topo/test')
 def test():
-    import time
-    time.sleep(3)
-    
     return render_template('topo/test.html')
 
 @topoview.route('/topo/test.json', methods=['GET', 'POST'])
