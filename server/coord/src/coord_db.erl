@@ -31,8 +31,17 @@
 
 -record(state, {tabs, channel}).
 
+-define(TABLES, [
+    sysoids,
+    metrics,
+    {miboids, {is_valid, 1}},
+    monitors,
+    timeperiods
+]).
+
 start_link() ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
+
 syncdb() ->
 	gen_server:call(?MODULE, syncdb).
 
@@ -62,10 +71,7 @@ init([]) ->
 
 open(Conn) ->
 	{ok, Channel} = amqp:open_channel(Conn),
-	%amqp:queue(Channel,<<"rpc.db">>),
-	%amqp:consume(Channel, <<"rpc.db">>),
-	Res = amqp:topic(Channel, <<"oss.db">>),
-	?INFO("~p", [Res]),
+	amqp:topic(Channel, <<"oss.db">>),
 	Channel.
 
 %%--------------------------------------------------------------------
@@ -96,8 +102,7 @@ handle_call({dbquery, Tab}, _From, #state{tabs = Tabs} = State) ->
     {reply, {ok, Records}, State};
 
 handle_call(Req, _From, State) ->
-    ?ERROR("badreq: ~p", [Req]),
-    {reply, {badreq, Req}, State}.
+    {stop, {error, {badreq, Req}}, State}.
 
 %%--------------------------------------------------------------------
 %% Function: handle_cast(Msg, State) -> {noreply, State} |
@@ -106,37 +111,7 @@ handle_call(Req, _From, State) ->
 %% Description: Handling cast messages
 %%--------------------------------------------------------------------
 handle_cast(Msg, State) ->
-    ?ERROR("badmsg: ~p", [Msg]),
-    {noreply, State}.
-
-%%--------------------------------------------------------------------
-%% Function: handle_info(Info, State) -> {noreply, State} |
-%%                                       {noreply, State, Timeout} |
-%%                                       {stop, Reason, State}
-%% Description: Handling all non call/cast messages
-%%--------------------------------------------------------------------
-%handle_info(load_meas_types, State) ->
-%    {ok, Records} = emysql:select({monet_meas_types, {is_valid, 1}}),
-%	lists:foreach(fun(Record) -> 
-%		{value, Id} = dataset:get_value(id, Record),
-%		{value, Name} = dataset:get_value(name, Record),
-%		{value, EventName} = dataset:get_value(event_name, Record),
-%		{value, ObjectClass} = dataset:get_value(object_class, Record),
-%		{value, ThreshMajor} = dataset:get_value(threshold_major, Record),
-%		{value, MajorMsg} = dataset:get_value(major_message, Record),
-%		{value, ThreshWarning} = dataset:get_value(threshold_warning, Record),
-%		{value, WarningMsg} = dataset:get_value(warning_message, Record),
-%		mnesia:dirty_write(#meas_type{id = Id,
-%            name = Name, 
-%            event_name = EventName,
-%            object_class=ObjectClass, 
-%            threshold_major=parse_thresh(ThreshMajor), 
-%            major_message=MajorMsg, 
-%            threshold_warning = parse_thresh(ThreshWarning), 
-%            warning_message = WarningMsg})
-%	end, Records),
-%    erlang:send_after(300*1000, self(), load_meas_types),
-%    {noreply, State};
+    {stop, {error, {badmsg, Msg}}, State}.
 
 handle_info({amqp, disconnected}, State) ->
 	?ERROR_MSG("amqp disconnected..."),
@@ -145,18 +120,7 @@ handle_info({amqp, disconnected}, State) ->
 handle_info({amqp, reconnected, Conn},State) ->
 	{noreply, State#state{channel = open(Conn)}};
 
-
-handle_info({deliver, <<"rpc.db">>, Props, Payload}, 
-	#state{channel = Channel} = State) ->
-
-    Reply = coord_db:dbquery(binary_to_term(Payload)),
-    ReplyTo = proplists:get_value(reply_to, Props),
-    ReqId = proplists:get_value(correlation_id, Props),
-    amqp:reply(Channel, ReplyTo, ReqId, Reply),
-	{noreply, State};
-
 handle_info(Info, State) ->
-    ?ERROR("badinfo: ~p", [Info]),
     {stop, {error, {badinfo, Info}}, State}.
 
 code_change(_OldVsn, State, _Extra) ->
@@ -166,14 +130,14 @@ terminate(_Reason, _State) ->
     ok.
 
 load_from_db() ->
-    {ok, Metrics} = emysql:select(metrics),
-    {ok, MibOids} = emysql:select({mib_oids, [mib, grp, name, oid], {is_valid, 1}}),
-    {ok, DiscoMods} = emysql:select(disco_mods),
-    {ok, MonitorMods} = emysql:select(monitor_mods),
-    [{metrics, Metrics}, {mib_oids, MibOids}, 
-    {disco_mods, DiscoMods}, {monitor_mods, MonitorMods}].
-
-parse_thresh(Threshold) ->
-    {ok, Exp} = prefix_exp:parse(Threshold),
-    Exp.
+    lists:map(fun(Table) -> 
+        case Table of
+        {Tab, Where} -> 
+            {ok, Records} = epgsql:select(main, Tab, Where),
+            {Tab, Records};
+        Tab when is_atom(Tab) ->
+            {ok, Records} = epgsql:select(main, Tab),
+            {Tab, Records}
+        end
+    end, ?TABLES).
 

@@ -7,7 +7,7 @@
 
 ROOTDIR=$(cd ${0%/*} && pwd)
 
-APPS="mit coord evabus statd metrix"
+APPS="mit coord" # evabus statd metrix"
 
 for APP in $APPS
 do

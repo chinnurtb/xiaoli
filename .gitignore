@@ -1,7 +1,9 @@
+log
 *.log
 *.beam
 *.app
 server/lib/*
+server/coord/ebin/*
 errdb/
 web/venv
 \#*
@@ -24,3 +26,7 @@ redis/redis-cli
 redis/redis-sentinel
 redis/redis-server
 redis/dump.rdb
+*.config
+node/monitd/var/mnesia
+node/monitd/lib
+node/monitd/var/journal/

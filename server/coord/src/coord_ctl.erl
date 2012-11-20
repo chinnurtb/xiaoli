@@ -29,50 +29,49 @@ run() ->
 	run(undefined).
 
 %dispatch tasks
-run(BDN) ->
+run(City) ->
     ?PRINT_MSG("runing...~n"),
 	Dispatch = fun(Dn) ->
 		case mit:lookup(Dn) of
-		{ok, Entry} ->
-			case should_dispath(BDN, Entry) of
+		{ok, Node} ->
+			case should_dispath(City, Node) of
 			true -> 
 				increas(dispatched, 1),
-				coord_dist:dispatch(Entry),
-                timer:sleep(3),
+				coord_dist:dispatch(Node),
+                timer:sleep(2),
 				case get(dispatched) rem 1000 of
 				0 -> ?INFO("~p entries dispatched.", [get(dispatched)]);
 				_ -> ignore
 				end;
 			false ->
+                ?INFO("ignore ~p", [Dn]),
 				ignore
 			end;
 		{false, _} -> 
 			?ERROR("~p is not found", [Dn])
 		end
 	end,
-	spawn(fun() -> 
-		AllDn = mit:alldn(),
-		?INFO("begin to dispatch ~p entries...", [length(AllDn)]),
-		try
-			lists:foreach(Dispatch, AllDn),
-			?INFO("~p dispatched, done.", [get(dispatched)])
-		catch
-			_:Err -> ?ERROR("dispatch error: ~p", [Err])
-		end
-	end),
+    AllDn = mit:alldn(),
+    ?INFO("begin to dispatch ~p nodes...", [length(AllDn)]),
+    try
+        lists:foreach(Dispatch, AllDn),
+        ?INFO("~p dispatched, done.", [get(dispatched)])
+    catch
+        _:Err -> 
+            ?ERROR("dispatch error: ~p", [Err]),
+            ?ERROR("~p", [erlang:get_stacktrace()])
+    end,
     ?PRINT("dispatching tasks...~n", []),
     ?PRINT("relax and enjoy:)~n", []).
 
-should_dispath(_BDN, #entry{class = <<"/top/ossSite">>}) ->
-    false;
-should_dispath(_BDN, #entry{oper_state = 2, class = <<"/top/ossIpDevice/ossWirelessAccessPoint">>}) ->
-    false;
-should_dispath(undefined, _Entry) ->
+should_dispath(undefined, _Node) ->
 	true;
-should_dispath(BDN, #entry{dn = Dn}) ->
-	lists:suffix(BDN, binary_to_list(Dn));
-should_dispath(_BDN, _Entry) ->
-    true.
+should_dispath(City, Node) when is_list(City) ->
+    should_dispath(list_to_binary(City), Node);
+should_dispath(City, #node{city= City}) when is_binary(City) ->
+    true;
+should_dispath(_, _) ->
+    false.
 
 increas(dispatched, Num) ->
 	case get(dispatched) of

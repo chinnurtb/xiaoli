@@ -1,6 +1,6 @@
 {application, coord,
  [{description, "coord"},
-  {vsn, "7.0"},
+  {vsn, "8.0"},
   {modules, [coord,
     coord_app,
     coord_sup,

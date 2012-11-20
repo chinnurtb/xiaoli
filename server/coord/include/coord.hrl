@@ -11,3 +11,5 @@
 
 -record(presence, {node, type, status, vsn, tref, summary, metrics}).
 
+-record(dispatch, {id, dn, shard, tref}).
+

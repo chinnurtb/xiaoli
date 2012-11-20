@@ -39,6 +39,7 @@
                ip,
                cat, %category
                parent, 
+               city,
                cityid,
                name,
                alias,

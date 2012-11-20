@@ -1,9 +1,0 @@
-{application,coord,
-             [{description,"coord"},
-              {vsn,"7.0"},
-              {modules,[coord,coord_app,coord_ctl,coord_db,coord_dist,
-                        coord_sup]},
-              {registered,[coord,coord_db,coord_dist]},
-              {applications,[kernel,stdlib]},
-              {env,[]},
-              {mod,{coord_app,[]}}]}.

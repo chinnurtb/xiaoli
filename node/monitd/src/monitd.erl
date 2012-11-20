@@ -9,7 +9,8 @@
 %%%----------------------------------------------------------------------
 -module(monitd).
 
--author('ery.lee@gmail.com').
+-import(proplists, [get_value/2,
+                    get_value/3]).
 
 -include_lib("elog/include/elog.hrl").
 
@@ -26,7 +27,7 @@
         terminate/2, 
         code_change/3 ]).
 
--record(state, {shard, queue, channel, monitor_types}).
+-record(state, {shards, queue, channel, monitor_types}).
 
 %%--------------------------------------------------------------------
 %% Function: start_link() -> {ok,Pid} | ignore | {error,Error}
@@ -47,20 +48,31 @@ task_reply(Reply) ->
 %%--------------------------------------------------------------------
 init([Env]) ->
     chash_pg:create(monitd_coord),
-    Shard = proplists:get_value(shard, Env),
+    Shards = string:tokens(get_value(shards, Env, "#"), ","),
 	{ok, Conn} = amqp:connect(),
-    Channel = open(Conn, Shard),
+    Channel = open(Conn, Shards),
 	Queue = atom_to_binary(node()),
     erlang:send_after(300 * 1000, self(), check_host),
     erlang:system_monitor(self(), [{long_gc, 500},
 		{large_heap, 10000000}, busy_port]),
     ?INFO_MSG("monitd is started...[ok]"),
-    {ok, #state{shard = Shard, queue = Queue, channel = Channel}}.
+    {ok, #state{shards = Shards, queue = Queue, channel = Channel}}.
 
-open(Conn, Shard) ->
+open(Conn, Shards) ->
 	{ok, Channel} = amqp:open_channel(Conn),
+    %declare topics 
 	amqp:topic(Channel, <<"oss.db">>),
 	amqp:topic(Channel, <<"sys.watch">>),
+    amqp:topic(Channel, <<"sys.shard">>),
+
+    %shard queue
+    lists:foreach(fun(Shard) -> 
+        Name = "shard."++Shard,
+        {ok, Q} = amqp:queue(Channel, Name),
+        amqp:bind(Channel, <<"sys.shard">>, Q, Name),
+        amqp:consume(Channel, Q)
+    end, Shards),
+
 	%declare and bind queues
 	amqp:queue(Channel, <<"task">>),
 	amqp:consume(Channel, <<"task">>),
@@ -72,7 +84,7 @@ open(Conn, Shard) ->
 	%send presence
 	Presence = {node(), node, available, extlib:appvsn(), <<"startup">>},
 	amqp:send(Channel, <<"presence">>, term_to_binary(Presence)),
-	amqp:send(Channel, <<"shard">>, term_to_binary({node(), Shard})),
+	amqp:send(Channel, <<"shard">>, term_to_binary({node(), Shards})),
 	erlang:send_after(10000, self(), heartbeat),
 	Channel.
 
@@ -92,6 +104,11 @@ handle_cast(Msg, State) ->
 %%                                       {stop, Reason, State}, 
 %% Description: Handling all non call/cast messages
 %%--------------------------------------------------------------------
+handle_info({deliver, <<"shard.", _/binary>> = RouteKey, Props, Payload}, State) ->
+    ?INFO("RouteKey: ~p", [RouteKey]),
+    ?INFO("~p", [binary_to_term(Payload)]),
+    {noreply, State};
+    
 handle_info({deliver, Queue, Props, Payload}, #state{queue = Queue} = State) ->
 	handle_info({deliver, <<"task">>, Props, Payload}, State),
     {noreply, State};
@@ -133,10 +150,10 @@ handle_info({deliver, <<"task">>, _, Payload}, #state{channel = Channel} = State
     end,
 	{noreply, State};
 
-handle_info({deliver, <<"ping">>, _, _}, #state{shard = Shard, channel = Channel} = State) ->
+handle_info({deliver, <<"ping">>, _, _}, #state{shards = Shards, channel = Channel} = State) ->
     Presence = {node(), node, available, extlib:appvsn(), <<"alive">>},
     amqp:send(Channel, <<"presence">>, term_to_binary(Presence)),
-    amqp:send(Channel, <<"shard">>, term_to_binary({node(), Shard})),
+    amqp:send(Channel, <<"shard">>, term_to_binary({node(), Shards})),
     {noreply, State};
 
 handle_info({deliver, <<"db.", _Tab/binary>> = Key, _, Payload}, State) ->
@@ -164,8 +181,8 @@ handle_info({async_task_result, _Id, _Status, _Result} = Reply,
 handle_info({amqp, disconnected}, State) ->
 	{noreply, State#state{channel = undefined}};
 
-handle_info({amqp, reconnected, Conn}, #state{shard = Shard} = State) ->
-	{noreply, State#state{channel = open(Conn, Shard)}};
+handle_info({amqp, reconnected, Conn}, #state{shards = Shards} = State) ->
+	{noreply, State#state{channel = open(Conn, Shards)}};
 
 handle_info(heartbeat, #state{channel = Channel} = State) ->
 	Hearbeat = {node(), <<"monitd is alive.">>, []},
