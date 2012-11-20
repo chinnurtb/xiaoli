@@ -7,7 +7,7 @@ $(function(){
   
   function getTransform(selector){
     var transform = $(selector).attr("transform");
-    console.log($(selector).attr("transform"));
+    //console.log($(selector).attr("transform"));
     if (!transform){
       transform = "translate(0,0)scale(1)";
     }
@@ -38,49 +38,33 @@ $(function(){
         var x = extra - Math.sin(px) * d.y * scale;
         var y = Math.cos(px) * d.y * scale;
         
-        console.log(extra, Math.sin(px) * d.y, ", x:", x, ", y: ", y, ", s: ", scale);
+        //vis.attr("transform", "translate("+ x +","+ y +")scale(" + scale + ")");
+        var arr = getTransform('#chart svg>g>g');
+        var oldScale = arr.length > 3 ? parseFloat(arr[3]) : 1.0;
+        var p0 = [parseFloat(arr[1]), parseFloat(arr[2]), oldScale],
+        p1 = [x, y, scale];
         
-        vis.attr("transform", "translate("+ x +","+ y +")scale(" + scale + ")");
-        // var arr = getTransform('#chart svg>g>g');
-        // var oldScale = arr.length > 3 ? parseFloat(arr[3]) : 1.0;
-        // var p0 = [parseFloat(arr[1]), parseFloat(arr[2]), oldScale*80],
-        // p1 = [x, y, scale*80];
-        
-        // console.error("p0:", p0);
-        // console.error("p1:", p1);
-        // vis.call(transition, p0, p1);
-        syncZoom([x, y], scale);
+        vis.call(transition, p0, p1);
+        syncZoom(x, y, scale, false);
       }
     });
   }
 
   function transition(tar, start, end) {
-    var center = [getExtraWidth(), 0.0],
-    i = d3.interpolateZoom(start, end);
-    
-    //console.error("center:", center);
     tar.attr("transform", transform(start))
       .transition()
       .delay(250)
-      .duration(i.duration)
-      .attrTween("transform", function() {return function(t) {return transform(i(t));}});
-
-    /*
-    1. k = F(p[2])
-    2. p0[2] = F(p0[2])
-    3. p1[2] = F(p1[2])
-    4. F(p[2]) >= 1
-
-    1. x = G(p[0], k)
-    2. p0[0] = G(p0[0], p0[2])
-    2. p1[0] = G(p1[0], p0[2])
-    */
+      .duration(1000)
+      .attrTween("transform", function() {return function(t) {return transform(t);}});
     
-    function transform(p) {
-      var k = p[2]/80;
-      //console.log(p);
-      //console.log("translate(" + (p[0]) + "," + ([1]) + ")scale(" + k + ")");
-      return "translate(" + p[0] + "," + p[1] + ")scale(" + k + ")";
+    function transform(t) {
+      t = typeof(t) == "object" ? 0 : t;
+      //console.log("t:", t);
+      var x = t * (end[0]-start[0]) + start[0],
+      y = t * (end[1]-start[1]) + start[1]
+      k = t * (end[2]-start[2]) + start[2];
+      //console.log("transform", "translate("+ x +","+ y +")scale(" + k + ")");
+      return "transform", "translate("+ x +","+ y +")scale(" + k + ")";
     }
   }
   
@@ -94,7 +78,7 @@ $(function(){
         var id = $(this).attr('id');
         d3.select('#'+ id).style("opacity", 1);
         var d = d3.select('#'+ id).data()[0];
-        console.log(d.x, d.y);
+        //console.log(d.x, d.y);
       }
     });
   }
@@ -109,19 +93,16 @@ $(function(){
   
   function zoom() {
     //console.log(d3.event.translate + ", [" + d3.event.scale + "],", zoomTime);
-    var ids = ['#olt-0', '#onu-1', '#onu-2', '#onu-3', '#onu-4', '#onu-5'];
-    for(var i in ids){
-      var t = d3.select(ids[i]).data()[0];
-      console.log(t.x, ' ',t.y);
-    }
-    console.log('---------------------------');
     
     reColorNodes(d3.event.scale);
     vis.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
   }
 
-  function syncZoom(translate, scale){
-    obZoom.translate(translate);
+  function syncZoom(x, y, scale, action){
+    if(action){
+      vis.attr('transform', "translate("+ x +","+ y +")scale("+scale+")");
+    }
+    obZoom.translate([x, y]);
     obZoom.scale(scale);
     reColorNodes(scale);
   }
@@ -142,7 +123,7 @@ $(function(){
   // Sidebar
   function makeSidebar(){
     var w = 200,
-    h = 800,
+    h = 600,
     i = 0,
     barHeight = 20,
     barWidth = w * .5,
@@ -376,8 +357,8 @@ $(function(){
       .attr("transform", function(d) { return d.x < 180 ? "translate(8)" : "rotate(180)translate(-8)"; })
       .text(function(d) { return d.name; });
 
+    $('#zoom-reset').click();    
     console.log('dump nodes');
-
   });
   
   // Zoom button
@@ -389,8 +370,7 @@ $(function(){
     }
     var x = arr[1];
     var y = arr[2];
-    syncZoom([x,y], scale);
-    vis.attr('transform', "translate("+ x +","+ y +")scale("+scale+")");
+    syncZoom(x, y, scale, true);
   });
 
   $('#zoom-out').click(function(){
@@ -401,16 +381,14 @@ $(function(){
     }
     var x = arr[1];
     var y = arr[2];
-    syncZoom([x,y], scale);
-    vis.attr('transform', "translate("+ x +","+ y +")scale("+scale+")");
+    syncZoom(x, y, scale, true);
   });
 
   $('#zoom-reset').click(function(){
     var scale = 1.0;
     var x = 0.0, y = 0.0;
     x += getExtraWidth();
-    syncZoom([x,y], scale);
-    vis.attr('transform', "translate("+ x +","+ y +")scale("+scale+")");
+    syncZoom(x, y, scale, true);
   });
 
   console.log('set zoom');
@@ -435,7 +413,7 @@ $(function(){
       return item;
     }
   });
-
+  
   
   // Right click menu
   $.contextMenu({
@@ -446,9 +424,6 @@ $(function(){
       window.console && console.log(m) || alert(m); 
     },
     items: {
-      "view": {name: "View", callback:function(key, options){
-        window.location = $(this).find('a').attr('href');
-      }},
       "edit": {name: "Edit", icon: "edit"},
       "cut": {name: "Cut", icon: "cut"},
       "copy": {name: "Copy", icon: "copy"},
