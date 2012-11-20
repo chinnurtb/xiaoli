@@ -5,6 +5,7 @@
     <script type="text/javascript" src="/static/js/topo/d3.v2.js"></script>
     <script type="text/javascript" src="/static/js/topo/jquery.ui.position.js"></script>
     <script type="text/javascript" src="/static/js/topo/jquery.contextMenu.js"></script>
+    <script src="https://raw.github.com/d3/d3-plugins/master/interpolate-zoom/interpolate-zoom.js"></script>
     <script type="text/javascript" src="/static/js/topo/test.js"></script>
     <link type="text/css" rel="stylesheet" href="/static/js/topo/test.css"/>
     <link type="text/css" rel="stylesheet" href="/static/js/topo/jquery.contextMenu.css"/>
@@ -28,8 +29,12 @@
             </div>
             
             <form method="GET" class="form filter-form tb-item">
-              {% from 'tango/_search_h.html' import render_keyword %}
-              {{ render_keyword(form, "节点名称") }}
+              <div class="form-inline input-append" style="margin:0px;">
+                <input type="hidden" id="lastid" name="lastid" value="" />
+                <input class="input-low" data-provide="typeahead" id="keyword" name="keyword" placeholder="节点名称" type="text">
+                <button type="submit" data-placement="bottom" rel="tooltip"
+	                class="btn btn-small" data-original-title="搜索"><i class="icon-search"></i></button>
+              </div>
             </form>
             <div id="info" class="tb-item"></div>
             <br class="clear" />
