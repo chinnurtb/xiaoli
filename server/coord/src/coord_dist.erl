@@ -42,7 +42,7 @@
         terminate/2, 
         code_change/3]).
 
--record(state, {channel, shards}).
+-record(state, {channel, sharded, shards=[]}).
 
 -define(HOUR, 3600000).
 
@@ -68,13 +68,14 @@ dispatch(Task) ->
     gen_server2:call(?MODULE, {dispatch, task, Task}).
     
 init([Env]) ->
+    Sharded = proplists:get_value(shared, Env, city),
     mnesia:create_table(dispatch, [
-        {ram_copies, [node()]}, {index, [dn, node]}, 
+        {ram_copies, [node()]}, {index, [dn, shard]}, 
         {attributes, record_info(fields, dispatch)}]),
 	{ok, Conn} = amqp:connect(),
     Ch = open(Conn),
     ?INFO_MSG("coord_dist is started...[ok]"),
-    {ok, #state{channel = Ch, shards = []}}.
+    {ok, #state{channel = Ch, sharded = Sharded}}.
 
 open(Conn) ->
     %open channel and declare queue
@@ -88,8 +89,8 @@ open(Conn) ->
     %mit topic
 	amqp:topic(Ch, <<"mit.event">>),
 	amqp:bind(Ch, <<"mit.event">>, Q, <<"#">>),
-    amqp:topic(Ch, <<"mit.node">>),
-    amqp:bind(Ch, <<"mit.node">>, Q, <<"node.dist">>), 
+    amqp:topic(Ch, <<"sys.shard">>),
+    amqp:bind(Ch, <<"sys.shard">>, Q, <<"reply">>), 
 
 	%tasks
 	amqp:queue(Ch, <<"task">>),
@@ -115,23 +116,23 @@ handle_call(status, _From, State) ->
     Reply = [{dispatch, mnesia:table_info(dispatch, size)}],
     {reply, {ok, Reply}, State};
 
-handle_call({dispatch, node, Node}, _From, 
-    #state{channel = Ch, shards = Shards} = State) ->
+handle_call({dispatch, node, Node}, _From, #state{channel = Ch} = State) ->
     Payload = term_to_binary({node, Node}),
     Dn = Node#node.rdn,
     Timer = send_after(?HOUR, self(), {timeout, {node, Node#node.rdn}}),
     NewState = 
     case mnesia:dirty_read(dispatch, {node, Node#node.rdn}) of
     [] -> %still not be dispatched
-        RouteKey = list_to_binary(["node.", Node#node.city]),
-        ?INFO("dispatch node ~s to ~s ", [Node#node.rdn, RouteKey]),
-        amqp:publish(Ch, <<"mit.node">>, Payload, RouteKey), 
+        %TODO: fix later
+        ShardKey = list_to_binary(["shard.", Node#node.city]),
+        ?INFO("dispatch node ~s to ~s ", [Node#node.rdn, ShardKey]),
+        amqp:publish(Ch, <<"sys.shard">>, Payload, ShardKey), 
         mnesia:dirty_write(#dispatch{id = {node, Dn}, dn = Dn, tref=Timer}),
         State;
-    [#dispatch{node = N, tref = TRef} = Dispatch] ->  %has been dispatched
+    [#dispatch{shard = Shard, tref = TRef} = Dispatch] ->  %has been dispatched
         cancel_timer(TRef),
-        ?INFO("dispatch node ~s to ~s ", [Node#node.rdn, N]),
-        amqp:send(Ch, atom_to_list(N), Payload),
+        ?INFO("dispatch node ~s to ~s ", [Node#node.rdn, Shard]),
+        amqp:send(Ch, atom_to_list(Shard), Payload),
         mnesia:dirty_write(Dispatch#dispatch{tref=Timer}),
         State
     end,
@@ -144,13 +145,14 @@ handle_call({dispatch, {update, Node}}, _From, #state{channel = Ch} = State) ->
     Payload = term_to_binary({node, update, Node}),
     case mnesia:dirty_read(dispatch, {node, Node#node.rdn}) of
     [] -> %still not be dispatched
-        RouteKey = list_to_binary(["node.", Node#node.city]),
-        amqp:publish(Ch, <<"mit.node">>, Payload, RouteKey), 
+        ShardKey = list_to_binary(["shard.", Node#node.city]),
+        amqp:publish(Ch, <<"sys.shard">>, Payload, ShardKey), 
         mnesia:dirty_write(#dispatch{id = {node, Dn}, dn = Dn, tref=undefined}); %TODO: FIX LATER
-    [#dispatch{node = undefined}] ->
+    [#dispatch{shard = undefined}] ->
+        %shold pending for a while
         ?WARNING("node is undefined for ~p", [Node#node.rdn]);
-    [#dispatch{node = N}] ->
-        amqp:send(Ch, atom_to_list(N), Payload)
+    [#dispatch{shard = Shard}] ->
+        amqp:send(Ch, atom_to_list(Shard), Payload)
     end,
     {reply, ok, State};
 
@@ -158,9 +160,9 @@ handle_call({dispatch, {delete, Dn}}, _From, #state{channel = Ch} = State) ->
     case mnesia:dirty_read(dispatch, {node, Dn}) of
     [] ->
         ignore;
-    [#dispatch{node = undefined}] ->
+    [#dispatch{shard = undefined}] ->
         ignore;
-    [#dispatch{node = N}] ->
+    [#dispatch{shard = N}] ->
         ?INFO("dispatch 'delete ~s' to monitor node: ~p", [Dn, N]),
         Payload = term_to_binary({node, delete, Dn}),
         amqp:send(Ch, atom_to_list(N), Payload)
@@ -189,7 +191,7 @@ prioritise_call(_, _From, _State) ->
 
 handle_cast({offline, #presence{node=Node, type=node}}, #state{shards = Shards} = State) ->
     %%TODO: should redispatch all the tasks.
-    Tasks = mnesia:dirty_index_read(dispatch, Node, #dispatch.node),
+    Tasks = mnesia:dirty_index_read(dispatch, Node, #dispatch.shard),
     lists:foreach(fun(T) -> 
         mnesia:dirty_delete(dispatch, T#dispatch.id)
     end, Tasks),
@@ -290,14 +292,14 @@ cancel_timer(Ref) ->
 handle_reply({managed, Dn, Node}, _State) ->
     ?INFO("~s is monitored by ~s", [Dn, Node]),
     case mnesia:dirty_read(dispatch, {node, Dn}) of
-    [#dispatch{node = OldNode} = Dispatch] ->
+    [#dispatch{shard = OldNode} = Dispatch] ->
         if 
         OldNode == undefined -> ok;
         OldNode == Node -> ok;
         true -> ?ERROR("tow nodes for one dn: ~s~noldnode: ~s, newnode: ~s", [Dn, OldNode, Node])
         end,
         cancel_timer(Dispatch#dispatch.tref),
-        mnesia:dirty_write(Dispatch#dispatch{node = Node, tref = undefined}); 
+        mnesia:dirty_write(Dispatch#dispatch{shard = Node, tref = undefined}); 
     [] -> 
         ?ERROR("bad_monitor_reply for ~s", [Dn])
     end;

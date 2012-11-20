@@ -65,8 +65,7 @@ init([]) ->
         {attributes, record_info(fields, presence)}]),
 	{ok, Conn} = amqp:connect(),
     Channel = open(Conn),
-    State = #state{channel = Channel},
-    handle_info(ping, State),
+    {noreply, State} = handle_info(ping, #state{channel = Channel}),
     ?INFO_MSG("coord is started...[ok]"),
     {ok, State}.
 
@@ -106,7 +105,7 @@ handle_info(ping, #state{channel = Channel} = State) ->
 handle_info({deliver, <<"host">>, _, Payload}, State) ->
     case binary_to_term(Payload) of
     {host, HostInfo} ->
-        DateTime = {datetime, {date(), time()}},
+        DateTime = {datetime, date(), time()},
         %%save hostinfo into db
         {value, JID} = dataset:get_value(jid, HostInfo),
         case epgsql:select(main, servers, [id], {jid, JID}) of
@@ -203,18 +202,18 @@ cancel_timer(Ref) ->
     erlang:cancel_timer(Ref).
 
 handle_presence({Node, node, unavailable, _Summary}) ->
-    DateTime = {datetime, {date(), time()}},
+    DateTime = {datetime, date(), time()},
     epgsql:update(main, servers, [{presence, 0}, {updated_at, DateTime}], {jid, Node});
 
 handle_presence({Node, node, available, _Summary}) ->
-    DateTime = {datetime, {date(), time()}},
+    DateTime = {datetime, date(), time()},
     epgsql:update(main, servers, [{presence, 1}, {updated_at, DateTime}], {jid, Node});
 
 handle_presence(_) ->
 	ignore.
 
 handle_offline(#presence{node = Node, type = node}) ->
-    DateTime = {datetime, {date(), time()}},
+    DateTime = {datetime, date(), time()},
     epgsql:update(main, servers, [{presence, 0}, {updated_at, DateTime}], {jid, Node});
 
 handle_offline(_Presence) ->
