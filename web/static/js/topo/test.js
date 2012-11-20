@@ -216,10 +216,10 @@ $(function(){
     
       node.append("svg:image")
       .attr("xlink:href", function(d){return "http://ww2.sinaimg.cn/large/412e82dbjw1dsbny7igx2j.jpg";})
-      .attr("x", "-32px")
-      .attr("y", "-32px")
-      .attr("width", "32px")
-      .attr("height", "32px");
+      .attr("x", "-10px")
+      .attr("y", "-10px")
+      .attr("width", "20px")
+      .attr("height", "20px");
     
     
     node.append("circle")
