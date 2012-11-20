@@ -77,11 +77,9 @@ crash_log(Home, I) ->
 
 lager_log(Home, I) ->
 	%\\{lager_console_backend,info\\},
-	%InfoLog = Home ++ "/log/worker" ++ integer_to_list(I) ++ "_info.log",
+	InfoLog = Home ++ "/log/worker" ++ integer_to_list(I) ++ "_info.log",
 	ErrorLog = Home ++ "/log/worker" ++ integer_to_list(I) ++ "_error.log",
-    %FIXME: for jilin only
-	"\\[\\{lager_file_backend,\\[\\{\\\"" ++ ErrorLog ++ "\\\",error,20485760,\\\"$D0\\\",5\\}\\]\\}\\]".
-	%"\\[\\{lager_file_backend,\\[\\{\\\"" ++ InfoLog ++ "\\\",info,20485760,\\\"$D0\\\",5\\},\\{\\\"" ++ ErrorLog ++ "\\\",error,20485760,\\\"$D0\\\",5\\}\\]\\}\\]".
+	"\\[\\{lager_file_backend,\\[\\{\\\"" ++ InfoLog ++ "\\\",info,20485760,\\\"$D0\\\",5\\},\\{\\\"" ++ ErrorLog ++ "\\\",error,20485760,\\\"$D0\\\",5\\}\\]\\}\\]".
 
 start_app(mnesia) ->
     case mnesia:system_info(extra_db_nodes) of

@@ -50,6 +50,7 @@
     {is_sw_cn_discovered, false},
     {fitap_filter, undefined}
  ]},
-
- {coord, [{is_sharded, false}]}
+ {coord, [
+    {sharded, city}
+ ]}
 ].

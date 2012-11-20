@@ -22,7 +22,7 @@
 	{error_logger_redirect, false}
  ]},
  {monitd,
-	[{shard, {endwith, "c=cn"}},
+	[{shards, "#"}, %city1, city2
     {buffer, 10}, 
 	{aging, 12}, %hour
 	{journal, [

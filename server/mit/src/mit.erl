@@ -55,12 +55,15 @@
     "t1.name as category, "
     "t2.name as vendor, "
     "t3.name as model, "
-    "t4.rdn as area, t4.cityid "
+    "t4.rdn as area, "
+    "t4.cityid, "
+    "t5.name as city "
     "from nodes t "
     "left join categories t1 on t1.id = t.category_id "
     "left join vendors t2 on t2.id = t.vendor_id "
     "left join models t3 on t3.id = t.model_id "
-    "left join areas t4 on t4.id = t.area_id;").
+    "left join areas t4 on t4.id = t.area_id "
+    "left join areas t5 on t5.id = t4.cityid;").
 
 start_link() ->
     gen_server2:start_link({local, ?MODULE}, ?MODULE, [], []).
@@ -174,6 +177,7 @@ load_mit_nodes() ->
             ip = get_value(ip, N),
             cat = get_value(category, N),
             parent = get_value(parent, N),
+            city = get_value(city, N),
             cityid = get_value(cityid, N),
             name = get_value(name, N),
             alias = get_value(alias, N),

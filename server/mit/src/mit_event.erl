@@ -40,7 +40,7 @@ init([]) ->
 
 open(C) ->
 	{ok, Channel} = amqp:open_channel(C),
-	amqp:topic(Channel, "oss.mit"),
+	amqp:topic(Channel, "mit.event"),
 	Channel.
 
 handle_call(Req, _From, State) ->
@@ -49,7 +49,7 @@ handle_call(Req, _From, State) ->
 handle_cast({notify, Event}, #state{channel = Ch} = State) ->
 	Type = atom_to_list(element(1, Event)),
 	Key = iolist_to_binary(["mit.", Type]),
-	amqp:publish(Ch, "oss.mit", term_to_binary(Event), Key),
+	amqp:publish(Ch, "mit.event", term_to_binary(Event), Key),
 	{noreply, State};
 
 handle_cast(Msg, State) ->

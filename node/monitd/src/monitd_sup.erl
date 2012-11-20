@@ -1,3 +1,12 @@
+%%%----------------------------------------------------------------------
+%%% File    : monitd_sup.erl
+%%% Author  : Ery Lee <ery.lee@gmail.com>
+%%% Purpose : Monitd supervisor
+%%% Created : 24 Dec 2009
+%%% License : http://www.opengoss.com
+%%%
+%%% Copyright (C) 2012, www.opengoss.com 
+%%%----------------------------------------------------------------------
 -module(monitd_sup).
 
 -author("ery.lee@gmail.com").
@@ -33,7 +42,7 @@ init([worker]) ->
 	};
 
 %node with monitd, without coord
-init([_]) ->
+init([node]) ->
     {ok, JournalOpts} = application:get_env(journal),
     {ok, CmdPool} = application:get_env(oscmd_pool),
 	{ok, {{one_for_one, 10, 100}, [

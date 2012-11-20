@@ -1,6 +1,6 @@
 {application, monitd,
  [{description, "monitor daemon"},
-  {vsn, "7.0"},
+  {vsn, "8.0"},
   {modules, [monitd, 
 			monitd_app,
 			monitd_sup,

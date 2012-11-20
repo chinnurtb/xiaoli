@@ -37,8 +37,12 @@
 	  ]}
 	]}
  ]},
+{folsom, [
+    {counter, []},
+    {gauge, ['sheduler.runners']}
+ ]},
  {monitd, [
-	{shard, {endwith, "c=cn"}},
+	{shards, "#"}, %city1,city2
     {buffer, 10},
 	{aging, 12}, %hour
 	{journal, [

@@ -8,7 +8,7 @@
 -s monitd_app start
 
 #default is cpu cores
--workers 8
+#-workers 8
 
 ## Heartbeat management; auto-restarts VM if it dies or becomes unresponsive
 ## (Disabled by default..use with caution!)
