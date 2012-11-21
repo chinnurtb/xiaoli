@@ -4,13 +4,11 @@
     box-shadow: 0 1px 4px rgba(0, 0, 0, .065);
     border: 1px solid #D5D5D5;
 }
-#chart {
-    font-family: Times, "宋体";
-}
 
 /* Toolbar */
 #toolbar {
     padding: 8px 2px;
+    margin-bottom: 1px;
     border-bottom: 1px solid #D5D5D5;
 }
 
@@ -24,34 +22,63 @@
 #zoom {
 }
 
-#chart svg {
+.chart {
+    margin-bottom: 3px;
+    border-bottom: 1px solid #D5D5D5;
+}
+
+.chart svg {
     background-color: #FFF;
     border-right: 1px solid #D5D5D5;
     font-family: Times, "宋体";
 }
-#chart rect {
+.chart rect {
     fill: #FFF;
 }
 
-#chart .node circle {
+.chart .node circle {
     stroke: #D5D5D5;
     stroke-width: 1px;
 }
 
-#chart .node {
+.chart .node {
     font: 10px sans-serif;
 }
 
 
-#chart .node text{
+.chart .node text{
     fill: #333;
 }
 
-#chart .link {
+.chart .link {
     fill: none;
     stroke: #BBB;
     stroke-width: 1.5px;
 }
+
+
+/* Tree chart */
+#tchart {
+    overflow: auto;
+    height: 600px;
+}
+
+#tchart svg{
+    overflow: auto;
+    fill: #FFF;
+}
+
+/* Tree interactive chart */
+#tichart {
+    overflow: auto;
+    height: 600px;
+}
+
+#tichart svg{
+    overflow: auto;
+    fill: #FFF;
+}
+
 
 /* Sidebar */
 #sidebar {
@@ -68,9 +95,10 @@
 }
 
 #tree svg{
-    width: 192px;
+    width: 172px;
     overflow-y: auto;
     fill: #D5D5D5;
+    padding: 10px;
 }
 
 #tree .node rect {

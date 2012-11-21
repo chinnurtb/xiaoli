@@ -25,9 +25,9 @@
         handle_info/2, 
         prioritise_info/2,
         terminate/2, 
-        code_change/3 ]).
+        code_change/3]).
 
--record(state, {shards, queue, channel, monitor_types}).
+-record(state, {shards, queue, channel}).
 
 %%--------------------------------------------------------------------
 %% Function: start_link() -> {ok,Pid} | ignore | {error,Error}
@@ -59,34 +59,35 @@ init([Env]) ->
     {ok, #state{shards = Shards, queue = Queue, channel = Channel}}.
 
 open(Conn, Shards) ->
-	{ok, Channel} = amqp:open_channel(Conn),
-    %declare topics 
-	amqp:topic(Channel, <<"oss.db">>),
-	amqp:topic(Channel, <<"sys.watch">>),
-    amqp:topic(Channel, <<"sys.shard">>),
+	{ok, Ch} = amqp:open_channel(Conn),
+	{ok, Q} = amqp:queue(Ch, node()),
 
-    %shard queue
+    %db topic 
+	amqp:topic(Ch, <<"sys.db">>),
+	amqp:bind(Ch, <<"sys.db">>, Q, <<"db.*">>),
+
+    %watch topic
+	amqp:topic(Ch, <<"sys.watch">>),
+	amqp:bind(Ch, <<"sys.watch">>, Q, <<"ping">>),
+	Presence = {node(), node, available, extlib:appvsn(), <<"startup">>},
+	amqp:publish(Ch, <<"sys.watch">>, term_to_binary(Presence), <<"presence">>),
+    
+    %shard topic and queues
+    amqp:topic(Ch, <<"sys.shard">>),
     lists:foreach(fun(Shard) -> 
         Name = "shard."++Shard,
-        {ok, Q} = amqp:queue(Channel, Name),
-        amqp:bind(Channel, <<"sys.shard">>, Q, Name),
-        amqp:consume(Channel, Q)
+        {ok, Q} = amqp:queue(Ch, Name),
+        amqp:bind(Ch, <<"sys.shard">>, Q, Name),
+        amqp:publish(Ch, <<"sys.shard">>, 
+            term_to_binary({node(), Name}), "join.shard"),
+        amqp:consume(Ch, Q)
     end, Shards),
 
-	%declare and bind queues
-	amqp:queue(Channel, <<"task">>),
-	amqp:consume(Channel, <<"task">>),
-	{ok, Q} = amqp:queue(Channel, node()),
-	amqp:bind(Channel, <<"sys.watch">>, Q, <<"ping">>),
-	amqp:bind(Channel, <<"oss.db">>, Q, <<"db.*">>),
-	amqp:consume(Channel, Q),
-
-	%send presence
-	Presence = {node(), node, available, extlib:appvsn(), <<"startup">>},
-	amqp:send(Channel, <<"presence">>, term_to_binary(Presence)),
-	amqp:send(Channel, <<"shard">>, term_to_binary({node(), Shards})),
 	erlang:send_after(10000, self(), heartbeat),
-	Channel.
+
+	amqp:consume(Ch, Q),
+
+	Ch.
 
 handle_call(Req, _From, State) ->
     {stop, {error, {badreq, Req}}, State}.
@@ -104,7 +105,7 @@ handle_cast(Msg, State) ->
 %%                                       {stop, Reason, State}, 
 %% Description: Handling all non call/cast messages
 %%--------------------------------------------------------------------
-handle_info({deliver, <<"shard.", _/binary>> = RouteKey, Props, Payload}, State) ->
+handle_info({deliver, <<"shard.", _/binary>> = RouteKey, _Props, Payload}, State) ->
     ?INFO("RouteKey: ~p", [RouteKey]),
     ?INFO("~p", [binary_to_term(Payload)]),
     {noreply, State};
@@ -150,10 +151,10 @@ handle_info({deliver, <<"task">>, _, Payload}, #state{channel = Channel} = State
     end,
 	{noreply, State};
 
-handle_info({deliver, <<"ping">>, _, _}, #state{shards = Shards, channel = Channel} = State) ->
+handle_info({deliver, <<"ping">>, _, _}, #state{shards = Shards, channel = Ch} = State) ->
     Presence = {node(), node, available, extlib:appvsn(), <<"alive">>},
-    amqp:send(Channel, <<"presence">>, term_to_binary(Presence)),
-    amqp:send(Channel, <<"shard">>, term_to_binary({node(), Shards})),
+    amqp:publish(Ch, <<"sys.watch">>, term_to_binary(Presence), <<"presence">>),
+    [amqp:publish(Ch, <<"sys.shard">>, term_to_binary({node(), Shard}), "join.shard") || Shard <- Shards],
     {noreply, State};
 
 handle_info({deliver, <<"db.", _Tab/binary>> = Key, _, Payload}, State) ->

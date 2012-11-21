@@ -1,21 +1,16 @@
 
 $(function(){
-  var vis, zoomTime, obZoom, keyword,
-  nodeCount,
-  innerScale = 1.0,
-  radius = 600 / 2;
+  var sid = '#chart';
+  var path = 'olt-0';
   
-  function getTransform(selector){
-    var transform = $(selector).attr("transform");
-    //console.log($(selector).attr("transform"));
-    if (!transform){
-      transform = "translate(0,0)scale(1)";
-    }
-    var re = /^translate\((\S+),(\S+)\)scale\((\S+)\)/;
-    var arr = re.exec(transform);
-    return arr;
-  }
+  // loadCircleTree(sid, path);
+  // initZoomButtons(sid);
+  // initTypeahead(sid);
 
+  sid = '#tichart';
+  loadInteractiveTree(sid, path);
+  
+/*
   function getExtraWidth() {
     return zoomTime * ($('#chart').width()/2 - radius);
   }
@@ -107,10 +102,10 @@ $(function(){
 
   // Sidebar
   function makeSidebar(){
-    var w = 192,
-    h = 620,
+    var w = 172,
+    h = 600,
     i = 0,
-    barHeight = 20,
+    barHeight = 24,
     barWidth = w * .5,
     duration = 400,
     root;
@@ -118,8 +113,12 @@ $(function(){
     var tree = d3.layout.tree()
       .size([h, 100]);
       
-    var diagonal = d3.svg.diagonal()
-      .projection(function(d) { return [d.y, d.x]; });
+    var diagonal = function(d) {
+        return "M"+ d.source.y+' ' + d.source.x +
+                ' L'+ (d.source.y - 5)+' '+ d.source.x +
+                ' L'+ (d.source.y -5)+' '+ d.target.x+
+                ' L'+ d.target.y+' '+ d.target.x
+    };
 
     var tvis = d3.select("#tree").append("svg:svg")
       .attr("width", w)
@@ -167,13 +166,13 @@ $(function(){
       // Enter any new nodes at the parent's previous position.
       nodeEnter.append("svg:rect")
         .attr("y", -barHeight / 2)
-        .attr("height", barHeight)
-        .attr("width", barWidth)
+        .attr("height", barHeight -4)
+        .attr("width", barWidth-20)
         .style("fill", color)
         .on("click", click);
       
       nodeEnter.append("svg:text")
-        .attr("dy", 3.5)
+        .attr("dy", 3.5-2)
         .attr("dx", 5.5)
         .text(function(d) { return d.name; });
       
@@ -286,10 +285,6 @@ $(function(){
   function updateChart(path) {
     d3.json("/topo/test.json?path="+path+"&na=6&nb=10&nc=6", function(json) {
       
-      /**
-       * 4级: 4.5/600 --> 3/400
-       * zoomTime = nodeCount * 3 / 400;
-       */
       $('#chart').html('');
       $('#lastid').val('');
       $('#keyword').val('');
@@ -455,7 +450,7 @@ $(function(){
     }
   });
   
-  
   // Right click menu
   console.log('click menu');
+  */
 });

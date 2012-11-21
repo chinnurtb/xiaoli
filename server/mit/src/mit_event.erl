@@ -11,11 +11,14 @@
 
 -author('ery.lee@gmail.com').
 
+-include("mit.hrl").
+
 -include_lib("elog/include/elog.hrl").
 
 -behavior(gen_server).
 
--export([start_link/0, notify/1]).
+-export([start_link/0, 
+        notify/2]).
 
 -export([init/1,
         handle_call/3,
@@ -29,8 +32,8 @@
 start_link() ->
     gen_server2:start_link({local, ?MODULE}, ?MODULE, [], []).
 
-notify(Event) when is_tuple(Event) ->
-	gen_server2:cast(?MODULE, {notify, Event}).
+notify(Oper, Node) when is_record(Node, node) ->
+	gen_server2:cast(?MODULE, {notify, Oper, Node}).
 
 init([]) ->
 	{ok, Conn} = amqp:connect(),
@@ -46,10 +49,9 @@ open(C) ->
 handle_call(Req, _From, State) ->
     {stop, {error, {badreq, Req}}, State}.
 
-handle_cast({notify, Event}, #state{channel = Ch} = State) ->
-	Type = atom_to_list(element(1, Event)),
-	Key = iolist_to_binary(["mit.", Type]),
-	amqp:publish(Ch, "mit.event", term_to_binary(Event), Key),
+handle_cast({notify, Oper, Node}, #state{channel = Ch} = State) ->
+	RouteKey = iolist_to_binary(["mit.", atom_to_list(Oper)]),
+	amqp:publish(Ch, "mit.event", term_to_binary(Node), RouteKey),
 	{noreply, State};
 
 handle_cast(Msg, State) ->

@@ -9,7 +9,9 @@
 %%%----------------------------------------------------------------------
 -define(VERSION, "2.0").
 
--record(presence, {node, type, status, vsn, tref, summary, metrics}).
+-record(shard, {node, queue, count}).
 
--record(dispatch, {id, dn, shard, tref}).
+-record(dispatch, {dn, shard, tref}).
+
+-record(presence, {node, class, status, vsn, tref, summary, metrics}).
 

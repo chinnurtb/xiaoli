@@ -12,10 +12,8 @@ start_link() ->
 init([]) ->
 	Db = {coord_db, {coord_db, start_link, []},
 	            permanent, 5000, worker, [coord_db]},
-	Srv= {coord, {coord, start_link, []},
-	            permanent, 5000, worker, [coord]},
     Env = application:get_all_env(),
-	Dist = {coord_dist, {coord_dist, start_link, [Env]},
-	            permanent, 5000, worker, [coord_dist]},
-	{ok, {{one_for_one, 10, 1000}, [Db, Srv, Dist]}}. 
+	Srv= {coord, {coord, start_link, [Env]},
+	            permanent, 5000, worker, [coord]},
+	{ok, {{one_for_one, 10, 1000}, [Db, Srv]}}. 
 

@@ -36,6 +36,7 @@
     metrics,
     {miboids, {is_valid, 1}},
     monitors,
+    modules,
     timeperiods
 ]).
 
@@ -59,10 +60,6 @@ reload() ->
 %% Description: Initiates the server
 %%--------------------------------------------------------------------
 init([]) ->
-    %mnesia:create_table(meas_type, [{ram_copies, [node()]}, 
-    %    {index, [name]}, {attributes, record_info(fields, meas_type)}]),
-    %mnesia:add_table_copy(meas_type, node(), ram_copies),
-    %handle_info(load_meas_types, state),
     Tabs = load_from_db(),
 	{ok, Conn} = amqp:connect(),
     Channel = open(Conn),
@@ -71,7 +68,7 @@ init([]) ->
 
 open(Conn) ->
 	{ok, Channel} = amqp:open_channel(Conn),
-	amqp:topic(Channel, <<"oss.db">>),
+	amqp:topic(Channel, <<"sys.db">>),
 	Channel.
 
 %%--------------------------------------------------------------------
@@ -87,8 +84,8 @@ handle_call(syncdb, _From, #state{tabs = Tabs, channel = Channel} = State) ->
 	Publish = fun(Tab, Records) -> 
 		Key = list_to_binary(["db.", atom_to_list(Tab)]),
 		Payload = term_to_binary(Records, [compressed]),
-		?INFO("~p publish ~p to oss.db", [Channel, Key]),
-		amqp:publish(Channel, <<"oss.db">>, Payload, Key)
+		?INFO("~p publish ~p to sys.db", [Channel, Key]),
+		amqp:publish(Channel, <<"sys.db">>, Payload, Key)
 	end,
 	[Publish(Tab, Records) || {Tab, Records} <- Tabs],
     {reply, ok, State};
