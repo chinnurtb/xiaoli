@@ -30,3 +30,9 @@ redis/dump.rdb
 node/monitd/var/mnesia
 node/monitd/lib
 node/monitd/var/journal/
+amqp/ebin/
+amqp/include/
+amqp/man/
+amqp/plugins/
+amqp/sbin/
+

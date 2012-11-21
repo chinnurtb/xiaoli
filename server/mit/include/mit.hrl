@@ -8,15 +8,6 @@
 %%% Copyright (C) 2012, www.opengoss.com 
 %%%----------------------------------------------------------------------
 
-%mit operations
--define(MIT_ADDED, 1).
-
--define(MIT_DELETED, 2).
-
--define(MIT_UPDATED, 3).
-
--define(MIT_MOVED, 4).
-
 %key : {category, ID}
 %key : {vendor, ID}
 %key : {model, ID}
@@ -25,7 +16,7 @@
                name,
                alias}).
 
--record(area, {rdn,
+-record(area, {dn,
                id,
                cityid,
                parent, % parent rdn
@@ -34,10 +25,10 @@
                type %integer, -- 0:省 1:市 2:县 3:分局 4:接入点
 }).
 
--record(node, {rdn,
+-record(node, {dn,
                id,
                ip,
-               cat, %category
+               category, %category
                parent, 
                city,
                cityid,
@@ -45,5 +36,4 @@
                alias,
                area, %area dn
                attrs}).
-
 
