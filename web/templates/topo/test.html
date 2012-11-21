@@ -14,8 +14,10 @@
 {% block content %}
     <div class="row-fluid content">
       <div class="span2">
-        {% set menuid = 'topo-test' %}
-        {% include "topo/_sidebar.html" %}
+        <div id="sidebar">
+          <div id="tree">
+          </div>
+        </div>
       </div>
       
       <div class="span10">
@@ -28,8 +30,12 @@
             </div>
             
             <form method="GET" class="form filter-form tb-item">
-              {% from 'tango/_search_h.html' import render_keyword %}
-              {{ render_keyword(form, "节点名称") }}
+              <div class="form-inline input-append" style="margin:0px;">
+                <input type="hidden" id="lastid" name="lastid" value="" />
+                <input class="input-low" data-provide="typeahead" id="keyword" name="keyword" placeholder="节点名称" type="text">
+                <button type="submit" data-placement="bottom" rel="tooltip"
+	                class="btn btn-small" data-original-title="搜索"><i class="icon-search"></i></button>
+              </div>
             </form>
             <div id="info" class="tb-item"></div>
             <br class="clear" />

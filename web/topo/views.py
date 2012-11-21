@@ -61,8 +61,9 @@ table_template = '<<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" ALIGN="cent
 
 @topoview.route('/topo/test')
 def test():
-    form = SearchForm(formdata=request.args)
-    return render_template('topo/test.html', form=form)
+    import time
+    time.sleep(1)
+    return render_template('topo/test.html')
 
 @topoview.route('/topo/test.json', methods=['GET', 'POST'])
 def test_json():
@@ -73,31 +74,61 @@ def test_json():
     # 5. 表达节点的状态 DONE
     # 6. 右键菜单 DONE
     # 7. 搜索跳转
+    from random import Random
+    rand = Random()
+    
+    spath = request.args.get('path', 'olt-0')
     na = request.args.get('na', 6, type=int)
     nb = request.args.get('nb', 6, type=int)
     nnc = request.args.get('nc', 6, type=int)
-    data = {'name': 'OLT', 'children': [], 'level': 0}
-    from random import Random
-    rand = Random()
 
-    count = 0
+    ca = cb = cc = 0;
+    path = spath.split(',')
+    path.reverse()
+    lvs = [i.split('-')[0].upper() for i in path]
+    
+    data = {
+        'name'     : 'OLT',
+        'children' : [],
+        'level'    : 0,
+        'maxlevel' : 0,
+        'maxpath'  : len(path) - 1,
+        'id'       : 'olt-0'
+    }
+
+    def selected(s, i):
+        if s in lvs and '%s-%d' % (s.lower(), i) not in path:
+            return False
+        return True
+    print '========================================'
+    print spath, path, lvs
+    print '--------------------'
+    
     for a in range(na):         # ONU
-        A = {'name': 'ONU-' + str(a), 'children': [], 'level': 1, 'id': 'onu-'+str(count)}
+        ca += 1
+        A = {'name': 'ONU-' + str(ca), 'children': [], 'level': 1, 'id': 'onu-'+str(ca)}
         for b in range(nb):     # EOC
-            B = {'name': 'EOC-' + str(b), 'children': [], 'level': 2, 'id': 'eoc-'+str(count)}
-            nc = rand.randint(nnc-4, nnc+4)
+            cb += 1
+            B = {'name': 'EOC-' + str(cb), 'children': [], 'level': 2, 'id': 'eoc-'+str(cb)}
+            nc = nnc
             for c in range(nc): # CPE
-                C = {'name': 'CPE-' + str(c), 'url': 'http://www.stackoverflow.com', 'level': 3, 'id': 'cpe-'+str(count)}
+                cc += 1
+                C = {'name': 'CPE-' + str(cc), 'url': 'http://www.stackoverflow.com', 'level': 3, 'id': 'cpe-'+str(cc)}
                 C['status'] = 1 if c % rand.randint(2, 6) != 0 else 0
-                B['children'].append(C)
-                count += 1
-            A['children'].append(B)
-            count += 1
-        data['children'].append(A)
-        count += 1
-        
+                if selected('CPE', cc):
+                    if data['maxlevel'] < 3:
+                        data['maxlevel'] = 3;
+                    B['children'].append(C)
+            if selected('EOC', cb):
+                if data['maxlevel'] < 2:
+                    data['maxlevel'] = 2;
+                A['children'].append(B)
+        if selected('ONU', ca):
+            if data['maxlevel'] < 1:
+                data['maxlevel'] = 1;
+            data['children'].append(A)
+            
     return json.dumps(data)
-
 
 
 # ==============================================================================

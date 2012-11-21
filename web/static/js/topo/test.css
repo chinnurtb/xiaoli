@@ -24,42 +24,72 @@
 #zoom {
 }
 
-svg {
+#chart svg {
     background-color: #FFF;
     border-right: 1px solid #D5D5D5;
     font-family: Times, "宋体";
 }
-rect {
+#chart rect {
     fill: #FFF;
 }
 
-.node circle {
+#chart .node circle {
     stroke: #D5D5D5;
     stroke-width: 1px;
 }
 
-.node {
+#chart .node {
     font: 10px sans-serif;
 }
 
 
-.node text{
+#chart .node text{
     fill: #333;
 }
 
-.link {
+#chart .link {
     fill: none;
     stroke: #BBB;
     stroke-width: 1.5px;
 }
-#help ul {
-    margin: 0;
-}
-#help ul li {
-    float: left;
-    background: #FFD;
-    border: 1px solid #999;
+
+/* Sidebar */
+#sidebar {
+    width: 210px;
+    background-color: #F7F7F7;
     border-radius: 6px;
-    padding: 6px 12px;
-    margin: 0px 6px 6px 2px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, .065);
+    border: 1px solid #D5D5D5;
+}
+
+#tree {
+    overflow-y: auto;
+    height: 640px;
+}
+
+#tree svg{
+    width: 172px;
+    overflow-y: auto;
+    fill: #D5D5D5;
+    padding: 10px;
+}
+
+#tree .node rect {
+  cursor: pointer;
+  fill: #fff;
+  fill-opacity: .5;
+  stroke: #3182bd;
+  stroke-width: 1.5px;
+}
+
+#tree .node text {
+  fill: #111;
+  font: 10px sans-serif;
+  pointer-events: none;
+}
+
+#tree path.link {
+  fill: none;
+  stroke: #9ecae1;
+  stroke-width: 1.5px;
 }
