@@ -55,18 +55,22 @@
 
 /* Sidebar */
 #sidebar {
-    width: 200px;
+    width: 210px;
     background-color: #F7F7F7;
     border-radius: 6px;
     box-shadow: 0 1px 4px rgba(0, 0, 0, .065);
     border: 1px solid #D5D5D5;
-    overflow-x: visible;
+}
+
+#tree {
+    overflow-y: auto;
+    height: 640px;
 }
 
 #tree svg{
+    width: 190px;
+    overflow-y: auto;
     fill: #D5D5D5;
-    width: 200px;
-    overflow-x: visible;
 }
 
 #tree .node rect {

@@ -28,12 +28,12 @@ $(function(){
         if ($('#lastid').val()){
           d3.select($('#lastid').val()).style("font-weight", "normal");
         }
-        d3.select('#'+id).style("font-weight", "bold");
+        d3.select('#chart ' + ' #'+id).style("font-weight", "bold");
         $('#lastid').val('#'+id);
 
         var scale = zoomTime + 2.0;
         var extra = getExtraWidth();
-        var d = d3.select('#'+ id).data()[0];
+        var d = d3.select('#chart '+ ' #'+ id).data()[0];
         var px = d.x * Math.PI /180;
         var x = extra - Math.sin(px) * d.y * scale;
         var y = Math.cos(px) * d.y * scale;
@@ -66,21 +66,6 @@ $(function(){
       //console.log("transform", "translate("+ x +","+ y +")scale(" + k + ")");
       return "transform", "translate("+ x +","+ y +")scale(" + k + ")";
     }
-  }
-  
-  function checkNodes(){
-    d3.selectAll('g.node').style("opacity", 0.2);
-    var $targetNode = $('#chart g.node:contains('+ keyword +')');
-    //console.log($targetNode);
-    $targetNode.each(function(){
-      if($(this).text().trim() == keyword.trim()){
-        //console.log($(this));
-        var id = $(this).attr('id');
-        d3.select('#'+ id).style("opacity", 1);
-        var d = d3.select('#'+ id).data()[0];
-        //console.log(d.x, d.y);
-      }
-    });
   }
 
   function reColorNodes(scale){
@@ -122,8 +107,8 @@ $(function(){
 
   // Sidebar
   function makeSidebar(){
-    var w = 200,
-    h = 600,
+    var w = 190,
+    h = 620,
     i = 0,
     barHeight = 20,
     barWidth = w * .5,
@@ -132,7 +117,7 @@ $(function(){
 
     var tree = d3.layout.tree()
       .size([h, 100]);
-
+      
     var diagonal = d3.svg.diagonal()
       .projection(function(d) { return [d.y, d.x]; });
 
@@ -141,7 +126,7 @@ $(function(){
       .attr("height", h)
       .append("svg:g")
       .attr("transform", "translate(0, 12)");
-    
+
     d3.json("/topo/test.json?na=6&nb=10&nc=6", function(json) {
       json.x0 = 0;
       json.y0 = 0;
@@ -159,6 +144,7 @@ $(function(){
     });
     
     function update(source) {
+      d3.select('#tree svg').attr("height", h);
 
       // Compute the flattened node list. TODO use d3.layout.hierarchy.
       var nodes = tree.nodes(root);
@@ -248,17 +234,33 @@ $(function(){
     }
 
     // Toggle children on click.
+    var isOpen;
     function click(d) {
       if (d.children) {
         d._children = d.children;
         d.children = null;
+        isOpen = false;
       } else {
         d.children = d._children;
         d._children = null;
+        isOpen = true;
       }
+
+      // Compute new tree height
+      var level = 1 + root.children.length;
+      function countLevel(d){
+        if (d.children) {
+          level += d.children.length;
+          d.children.forEach(countLevel);
+        }
+      }
+      root.children.forEach(countLevel);
+      h = level * barHeight + 20;
+      
       update(d);
 
-      if (d.children || d._children){
+      // Make request path
+      if (isOpen && (d.children || d._children)){
         var cur = d;
         var ids = [cur.id];
         while(cur.parent){
@@ -286,6 +288,9 @@ $(function(){
        * zoomTime = nodeCount * 3 / 400;
        */
       $('#chart').html('');
+      $('#lastid').val('');
+      $('#keyword').val('');
+      
       //console.log(json);
       nodeCount = countNodes(json);
       zoomTime = nodeCount * 3 / 400;
@@ -293,7 +298,8 @@ $(function(){
       //zoomTime = 3.0;
 
       //console.log(json.maxpath, json.maxlevel);
-      var angle = (json.maxlevel - json.maxpath) == 1 ? 120 : 360
+      var angle = (json.maxlevel - json.maxpath) == 1 ? 120 : 360;
+      angle = 360;
       var tree = d3.layout.tree()
         .size([angle, radius * zoomTime * 0.8])
         .separation(function(a, b) { return (a.parent == b.parent ? 1 : 2) / a.depth; });
