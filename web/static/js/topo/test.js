@@ -10,7 +10,7 @@ $(function(){
   sid = '#tichart';
   loadInteractiveTree(sid, path);
   
-/*
+
   function getExtraWidth() {
     return zoomTime * ($('#chart').width()/2 - radius);
   }
@@ -452,5 +452,4 @@ $(function(){
   
   // Right click menu
   console.log('click menu');
-  */
 });
