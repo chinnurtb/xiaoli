@@ -1,9 +1,9 @@
 
 $(function(){
   var vis, zoomTime, obZoom, keyword,
+  nodeCount,
   innerScale = 1.0,
-  radius = 600 / 2,
-  chartWidth = $('#chart').width();
+  radius = 600 / 2;
   
   function getTransform(selector){
     var transform = $(selector).attr("transform");
@@ -42,7 +42,7 @@ $(function(){
         var arr = getTransform('#chart svg>g>g');
         var oldScale = arr.length > 3 ? parseFloat(arr[3]) : 1.0;
         var p0 = [parseFloat(arr[1]), parseFloat(arr[2]), oldScale],
-        p1 = [x, y, scale];
+            p1 = [x, y, scale];
         
         vis.call(transition, p0, p1);
         syncZoom(x, y, scale, false);
@@ -84,7 +84,7 @@ $(function(){
   }
 
   function reColorNodes(scale){
-    if (scale >= 1.8){
+    if (scale >= 1.8 || nodeCount < 100){
       vis.selectAll("g.node").style("opacity", 1);
     } else {
       vis.selectAll("g.node").style("opacity", function(d){return d.level < 3 ? 1 : 0.3 });
@@ -174,6 +174,7 @@ $(function(){
       
       var nodeEnter = node.enter().append("svg:g")
         .attr("class", "node")
+        .attr("id", function(d){ return d.id })
         .attr("transform", function(d) { return "translate(" + source.y0 + "," + source.x0 + ")"; })
         .style("opacity", 1e-6);
 
@@ -256,6 +257,17 @@ $(function(){
         d._children = null;
       }
       update(d);
+
+      if (d.children || d._children){
+        var cur = d;
+        var ids = [cur.id];
+        while(cur.parent){
+          cur = cur.parent;
+          ids.push(cur.id);
+        }
+        console.log(ids.join(','));
+        updateChart(ids.join(','));
+      }
     }
 
     function color(d) {
@@ -263,103 +275,121 @@ $(function(){
     }
   }
 
-  d3.json("/topo/test.json?na=6&nb=10&nc=6", function(json) {
-    
-    /**
-     * 4级: 4.5/600 --> 3/400
-     * zoomTime = nodeCount * 3 / 400;
-     */
-    
-    zoomTime = countNodes(json) * 3 / 400;
-    makeSidebar();
-    //zoomTime = 3.0;
+  // Init Sidebar
+  makeSidebar();
 
-    var tree = d3.layout.tree()
-      .size([360, radius * zoomTime * 0.8])
-      .separation(function(a, b) { return (a.parent == b.parent ? 1 : 2) / a.depth; });
-    
-    
-    var diagonal = d3.svg.diagonal.radial()
-      .projection(function(d) { return [d.y, d.x / 180 * Math.PI]; });
+  function updateChart(path) {
+    d3.json("/topo/test.json?path="+path+"&na=6&nb=10&nc=6", function(json) {
+      
+      /**
+       * 4级: 4.5/600 --> 3/400
+       * zoomTime = nodeCount * 3 / 400;
+       */
+      $('#chart').html('');
+      //console.log(json);
+      nodeCount = countNodes(json);
+      zoomTime = nodeCount * 3 / 400;
+      zoomTime = zoomTime < 1.0 ? 1.0 : zoomTime;
+      //zoomTime = 3.0;
 
-    var width = radius * 2,
-    height = radius * 2;
+      //console.log(json.maxpath, json.maxlevel);
+      var angle = (json.maxlevel - json.maxpath) == 1 ? 120 : 360
+      var tree = d3.layout.tree()
+        .size([angle, radius * zoomTime * 0.8])
+        .separation(function(a, b) { return (a.parent == b.parent ? 1 : 2) / a.depth; });
+      
+      var diagonal = d3.svg.diagonal.radial()
+        .projection(function(d) { return [d.y, d.x / 180 * Math.PI]; });
 
-    var x = d3.scale.linear()
-      .domain([-width / 2, width / 2])
-      .range([0, width]);
+      var width = radius * 2,
+      height = radius * 2;
 
-    var y = d3.scale.linear()
-      .domain([-height / 2, height / 2])
-      .range([height, 0]);
+      var x = d3.scale.linear()
+        .domain([-width / 2, width / 2])
+        .range([0, width]);
 
-    /*
-      var dragGroup = d3.behavior.drag()
-      .on('dragstart', function() {
-      console.log('Start Dragging Group');
-      })
-      .on('drag', function(d, i) {
-      d.x += d3.event.dx;
-      d.y += d3.event.dy;
-      d3.select(this).attr("transform", "translate(" + d.x + "," + d.y + ")scale("+ 1.0/zoomTime+")");
-      });
-    */
+      var y = d3.scale.linear()
+        .domain([-height / 2, height / 2])
+        .range([height, 0]);
 
-    obZoom = d3.behavior.zoom().scaleExtent([1, zoomTime+2]).on("zoom", zoom);
-    vis = d3.select("#chart").append("svg")
-      .attr("height", radius * 2)
-      .append("g")
-      .data([{x: radius, y: radius, scale: 1.0/zoomTime}])
-      .attr("transform", "translate(" + radius + "," + radius + ")scale("+ 1.0/zoomTime+")")
-      .call(obZoom)
-      .append("g");
+      obZoom = d3.behavior.zoom().scaleExtent([1, zoomTime+2]).on("zoom", zoom);
+      vis = d3.select("#chart").append("svg")
+        .attr("height", radius * 2)
+        .append("g")
+        .data([{x: radius, y: radius, scale: 1.0/zoomTime}])
+        .attr("transform", "translate(" + radius + "," + radius + ")scale("+ 1.0/zoomTime+")")
+        .call(obZoom)
+        .append("g");
 
-    vis.append("rect")
-      .attr("width", radius * 2 * zoomTime) // 3 = 1 / 0.33
-      .attr("height", radius * 2 * zoomTime)
-      .attr("transform", "translate(" + -radius*zoomTime + "," + -radius*zoomTime + ")");
+      vis.append("rect")
+        .attr("width", radius * 2 * zoomTime) // 3 = 1 / 0.33
+        .attr("height", radius * 2 * zoomTime)
+        .attr("transform", "translate(" + -radius*zoomTime + "," + -radius*zoomTime + ")");
 
-    console.log('set layout');
+      console.log('set layout');
 
-    // Dump nodes
-    nodes = tree.nodes(json);
-    
-    var link = vis.selectAll("path.link")
-      .data(tree.links(nodes))
-      .enter().append("path")
-      .attr("class", "link")
-      .attr("d", diagonal);
+      // Dump nodes
+      nodes = tree.nodes(json);
+      
+      var link = vis.selectAll("path.link")
+        .data(tree.links(nodes))
+        .enter().append("path")
+        .attr("class", "link")
+        .attr("d", diagonal);
 
-    var node = vis.selectAll("g.node")
-      .data(nodes)
-      .enter().append("g")
-      .attr("id", function(d){ return d.id })
-      .attr("class", "node")
-      .style("opacity", function(d){ return d.level < 3 ? 1 : 0.4})
-      .attr("transform", function(d) { return "rotate(" + (d.x - 90) + ")translate(" + d.y + ")"; });
+      var node = vis.selectAll("g.node")
+        .data(nodes)
+        .enter().append("g")
+        .attr("id", function(d){ return d.id })
+        .attr("class", "node")
+        .style("opacity", function(d){ return d.level < 3 ? 1 : 0.4})
+        .attr("transform", function(d) { return "rotate(" + (d.x - 90) + ")translate(" + d.y + ")"; });
 
-    
+      node.append("a")
+        .attr("xlink:href", function(d){return d.url;});
+
       node.append("svg:image")
-      .attr("xlink:href", function(d){return "http://ww2.sinaimg.cn/large/412e82dbjw1dsbny7igx2j.jpg";})
-      .attr("x", "-10px")
-      .attr("y", "-10px")
-      .attr("width", "20px")
-      .attr("height", "20px");
-    
-    
-    node.append("circle")
-      .style("fill", function(d) { return d.status == 0 ? "red" : "green"})
-      .attr("r", 4.5);
+        .attr("xlink:href", function(d){return "http://ww2.sinaimg.cn/large/412e82dbjw1dsbny7igx2j.jpg";})
+        .attr("x", "-10px")
+        .attr("y", "-10px")
+        .attr("width", "20px")
+        .attr("height", "20px");
+      
+      node.append("circle")
+        .style("fill", function(d) { return d.status == 0 ? "red" : "green"})
+        .attr("r", 4.5);
 
-    node.append("text")
-      .attr("dy", ".31em")
-      .attr("text-anchor", function(d) { return d.x < 180 ? "start" : "end"; })
-      .attr("transform", function(d) { return d.x < 180 ? "translate(8)" : "rotate(180)translate(-8)"; })
-      .text(function(d) { return d.name; });
+      node.append("text")
+        .attr("dy", ".31em")
+        .attr("text-anchor", function(d) { return d.x < 180 ? "start" : "end"; })
+        .attr("transform", function(d) { return d.x < 180 ? "translate(8)" : "rotate(180)translate(-8)"; })
+        .text(function(d) { return d.name; });
 
-    $('#zoom-reset').click();    
-    console.log('dump nodes');
-  });
+      $('#zoom-reset').click();
+
+      $.contextMenu({
+        selector: '#chart .node', 
+        callback: function(key, options) {
+          var m = "clicked: " + $(this).find('text').text() + "\r\n\r\nAction: "
+            + key + "\r\n\r\nTarget: " + $(this).find('a').attr('href');
+          window.console && console.log(m) || alert(m); 
+        },
+        items: {
+          "edit": {name: "Edit", icon: "edit"},
+          "cut": {name: "Cut", icon: "cut"},
+          "copy": {name: "Copy", icon: "copy"},
+          "paste": {name: "Paste", icon: "paste"},
+          "delete": {name: "Delete", icon: "delete"},
+          "sep1": "---------",
+          "quit": {name: "Quit", icon: "quit"}
+        }
+      });
+      
+      console.log('dump nodes');
+      console.log('------------------------------------');
+    });
+  }
+  updateChart('olt-0');
   
   // Zoom button
   $('#zoom-in').click(function(){
@@ -395,7 +425,9 @@ $(function(){
   
   $('#toolbar form').submit(function(){
     keyword = $('#keyword').val();
-    focus();
+    if(keyword){
+      focus();
+    }
     return false;
   });
 
@@ -416,22 +448,5 @@ $(function(){
   
   
   // Right click menu
-  $.contextMenu({
-    selector: '#chart .node', 
-    callback: function(key, options) {
-      var m = "clicked: " + $(this).find('text').text() + "\r\n\r\nAction: "
-        + key + "\r\n\r\nTarget: " + $(this).find('a').attr('href');
-      window.console && console.log(m) || alert(m); 
-    },
-    items: {
-      "edit": {name: "Edit", icon: "edit"},
-      "cut": {name: "Cut", icon: "cut"},
-      "copy": {name: "Copy", icon: "copy"},
-      "paste": {name: "Paste", icon: "paste"},
-      "delete": {name: "Delete", icon: "delete"},
-      "sep1": "---------",
-      "quit": {name: "Quit", icon: "quit"}
-    }
-  });
   console.log('click menu');
 });
