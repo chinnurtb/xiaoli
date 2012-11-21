@@ -2,47 +2,51 @@
 {% set title="Node-Link Tree (Radial)" %}
 
 {% block head %}
-    <script type="text/javascript" src="/static/js/topo/d3.v2.js"></script>
-    <script type="text/javascript" src="/static/js/topo/jquery.ui.position.js"></script>
-    <script type="text/javascript" src="/static/js/topo/jquery.contextMenu.js"></script>
-    <script type="text/javascript" src="/static/js/topo/test.js"></script>
-    <link type="text/css" rel="stylesheet" href="/static/js/topo/test.css"/>
-    <link type="text/css" rel="stylesheet" href="/static/js/topo/jquery.contextMenu.css"/>
+  <script type="text/javascript" src="/static/js/topo/d3.v2.js"></script>
+  <script type="text/javascript" src="/static/js/topo/jquery.ui.position.js"></script>
+  <script type="text/javascript" src="/static/js/topo/jquery.contextMenu.js"></script>
+  <script type="text/javascript" src="/static/js/topo/tree-common.js"></script>
+  <script type="text/javascript" src="/static/js/topo/tree-circle.js"></script>
+  <script type="text/javascript" src="/static/js/topo/tree-interactive.js"></script>
+  <script type="text/javascript" src="/static/js/topo/test.js"></script>
+  <link type="text/css" rel="stylesheet" href="/static/js/topo/test.css"/>
+  <link type="text/css" rel="stylesheet" href="/static/js/topo/jquery.contextMenu.css"/>
 {% endblock head %}
 
-    
+
 {% block content %}
-    <div class="row-fluid content">
-      <div class="span2">
-        <div id="sidebar">
-          <div id="tree">
-          </div>
-        </div>
-      </div>
-      
-      <div class="span10">
-        <div id="panel">
-          <div id="toolbar">
-            <div id="zoom" class="btn-group tb-item">
-              <button type="button" id="zoom-out" class="btn btn-small"><i class="icon-minus"></i></button>
-              <button type="button" id="zoom-in" class="btn btn-small"><i class="icon-plus"></i></button>
-              <button type="button" id="zoom-reset" class="btn btn-small">1:1</button>
-            </div>
-            
-            <form method="GET" class="form filter-form tb-item">
-              <div class="form-inline input-append" style="margin:0px;">
-                <input type="hidden" id="lastid" name="lastid" value="" />
-                <input class="input-low" data-provide="typeahead" id="keyword" name="keyword" placeholder="节点名称" type="text">
-                <button type="submit" data-placement="bottom" rel="tooltip"
-	                class="btn btn-small" data-original-title="搜索"><i class="icon-search"></i></button>
-              </div>
-            </form>
-            <div id="info" class="tb-item"></div>
-            <br class="clear" />
-          </div>
-         <div id="chart"></div>
+  <div class="row-fluid content">
+    <div class="span2">
+      <div id="sidebar">
+        <div id="tree">
         </div>
       </div>
     </div>
+    
+    <div class="span10">
+      <div id="panel">
+        <div id="toolbar">
+          <div id="zoom" class="btn-group tb-item">
+            <button type="button" id="zoom-out" class="btn btn-small"><i class="icon-minus"></i></button>
+            <button type="button" id="zoom-in" class="btn btn-small"><i class="icon-plus"></i></button>
+            <button type="button" id="zoom-reset" class="btn btn-small">1:1</button>
+          </div>
+          
+          <form method="GET" class="form filter-form tb-item">
+            <div class="form-inline input-append" style="margin:0px;">
+              <input type="hidden" id="lastid" name="lastid" value="" />
+              <input class="input-low" data-provide="typeahead" id="keyword" name="keyword" placeholder="节点名称" type="text">
+                <button type="submit" data-placement="bottom" rel="tooltip"
+	                class="btn btn-small" data-original-title="搜索"><i class="icon-search"></i></button>
+            </div>
+          </form>
+          <div id="info" class="tb-item"></div>
+          <br class="clear" />
+        </div>
+        <div id="tichart" class="chart"></div>
+        <div id="chart" class="chart"></div>
+      </div>
+    </div>
+  </div>
 {% endblock content %}
 

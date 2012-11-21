@@ -16,49 +16,6 @@ topoview = Blueprint('topo', __name__)
 def inject_navid():
     return dict(navid = 'topo')
 
-area_style = {
-    'shape' : 'polygon',
-    # 'sides' : 4,
-    'fixedsize' : 'true',
-    'style' : 'filled',
-    'color' : 'lightblue',
-    # 'peripheries': 2,
-    'fontsize' : '12.0'
-}
-
-node_style = {
-    'shape' : "doublecircle",
-    'fixedsize' : 'true',
-    'width' : '0.40',
-    'height' : '0.40',
-    'style' : 'filled',
-    'fontsize' : '10.0'
-}
-
-area_edge_style = {
-    'color' : 'skyblue',
-    'labelfontcolor' : '#009933',
-}
-
-node_edge_style = {
-    'labelfontcolor' : '#009933',
-    'color' : 'skyblue',
-}
-
-images = {
-    'area' : 'org_32x32.gif',
-    
-    'olt': 'olt-network_32x32.png',
-    'eoc': 'olt-network_32x32.png',
-    'onu': 'olt-network_32x32.png',
-    'dslam' : 'olt-network_32x32.png',
-    'switch': 'switch_32x32.gif',
-}
-
-node_categories = ['olt', 'onu', 'dslam', 'eoc', 'switch']
-table_template = '<<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" ALIGN="center"><TR><TD><IMG SRC="%(src)s"/></TD></TR> <TR><TD>%(name)s</TD></TR> <TR><TD>%(addr)s</TD></TR> </TABLE>>'
-
-
 @topoview.route('/topo/test')
 def test():
     import time
@@ -132,8 +89,50 @@ def test_json():
 
 
 # ==============================================================================
-#  The Past
+#  The Past: Graphviz
 # ==============================================================================
+area_style = {
+    'shape' : 'polygon',
+    # 'sides' : 4,
+    'fixedsize' : 'true',
+    'style' : 'filled',
+    'color' : 'lightblue',
+    # 'peripheries': 2,
+    'fontsize' : '12.0'
+}
+
+node_style = {
+    'shape' : "doublecircle",
+    'fixedsize' : 'true',
+    'width' : '0.40',
+    'height' : '0.40',
+    'style' : 'filled',
+    'fontsize' : '10.0'
+}
+
+area_edge_style = {
+    'color' : 'skyblue',
+    'labelfontcolor' : '#009933',
+}
+
+node_edge_style = {
+    'labelfontcolor' : '#009933',
+    'color' : 'skyblue',
+}
+
+images = {
+    'area' : 'org_32x32.gif',
+    
+    'olt': 'olt-network_32x32.png',
+    'eoc': 'olt-network_32x32.png',
+    'onu': 'olt-network_32x32.png',
+    'dslam' : 'olt-network_32x32.png',
+    'switch': 'switch_32x32.gif',
+}
+
+node_categories = ['olt', 'onu', 'dslam', 'eoc', 'switch']
+table_template = '<<TABLE CELLPADDING="0" CELLSPACING="0" BORDER="0" ALIGN="center"><TR><TD><IMG SRC="%(src)s"/></TD></TR> <TR><TD>%(name)s</TD></TR> <TR><TD>%(addr)s</TD></TR> </TABLE>>'
+
 @topoview.route('/topo/')
 def index():
     root_id = request.args.get('root_id', 1000, type=int)
