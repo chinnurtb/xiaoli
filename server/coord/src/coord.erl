@@ -10,9 +10,9 @@
 %%%----------------------------------------------------------------------
 -module(coord).
 
--author('ery.lee@gmail.com').
-
 -include("coord.hrl").
+
+-include_lib("mit/include/mit.hrl").
 
 -include_lib("elog/include/elog.hrl").
 
@@ -20,15 +20,22 @@
 
 -import(erlang, [send_after/3]).
 
--export([start_link/0, 
-        presences/0,
-        status/0]).
+-import(proplists, [get_value/2]).
+
+-export([start_link/1,
+        status/0,
+        lookup/1,
+        shards/0,
+        presences/0]).
+
+-export([dispatch/1]).
 
 -behavior(gen_server).
 
 %%callback
 -export([init/1, 
         handle_call/3, 
+        prioritise_call/3,
         handle_cast/2, 
         handle_info/2, 
         prioritise_info/2,
@@ -43,14 +50,26 @@
 %% Function: start_link() -> {ok,Pid} | ignore | {error,Error}
 %% Description: Starts the server
 %%--------------------------------------------------------------------
-start_link() ->
-    gen_server2:start_link({local, ?MODULE}, ?MODULE, [], []).
+start_link(Opts) ->
+    gen_server2:start_link({local, ?MODULE}, ?MODULE, [Opts], []).
 
 status() ->
     gen_server2:call(?MODULE, status).
 
+lookup(Dn) ->
+    gen_server2:call(?MODULE, {lookup, Dn}).
+
+shards() ->
+    gen_server2:call(?MODULE, shards).
+
 presences() ->
     gen_server2:call(?MODULE, presences).
+
+dispatch(Node) when is_record(Node, node) ->
+    gen_server2:cast(?MODULE, {dispatch, Node});
+
+dispatch(Task) when is_tuple(Task) ->
+    gen_server2:cast(?MODULE, {dispatch, Task}).
 
 %%--------------------------------------------------------------------
 %% Function: init(Args) -> {ok, State} |
@@ -59,43 +78,156 @@ presences() ->
 %%                         {stop, Reason}
 %% Description: Initiates the server
 %%--------------------------------------------------------------------
-init([]) ->
+init([_Opts]) ->
+    mnesia:create_table(shard, [
+        {ram_copies, [node()]},
+        {attributes, record_info(fields, shard)}]),
     mnesia:create_table(presence, [
-        {ram_copies, [node()]}, {index, [type]},
+        {ram_copies, [node()]}, {index, [class]},
         {attributes, record_info(fields, presence)}]),
+    mnesia:create_table(dispatch, [
+        {ram_copies, [node()]}, {index, [shard]}, 
+        {attributes, record_info(fields, dispatch)}]),
 	{ok, Conn} = amqp:connect(),
     Channel = open(Conn),
-    {noreply, State} = handle_info(ping, #state{channel = Channel}),
+    State = #state{channel = Channel},
+    handle_info(ping, State),
     ?INFO_MSG("coord is started...[ok]"),
     {ok, State}.
 
 open(Conn) ->
-	{ok, Channel} = amqp:open_channel(Conn),
-	amqp:queue(Channel,<<"host">>),
-	amqp:queue(Channel,<<"presence">>),
-	amqp:queue(Channel,<<"heartbeat">>),
-	amqp:topic(Channel,<<"sys.watch">>),
+	{ok, Ch} = amqp:open_channel(Conn),
+	{ok, Q} = amqp:queue(Ch, node()),
 
-	amqp:consume(Channel, <<"host">>),
-	amqp:consume(Channel, <<"presence">>),
-	amqp:consume(Channel, <<"heartbeat">>),
+    %mit topic
+	amqp:topic(Ch, <<"mit.event">>),
+	amqp:bind(Ch, <<"mit.event">>, Q, <<"#">>),
 
-	Channel.
+    %watch topic
+    amqp:topic(Ch, "sys.watch"),
+	amqp:bind(Ch, "sys.watch", Q, <<"host">>),
+    amqp:bind(Ch, "sys.watch", Q, <<"presence">>),
+    amqp:bind(Ch, "sys.watch", Q, <<"heartbeat">>),
+
+    %shard topic
+    amqp:topic(Ch, "sys.shard"),
+    amqp:bind(Ch, "sys.shard", Q, <<"*.shard">>),
+
+    %consume
+	amqp:consume(Ch, Q),
+	Ch.
+
+handle_call(status, _From, State) ->
+    Reply = [{dispatch, mnesia:table_info(dispatch, size)}],
+    {reply, {ok, Reply}, State};
+
+handle_call({lookup, Dn}, _From, State) ->
+    {reply, mnesia:dirty_index_read(dispatch, iolist_to_binary(Dn)), State};
+
+handle_call(shards, _From, State) ->
+    Keys = mnesia:dirty_all_keys(shard),
+    Shards = lists:flatten([mnesia:dirty_read(shard, Key) || Key <- Keys]),
+    {reply, Shards, State};
 
 handle_call(presences, _From, State) ->
     Nodes = mnesia:dirty_all_keys(presence),
-    Reply = lists:flatten([mnesia:dirty_read(presence, N) || N <- Nodes]),
-    {reply, Reply, State};
+    Presences = lists:flatten([mnesia:dirty_read(presence, N) || N <- Nodes]),
+    {reply, Presences, State};
 
-handle_call(status, _From, State) ->
-    %Reply = [{dispatch, mnesia:table_info(dispatch, size)}],
-    {reply, {ok, []}, State};
 
 handle_call(Req, _From, State) ->
     {stop, {error, {badreq, Req}}, State}.
 
+prioritise_call(status, _From, _State) ->
+    10;
+prioritise_call({dispatches, _Dn}, _From, _State) ->
+    10;
+prioritise_call({dispatch, _}, _From, _State) ->
+    10;
+prioritise_call(shards, _From, _State) ->
+    10;
+prioritise_call(_, _From, _State) ->
+    5.
+
+handle_cast({dispatch, #node{dn = Dn} = Node}, #state{channel = Ch} = State) ->
+    Payload = term_to_binary({node, Node}),
+    Timer = send_after(?TIMEOUT, self(), {timeout, {node, Dn}}),
+    case mnesia:dirty_read(dispatch, Dn) of
+    [] -> %still not be dispatched
+        ShardQueue = list_to_binary(["shard.", Node#node.city]),
+        ?INFO("dispatch node ~s to ~s ", [Dn, ShardQueue]),
+        amqp:publish(Ch, <<"sys.shard">>, Payload, ShardQueue), 
+        mnesia:dirty_write(#dispatch{dn = Dn, tref=Timer});
+    [#dispatch{shard = ShardNode, tref = TRef} = Dispatch] ->  
+        %has been dispatched
+        cancel_timer(TRef),
+        ?INFO("dispatch node ~s to ~s ", [Dn, ShardNode]),
+        amqp:send(Ch, atom_to_list(ShardNode), Payload),
+        mnesia:dirty_write(Dispatch#dispatch{tref=Timer})
+    end,
+    {noreply, State};
+
+handle_cast({dispatch, {update, Node}}, #state{channel = Ch} = State) ->
+    #node{dn=Dn, city=City} = Node,
+    Payload = term_to_binary({node, update, Node}),
+    case mnesia:dirty_read(dispatch, Dn) of
+    [] -> %still not be dispatched
+        ShardQueue= list_to_binary(["shard.", City]),
+        ?INFO("dispatch 'update ~s' to ~s", [Dn, ShardQueue]),
+        amqp:publish(Ch, <<"sys.shard">>, Payload, ShardQueue), 
+        mnesia:dirty_write(#dispatch{dn=Dn, tref=undefined}); %TODO: FIX LATER
+    [#dispatch{shard = undefined}] ->
+        %shold pending for a while
+        ?ERROR("shard is undefined for ~p", [Dn]);
+    [#dispatch{shard = ShardNode}] ->
+        ?INFO("dispatch 'update ~s' to ~s", [Dn, ShardNode]),
+        amqp:send(Ch, atom_to_list(ShardNode), Payload)
+    end,
+    {noreply, State};
+
+handle_cast({dispatch, {delete, Dn}}, #state{channel = Ch} = State) ->
+    Payload = term_to_binary({node, delete, Dn}),
+    case mnesia:dirty_read(dispatch, Dn) of
+    [] ->
+        ignore;
+    [#dispatch{shard = undefined}] ->
+        ignore;
+    [#dispatch{shard = Shard}] ->
+        ?INFO("dispatch 'delete ~s' to ~s", [Dn, Shard]),
+        amqp:send(Ch, atom_to_list(Shard), Payload)
+    end,
+    mnesia:dirty_delete(dispatch, Dn),
+    {noreply, State};
+
 handle_cast(Msg, State) ->
     {stop, {error, {badmsg, Msg}}, State}.
+
+handle_info({deliver, <<"mit.deleted">>, _Props, Payload}, State) ->
+    case binary_to_term(Payload) of
+	Node when is_record(Node, node) ->
+        dispatch({delete, Node});
+    BadTerm ->
+		?ERROR("badterm: ~p", [BadTerm])
+    end,
+    {noreply, State};
+
+handle_info({deliver, <<"mit.inserted">>, _Props, Payload}, State) ->
+    case binary_to_term(Payload) of
+	Node when is_record(Node, node) -> 
+        dispatch(Node);
+	BadTerm ->
+		?ERROR("badterm: ~p", [BadTerm])
+	end,
+    {noreply, State};
+
+handle_info({deliver, <<"mit.updated">>, _Props, Payload}, State) ->
+    case binary_to_term(Payload) of
+	Node when is_record(Node, node) -> 
+        dispatch({update, Node});
+	BadTerm ->
+		?ERROR("badterm: ~p", [BadTerm])
+	end,
+    {noreply, State};
 
 handle_info(ping, #state{channel = Channel} = State) ->
 	amqp:publish(Channel, <<"sys.watch">>, <<"ping">>, <<"ping">>),
@@ -123,8 +255,8 @@ handle_info({deliver, <<"host">>, _, Payload}, State) ->
 
 handle_info({deliver, <<"presence">>, _, Payload}, State) ->
     case binary_to_term(Payload) of
-	{Node, Type, Status, Vsn, Summary} ->
-		handle_presence({Node, Type, Status, Summary}),
+	{Node, Class, Status, Vsn, Summary} ->
+		handle_presence({Node, Class, Status, Summary}),
         case mnesia:dirty_read(presence, Node) of
         [Presence] ->
             cancel_timer(Presence#presence.tref);
@@ -132,7 +264,7 @@ handle_info({deliver, <<"presence">>, _, Payload}, State) ->
             ok
         end,
         Tref = send_after(?TIMEOUT, self(), {offline, Node}),
-        mnesia:dirty_write(#presence{node = Node, type = Type, 
+        mnesia:dirty_write(#presence{node = Node, class = Class, 
             status = Status, vsn = Vsn, summary = Summary, tref = Tref});
 	Term ->
 		?ERROR("error presence: ~p", [Term])
@@ -157,11 +289,40 @@ handle_info({deliver, <<"heartbeat">>, _, Payload}, State) ->
     end,
 	{noreply, State};
 
+handle_info({deliver, <<"join.shard">>, _, Payload}, State) ->
+    case binary_to_term(Payload) of
+    {Node, Queue} ->
+        mnesia:dirty_write(#shard{node=Node, queue=Queue, count=0});
+    Term ->
+        ?ERROR("error shard: ~p", [Term])
+    end,
+    {noreply, State};
+
+handle_info({deliver, <<"reply.shard">>, _, Payload}, State) ->
+    case binary_to_term(Payload) of
+    {managed, Dn, NewShard} ->
+        case mnesia:dirty_read(dispatch, Dn) of
+        [#dispatch{shard = OldShard} = Dispatch] ->
+            if 
+            OldShard == undefined -> ok;
+            OldShard == NewShard -> ok;
+            true -> ?ERROR("tow shard for one dn: ~s~noldshard: ~s, newshard: ~s", [Dn, OldShard, NewShard])
+            end,
+            cancel_timer(Dispatch#dispatch.tref),
+            mnesia:dirty_write(Dispatch#dispatch{shard = NewShard, tref = undefined}); 
+        [] -> 
+            ?ERROR("bad_shard_reply for ~s", [Dn])
+        end;
+    Term ->
+        ?ERROR("uknown term: ~p", [Term])
+    end,
+    {noreply, State};
+
 handle_info({offline, Node}, State) ->
     ?ERROR("~s is offline", [Node]),
     case mnesia:dirty_read(presence, Node) of
     [Presence] ->
-        coord_dist:offline(Presence),
+
         handle_offline(Presence);
     [] ->
         ok
@@ -176,6 +337,11 @@ handle_info({amqp, disconnected}, State) ->
 handle_info({amqp, reconnected, Conn}, State) ->
 	?INFO("amqp is reconnected...", []),
 	{noreply, State#state{channel = open(Conn)}};
+
+handle_info({timeout, {node, Dn}}, State) ->
+    ?ERROR("dispatch timeout: ~s", [Dn]),
+    mnesia:dirty_delete(dispatch, Dn),
+    {noreply, State};
 
 handle_info(Info, State) ->
     {stop, {error, {badinfo, Info}}, State}.
@@ -212,9 +378,13 @@ handle_presence({Node, node, available, _Summary}) ->
 handle_presence(_) ->
 	ignore.
 
-handle_offline(#presence{node = Node, type = node}) ->
+handle_offline(#presence{node = Node, class = node}) ->
     DateTime = {datetime, date(), time()},
-    epgsql:update(main, servers, [{presence, 0}, {updated_at, DateTime}], {jid, Node});
+    epgsql:update(main, servers, [{presence, 0}, {updated_at, DateTime}], {jid, Node}),
+    Dispatches = mnesia:dirty_index_read(dispatch, Node, #dispatch.shard),
+    [mnesia:dirty_delete(dispatch, D#dispatch.dn) || D <- Dispatches],
+	?ERROR("shard offline: ~p", [Node]),
+    mnesia:dirty_delete(shard, Node);
 
 handle_offline(_Presence) ->
     ignore.

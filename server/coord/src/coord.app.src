@@ -5,8 +5,7 @@
     coord_app,
     coord_sup,
     coord_ctl,
-    coord_db,
-    coord_dist
+    coord_db
   ]},
   {registered, [coord,
     coord_db,

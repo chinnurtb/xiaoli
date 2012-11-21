@@ -37,7 +37,7 @@ run(City) ->
 			case should_dispath(City, Node) of
 			true -> 
 				increas(dispatched, 1),
-				coord_dist:dispatch(Node),
+				coord:dispatch(Node),
                 timer:sleep(2),
 				case get(dispatched) rem 1000 of
 				0 -> ?INFO("~p entries dispatched.", [get(dispatched)]);

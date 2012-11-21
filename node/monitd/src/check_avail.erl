@@ -63,7 +63,7 @@ run(_, Args) ->
 								{ping_summary, PingSummary},
 								{snmp_status, snmp_status(SnmpStatus)},
 								{snmp_summary, SnmpSummary}]},
-    Metric = #metric{name = 'opengoss.ping', 
+    Metric = #metric{name = 'ping', 
 					 from = Ip, 
 					 dn = Dn, 
 					 timestamp = Ts, 

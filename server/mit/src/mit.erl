@@ -44,27 +44,6 @@
 
 -record(state, {}).
 
--define(AREA_SQL, 
-    "select t.id, t.rdn, t.name, t.alias, t.area_type as type, "
-    "t2.rdn as parent "
-    "from areas t "
-    "left join areas t2 on t.parent_id = t2.id;").
-
--define(NODE_SQL, 
-    "select t.id, t.rdn, t.name, t.alias, t.addr as ip, t.area_id, "
-    "t1.name as category, "
-    "t2.name as vendor, "
-    "t3.name as model, "
-    "t4.rdn as area, "
-    "t4.cityid, "
-    "t5.name as city "
-    "from nodes t "
-    "left join categories t1 on t1.id = t.category_id "
-    "left join vendors t2 on t2.id = t.vendor_id "
-    "left join models t3 on t3.id = t.model_id "
-    "left join areas t4 on t4.id = t.area_id "
-    "left join areas t5 on t5.id = t4.cityid;").
-
 start_link() ->
     gen_server2:start_link({local, ?MODULE}, ?MODULE, [], []).
 
@@ -80,17 +59,17 @@ info() ->
 alldn() ->
 	mnesia:dirty_all_keys(node).
 
-lookup(Rdn) when is_binary(Rdn) or is_list(Rdn) ->
-    case mnesia:dirty_read(node, iolist_to_binary(Rdn)) of
+lookup(Dn) when is_binary(Dn) or is_list(Dn) ->
+    case mnesia:dirty_read(node, iolist_to_binary(Dn)) of
     [Node] -> {ok, Node};
-    [] -> {false, Rdn}
+    [] -> {false, Dn}
     end;
 
 lookup({id, Id}) when is_integer(Id) ->
 	index_lookup(Id, #node.id);
 
 lookup({ip, Ip}) when is_binary(Ip) or is_list(Ip) ->
-    index_lookup(Ip, #node.ip).
+    index_lookup(iolist_to_binary(Ip), #node.ip).
 
 index_lookup(Idx, Pos) ->
     case mnesia:dirty_index_read(node, Idx, Pos) of
@@ -104,10 +83,10 @@ index_lookup(Idx, Pos) ->
     end.
 
 children(ParentDn) when is_list(ParentDn) or is_binary(ParentDn) ->
-	mnesia:dirty_index_read(node, ParentDn, #node.parent).
+	mnesia:dirty_index_read(node, iolist_to_binary(ParentDn), #node.parent).
 
-delete(Rdn) ->
-	gen_server2:cast(?MODULE, {delete, Rdn}).
+delete(Dn) ->
+	gen_server2:cast(?MODULE, {delete, Dn}).
 
 update(Node) when is_record(Node, node) ->
     gen_server2:cast(?MODULE, {update, Node}).
@@ -127,10 +106,10 @@ init([]) ->
     master -> %master node
         %clear mit queue
 		epgqueue:clear(mit),
-        create_mit_areas(),
-        create_mit_nodes(),
-        load_mit_areas(),
-        load_mit_nodes(),
+        create_areas(),
+        create_nodes(),
+        load_areas(),
+        load_nodes(),
         epgqueue:subscribe(mit, self());
     slave -> %slave node
         ok
@@ -143,46 +122,25 @@ init([]) ->
 copy_table(Table) ->
     mnesia:add_table_copy(Table, node(), ram_copies).
 
-create_mit_areas() ->
+create_areas() ->
     mnesia:create_table(area, [
         {ram_copies, [node()]}, 
         {index, [id, parent]}, 
         {attributes, record_info(fields, area)}]).
 
-load_mit_areas() ->
-    {ok, Areas} = epgsql:squery(main, ?AREA_SQL),
-    lists:foreach(fun(A) -> 
-        mnesia:dirty_write(#area{
-            rdn = get_value(rdn, A),
-            id = get_value(id, A),
-            cityid = get_value(cityid, A),
-            parent = get_value(parent, A),
-            name = get_value(name, A),
-            alias = get_value(alias, A),
-            type = get_value(type, A)})
-    end, Areas).
+load_areas() ->
+    {ok, Areas} = mit_dao:all_areas(),
+    [mnesia:dirty_write(A) || A <- Areas].
 
-create_mit_nodes() ->
+create_nodes() ->
     mnesia:create_table(node, [
         {ram_copies, [node()]}, 
         {index, [id, ip]},
         {attributes, record_info(fields, node)}]).
 
-load_mit_nodes() ->
-    {ok, Nodes} = epgsql:squery(main, ?NODE_SQL),
-    lists:foreach(fun(N) -> 
-        mnesia:dirty_write(node, #node{
-            rdn = get_value(rdn, N),
-            id = get_value(id, N),
-            ip = get_value(ip, N),
-            cat = get_value(category, N),
-            parent = get_value(parent, N),
-            city = get_value(city, N),
-            cityid = get_value(cityid, N),
-            name = get_value(name, N),
-            alias = get_value(alias, N),
-            attrs = N})
-    end, Nodes).
+load_nodes() ->
+    {ok, Nodes} = mit_dao:all_nodes(),
+    [mnesia:dirty_write(N) || N <- Nodes].
 
 %%--------------------------------------------------------------------
 %% Function: %% handle_call(Request, From, State) -> {reply, Reply, State} |
@@ -194,8 +152,8 @@ load_mit_nodes() ->
 %% Description: Handling call messages
 %%--------------------------------------------------------------------
 handle_call(info, _From, State) ->
-    Reply = [mnesia:table_info(node, all),
-             mnesia:table_info(area, all)],
+    Reply = [{nodes, mnesia:table_info(node, size)},
+             {areas, mnesia:table_info(area, size)}],
 	{reply, Reply, State};
 
 handle_call(Req, _From, State) ->
@@ -207,24 +165,20 @@ handle_call(Req, _From, State) ->
 %%                                      {stop, Reason, State}
 %% Description: Handling cast messages
 %%--------------------------------------------------------------------
-handle_cast({insert, #node{rdn = Dn, ip = Ip} = Node}, State) ->
-	mnesia:dirty_write(Node),
-	mit_event:notify({inserted, Dn, Node}),
+handle_cast({insert, Node}, State) ->
+    insert_node(Node),
 	{noreply, State};
 
-handle_cast({update, #node{rdn = Dn, ip = Ip} = Node}, State) ->
-	mnesia:dirty_write(Node),
-	mit_event:notify({updated, Dn, Node}),
+handle_cast({update, Node}, State) ->
+    update_node(Node),
 	{noreply, State};
 
 handle_cast({delete, Dn}, State) ->
-	mnesia:dirty_delete(node, Dn),
-	mit_event:notify({deleted, Dn}),
+    delete_node(Dn),
 	{noreply, State};
 
 handle_cast(Msg, State) ->
     {stop, {badmsg, Msg}, State}.
-
 
 %%--------------------------------------------------------------------
 %% Function: handle_info(Info, State) -> {noreply, State} |
@@ -232,16 +186,28 @@ handle_cast(Msg, State) ->
 %%                                       {stop, Reason, State}
 %% Description: Handling all non call/cast messages
 %%--------------------------------------------------------------------
-handle_info(#pgqevent{name = <<"mit.inserted">>, data=Event}, State) ->
-    ?INFO("mit inserted: ~p", [Event]),
+handle_info(#pgqevent{name = <<"node.inserted">>, data=Dn}, State) ->
+    ?INFO("node inserted: ~s", [Dn]),
+    case mit_dao:one_node(Dn) of
+    {ok, Node} ->
+        insert_node(Node);
+    {error, Err} ->
+        ?ERROR("~p", [Err])
+    end,
     {noreply, State};
 
-handle_info(#pgqevent{name = <<"mit.updated">>, data=Event}, State) ->
-    ?INFO("mit updated: ~p", [Event]),
+handle_info(#pgqevent{name = <<"node.updated">>, data=Dn}, State) ->
+    ?INFO("node updated: ~s", [Dn]),
+    case mit_dao:one_node(Dn) of
+    {ok, Node} ->
+        update_node(Node);
+    {error, Err} ->
+        ?ERROR("~p", [Err])
+    end,
     {noreply, State};
 
-handle_info(#pgqevent{name = <<"mit.deleted">>, data=Event}, State) ->
-    %spawn(fun() -> on_mit_changes(Changes) end),
+handle_info(#pgqevent{name = <<"node.deleted">>, data=Dn}, State) ->
+    delete_node(Dn),
     {noreply, State};
 
 handle_info(Info, State) ->
@@ -253,77 +219,19 @@ terminate(_Reason, _State) ->
 code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
 
-on_mit_changes(Changes) ->
-	Fun = fun(Change) -> 
-        Dn = get_value(dn, Change),
-        Oper = get_value(oper_type, Change),
-		?INFO("~s is ~s", [Dn, opertext(Oper)]),
-		try on_mit_change(Oper, Dn, Change)
-		catch _:Err -> 
-			?ERROR("on_mit_change error: ~p~n~p", [Err, Change])
-		end
-    end,
-    lists:foreach(Fun, Changes).
+insert_node(Node) ->
+	mnesia:dirty_write(Node),
+	mit_event:notify(inserted, Node).
 
-on_mit_change(_, undefined, Change) ->
-    ?ERROR("dn is undefined: ~p.", [Change]);
+update_node(Node) ->
+	mnesia:dirty_write(Node),
+	mit_event:notify(updated, Node).
 
-on_mit_change(?MIT_ADDED, Dn, Change) -> 
-    DeviceType = get_value(device_type, Change),
-    Entry = find_entry(DeviceType, Dn),
-	insert(Entry);
-
-on_mit_change(?MIT_UPDATED, Dn, Change) ->
-    DeviceType = get_value(device_type, Change),
-    Entry = find_entry(DeviceType, Dn),
-	update(Entry);
-
-on_mit_change(?MIT_DELETED, Dn, _Change) ->
-    case lookup(Dn) of
-	{ok, _Entry} ->
-		delete(Dn);
-    {false, _} ->
-		?ERROR("cannot find ~s to delete.", [Dn])
-    end;
-
-on_mit_change(?MIT_MOVED, Dn, Change) ->
-    OldDn = get_value(old_dn, Change),
-	?ERROR("mit change moved: olddn = ~s, dn = ~s", [OldDn, Dn]),
-    DeviceType = get_value(device_type, Change),
-    Entry = find_entry(DeviceType, Dn),
-	delete(OldDn),
-	insert(Entry);
-
-on_mit_change(Oper, Dn, _Change) ->
-    ?ERROR("badoper: ~p ~p", [Oper, Dn]).
-
-find_entry(1, Dn) ->
-	case mit_ap:read({dn, Dn}) of
-	{ok, [Record]} -> 
-		mit_ap:entry(Record);
-	{error, Reason} ->
-		throw({error, Reason})
-	end;
-
-find_entry(2, Dn) ->
-	case mit_sw:read({dn, Dn}) of
-	{ok, [Record]} ->
-		mit_sw:entry(Record);
-	{error, Reason} ->
-		throw({error, Reason})
-	end;
-
-find_entry(3, Dn) ->
-	case mit_ac:read({dn, Dn}) of
-	{ok, [Record]} -> 
-		mit_ac:entry(Record);
-	{error, Reason} ->
-		throw({error, Reason})
-	end.
-
-
-opertext(1) -> "added.";
-opertext(2) -> "deleted.";
-opertext(3) -> "updated.";
-opertext(4) -> "moved";
-opertext(_) -> "badoper".
+delete_node(Dn) ->
+    case mnesia:dirty_read(node, Dn) of
+    [Node] -> 
+        mnesia:dirty_delete(node, Dn),
+        mit_event:notify(deleted, Node);
+    _ ->
+        ignore
+    end.
