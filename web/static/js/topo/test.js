@@ -28,12 +28,12 @@ $(function(){
         if ($('#lastid').val()){
           d3.select($('#lastid').val()).style("font-weight", "normal");
         }
-        d3.select('#'+id).style("font-weight", "bold");
+        d3.select('#chart ' + ' #'+id).style("font-weight", "bold");
         $('#lastid').val('#'+id);
 
         var scale = zoomTime + 2.0;
         var extra = getExtraWidth();
-        var d = d3.select('#'+ id).data()[0];
+        var d = d3.select('#chart '+ ' #'+ id).data()[0];
         var px = d.x * Math.PI /180;
         var x = extra - Math.sin(px) * d.y * scale;
         var y = Math.cos(px) * d.y * scale;
@@ -66,21 +66,6 @@ $(function(){
       //console.log("transform", "translate("+ x +","+ y +")scale(" + k + ")");
       return "transform", "translate("+ x +","+ y +")scale(" + k + ")";
     }
-  }
-  
-  function checkNodes(){
-    d3.selectAll('g.node').style("opacity", 0.2);
-    var $targetNode = $('#chart g.node:contains('+ keyword +')');
-    //console.log($targetNode);
-    $targetNode.each(function(){
-      if($(this).text().trim() == keyword.trim()){
-        //console.log($(this));
-        var id = $(this).attr('id');
-        d3.select('#'+ id).style("opacity", 1);
-        var d = d3.select('#'+ id).data()[0];
-        //console.log(d.x, d.y);
-      }
-    });
   }
 
   function reColorNodes(scale){
@@ -249,13 +234,16 @@ $(function(){
     }
 
     // Toggle children on click.
+    var isOpen;
     function click(d) {
       if (d.children) {
         d._children = d.children;
         d.children = null;
+        isOpen = false;
       } else {
         d.children = d._children;
         d._children = null;
+        isOpen = true;
       }
 
       // Compute new tree height
@@ -272,7 +260,7 @@ $(function(){
       update(d);
 
       // Make request path
-      if (d.children || d._children){
+      if (isOpen && (d.children || d._children)){
         var cur = d;
         var ids = [cur.id];
         while(cur.parent){
