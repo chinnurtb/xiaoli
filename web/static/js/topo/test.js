@@ -107,7 +107,7 @@ $(function(){
 
   // Sidebar
   function makeSidebar(){
-    var w = 190,
+    var w = 192,
     h = 620,
     i = 0,
     barHeight = 20,
@@ -234,33 +234,36 @@ $(function(){
     }
 
     // Toggle children on click.
-    var isOpen;
     function click(d) {
+      var isRefresh;
+      
       if (d.children) {
         d._children = d.children;
         d.children = null;
-        isOpen = false;
+        isRefresh = false;
       } else {
         d.children = d._children;
         d._children = null;
-        isOpen = true;
+        isRefresh = true;
       }
+      isRefresh = d.level == 0 ? tree : isRefresh;
 
       // Compute new tree height
-      var level = 1 + root.children.length;
+      var children = root.children ? root.children : root._children;
+      var level = 1 + children.length;
       function countLevel(d){
         if (d.children) {
           level += d.children.length;
           d.children.forEach(countLevel);
         }
       }
-      root.children.forEach(countLevel);
+      children.forEach(countLevel);
       h = level * barHeight + 20;
       
       update(d);
 
       // Make request path
-      if (isOpen && (d.children || d._children)){
+      if (isRefresh && (d.children || d._children)){
         var cur = d;
         var ids = [cur.id];
         while(cur.parent){
