@@ -68,9 +68,10 @@
 }
 
 #tree svg{
-    width: 192px;
+    width: 172px;
     overflow-y: auto;
     fill: #D5D5D5;
+    padding: 10px;
 }
 
 #tree .node rect {
