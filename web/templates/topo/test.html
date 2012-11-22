@@ -26,13 +26,13 @@
     <div class="span10">
       <div id="panel">
         <div id="toolbar">
-          <div id="zoom" class="btn-group tb-item">
+          <div id="zoom" class="btn-group toolbar-item">
             <button type="button" id="zoom-out" class="btn btn-small"><i class="icon-minus"></i></button>
             <button type="button" id="zoom-in" class="btn btn-small"><i class="icon-plus"></i></button>
             <button type="button" id="zoom-reset" class="btn btn-small">1:1</button>
           </div>
           
-          <form method="GET" class="form filter-form tb-item">
+          <form method="GET" class="form filter-form toolbar-item">
             <div class="form-inline input-append" style="margin:0px;">
               <input type="hidden" id="lastid" name="lastid" value="" />
               <input class="input-low" data-provide="typeahead" id="keyword" name="keyword" placeholder="节点名称" type="text">
@@ -40,7 +40,13 @@
 	                class="btn btn-small" data-original-title="搜索"><i class="icon-search"></i></button>
             </div>
           </form>
-          <div id="info" class="tb-item"></div>
+          <div id="layout", class="toolbar-item">
+            <select class="auto-width input-low">
+              <option value="">更换布局类型</option>
+              <option value="circle">环型(默认)</option>
+              <option value="interactive">树型</option>
+            </select>
+          </div>
           <br class="clear" />
         </div>
         <div id="tichart" class="chart"></div>

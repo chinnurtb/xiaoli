@@ -12,7 +12,7 @@
     border-bottom: 1px solid #D5D5D5;
 }
 
-.tb-item {
+.toolbar-item {
     float: left;
     margin-left: 8px;
     padding-right: 8px;
@@ -21,10 +21,9 @@
 
 #zoom {
 }
-
 .chart {
-    margin-bottom: 3px;
-    border-bottom: 1px solid #D5D5D5;
+    height: 600px;
+    margin-bottom: 0px;
 }
 
 .chart svg {
@@ -56,22 +55,9 @@
     stroke-width: 1.5px;
 }
 
-
-/* Tree chart */
-#tchart {
-    overflow: auto;
-    height: 600px;
-}
-
-#tchart svg{
-    overflow: auto;
-    fill: #FFF;
-}
-
 /* Tree interactive chart */
 #tichart {
     overflow: auto;
-    height: 600px;
 }
 
 #tichart svg{

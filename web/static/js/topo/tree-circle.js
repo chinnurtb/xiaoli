@@ -73,11 +73,13 @@ function loadCircleTree(sid, path) {
       .attr("text-anchor", function(d) { return d.x < 180 ? "start" : "end"; })
       .attr("transform", function(d) { return d.x < 180 ? "translate(8)" : "rotate(180)translate(-8)"; })
       .text(function(d) { return d.name; });
-    
+
+    initZoomButtons(sid);
+    initTypeahead(sid);
     $('#zoom-reset').click();
+    console.log('Load circle tree completed!');
+    console.log('-----------------------------------------');
   });
-  
-  console.log('Load circle tree completed!');
 }
 
 

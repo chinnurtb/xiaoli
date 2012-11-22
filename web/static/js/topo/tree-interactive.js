@@ -4,9 +4,12 @@ function loadInteractiveTree(sid, path){
   width = $(sid).width() - margin.right - margin.left,
   height = 600 - margin.top - margin.bottom,
   i = 0, nodeCount, 
-  duration = 500,
+  duration = 250,
   root;
-
+  
+  var tree = d3.layout.tree();
+  var diagonal = d3.svg.diagonal()
+    .projection(function(d) { return [d.y, d.x]; });
 
   d3.json("/topo/test.json?path="+path+"&na=6&nb=10&nc=6", function(json) {
     root = json;
@@ -23,23 +26,20 @@ function loadInteractiveTree(sid, path){
 
     root.children.forEach(collapse);
     update(root);
+    console.log('Load interactive tree completed!');
+    console.log('-----------------------------------------------')
   });
 
   function update(source) {
     $(sid).html('');
     
-    var tree = d3.layout.tree()
-      .size([height, width]);
-
-    var diagonal = d3.svg.diagonal()
-      .projection(function(d) { return [d.y, d.x]; });
+    tree.size([height, width]);
 
     var vis = d3.select(sid).append("svg")
       .attr("width", width + margin.right + margin.left - 18)
-      .attr("height", height + margin.top + margin.bottom - 18)
+      .attr("height", height + margin.top + margin.bottom)
       .append("g")
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-    // vis.attr("width", $(sid).width() - 18);
 
     // Compute the new tree layout.
     var nodes = tree.nodes(root).reverse();
@@ -138,11 +138,7 @@ function loadInteractiveTree(sid, path){
     
     nodeCount = countNodes(root);
     console.log("nodeCount:", nodeCount);
-    if (nodeCount > 30) {
-      height = nodeCount * 15;
-    }
+    height = nodeCount > 36 ? nodeCount * 15 : 600 - margin.top - margin.bottom;
     update(d);
   }
-  
-  console.log('Load interactive tree completed!');
 }
