@@ -22,6 +22,14 @@ def test():
     time.sleep(1)
     return render_template('topo/test.html')
 
+@topoview.route('/topo/test2')
+def test2():
+    return render_template('topo/test2.html')
+
+@topoview.route('/topo/olts.json', methods=['GET', 'POST'])
+def olts_json():
+    return json.dumps({'children':[data,data]})
+
 @topoview.route('/topo/test.json', methods=['GET', 'POST'])
 def test_json():
     # 1. 缩放 DONE
@@ -85,7 +93,7 @@ def test_json():
                 data['maxlevel'] = 1;
             data['children'].append(A)
             
-    return json.dumps(data)
+    return json.dumps({'children':[data,data]})
 
 
 # ==============================================================================
