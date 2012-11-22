@@ -148,33 +148,30 @@ function loadDirectoryTree(sid) {
 
   // Toggle children on click.
   function click(d) {
-    var isRefresh;
-
     if (d.children) {
       d._children = d.children;
       d.children = null;
-      isRefresh = false;
     } else {
       d.children = d._children;
       d._children = null;
-      isRefresh = true;
     }
-    isRefresh = d.level == 0 ? tree : isRefresh;
 
-    // Compute new tree height
-    h = (2 + countNodes(root)) * barHeight;
-    update(d);
-
-    // Make request path
-    if (isRefresh && (d.children || d._children)) {
-      var cur = d;
-      var ids = [cur.id];
-      while (cur.parent) {
-        cur = cur.parent;
-        ids.push(cur.id);
+    if (d.children || d._children){
+      // Compute new tree height
+      h = (2 + countNodes(root)) * barHeight;
+      update(d);
+      
+      // Make request path
+      if (d.level == 0 || d.children) {
+        var cur = d;
+        var ids = [cur.id];
+        while (cur.parent) {
+          cur = cur.parent;
+          ids.push(cur.id);
+        }
+        chartPath = ids.join(',');
+        updateChart(chartId, chartPath);
       }
-      chartPath = ids.join(',');
-      updateChart(chartId, chartPath);
     }
   }
 
