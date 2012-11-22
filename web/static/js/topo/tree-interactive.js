@@ -5,10 +5,11 @@ function loadInteractiveTree(sid, path){
   var margin = {top: 20, right: 80, bottom: 20, left: 80},
   width = $(sid).width() - margin.right - margin.left,
   height = 600 - margin.top - margin.bottom - 5,
-  i = 0, nodeCount, 
+  i = 0,
   duration = 250,
   root;
-  
+
+  var vis;
   var tree = d3.layout.tree();
   var diagonal = d3.svg.diagonal()
     .projection(function(d) { return [d.y, d.x]; });
@@ -40,17 +41,8 @@ function loadInteractiveTree(sid, path){
     console.log('-----------------------------------------------')
   });
 
-  function update(source) {
-    $(sid).html('');
-    
-    tree.size([height, width]);
-
-    var vis = d3.select(sid).append("svg")
-      .attr("width", width + margin.right + margin.left - 18)
-      .attr("height", height + margin.top + margin.bottom)
-      .append("g")
-      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
+  
+  function innerUpdate(source) {
     // Compute the new tree layout.
     var nodes = tree.nodes(root).reverse();
 
@@ -134,7 +126,22 @@ function loadInteractiveTree(sid, path){
       d.y0 = d.y;
     });
   }
+  
+  function update(source) {
+    $(sid).html('');
+    
+    tree.size([height, width]);
 
+    vis = d3.select(sid).append("svg")
+      .attr("width", width + margin.right + margin.left - 18)
+      .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    
+    innerUpdate(source);
+  }
+  
+  
   // Toggle children on click.
   function click(d) {
     if (d.children) {
@@ -144,10 +151,17 @@ function loadInteractiveTree(sid, path){
       d.children = d._children;
       d._children = null;
     }
-    
-    nodeCount = countNodes(root);
-    console.log("nodeCount:", nodeCount);
-    height = nodeCount > 32 ? nodeCount * 20 : 600 - margin.top - margin.bottom;
-    update(d);
+
+    if (d.children || d._children){
+      var nodeCount = countNodes(root);
+      console.log("nodeCount:", nodeCount);
+      
+      if (d._children) {
+        innerUpdate(d);
+      } else {
+        height = nodeCount > 32 ? nodeCount * 20 : 600 - margin.top - margin.bottom;
+        update(d);
+      }
+    }
   }
 }

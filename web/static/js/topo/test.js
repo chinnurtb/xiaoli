@@ -18,7 +18,7 @@ $(function(){
   
   $('#layout select').change(function(){
     var selected = $(this).find(':selected').val();
-    selected = !selected ? 'interactive' : selected;
+    selected = !selected ? 'circle' : selected;
     $('.chart').html('').hide();
 
     var chart = charts[selected];
