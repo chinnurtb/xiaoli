@@ -1,24 +1,38 @@
 
 $(function(){
-  var sid = '#chart';
-  var path = 'olt-0';
+
+  var charts = {
+    circle : {
+      sid : '#chart',
+      updater : loadCircleTree,
+    },
+    flow : {
+      sid : '#tfchart',
+      updater : loadFlowTree,
+    },
+    interactive : {
+      sid : '#tichart',
+      updater : loadInteractiveTree,
+    }
+  };
   
   $('#layout select').change(function(){
     var selected = $(this).find(':selected').val();
+    selected = !selected ? 'interactive' : selected;
     $('.chart').html('').hide();
-    
-    if (!selected || selected == 'circle'){
-      sid = '#chart';
-      $(sid).show();
-      loadCircleTree(sid, path);
-    } else if (selected == 'interactive'){
-      sid = '#tichart';
-      $(sid).show();
-      loadInteractiveTree(sid, path);
+
+    var chart = charts[selected];
+    if(chart) {
+      chartId = chart.sid;
+      $(chartId).show();
+      updateChart = chart.updater;
+      updateChart(chartId, chartPath);
     } else {
-      console.error('Unexcepted layout');
+      console.error('Unexcepted layout!');
     }
+    console.log('===================Layout Changed=====================');
   });
 
   $('#layout select').change();
+  loadDirectoryTree('#tree');
 });

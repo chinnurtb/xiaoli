@@ -1,4 +1,6 @@
 
+var lastId; // Last Search (d.id)
+
 var vis;
 var nodeCount;
 var zoomObj;
@@ -6,13 +8,15 @@ var zoomTime = 1.0;
 var radius = 600/2;
 
 function loadCircleTree(sid, path) {
+  console.info("sid:", sid, ", path:", path);
+  
   d3.json("/topo/test.json?path="+path+"&na=6&nb=10&nc=6", function(json) {
     $(sid).html('');
-    $('#lastid').val('');
+    lastId = '';
     $('#keyword').val('');
     
     nodeCount = countNodes(json);
-    zoomTime = nodeCount * 3 / 400;
+    zoomTime = nodeCount * 3 / 200;
     zoomTime = zoomTime < 1.0 ? 1.0 : zoomTime;
     //zoomTime = 3.0;
 
@@ -60,13 +64,13 @@ function loadCircleTree(sid, path) {
 
     var node = vis.selectAll("g.node")
       .data(nodes)
-      .enter().append("g")
+      .enter().append("svg:g")
       .attr("id", function(d){ return d.id })
       .attr("class", "node")
       .style("opacity", function(d){ return d.level < 3 ? 1 : 0.4})
       .attr("transform", function(d) { return "rotate(" + (d.x - 90) + ")translate(" + d.y + ")"; });
     
-    renderNodes(sid, node);
+    renderNodes(sid, node, false);
     
     node.append("text")
       .attr("dy", ".31em")
@@ -109,16 +113,16 @@ function syncZoom(x, y, scale, action){
   reColorNodes(scale);
 }
 
-function focus(sid){
+function focus(sid, keyword){
   var $targetNode = $(sid + ' g.node:contains('+ keyword +')');
   $targetNode.each(function(){
     if($(this).text().trim() == keyword.trim()){
       var id = $(this).attr('id');
-      if ($('#lastid').val()){
-        d3.select($('#lastid').val()).style("font-weight", "normal");
+      if (lastId){
+        d3.select(lastId).style("font-weight", "normal");
       }
       d3.select(sid + ' #'+id).style("font-weight", "bold");
-      $('#lastid').val('#'+id);
+      lastId = '#'+id;
 
       var scale = zoomTime + 2.0;
       var extra = getExtraWidth(sid);
@@ -138,39 +142,19 @@ function focus(sid){
   });
 }
 
-function renderNodes(sid, node) {
-  // 1. xlink, 2. image, 3. circle, 4. menu
-  node.append("a")
-    .attr("xlink:href", function(d){return d.url;});
-
-  node.append("svg:image")
-    .attr("xlink:href", function(d){return "http://ww2.sinaimg.cn/large/412e82dbjw1dsbny7igx2j.jpg";})
-    .attr("x", "-10px")
-    .attr("y", "-7px")
-    .attr("width", "20px")
-    .attr("height", "20px");
-  
-  node.append("circle")
-    .style("fill", function(d) { return d.status == 0 ? "red" : "green"})
-    .attr("r", 4.5)
-    .style("opacity", 0.5);
-  
-  addMenus(sid);
-}
-
 function initTypeahead(sid) {
   $('#toolbar form').submit(function(){
-    keyword = $('#keyword').val();
+    var keyword = $('#keyword').val();
     if(keyword){
-      focus(sid);
+      focus(sid, keyword);
     }
     return false;
   });
 
   $('#keyword').typeahead({
     source: function(){
-      var nodeNames = [],
-      keyword = $('#keyword').val();
+      var nodeNames = [];
+      var keyword = $('#keyword').val();
       var $targetNode = $(sid + ' g.node:contains('+ keyword +')');
       $targetNode.each(function(){
         nodeNames.push($(this).text());
@@ -182,6 +166,7 @@ function initTypeahead(sid) {
     }
   });
   console.log('Init typeahead completed!');
+  console.log('-----------------------------------------------')
 }
 
 
@@ -217,4 +202,5 @@ function initZoomButtons(sid){
   });
   
   console.log('Init zoom buttons completed!');
+  console.log('-----------------------------------------------')
 }

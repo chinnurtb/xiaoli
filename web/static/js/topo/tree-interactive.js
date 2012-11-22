@@ -1,8 +1,10 @@
 
 function loadInteractiveTree(sid, path){
+  console.info("sid:", sid, ", path:", path);
+  
   var margin = {top: 20, right: 80, bottom: 20, left: 80},
   width = $(sid).width() - margin.right - margin.left,
-  height = 600 - margin.top - margin.bottom,
+  height = 600 - margin.top - margin.bottom - 5,
   i = 0, nodeCount, 
   duration = 250,
   root;
@@ -16,16 +18,24 @@ function loadInteractiveTree(sid, path){
     root.x0 = height / 2;
     root.y0 = 0;
 
+    var opened = false;
     function collapse(d) {
       if (d.children) {
-        d._children = d.children;
-        d._children.forEach(collapse);
-        d.children = null;
+        if (d.children.length == 1 || !opened) {
+          if (d.children.length > 1) {
+            opened = true;
+          }
+          d.children.forEach(collapse);
+        } else {
+          d._children = d.children;
+          d.children = null;
+          d._children.forEach(collapse);
+        }
       }
     }
-
-    root.children.forEach(collapse);
+    collapse(root);
     update(root);
+    
     console.log('Load interactive tree completed!');
     console.log('-----------------------------------------------')
   });
@@ -57,10 +67,10 @@ function loadInteractiveTree(sid, path){
       .attr("transform", function(d) { return "translate(" + source.y0 + "," + source.x0 + ")"; })
       .on("click", click);
 
-    //renderNodes('#tichart', nodeEnter);
-    nodeEnter.append("circle")
-      .attr("r", 1e-6)
-      .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
+    renderNodes(sid, nodeEnter, true);
+    // nodeEnter.append("circle")
+    //   .attr("r", 1e-6)
+    //   .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
 
     nodeEnter.append("text")
       .attr("x", function(d) { return d.children || d._children ? -10 : 10; })
@@ -74,9 +84,8 @@ function loadInteractiveTree(sid, path){
       .duration(duration)
       .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; });
 
-    nodeUpdate.select("circle")
-      .attr("r", 4.5)
-      .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
+    nodeUpdate.select("circle.collapse")
+      .style("fill", function(d) { return d._children ? "#33D" : "#EEE"; });
 
     nodeUpdate.select("text")
       .style("fill-opacity", 1);
@@ -138,7 +147,7 @@ function loadInteractiveTree(sid, path){
     
     nodeCount = countNodes(root);
     console.log("nodeCount:", nodeCount);
-    height = nodeCount > 36 ? nodeCount * 15 : 600 - margin.top - margin.bottom;
+    height = nodeCount > 32 ? nodeCount * 20 : 600 - margin.top - margin.bottom;
     update(d);
   }
 }

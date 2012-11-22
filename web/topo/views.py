@@ -28,24 +28,25 @@ def test2():
 
 @topoview.route('/topo/olts.json', methods=['GET', 'POST'])
 def olts_json():
-    return json.dumps({'children':[data,data]})
+    return 'OK'
+    #return json.dumps({'children':[data,data]})
 
 @topoview.route('/topo/test.json', methods=['GET', 'POST'])
 def test_json():
-    # 1. 缩放 DONE
-    # 2. 拖拽 DONE
-    # 3. 链接 DONE
-    # 4. 显示图片 DONE
+    # 1. 缩放           DONE
+    # 2. 拖拽           DONE
+    # 3. 链接           DONE
+    # 4. 显示图片       DONE
     # 5. 表达节点的状态 DONE
-    # 6. 右键菜单 DONE
-    # 7. 搜索跳转
+    # 6. 右键菜单       DONE
+    # 7. 搜索跳转       DONE
     from random import Random
     rand = Random()
     
     spath = request.args.get('path', 'olt-0')
-    na = request.args.get('na', 6, type=int)
-    nb = request.args.get('nb', 6, type=int)
-    nnc = request.args.get('nc', 6, type=int)
+    na    = request.args.get('na', 6, type=int)
+    nb    = request.args.get('nb', 6, type=int)
+    nnc   = request.args.get('nc', 6, type=int)
 
     ca = cb = cc = 0;
     path = spath.split(',')
@@ -93,7 +94,7 @@ def test_json():
                 data['maxlevel'] = 1;
             data['children'].append(A)
             
-    return json.dumps({'children':[data,data]})
+    return json.dumps(data)
 
 
 # ==============================================================================
