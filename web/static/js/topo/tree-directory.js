@@ -5,10 +5,10 @@ function loadDirectoryTree(sid) {
   barHeight = 24,
   barWidth = w * .56,
   duration = 400,
+  depth = 30,
   root;
 
-  var tree = d3.layout.tree()
-    .size([h, 80]);
+  var tree = d3.layout.tree();
 
   var diagonal = function(d) {
     return "M"+ d.source.y+' ' + d.source.x +
@@ -46,7 +46,8 @@ function loadDirectoryTree(sid) {
 
     // Compute the "layout".
     nodes.forEach(function (n, i) {
-      n.x = i * barHeight;
+        n.x = i * barHeight;
+        n.y = n.depth * depth;
     });
 
     // Update the nodes…
