@@ -15,24 +15,21 @@ $(function(){
       updater : loadInteractiveTree,
     }
   };
+
   
   $('#layout select').change(function(){
     var selected = $(this).find(':selected').val();
     selected = !selected ? 'circle' : selected;
     $('.chart').html('').hide();
 
-    var chart = charts[selected];
-    if(chart) {
-      chartId = chart.sid;
-      $(chartId).show();
-      updateChart = chart.updater;
-      updateChart(chartId, chartPath);
-    } else {
-      console.error('Unexcepted layout!');
+    chart = charts[selected];// Update global variable
+    updateChart();
+    if (!chart) {
+      console.error("Unexcepted layout");
     }
     console.log('===================Layout Changed=====================');
   });
-
+  
   $('#layout select').change();
   loadDirectoryTree('#tree');
 });

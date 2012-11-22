@@ -1,15 +1,17 @@
 // sid == selector(id)
-var chartId;
-var chartPath = 'olt-0';
-var updateChart;
-
+var path = 'olt-0';
+var chart = null;
+var json = null;
 // Totally common
-var config = {
-  circle: {sid: '#chart', },
-  flow: {sid: '#tchart', },
-  interactive: {sid: '#tichart', }
-}
 
+function updateChart(){
+  $(chart.sid).show();
+  
+  d3.json("/topo/test.json?path="+path+"&na=6&nb=10&nc=6", function(tjson) {
+    json = tjson;
+    chart.updater(chart.sid);
+  });
+}
 
 function getTransform(selector){
   var transform = $(selector).attr("transform");
@@ -53,11 +55,9 @@ function countNodes(cur){
 
 function renderNodes(sid, node, collapse) {
   // 1. xlink, 2. image, 3. circle, 4. menu
-  node.append("a")
-    .attr("xlink:href", function(d){return d.url;});
+  d3.selectAll(sid + " path.link").attr("class", function(d) {return d.target.lstatus == 0 ? "broken link" : "link"})
   
-  var a = node.selectAll('a')
-    .append("svg:image")
+  node.append("svg:image")
     .attr("xlink:href", function(d){return "http://ww2.sinaimg.cn/large/412e82dbjw1dsbny7igx2j.jpg";})
     .attr("x", "-10px")
     .attr("y", "-10px")
@@ -72,11 +72,15 @@ function renderNodes(sid, node, collapse) {
   
   if (collapse){
     node.append("circle")
-      .style("opacity", 1)
+      .style("opacity", function(d) { return d.children || d._children ? 1 : 0})
       .attr("r", 4.5)
+      .attr("cx", "14px")
       .attr("class", "collapse")
-      .style("fill", function(d) { return d._children ? "#33D" : "#EEE"; });
+      .style("fill", function(d) { return d._children ? "lightsteelblue" : "#FFF"; });
   }
+  
+  node.append("a")
+    .attr("xlink:href", function(d){return d.url;});
   
   addMenus(sid);
 }

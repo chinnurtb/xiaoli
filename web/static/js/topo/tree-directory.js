@@ -169,8 +169,8 @@ function loadDirectoryTree(sid) {
           cur = cur.parent;
           ids.push(cur.id);
         }
-        chartPath = ids.join(',');
-        updateChart(chartId, chartPath);
+        path = ids.join(','); // Update global variable
+        updateChart();
       }
     }
   }

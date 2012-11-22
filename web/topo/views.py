@@ -81,6 +81,7 @@ def test_json():
                 cc += 1
                 C = {'name': 'CPE-' + str(cc), 'url': 'http://www.stackoverflow.com', 'level': 3, 'id': 'cpe-'+str(cc)}
                 C['status'] = 1 if c % rand.randint(2, 6) != 0 else 0
+                C['lstatus'] =  1 if c % 5 > 1 else 0
                 if selected('CPE', cc):
                     if data['maxlevel'] < 3:
                         data['maxlevel'] = 3;

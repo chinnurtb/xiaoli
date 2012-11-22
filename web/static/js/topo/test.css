@@ -51,8 +51,12 @@
 
 .chart .link {
     fill: none;
-    stroke: #BBB;
+    stroke: #7D7;
     stroke-width: 1.5px;
+}
+
+.chart .broken {
+    stroke: #D77;
 }
 
 /* Tree interactive chart */

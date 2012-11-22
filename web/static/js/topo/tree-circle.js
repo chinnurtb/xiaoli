@@ -7,83 +7,83 @@ var zoomObj;
 var zoomTime = 1.0;
 var radius = 600/2;
 
-function loadCircleTree(sid, path) {
-  console.info("sid:", sid, ", path:", path);
+function loadCircleTree(sid) {
   
-  d3.json("/topo/test.json?path="+path+"&na=6&nb=10&nc=6", function(json) {
-    $(sid).html('');
-    lastId = '';
-    $('#keyword').val('');
-    
-    nodeCount = countNodes(json);
-    zoomTime = nodeCount * 3 / 200;
-    zoomTime = zoomTime < 1.0 ? 1.0 : zoomTime;
-    //zoomTime = 3.0;
+  $(sid).html('');
+  lastId = '';
+  $('#keyword').val('');
+  
+  nodeCount = countNodes(json);
+  zoomTime = nodeCount * 3 / 200;
+  zoomTime = zoomTime < 1.0 ? 1.0 : zoomTime;
+  //zoomTime = 3.0;
 
-    var angle = (json.maxlevel - json.maxpath) == 1 ? 120 : 360;
-    var tree = d3.layout.tree()
-      .size([angle, radius * zoomTime * 0.8])
-      .separation(function(a, b) { return (a.parent == b.parent ? 1 : 2) / a.depth; });
-    
-    var diagonal = d3.svg.diagonal.radial()
-      .projection(function(d) { return [d.y, d.x / 180 * Math.PI]; });
+  var angle = (json.maxlevel - json.maxpath) == 1 ? 120 : 360;
+  var tree = d3.layout.tree()
+    .size([angle, radius * zoomTime * 0.8])
+    .separation(function(a, b) { return (a.parent == b.parent ? 1 : 2) / a.depth; });
+  
+  var diagonal = d3.svg.diagonal.radial()
+    .projection(function(d) { return [d.y, d.x / 180 * Math.PI]; });
 
-    var width = radius * 2,
-    height = radius * 2;
+  var width = radius * 2,
+  height = radius * 2;
 
-    var x = d3.scale.linear()
-      .domain([-width / 2, width / 2])
-      .range([0, width]);
+  var x = d3.scale.linear()
+    .domain([-width / 2, width / 2])
+    .range([0, width]);
 
-    var y = d3.scale.linear()
-      .domain([-height / 2, height / 2])
-      .range([height, 0]);
+  var y = d3.scale.linear()
+    .domain([-height / 2, height / 2])
+    .range([height, 0]);
 
-    zoomObj = d3.behavior.zoom().scaleExtent([1, zoomTime+2]).on("zoom", zoom);
-    vis = d3.select(sid).append("svg")
-      .attr("height", radius * 2)
-      .append("g")
-      .data([{x: radius, y: radius, scale: 1.0/zoomTime}])
-      .attr("transform", "translate(" + radius + "," + radius + ")scale("+ 1.0/zoomTime+")")
-      .call(zoomObj)
-      .append("g");
+  zoomObj = d3.behavior.zoom().scaleExtent([1, zoomTime+2]).on("zoom", zoom);
+  vis = d3.select(sid).append("svg")
+    .attr("height", radius * 2)
+    .append("g")
+    .data([{x: radius, y: radius, scale: 1.0/zoomTime}])
+    .attr("transform", "translate(" + radius + "," + radius + ")scale("+ 1.0/zoomTime+")")
+    .call(zoomObj)
+    .append("g");
 
-    vis.append("rect")
-      .attr("width", radius * 2 * zoomTime) // 3 = 1 / 0.33
-      .attr("height", radius * 2 * zoomTime)
-      .attr("transform", "translate(" + -radius*zoomTime + "," + -radius*zoomTime + ")");
+  vis.append("rect")
+    .attr("width", radius * 2 * zoomTime) // 3 = 1 / 0.33
+    .attr("height", radius * 2 * zoomTime)
+    .attr("transform", "translate(" + -radius*zoomTime + "," + -radius*zoomTime + ")");
 
-    // Dump nodes
-    nodes = tree.nodes(json);
-    
-    var link = vis.selectAll("path.link")
-      .data(tree.links(nodes))
-      .enter().append("path")
-      .attr("class", "link")
-      .attr("d", diagonal);
+  // Dump nodes
+  nodes = tree.nodes(json);
+  
+  var link = vis.selectAll("path.link")
+    .data(tree.links(nodes))
+    .enter().append("path")
+    .attr("class", "link")
+    .attr("d", diagonal);
+  
+  console.log("data:", vis.selectAll('.link').data()[0]);
 
-    var node = vis.selectAll("g.node")
-      .data(nodes)
-      .enter().append("svg:g")
-      .attr("id", function(d){ return d.id })
-      .attr("class", "node")
-      .style("opacity", function(d){ return d.level < 3 ? 1 : 0.4})
-      .attr("transform", function(d) { return "rotate(" + (d.x - 90) + ")translate(" + d.y + ")"; });
-    
-    renderNodes(sid, node, false);
-    
-    node.append("text")
-      .attr("dy", ".31em")
-      .attr("text-anchor", function(d) { return d.x < 180 ? "start" : "end"; })
-      .attr("transform", function(d) { return d.x < 180 ? "translate(8)" : "rotate(180)translate(-8)"; })
-      .text(function(d) { return d.name; });
+  var node = vis.selectAll("g.node")
+    .data(nodes)
+    .enter().append("svg:g")
+    .attr("id", function(d){ return d.id })
+    .attr("class", "node")
+    .style("opacity", function(d){ return d.level < 3 ? 1 : 0.4})
+    .attr("transform", function(d) { return "rotate(" + (d.x - 90) + ")translate(" + d.y + ")"; });
+  
+  renderNodes(sid, node, false);
+  
+  node.selectAll('a')
+    .append("text")
+    .attr("dy", ".31em")
+    .attr("text-anchor", function(d) { return d.x < 180 ? "start" : "end"; })
+    .attr("transform", function(d) { return d.x < 180 ? "translate(8)" : "rotate(180)translate(-8)"; })
+    .text(function(d) { return d.name; });
 
-    initZoomButtons(sid);
-    initTypeahead(sid);
-    $('#zoom-reset').click();
-    console.log('Load circle tree completed!');
-    console.log('-----------------------------------------');
-  });
+  initZoomButtons(sid);
+  initTypeahead(sid);
+  $('#zoom-reset').click();
+  console.log('Load circle tree completed!');
+  console.log('-----------------------------------------');
 }
 
 
