@@ -12,7 +12,7 @@
     border-bottom: 1px solid #D5D5D5;
 }
 
-.tb-item {
+.toolbar-item {
     float: left;
     margin-left: 8px;
     padding-right: 8px;
@@ -21,10 +21,9 @@
 
 #zoom {
 }
-
 .chart {
-    margin-bottom: 3px;
-    border-bottom: 1px solid #D5D5D5;
+    height: 600px;
+    margin-bottom: 0px;
 }
 
 .chart svg {
@@ -56,25 +55,13 @@
     stroke-width: 1.5px;
 }
 
-
-/* Tree chart */
-#tchart {
-    overflow: auto;
-    height: 600px;
-}
-
-#tchart svg{
-    overflow: auto;
-    fill: #FFF;
-}
-
 /* Tree interactive chart */
-#tichart {
+.tree-chart {
     overflow: auto;
     height: 600px;
 }
 
-#tichart svg{
+.tree-chart svg{
     overflow: auto;
     fill: #FFF;
 }
@@ -82,7 +69,7 @@
 
 /* Sidebar */
 #sidebar {
-    width: 210px;
+    width: 205px;
     background-color: #F7F7F7;
     border-radius: 6px;
     box-shadow: 0 1px 4px rgba(0, 0, 0, .065);
@@ -95,10 +82,11 @@
 }
 
 #tree svg{
-    width: 172px;
+    width: 180px;
     overflow-y: auto;
     fill: #D5D5D5;
-    padding: 10px;
+    margin-top: 6px;
+    padding: 4px;
 }
 
 #tree .node rect {

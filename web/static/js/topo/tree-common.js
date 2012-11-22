@@ -1,5 +1,7 @@
 // sid == selector(id)
-var keyword;
+var chartId;
+var chartPath = 'olt-0';
+var updateChart;
 
 // Totally common
 var config = {
@@ -49,6 +51,35 @@ function countNodes(cur){
   return count;
 }
 
+function renderNodes(sid, node, collapse) {
+  // 1. xlink, 2. image, 3. circle, 4. menu
+  node.append("a")
+    .attr("xlink:href", function(d){return d.url;});
+  
+  var a = node.selectAll('a')
+    .append("svg:image")
+    .attr("xlink:href", function(d){return "http://ww2.sinaimg.cn/large/412e82dbjw1dsbny7igx2j.jpg";})
+    .attr("x", "-10px")
+    .attr("y", "-10px")
+    .attr("width", "20px")
+    .attr("height", "20px");
+  
+  node.append("circle")
+    .attr("r", 10)
+    .attr("class", "status")
+    .style("opacity", 0.3)
+    .style("fill", function(d) { return d.status == 0 ? "red" : "green"});
+  
+  if (collapse){
+    node.append("circle")
+      .style("opacity", 1)
+      .attr("r", 4.5)
+      .attr("class", "collapse")
+      .style("fill", function(d) { return d._children ? "#33D" : "#EEE"; });
+  }
+  
+  addMenus(sid);
+}
 
 function addMenus(sid){
   $.contextMenu({

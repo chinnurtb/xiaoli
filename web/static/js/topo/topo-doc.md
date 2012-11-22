@@ -20,8 +20,8 @@
    
 # Flow
 ## Features
-   + 超出边界部份用滚动条查看 *TODO*
-   + 按节点数量计算 svg 的长和宽 *TODO*
+   + 超出边界部份用滚动条查看
+   + 按节点数量计算 svg 的长和宽
    + 
    
 # Interactive
@@ -38,4 +38,4 @@
    
 # Directory (sidebar)
 ## Features
-   - pass
+   + 节点目录动态加载 *TODO*
