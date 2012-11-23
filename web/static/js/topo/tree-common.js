@@ -8,7 +8,7 @@ var json = null;
 function updateChart(){
   $(chart.sid).show();
   
-  d3.json("/topo/nodes.json?path="+path+"&na=6&nb=10&nc=6", function(tjson) {
+  d3.json("/topo/nodes.json?path="+path, function(tjson) {
     json = tjson;
     console.log("====================updateChart====================");
     console.log("path:", path);
