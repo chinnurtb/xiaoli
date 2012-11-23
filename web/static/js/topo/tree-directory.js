@@ -1,9 +1,9 @@
 function loadDirectoryTree(sid) {
-  var w = 172,
+  var w = 202,
   h = 600,
   i = 0,
   barHeight = 24,
-  barWidth = w * .48,
+  barWidth = w * .58,
   duration = 400,
   depth = 30,
   root;
@@ -21,7 +21,7 @@ function loadDirectoryTree(sid) {
     .attr("width", w)
     .attr("height", h)
     .append("svg:g")
-    .attr("transform", "translate(1, 12)");
+    .attr("transform", "translate(6, 12)");
 
   d3.json("/topo/directory.json?path="+path, function (tjson) {
     tjson.x0 = 0;

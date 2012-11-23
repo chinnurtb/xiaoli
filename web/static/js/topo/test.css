@@ -73,7 +73,6 @@
 
 /* Sidebar */
 #sidebar {
-    width: 205px;
     background-color: #F7F7F7;
     border-radius: 6px;
     box-shadow: 0 1px 4px rgba(0, 0, 0, .065);
@@ -86,7 +85,7 @@
 }
 
 #tree svg{
-    width: 180px;
+    width: 220px;
     overflow-y: auto;
     fill: #D5D5D5;
     margin-top: 6px;
