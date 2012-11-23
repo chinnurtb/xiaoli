@@ -6,15 +6,16 @@ function loadDirectoryTree(sid) {
   barWidth = w * .58,
   duration = 400,
   depth = 30,
+  current_node = "root",
   root;
 
   var tree = d3.layout.tree();
 
   var diagonal = function(d) {
-    return "M"+ d.source.y+' ' + d.source.x +
-      ' L'+ (d.source.y -5)+' '+ d.source.x +
-      ' L'+ (d.source.y -5)+' '+ d.target.x+
-      ' L'+ d.target.y+' '+ d.target.x
+    return "M"+ d.source.y+' ' + (d.source.x-3) +
+      ' L'+ (d.source.y -5)+' '+ (d.source.x-3) +
+      ' L'+ (d.source.y -5)+' '+ (d.target.x-3)+
+      ' L'+ d.target.y+' '+ (d.target.x-3)
   };
 
   var vis = d3.select(sid).append("svg:svg")
@@ -73,19 +74,34 @@ function loadDirectoryTree(sid) {
       .style("opacity", 1e-6);
 
     // Enter any new nodes at the parent's previous position.
-    nodeEnter.append("svg:rect")
-      .attr("y", -barHeight / 2)
-      .attr("height", barHeight-4)
-      .attr("width", barWidth-20)
-      .style("fill", color)
-      .on("click", click);
-
-    nodeEnter.append("svg:text")
-      .attr("dy", 1.5)
-      .attr("dx", 5.5)
-      .text(function (d) {
-        return d.name;
-      });
+      nodeEnter.append("svg:text")
+              .attr("dy", 1.5)
+              .attr("dx", 5.5)
+              .text(function (d) {
+                  return d.name;
+              });
+      nodeEnter.append("svg:image")
+              .attr("xlink:href", color)
+              .attr("x", -13-depth)
+              .attr("y", "-12px")
+              .attr("width", "16px")
+              .attr("height", "16px")
+              .on("click",click);
+      nodeEnter.append("svg:image")
+              .attr("xlink:href", "/static/js/topo/images/olt.png")
+              .attr("x", "-12px")
+              .attr("y", "-12px")
+              .attr("width", "16px")
+              .attr("height", "16px")
+              .on("click",click);
+      nodeEnter.append("svg:rect")
+              .attr("y", -barHeight / 2)
+              .attr("height", barHeight-4)
+              .attr("width", function(d) {
+                  return d3.select("#"+ d.id+" :first-child").node().clientWidth + 10
+              })
+              .style("fill", "#F7F7F7")
+              .on("click", click);
 
     // Transition nodes to their new position.
     nodeEnter.transition()
@@ -102,7 +118,7 @@ function loadDirectoryTree(sid) {
       })
       .style("opacity", 1)
       .select("rect")
-      .style("fill", color);
+      .style("fill", "#F7F7F7");
 
     // Transition exiting nodes to the parent's new position.
     node.exit().transition()
@@ -155,6 +171,9 @@ function loadDirectoryTree(sid) {
 
   // Toggle children on click.
   function click(d) {
+      d3.select("#"+current_node+" text").style("fill",null);
+      d3.select("#"+ d.id+" text").style("fill","#F6983E");
+      current_node = d.id;
     if (d.children) {
       d._children = d.children;
       d.children = null;
@@ -164,6 +183,7 @@ function loadDirectoryTree(sid) {
     } else {
       return;
     }
+    d3.select("#"+ d.id+" image").attr("xlink:href", color);
 
     // Make request path
     var cur = d;
@@ -195,7 +215,7 @@ function loadDirectoryTree(sid) {
   }
 
   function color(d) {
-    return d._children ? "#3182bd" : d.children ? "#c6dbef" : "#fd8d3c";
+      return d._children ? "/static/js/topo/images/plus.gif" : d.children ? "/static/js/topo/images/minus.gif" : null;
   }
 
   console.log('Load directory tree completed!');

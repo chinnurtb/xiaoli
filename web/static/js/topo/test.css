@@ -82,32 +82,30 @@
 #tree {
     overflow-y: auto;
     height: 640px;
+    margin-left: 10px;
 }
 
 #tree svg{
     width: 220px;
     overflow-y: auto;
     fill: #D5D5D5;
-    margin-top: 6px;
+    margin-top: -20px;
     padding: 4px;
 }
 
 #tree .node rect {
   cursor: pointer;
-  fill: #fff;
-  fill-opacity: .5;
-  stroke: #3182bd;
-  stroke-width: 1.5px;
+  fill-opacity: 0;
 }
 
 #tree .node text {
   fill: #111;
-  font: 10px sans-serif;
+  font: 14px sans-serif;
   pointer-events: none;
 }
 
 #tree path.link {
   fill: none;
-  stroke: #9ecae1;
+  stroke: #A5A5A5;
   stroke-width: 1.5px;
 }
