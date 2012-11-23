@@ -23,10 +23,10 @@ function loadDirectoryTree(sid) {
     .append("svg:g")
     .attr("transform", "translate(2, 12)");
 
-  d3.json("/topo/test.json?na=6&nb=10&nc=6", function (json) {
-    json.x0 = 0;
-    json.y0 = 0;
-    root = json;
+  d3.json("/topo/directory.json?path="+path, function (tjson) {
+    tjson.x0 = 0;
+    tjson.y0 = 0;
+    root = tjson;
     function collapse(d) {
       if (d.children) {
         d._children = d.children;
@@ -34,11 +34,17 @@ function loadDirectoryTree(sid) {
         d.children = null;
       }
     }
-    root.children.forEach(collapse);
+    if (root.children){
+      root.children.forEach(collapse);
+    }
     update(root);
+    console.log("root:", root);
   });
 
   function update(source) {
+    // Compute new tree height
+    h = (2 + countNodes(root)) * barHeight;
+    
     d3.select(sid + ' svg').attr("height", h);
 
     // Compute the flattened node list. TODO use d3.layout.hierarchy.
@@ -151,28 +157,38 @@ function loadDirectoryTree(sid) {
     if (d.children) {
       d._children = d.children;
       d.children = null;
-    } else {
+    } else if (d._children) {
       d.children = d._children;
       d._children = null;
+    } else {
+      return;
     }
 
-    if (d.children || d._children){
-      // Compute new tree height
-      h = (2 + countNodes(root)) * barHeight;
-      update(d);
-      
-      // Make request path
-      if (d.level == 0 || d.children) {
-        var cur = d;
-        var ids = [cur.id];
-        while (cur.parent) {
-          cur = cur.parent;
-          ids.push(cur.id);
-        }
-        path = ids.join(','); // Update global variable
-        updateChart();
-      }
+    // Make request path
+    var cur = d;
+    var ids = [cur.id];
+    while (cur.parent) {
+      cur = cur.parent;
+      ids.push(cur.id);
     }
+    path = ids.reverse().join(','); // Update global variable
+    
+    update(d);
+
+    // Open
+    if (d.level > 0 && d.children) {
+      if (d.children.length > 0) {
+        updateChart();
+      }else {
+        d3.json("/topo/directory.json?path="+path, function (tjson) {
+          if (tjson.length > 0){
+            d._children = tjson;
+            d.children = null;
+            click(d);
+          }
+        });      
+      }
+    } 
   }
 
   function color(d) {

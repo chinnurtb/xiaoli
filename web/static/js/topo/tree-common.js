@@ -1,14 +1,19 @@
-// sid == selector(id)
-var path = 'olt-0';
+// Global variables
+var path = null;
 var chart = null;
 var json = null;
-// Totally common
 
+
+// Totally common
 function updateChart(){
   $(chart.sid).show();
   
-  d3.json("/topo/test.json?path="+path+"&na=6&nb=10&nc=6", function(tjson) {
+  d3.json("/topo/nodes.json?path="+path+"&na=6&nb=10&nc=6", function(tjson) {
     json = tjson;
+    console.log("====================updateChart====================");
+    console.log("path:", path);
+    console.log("json:", json);
+    console.log("====================updateChart====================");
     chart.updater(chart.sid);
   });
 }

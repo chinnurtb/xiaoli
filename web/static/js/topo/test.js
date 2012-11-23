@@ -29,7 +29,10 @@ $(function(){
     }
     console.log('===================Layout Changed=====================');
   });
-  
-  $('#layout select').change();
+
+  path = '';
   loadDirectoryTree('#tree');
+  
+  path = 'root-0,olt-0';
+  $('#layout select').change();
 });

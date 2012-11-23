@@ -67,7 +67,7 @@ function loadCircleTree(sid) {
     .enter().append("svg:g")
     .attr("id", function(d){ return d.id })
     .attr("class", "node")
-    .style("opacity", function(d){ return d.level < 3 ? 1 : 0.4})
+    .style("opacity", function(d){ return d.level < json.maxlevel ? 1 : 0.4})
     .attr("transform", function(d) { return "rotate(" + (d.x - 90) + ")translate(" + d.y + ")"; });
   
   renderNodes(sid, node, false);
@@ -100,7 +100,7 @@ function reColorNodes(scale){
   if (scale >= 1.8 || nodeCount < 100){
     vis.selectAll("g.node").style("opacity", 1);
   } else {
-    vis.selectAll("g.node").style("opacity", function(d){return d.level < 3 ? 1 : 0.3 });
+    vis.selectAll("g.node").style("opacity", function(d){return d.level < json.maxlevel ? 1 : 0.3 });
   }
 }
 
