@@ -19,7 +19,7 @@ function loadFlowTree(sid){
     .attr("width", width)
     .attr("height", height)
     .append("g")
-    .attr("transform", "translate(40, 0)");
+    .attr("transform", "translate(60, 0)");
   
   var nodes = tree.nodes(json);
 
