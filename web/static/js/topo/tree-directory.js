@@ -1,9 +1,9 @@
 function loadDirectoryTree(sid) {
-  var w = 195,
+  var w = 172,
   h = 600,
   i = 0,
   barHeight = 24,
-  barWidth = w * .56,
+  barWidth = w * .48,
   duration = 400,
   depth = 30,
   root;
@@ -21,7 +21,7 @@ function loadDirectoryTree(sid) {
     .attr("width", w)
     .attr("height", h)
     .append("svg:g")
-    .attr("transform", "translate(2, 12)");
+    .attr("transform", "translate(1, 12)");
 
   d3.json("/topo/directory.json?path="+path, function (tjson) {
     tjson.x0 = 0;
@@ -38,7 +38,7 @@ function loadDirectoryTree(sid) {
       root.children.forEach(collapse);
     }
     update(root);
-    console.log("root:", root);
+    // console.log("root:", root);
   });
 
   function update(source) {
@@ -182,7 +182,9 @@ function loadDirectoryTree(sid) {
         updateChart();
       }else {
         d3.json("/topo/directory.json?path="+path, function (tjson) {
-          if (tjson.length > 0){
+          if (!tjson) {
+            console.error("Request Failed!");
+          } else if (tjson.length > 0){
             d._children = tjson;
             d.children = null;
             click(d);

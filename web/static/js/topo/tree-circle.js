@@ -60,8 +60,6 @@ function loadCircleTree(sid) {
     .attr("class", "link")
     .attr("d", diagonal);
   
-  console.log("data:", vis.selectAll('.link').data()[0]);
-
   var node = vis.selectAll("g.node")
     .data(nodes)
     .enter().append("svg:g")
