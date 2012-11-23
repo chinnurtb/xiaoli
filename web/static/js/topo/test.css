@@ -16,7 +16,7 @@
     float: left;
     margin-left: 8px;
     padding-right: 8px;
-/* border-right: 1px solid #D5D5D5; */
+    /* border-right: 1px solid #D5D5D5; */
 }
 
 #zoom {
@@ -32,7 +32,7 @@
     font-family: Times, "宋体";
 }
 .chart rect {
-    fill: #FFF;
+    fill: #DFF;
 }
 
 .chart .node circle {
@@ -59,7 +59,7 @@
     stroke: #D77;
 }
 
-/* Tree chart */
+/* Tree interactive chart */
 .tree-chart {
     overflow: auto;
     height: 600px;
@@ -77,8 +77,6 @@
     stroke-width: .5px;
 }
 
-
-
 /* Sidebar */
 #sidebar {
     background-color: #F7F7F7;
@@ -90,32 +88,30 @@
 #tree {
     overflow-y: auto;
     height: 640px;
+    margin-left: 10px;
 }
 
 #tree svg{
     width: 220px;
     overflow-y: auto;
     fill: #D5D5D5;
-    margin-top: 6px;
+    margin-top: -20px;
     padding: 4px;
 }
 
 #tree .node rect {
-    cursor: pointer;
-    fill: #fff;
-    fill-opacity: .5;
-    stroke: #3182bd;
-    stroke-width: 1.5px;
+  cursor: pointer;
+  fill-opacity: 0;
 }
 
 #tree .node text {
-    fill: #111;
-    font: 10px sans-serif;
-    pointer-events: none;
+  fill: #111;
+  font: 14px sans-serif;
+  pointer-events: none;
 }
 
 #tree path.link {
-    fill: none;
-    stroke: #9ecae1;
-    stroke-width: 1.5px;
+  fill: none;
+  stroke: #A5A5A5;
+  stroke-width: 1.5px;
 }
