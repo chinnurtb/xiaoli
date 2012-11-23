@@ -16,7 +16,7 @@
     float: left;
     margin-left: 8px;
     padding-right: 8px;
-    /* border-right: 1px solid #D5D5D5; */
+/* border-right: 1px solid #D5D5D5; */
 }
 
 #zoom {
@@ -59,7 +59,7 @@
     stroke: #D77;
 }
 
-/* Tree interactive chart */
+/* Tree chart */
 .tree-chart {
     overflow: auto;
     height: 600px;
@@ -69,6 +69,14 @@
     overflow: auto;
     fill: #FFF;
 }
+
+/* Force chart */
+#fcchart circle.node {
+    cursor: pointer;
+    stroke: #000;
+    stroke-width: .5px;
+}
+
 
 
 /* Sidebar */
@@ -93,21 +101,21 @@
 }
 
 #tree .node rect {
-  cursor: pointer;
-  fill: #fff;
-  fill-opacity: .5;
-  stroke: #3182bd;
-  stroke-width: 1.5px;
+    cursor: pointer;
+    fill: #fff;
+    fill-opacity: .5;
+    stroke: #3182bd;
+    stroke-width: 1.5px;
 }
 
 #tree .node text {
-  fill: #111;
-  font: 10px sans-serif;
-  pointer-events: none;
+    fill: #111;
+    font: 10px sans-serif;
+    pointer-events: none;
 }
 
 #tree path.link {
-  fill: none;
-  stroke: #9ecae1;
-  stroke-width: 1.5px;
+    fill: none;
+    stroke: #9ecae1;
+    stroke-width: 1.5px;
 }

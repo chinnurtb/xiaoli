@@ -1,6 +1,6 @@
 
 $(function(){
-
+  
   var charts = {
     circle : {
       sid : '#chart',
@@ -13,6 +13,10 @@ $(function(){
     interactive : {
       sid : '#tichart',
       updater : loadInteractiveTree,
+    },
+    force : {
+      sid : '#fcchart',
+      updater : loadForce,
     }
   };
 
@@ -33,6 +37,6 @@ $(function(){
   path = '';
   loadDirectoryTree('#tree');
   
-  path = 'root-0,olt-0';
+  path = 'root-0,olt-1,onu-1';
   $('#layout select').change();
 });

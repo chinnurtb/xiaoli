@@ -10,6 +10,7 @@
   <script type="text/javascript" src="/static/js/topo/tree-flow.js"></script>
   <script type="text/javascript" src="/static/js/topo/tree-interactive.js"></script>
   <script type="text/javascript" src="/static/js/topo/tree-directory.js"></script>
+  <script type="text/javascript" src="/static/js/topo/force.js"></script>
   <script type="text/javascript" src="/static/js/topo/test.js"></script>
   <link type="text/css" rel="stylesheet" href="/static/js/topo/test.css"/>
   <link type="text/css" rel="stylesheet" href="/static/js/topo/jquery.contextMenu.css"/>
@@ -44,15 +45,17 @@
           </form>
           <div id="layout", class="toolbar-item">
             <select class="auto-width input-low">
+              <option value="force">散射</option>
               <option value="interactive">树型(可折叠)</option>
-              <option value="circle">环型</option>
               <option value="flow">树型</option>
+              <option value="circle">环型</option>
             </select>
           </div>
           <br class="clear" />
         </div>
         <div id="tichart" class="chart tree-chart"></div>
         <div id="tfchart" class="chart tree-chart"></div>
+        <div id="fcchart" class="chart"></div>
         <div id="chart" class="chart"></div>
       </div>
     </div>
