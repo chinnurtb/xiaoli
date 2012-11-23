@@ -21,7 +21,12 @@ function getTransform(selector){
   }
   var re = /^translate\((\S+),(\S+)\)scale\((\S+)\)/;
   var arr = re.exec(transform);
-  return arr;
+  var t = {};
+  t.x = parseFloat(arr[1]);
+  t.y = parseFloat(arr[2]);
+  t.scale = arr.length > 3 ? parseFloat(arr[3]) : 1.0;
+  
+  return t;
 }
 
 

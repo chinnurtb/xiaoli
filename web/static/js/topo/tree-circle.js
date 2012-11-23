@@ -1,6 +1,4 @@
 
-var lastId; // Last Search (d.id)
-
 var vis;
 var nodeCount;
 var zoomObj;
@@ -10,13 +8,11 @@ var radius = 600/2;
 function loadCircleTree(sid) {
   
   $(sid).html('');
-  lastId = '';
   $('#keyword').val('');
   
   nodeCount = countNodes(json);
   zoomTime = nodeCount * 3 / 200;
   zoomTime = zoomTime < 1.0 ? 1.0 : zoomTime;
-  //zoomTime = 3.0;
 
   var angle = (json.maxlevel - json.maxpath) == 1 ? 120 : 360;
   var tree = d3.layout.tree()
@@ -37,7 +33,7 @@ function loadCircleTree(sid) {
     .domain([-height / 2, height / 2])
     .range([height, 0]);
 
-  zoomObj = d3.behavior.zoom().scaleExtent([1, zoomTime+2]).on("zoom", zoom);
+  zoomObj = d3.behavior.zoom().scaleExtent([1, zoomTime*1.2]).on("zoom", zoom);
   vis = d3.select(sid).append("svg")
     .attr("height", radius * 2)
     .append("g")
@@ -113,29 +109,33 @@ function syncZoom(x, y, scale, action){
 
 function focus(sid, keyword){
   var $targetNode = $(sid + ' g.node:contains('+ keyword +')');
+  var hasDone = false;
   $targetNode.each(function(){
-    if($(this).text().trim() == keyword.trim()){
+    if(!hasDone && $(this).text().trim() == keyword.trim()){
       var id = $(this).attr('id');
-      if (lastId){
-        d3.select(lastId).style("font-weight", "normal");
-      }
-      d3.select(sid + ' #'+id).style("font-weight", "bold");
-      lastId = '#'+id;
+      d3.select('g.focus')
+        .style("font-weight", "normal")
+        .attr("class", "node");
+      
+      
+      d3.select(sid + ' #' + id)
+        .style("font-weight", "bold")
+        .attr("class", "node focus");
 
       var scale = zoomTime + 2.0;
       var extra = getExtraWidth(sid);
       var d = d3.select(sid + ' #'+ id).data()[0];
       var px = d.x * Math.PI /180;
       var x = extra - Math.sin(px) * d.y * scale;
-      var y = Math.cos(px) * d.y * scale;
+      var y = Math.cos(px) * d.y * scale; 
       
-      var arr = getTransform(sid + ' svg>g>g');
-      var oldScale = arr.length > 3 ? parseFloat(arr[3]) : 1.0;
-      var p0 = [parseFloat(arr[1]), parseFloat(arr[2]), oldScale],
+      var t = getTransform(sid + ' svg>g>g');
+      var p0 = [t.x, t.y, t.scale ? t.scale : 1.0],
       p1 = [x, y, scale];
       
       vis.call(transition, p0, p1);
       syncZoom(x, y, scale, false);
+      hasDone = true;
     }
   });
 }
@@ -171,25 +171,17 @@ function initTypeahead(sid) {
 function initZoomButtons(sid){
   
   $('#zoom-in').click(function(){
-    var arr = getTransform(sid + ' svg>g>g')
-    if (arr.length>3){
-      f = parseFloat(arr[3]);
-      scale = f < 6.0 ? f * 1.5 : f;
-    }
-    var x = arr[1];
-    var y = arr[2];
-    syncZoom(x, y, scale, true);
+    var t = getTransform(sid + ' svg>g>g')
+    var scale = t.scale;
+    scale = scale > zoomTime ? zoomTime*1.2 : scale * 1.2;
+    syncZoom(t.x, t.y, scale, true);
   });
 
   $('#zoom-out').click(function(){
-    var arr = getTransform(sid + ' svg>g>g')
-    if (arr.length>3){
-      f = parseFloat(arr[3]);
-      scale = f > 1.0 ? f / 1.5 : 1.0;
-    }
-    var x = arr[1];
-    var y = arr[2];
-    syncZoom(x, y, scale, true);
+    var t = getTransform(sid + ' svg>g>g')
+    var scale = t.scale;
+    scale = scale / 1.2 < 1.0 ? 1.0 : scale / 1.2;
+    syncZoom(t.x, t.y, scale, true);
   });
 
   $('#zoom-reset').click(function(){
