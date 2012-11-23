@@ -1,6 +1,5 @@
 
 function loadFlowTree(sid){
-  
   $(sid).html('');
   
   var width = $(sid).width()-18;
