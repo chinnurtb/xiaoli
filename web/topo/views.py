@@ -31,8 +31,47 @@ def olts_json():
     return 'OK'
     #return json.dumps({'children':[data,data]})
 
-@topoview.route('/topo/test.json', methods=['GET', 'POST'])
-def test_json():
+@topoview.route('/topo/directory.json')
+def json_load_directory():
+    spath = request.args.get('path', '')
+    data = None
+    lvs_all = ['ROOT', 'OLT', 'ONU', 'EOC', 'CPE']
+    
+    if spath:
+        data = []
+        path = spath.split(',')
+        if len(path) >= len(lvs_all):
+            return json.dumps([])
+        lvs = [i.split('-')[0].upper() for i in path]
+        lv = lvs_all[len(lvs)]
+        for i in range(1, 8):
+            node = {
+                'name'     : '%s-%s' % (lv ,str(i)),
+                'children' : None,
+                'level'    : len(lvs)-1,
+                'id'       : '%s-%s' % (lv.lower() ,str(i)),
+            }
+            node['_children'] = [] if  (len(path) < len(lvs_all)-1) else None
+            data.append(node)
+    else:
+        data = {
+            'name'     : 'ROOT-0',
+            'children' : [],
+            'level'    : 0,
+            'id'       : 'root-0',
+        }
+        for i in range(1, 100):
+            node = {
+                'name'     : 'OLT-' + str(i),
+                'children' : [],
+                'level'    : 1,
+                'id'       : 'olt-' + str(i)
+            }
+            data['children'].append(node)
+    return json.dumps(data)
+    
+@topoview.route('/topo/nodes.json')
+def json_load_nodes():
     # 1. 缩放           DONE
     # 2. 拖拽           DONE
     # 3. 链接           DONE
@@ -44,22 +83,22 @@ def test_json():
     rand = Random()
     
     spath = request.args.get('path', 'olt-0')
-    na    = request.args.get('na', 6, type=int)
-    nb    = request.args.get('nb', 6, type=int)
-    nnc   = request.args.get('nc', 6, type=int)
+    na    = request.args.get('na', 7, type=int)
+    nb    = request.args.get('nb', 7, type=int)
+    nnc   = request.args.get('nc', 7, type=int)
 
     ca = cb = cc = 0;
-    path = spath.split(',')
-    path.reverse()
+    onu_lv, eoc_lv, cpe_lv = 2, 3, 4
+    path = spath.split(',')[1:]
     lvs = [i.split('-')[0].upper() for i in path]
     
     data = {
-        'name'     : 'OLT',
+        'name'     : path[0].upper(),
         'children' : [],
-        'level'    : 0,
-        'maxlevel' : 0,
+        'level'    : 1,
+        'maxlevel' : 1,
         'maxpath'  : len(path) - 1,
-        'id'       : 'olt-0'
+        'id'       : path[0]
     }
 
     def selected(s, i):
@@ -71,29 +110,37 @@ def test_json():
     print '--------------------'
     
     for a in range(na):         # ONU
-        ca += 1
-        A = {'name': 'ONU-' + str(ca), 'children': [], 'level': 1, 'id': 'onu-'+str(ca)}
+        ca = a+1
+        A = {'name': 'ONU-' + str(ca), 'children': [], 'level': onu_lv, 'id': 'onu-'+str(ca)}
         for b in range(nb):     # EOC
-            cb += 1
-            B = {'name': 'EOC-' + str(cb), 'children': [], 'level': 2, 'id': 'eoc-'+str(cb)}
+            cb = b+1
+            B = {'name': 'EOC-' + str(cb), 'children': [], 'level': eoc_lv, 'id': 'eoc-'+str(cb)}
             nc = nnc
             for c in range(nc): # CPE
-                cc += 1
-                C = {'name': 'CPE-' + str(cc), 'url': 'http://www.stackoverflow.com', 'level': 3, 'id': 'cpe-'+str(cc)}
+                cc = c+1
+                C = {'name': 'CPE-' + str(cc), 'url': 'http://www.stackoverflow.com', 'level': cpe_lv, 'id': 'cpe-'+str(cc)}
                 C['status'] = 1 if c % rand.randint(2, 6) != 0 else 0
+                C['lstatus'] =  1 if c % 5 > 1 else 0
                 if selected('CPE', cc):
-                    if data['maxlevel'] < 3:
-                        data['maxlevel'] = 3;
+                    if data['maxlevel'] < cpe_lv:
+                        data['maxlevel'] = cpe_lv;
                     B['children'].append(C)
             if selected('EOC', cb):
-                if data['maxlevel'] < 2:
-                    data['maxlevel'] = 2;
+                if data['maxlevel'] < eoc_lv:
+                    data['maxlevel'] = eoc_lv;
                 A['children'].append(B)
         if selected('ONU', ca):
-            if data['maxlevel'] < 1:
-                data['maxlevel'] = 1;
+            if data['maxlevel'] < onu_lv:
+                data['maxlevel'] = onu_lv;
             data['children'].append(A)
-            
+
+    def pdict(d):
+        print d['id'],
+        if 'children' in d:
+            print len(d['children'])
+            for c in d['children']:
+                pdict(c)
+    pdict(data)
     return json.dumps(data)
 
 

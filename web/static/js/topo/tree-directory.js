@@ -5,10 +5,10 @@ function loadDirectoryTree(sid) {
   barHeight = 24,
   barWidth = w * .56,
   duration = 400,
+  depth = 30,
   root;
 
-  var tree = d3.layout.tree()
-    .size([h, 80]);
+  var tree = d3.layout.tree();
 
   var diagonal = function(d) {
     return "M"+ d.source.y+' ' + d.source.x +
@@ -23,10 +23,10 @@ function loadDirectoryTree(sid) {
     .append("svg:g")
     .attr("transform", "translate(2, 12)");
 
-  d3.json("/topo/test.json?na=6&nb=10&nc=6", function (json) {
-    json.x0 = 0;
-    json.y0 = 0;
-    root = json;
+  d3.json("/topo/directory.json?path="+path, function (tjson) {
+    tjson.x0 = 0;
+    tjson.y0 = 0;
+    root = tjson;
     function collapse(d) {
       if (d.children) {
         d._children = d.children;
@@ -34,11 +34,17 @@ function loadDirectoryTree(sid) {
         d.children = null;
       }
     }
-    root.children.forEach(collapse);
+    if (root.children){
+      root.children.forEach(collapse);
+    }
     update(root);
+    console.log("root:", root);
   });
 
   function update(source) {
+    // Compute new tree height
+    h = (2 + countNodes(root)) * barHeight;
+    
     d3.select(sid + ' svg').attr("height", h);
 
     // Compute the flattened node list. TODO use d3.layout.hierarchy.
@@ -46,7 +52,8 @@ function loadDirectoryTree(sid) {
 
     // Compute the "layout".
     nodes.forEach(function (n, i) {
-      n.x = i * barHeight;
+        n.x = i * barHeight;
+        n.y = n.depth * depth;
     });
 
     // Update the nodes…
@@ -148,34 +155,41 @@ function loadDirectoryTree(sid) {
 
   // Toggle children on click.
   function click(d) {
-    var isRefresh;
-
     if (d.children) {
       d._children = d.children;
       d.children = null;
-      isRefresh = false;
-    } else {
+    } else if (d._children) {
       d.children = d._children;
       d._children = null;
-      isRefresh = true;
+    } else {
+      return;
     }
-    isRefresh = d.level == 0 ? tree : isRefresh;
-
-    // Compute new tree height
-    h = (2 + countNodes(root)) * barHeight;
-    update(d);
 
     // Make request path
-    if (isRefresh && (d.children || d._children)) {
-      var cur = d;
-      var ids = [cur.id];
-      while (cur.parent) {
-        cur = cur.parent;
-        ids.push(cur.id);
-      }
-      chartPath = ids.join(',');
-      updateChart(chartId, chartPath);
+    var cur = d;
+    var ids = [cur.id];
+    while (cur.parent) {
+      cur = cur.parent;
+      ids.push(cur.id);
     }
+    path = ids.reverse().join(','); // Update global variable
+    
+    update(d);
+
+    // Open
+    if (d.level > 0 && d.children) {
+      if (d.children.length > 0) {
+        updateChart();
+      }else {
+        d3.json("/topo/directory.json?path="+path, function (tjson) {
+          if (tjson.length > 0){
+            d._children = tjson;
+            d.children = null;
+            click(d);
+          }
+        });      
+      }
+    } 
   }
 
   function color(d) {
