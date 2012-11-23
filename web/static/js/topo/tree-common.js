@@ -33,8 +33,8 @@ function getTransform(selector){
 function transition(tar, start, end) {
   tar.attr("transform", transform(start))
     .transition()
-    .delay(250)
-    .duration(1000)
+    .delay(200)
+    .duration(800)
     .attrTween("transform", function() {return function(t) {return transform(t);}});
   
   function transform(t) {

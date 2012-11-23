@@ -32,7 +32,7 @@
     font-family: Times, "宋体";
 }
 .chart rect {
-    fill: #FFF;
+    fill: #DFF;
 }
 
 .chart .node circle {
@@ -76,7 +76,6 @@
     stroke: #000;
     stroke-width: .5px;
 }
-
 
 
 /* Sidebar */
