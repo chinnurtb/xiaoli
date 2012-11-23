@@ -2,7 +2,7 @@
 ## Features
    + 图片
    + 节点状态
-   + 链接状态 *TODO*
+   + 链接状态
    + 右键菜单
 
 # Circle
@@ -38,4 +38,4 @@
    
 # Directory (sidebar)
 ## Features
-   + 节点目录动态加载 *TODO*
+   + 节点目录动态加载

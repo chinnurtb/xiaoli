@@ -10,10 +10,6 @@ function updateChart(){
   
   d3.json("/topo/nodes.json?path="+path, function(tjson) {
     json = tjson;
-    console.log("====================updateChart====================");
-    console.log("path:", path);
-    console.log("json:", json);
-    console.log("====================updateChart====================");
     chart.updater(chart.sid);
   });
 }

@@ -140,7 +140,7 @@ def json_load_nodes():
             print len(d['children'])
             for c in d['children']:
                 pdict(c)
-    pdict(data)
+    # pdict(data)
     return json.dumps(data)
 
 
