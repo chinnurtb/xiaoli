@@ -35,5 +35,6 @@
                name,
                alias,
                area, %area dn
+               tpid, %timeperiod_id
                attrs}).
 

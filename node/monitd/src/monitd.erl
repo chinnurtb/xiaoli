@@ -144,11 +144,11 @@ handle_info({deliver, <<"table.", Tab/binary>>, _, Payload}, State) ->
 	{Table, Records} = binary_to_term(Payload),
     case Table of
 	miboids ->
-	   mib_registry:initialize({miboids, Records});
+	   mib_registry:setup({miboids, Records});
     metrics ->
-	   monitd_hub:initialize({metrics, Records});
+	   monitd_hub:setup({metrics, Records});
 	sysoids ->
-	   monitd_disco:initialize({sysoids, Records});
+	   monitd_disco:setup({sysoids, Records});
     _ ->
         ignore
     end,
