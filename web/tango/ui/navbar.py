@@ -1,6 +1,7 @@
 # coding: utf-8
 
 from jinja2 import Markup
+from tango import db
 
 class Navbar(object):
     
@@ -26,8 +27,11 @@ class Nav(object):
 
     def render(self, active = None):
         css = 'active' if active == self.name else ''
-        return Markup("<li id=\"menu-%s\" class=\"%s\"><a href=\"%s\"><i class=\"icon-%s\"></i>%s</a></li>"
+        if db.app.config['license_permit'].has_key(self.name):
+            return Markup("<li id=\"menu-%s\" class=\"%s\"><a href=\"%s\"><i class=\"icon-%s\"></i>%s</a></li>"
                        % (self.name, css, self.href, self.icon, self.title))
+        else:
+            return ''
 
     def __repr__(self):
         return "Nav(name = %s, title = %s, href = %s)" % (self.name, self.title, self.href)
