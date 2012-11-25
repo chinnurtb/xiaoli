@@ -102,7 +102,7 @@ class OperationLogTable(tables.Table):
                                    attrs=tables.Attrs(th={'width': '15%'}))
     action         = tables.EnumColumn(u'操作','oper_obj',
         enums={'insert':u'添加', 'update': u'更新', 'delete': u'删除'}, orderable=True)
-    oper_obj       = tables.Column(u'操作对象', orderable=True)
+    module         = tables.Column(u'操作对象', orderable=True)
     created_at     = tables.DateTimeColumn(u'时间', orderable=True,format='%Y-%m-%d %H:%M:%S')
 
     class Meta():

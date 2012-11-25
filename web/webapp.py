@@ -43,10 +43,10 @@ def record_oplogs(app,changes):
             continue
         oplog = OperationLog()
         oplog.user = current_user
-        oplog.module = request.endpoint
+        oplog.module = unicode(change[0])
         oplog.action = change[1]
         oplog.terminal_ip = request.remote_addr
-        oplog.summary = unicode(change[0])
+        oplog.summary = str(change[0].__dict__)
         db.session.add(oplog)
 models_committed.connect(record_oplogs)
 before_models_committed.connect(record_oplogs)

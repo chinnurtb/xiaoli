@@ -125,10 +125,6 @@ class OperationLog(db.Model):
 
     user = db.relationship("User")
 
-    @hybrid_property
-    def oper_obj(self):
-        return self.module + self.summary
-
     def __unicode__(self):
         return u'<操作日志 %s>' % self.user.name
 

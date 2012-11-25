@@ -259,9 +259,9 @@ def cities_edit(id):
     area = Area.query.get_or_404(id)
     if request.method == 'POST':
         if form.validate_on_submit():
-            if area.name != form.name.data and Area.query.filter(Area.area_type==1).filter(Area.name==area.name).count() > 0:
+            if area.name != form.name.data and Area.query.filter(Area.area_type==1).filter(Area.name==form.name.data).count() > 0:
                 flash(u'地市名称不能重复','error')
-            elif area.alias != form.alias.data and Area.query.filter(Area.area_type==1).filter(Area.alias==area.alias).count() > 0:
+            elif area.alias != form.alias.data and Area.query.filter(Area.area_type==1).filter(Area.alias==form.alias.data).count() > 0:
                 flash(u'地市别名不能重复','error')
             else:
                 form.populate_obj(area)
@@ -316,9 +316,9 @@ def towns_edit(id):
     area = Area.query.get_or_404(id)
     if request.method == 'POST':
         if form.validate_on_submit():
-            if area.name != form.name.data and Area.query.filter(Area.area_type==2).filter(Area.name==area.name).count() > 0:
+            if area.name != form.name.data and Area.query.filter(Area.area_type==2).filter(Area.name==form.name.data).count() > 0:
                 flash(u'区县名称不能重复','error')
-            elif area.alias != form.alias.data and Area.query.filter(Area.area_type==2).filter(Area.alias==area.alias).count() > 0:
+            elif area.alias != form.alias.data and Area.query.filter(Area.area_type==2).filter(Area.alias==form.alias.data).count() > 0:
                 flash(u'区县别名不能重复','error')
             else:
                 form.populate_obj(area)
@@ -373,9 +373,9 @@ def branches_edit(id):
     area = Area.query.get_or_404(id)
     if request.method == 'POST':
         if form.validate_on_submit():
-            if area.name != form.name.data and Area.query.filter(Area.area_type==3).filter(Area.name==area.name).count() > 0:
+            if area.name != form.name.data and Area.query.filter(Area.area_type==3).filter(Area.name==form.name.data).count() > 0:
                 flash(u'分局名称不能重复','error')
-            elif area.alias != form.alias.data and Area.query.filter(Area.area_type==3).filter(Area.alias==area.alias).count() > 0:
+            elif area.alias != form.alias.data and Area.query.filter(Area.area_type==3).filter(Area.alias==form.alias.data).count() > 0:
                 flash(u'分局别名不能重复','error')
             else:
                 del form._fields["cityid"]
@@ -431,9 +431,9 @@ def entrances_edit(id):
     area = Area.query.get_or_404(id)
     if request.method == 'POST':
         if form.validate_on_submit():
-            if area.name != form.name.data and Area.query.filter(Area.area_type==4).filter(Area.name==area.name).count() > 0:
+            if area.name != form.name.data and Area.query.filter(Area.area_type==4).filter(Area.name==form.name.data).count() > 0:
                 flash(u'接入点名称不能重复','error')
-            elif area.alias != form.alias.data and Area.query.filter(Area.area_type==4).filter(Area.alias==area.alias).count() > 0:
+            elif area.alias != form.alias.data and Area.query.filter(Area.area_type==4).filter(Area.alias==form.alias.data).count() > 0:
                 flash(u'接入点别名不能重复','error')
             else:
                 del form._fields["cityid"]
