@@ -22,20 +22,24 @@
         })
         alarms_form = $("#alarms-form");
         $("#alarm-clear-action").click(function() {
-            var ids = alarms_form.find("input[name^=id]:checked");
+            var ids = $('table input:checkbox[name=id]:checked');
             if(ids.length != 1){
-                alert("请选择one Alarm!");
+                alert("请选择单个告警!");
                 return;
             }
-            alarms_form.attr("action", "/alarms/clear/"+ids[0].value).submit();
+            $.get('/alarms/clear/'+ids[0].value, function(data){
+                $('#myModal').html(data).modal('show');
+            });
         })
         $("#alarm-ack-action").click(function() {
-            var ids = alarms_form.find("input[name^=id]:checked");
+            var ids = $('table input:checkbox[name=id]:checked');
             if(ids.length != 1){
-                alert("请选择one Alarm!");
+                alert("请选择单个告警!");
                 return;
             }
-            alarms_form.attr("action", "/alarms/ack/"+ids[0].value).submit();
+            $.get('/alarms/ack/'+ids[0].value, function(data){
+                $('#myModal').html(data).modal('show');
+            });
         })
     })
     </script>
