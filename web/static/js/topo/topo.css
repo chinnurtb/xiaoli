@@ -32,7 +32,7 @@
     font-family: Times, "宋体";
 }
 .chart rect {
-    fill: #DFF;
+    fill: #FFF;
 }
 
 .chart .node circle {
