@@ -136,8 +136,54 @@ MODULE_TEXTS = {
     'admin'  : u'后台管理',
 }
 
-ENDPOINT_IGNORE = ['tango.shell',
-                   'perf.add_time']
+ENDPOINT_IGNORE = [
+    'tango.shell',
+    'users.domains_load_nodes',
+    
+    'topo.olts_json',
+    'topo.json_load_nodes',
+    'topo.json_load_directory',
+    
+    'perf.add_time',
+    'perf.cpumem',
+    'perf.ajax_refresh_models',
+    'perf.ajax_refresh_intervals',
+
+    'report.alarms_report',
+    'report.nodes_report',
+    'report.perf_report',
+    
+    'alarms.histories',
+    'alarms.stats_history',
+    'alarms.stats_active',
+    'alarms.stats_by_node_category',
+    'alarms.stats_by_node_vendor',
+    'alarms.stats_by_severity',
+    'alarms.stats_by_category',
+    'alarms.stats_by_last10',
+    'alarms.stats_by_class',
+    'alarms.alarms_console',
+    'alarms.console_all',
+    'alarms.console_lasthour',
+    'alarms.console_category_status',
+    'alarms.console_category_perf',
+    'alarms.console_category_system',
+
+    'nodes.category_vendors',
+    'nodes.area_select',
+    'nodes.ajax_entrances_for_olt',
+    'nodes.ajax_entrances_for_eoc',
+    'nodes.ajax_entrances_for_branch',
+    'nodes.ajax_entrances_for_town',
+    'nodes.ajax_models_for_vendor',
+    'nodes.ajax_branches_for_town',
+    'nodes.ajax_towns_for_city',
+]
+
+SPECIAL_NAMES = {
+    'index' : u'首页',
+    'timeline' : u'TimeLine',
+}
 
 NAMES = {
     # Admin
@@ -190,10 +236,12 @@ NAMES = {
     # 用户
     'users.domains'      : u'管理域',
     'users.roles'        : u'角色',
-    'users.users'        : u'用户'
+    'users.users'        : u'用户',
+    'users.settings'     : u'用户设置',
 }
-    
+
 OPERATIONS = {
+    'import'          : u'导入',
     'new'             : u'添加',
     'edit'            : u'修改',
     'delete'          : u'删除',
@@ -215,6 +263,8 @@ def permissions_update():
         endpoint = rule.endpoint
         if endpoint in current_app.config['SAFE_ENDPOINTS'] \
            or endpoint in ENDPOINT_IGNORE \
+           or endpoint.find('admin') == 0 \
+           or endpoint.find('_show') > -1 \
            or endpoint.find('demo') > -1 or endpoint.find('test') > -1:
             print 'Safe or Very Danger>> ', endpoint
             continue
@@ -228,13 +278,10 @@ def permissions_update():
             continue
             
         name = ''
-        SPECIAL_NAMES = {
-            'index' : u'首页',
-            'timeline' : u'TimeLine',
-        }
         endpoint_tail = endpoint.split('.')[-1]
         if  endpoint_tail in SPECIAL_NAMES.keys():
             name = SPECIAL_NAMES[endpoint_tail]
+            continue
         else:
             for k in NAMES.keys():
                 if endpoint.find(k) == 0:
@@ -245,6 +292,7 @@ def permissions_update():
         operation = ''
         if endpoint in NAMES.keys():
             operation = u'查看'
+            continue
         elif len(pieces) > 1:
             if pieces[-1] in OPERATIONS:
                 operation = OPERATIONS[pieces[-1]]

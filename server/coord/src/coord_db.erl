@@ -1,19 +1,19 @@
 %%%----------------------------------------------------------------------
 %%% File    : coord_db.erl
 %%% Author  : Ery Lee <ery.lee@gmail.com>
-%%% Purpose : Create some mnesia db.
+%%% Purpose : Load tables from db.
 %%% Created : 19 Mar. 2011
 %%% License : http://www.opengoss.com
 %%% 
-%%% Copyright (C) 2011, www.opengoss.com
+%%% Copyright (C) 2012, www.opengoss.com
 %%%----------------------------------------------------------------------
 -module(coord_db).
 
 -author('ery.lee@gmail.com').
 
--include_lib("elog/include/elog.hrl").
-
 -include("coord.hrl").
+
+-include_lib("elog/include/elog.hrl").
 
 -behavior(gen_server).
 
@@ -29,14 +29,18 @@
         terminate/2,
         code_change/3]).
 
--record(state, {tabs, channel}).
+-record(state, {tables, channel}).
+
+-define(MONITOR_SQL, 
+    "select t.category, t.vendor, t.sysoid, t.match, t.mib, "
+    "t1.name as module, t1.period, t1.retries, t1.timeout "
+    "from monitors t left join modules t1 on t1.id = t.modid;").
 
 -define(TABLES, [
     sysoids,
     metrics,
     {miboids, {is_valid, 1}},
-    monitors,
-    modules,
+    {monitors, ?MONITOR_SQL},
     timeperiods
 ]).
 
@@ -60,15 +64,15 @@ reload() ->
 %% Description: Initiates the server
 %%--------------------------------------------------------------------
 init([]) ->
-    Tabs = load_from_db(),
+    Tables = load_from_db(),
 	{ok, Conn} = amqp:connect(),
     Channel = open(Conn),
 	?INFO_MSG("coord_db is started...[ok]"),
-    {ok, #state{tabs = Tabs, channel=Channel}}.
+    {ok, #state{tables = Tables, channel=Channel}}.
 
 open(Conn) ->
 	{ok, Channel} = amqp:open_channel(Conn),
-	amqp:topic(Channel, <<"sys.db">>),
+	amqp:fanout(Channel, <<"sys.db">>),
 	Channel.
 
 %%--------------------------------------------------------------------
@@ -80,22 +84,22 @@ open(Conn) ->
 %%                                      {stop, Reason, State}
 %% Description: Handling call messages
 %%--------------------------------------------------------------------
-handle_call(syncdb, _From, #state{tabs = Tabs, channel = Channel} = State) ->
+handle_call(syncdb, _From, #state{tables = Tables, channel = Channel} = State) ->
 	Publish = fun(Tab, Records) -> 
-		Key = list_to_binary(["db.", atom_to_list(Tab)]),
-		Payload = term_to_binary(Records, [compressed]),
+		Key = list_to_binary(["table.", atom_to_list(Tab)]),
+		Payload = term_to_binary({Tab, Records}, [compressed]),
 		?INFO("~p publish ~p to sys.db", [Channel, Key]),
 		amqp:publish(Channel, <<"sys.db">>, Payload, Key)
 	end,
-	[Publish(Tab, Records) || {Tab, Records} <- Tabs],
+	[Publish(Tab, Records) || {Tab, Records} <- Tables],
     {reply, ok, State};
 
 handle_call(reload, _From, State) ->
-    Tabs = load_from_db(),
-    {reply, ok, State#state{tabs = Tabs}};
+    Tables = load_from_db(),
+    {reply, ok, State#state{tables = Tables}};
     
-handle_call({dbquery, Tab}, _From, #state{tabs = Tabs} = State) ->
-    Records = proplists:get_value(Tab, Tabs),
+handle_call({dbquery, Tab}, _From, #state{tables = Tables} = State) ->
+    Records = proplists:get_value(Tab, Tables),
     {reply, {ok, Records}, State};
 
 handle_call(Req, _From, State) ->
@@ -111,10 +115,11 @@ handle_cast(Msg, State) ->
     {stop, {error, {badmsg, Msg}}, State}.
 
 handle_info({amqp, disconnected}, State) ->
-	?ERROR_MSG("amqp disconnected..."),
+	?ERROR_MSG("amqp is disconnected..."),
 	{noreply, State#state{channel = undefined}};
 
 handle_info({amqp, reconnected, Conn},State) ->
+	?ERROR_MSG("amqp is reconnected..."),
 	{noreply, State#state{channel = open(Conn)}};
 
 handle_info(Info, State) ->
@@ -127,14 +132,17 @@ terminate(_Reason, _State) ->
     ok.
 
 load_from_db() ->
-    lists:map(fun(Table) -> 
-        case Table of
-        {Tab, Where} -> 
-            {ok, Records} = epgsql:select(main, Tab, Where),
-            {Tab, Records};
-        Tab when is_atom(Tab) ->
-            {ok, Records} = epgsql:select(main, Tab),
-            {Tab, Records}
-        end
-    end, ?TABLES).
+    [load_table(Tab) || Tab <- ?TABLES].
+
+load_table(Tab) when is_atom(Tab) ->
+    {ok, Records} = epgsql:select(main, Tab),
+    {Tab, Records};
+
+load_table({Tab, Where}) when is_tuple(Where) ->
+    {ok, Records} = epgsql:select(main, Tab, Where),
+    {Tab, Records};
+
+load_table({Tab, SQL}) when is_list(SQL) ->
+    {ok, Records} = epgsql:squery(main, SQL),
+    {Tab, Records}.
 

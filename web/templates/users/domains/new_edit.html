@@ -15,14 +15,14 @@ $(document).ready(function(){
     checkbox: true,
     selectMode: 2,
     initAjax: {
-      url     : "{{url_for('users.domain_load_nodes')}}",
+      url     : "{{url_for('users.domains_load_nodes')}}",
       data    : {
         domain_areas: "{{domain_areas}}"
       }
     },
     onLazyRead: function(node){
       node.appendAjax({
-        url     : "{{url_for('users.domain_load_nodes')}}",
+        url     : "{{url_for('users.domains_load_nodes')}}",
         data    : {
           key: node.data.key,
         }

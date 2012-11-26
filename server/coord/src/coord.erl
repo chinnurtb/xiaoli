@@ -65,10 +65,7 @@ shards() ->
 presences() ->
     gen_server2:call(?MODULE, presences).
 
-dispatch(Node) when is_record(Node, node) ->
-    gen_server2:cast(?MODULE, {dispatch, Node});
-
-dispatch(Task) when is_tuple(Task) ->
+dispatch(Task) ->
     gen_server2:cast(?MODULE, {dispatch, Task}).
 
 %%--------------------------------------------------------------------
@@ -134,7 +131,6 @@ handle_call(presences, _From, State) ->
     Presences = lists:flatten([mnesia:dirty_read(presence, N) || N <- Nodes]),
     {reply, Presences, State};
 
-
 handle_call(Req, _From, State) ->
     {stop, {error, {badreq, Req}}, State}.
 
@@ -149,9 +145,10 @@ prioritise_call(shards, _From, _State) ->
 prioritise_call(_, _From, _State) ->
     5.
 
-handle_cast({dispatch, #node{dn = Dn} = Node}, #state{channel = Ch} = State) ->
-    Payload = term_to_binary({node, Node}),
-    Timer = send_after(?TIMEOUT, self(), {timeout, {node, Dn}}),
+handle_cast({dispatch, {monitor, #node{dn = Dn} = Node}}, 
+    #state{channel = Ch} = State) ->
+    Payload = term_to_binary({node, node(), {monitor, Node}}),
+    Timer = send_after(?TIMEOUT, self(), {timeout, {node, monitor, Dn}}),
     case mnesia:dirty_read(dispatch, Dn) of
     [] -> %still not be dispatched
         ShardQueue = list_to_binary(["shard.", Node#node.city]),
@@ -169,64 +166,59 @@ handle_cast({dispatch, #node{dn = Dn} = Node}, #state{channel = Ch} = State) ->
 
 handle_cast({dispatch, {update, Node}}, #state{channel = Ch} = State) ->
     #node{dn=Dn, city=City} = Node,
-    Payload = term_to_binary({node, update, Node}),
     case mnesia:dirty_read(dispatch, Dn) of
     [] -> %still not be dispatched
+        Timer = send_after(?TIMEOUT, self(), {timeout, {node, monitor, Dn}}),
+        Payload = term_to_binary({node, node(), {monitor, Node}}),
         ShardQueue= list_to_binary(["shard.", City]),
-        ?INFO("dispatch 'update ~s' to ~s", [Dn, ShardQueue]),
+        ?INFO("dispatch node ~s to ~s", [Dn, ShardQueue]),
         amqp:publish(Ch, <<"sys.shard">>, Payload, ShardQueue), 
-        mnesia:dirty_write(#dispatch{dn=Dn, tref=undefined}); %TODO: FIX LATER
+        mnesia:dirty_write(#dispatch{dn=Dn, tref=Timer}); 
     [#dispatch{shard = undefined}] ->
         %shold pending for a while
-        ?ERROR("shard is undefined for ~p", [Dn]);
+        ?ERROR("shard is undefined for ~p when updating", [Dn]);
     [#dispatch{shard = ShardNode}] ->
         ?INFO("dispatch 'update ~s' to ~s", [Dn, ShardNode]),
+        Payload = term_to_binary({node, node(), {update, Node}}),
         amqp:send(Ch, atom_to_list(ShardNode), Payload)
     end,
     {noreply, State};
 
 handle_cast({dispatch, {delete, Dn}}, #state{channel = Ch} = State) ->
-    Payload = term_to_binary({node, delete, Dn}),
+    Payload = term_to_binary({node, node(), {delete, Dn}}),
     case mnesia:dirty_read(dispatch, Dn) of
     [] ->
         ignore;
     [#dispatch{shard = undefined}] ->
+        ?ERROR("shard is undefined for ~p when deleted.", [Dn]),
         ignore;
-    [#dispatch{shard = Shard}] ->
-        ?INFO("dispatch 'delete ~s' to ~s", [Dn, Shard]),
-        amqp:send(Ch, atom_to_list(Shard), Payload)
+    [#dispatch{shard = ShardNode}] ->
+        ?INFO("dispatch 'delete ~s' to ~s", [Dn, ShardNode]),
+        amqp:send(Ch, atom_to_list(ShardNode), Payload)
     end,
     mnesia:dirty_delete(dispatch, Dn),
+    {noreply, State};
+
+handle_cast({dispatch, Task},  State) ->
+    ?ERROR("unknown task: ~p", [Task]),
     {noreply, State};
 
 handle_cast(Msg, State) ->
     {stop, {error, {badmsg, Msg}}, State}.
 
 handle_info({deliver, <<"mit.deleted">>, _Props, Payload}, State) ->
-    case binary_to_term(Payload) of
-	Node when is_record(Node, node) ->
-        dispatch({delete, Node});
-    BadTerm ->
-		?ERROR("badterm: ~p", [BadTerm])
-    end,
+    {deleted, Node} = binary_to_term(Payload),
+    dispatch({delete, Node}),
     {noreply, State};
 
 handle_info({deliver, <<"mit.inserted">>, _Props, Payload}, State) ->
-    case binary_to_term(Payload) of
-	Node when is_record(Node, node) -> 
-        dispatch(Node);
-	BadTerm ->
-		?ERROR("badterm: ~p", [BadTerm])
-	end,
+    {inserted, Node} = binary_to_term(Payload), 
+    dispatch({monitor, Node}),
     {noreply, State};
 
 handle_info({deliver, <<"mit.updated">>, _Props, Payload}, State) ->
-    case binary_to_term(Payload) of
-	Node when is_record(Node, node) -> 
-        dispatch({update, Node});
-	BadTerm ->
-		?ERROR("badterm: ~p", [BadTerm])
-	end,
+    {updated, Node} = binary_to_term(Payload), 
+    dispatch({update, Node}),
     {noreply, State};
 
 handle_info(ping, #state{channel = Channel} = State) ->
@@ -289,32 +281,36 @@ handle_info({deliver, <<"heartbeat">>, _, Payload}, State) ->
     end,
 	{noreply, State};
 
-handle_info({deliver, <<"join.shard">>, _, Payload}, State) ->
+handle_info({deliver, <<"node.monitored">>, _, Payload}, State) ->
     case binary_to_term(Payload) of
-    {Node, Queue} ->
-        mnesia:dirty_write(#shard{node=Node, queue=Queue, count=0});
-    Term ->
-        ?ERROR("error shard: ~p", [Term])
-    end,
-    {noreply, State};
-
-handle_info({deliver, <<"reply.shard">>, _, Payload}, State) ->
-    case binary_to_term(Payload) of
-    {managed, Dn, NewShard} ->
+    {node, FromShard, {monitored, Dn}} ->
         case mnesia:dirty_read(dispatch, Dn) of
         [#dispatch{shard = OldShard} = Dispatch] ->
-            if 
-            OldShard == undefined -> ok;
-            OldShard == NewShard -> ok;
-            true -> ?ERROR("tow shard for one dn: ~s~noldshard: ~s, newshard: ~s", [Dn, OldShard, NewShard])
+            if
+            OldShard == undefined -> 
+                ok;
+            OldShard == FromShard -> 
+                ok;
+            true -> 
+                ?ERROR("tow shard for one dn: ~s", [Dn]),
+                ?ERROR("oldshard: ~s, newshard: ~s", [OldShard, FromShard])
             end,
             cancel_timer(Dispatch#dispatch.tref),
-            mnesia:dirty_write(Dispatch#dispatch{shard = NewShard, tref = undefined}); 
+            mnesia:dirty_write(Dispatch#dispatch{shard = FromShard, tref = undefined}); 
         [] -> 
             ?ERROR("bad_shard_reply for ~s", [Dn])
         end;
-    Term ->
-        ?ERROR("uknown term: ~p", [Term])
+    BadTerm ->
+        ?ERROR("badterm: ~p", [BadTerm])
+    end,
+    {noreply, State};
+
+handle_info({deliver, <<"join.shard">>, _, Payload}, State) ->
+    case binary_to_term(Payload) of
+    {join, Node, Queue} ->
+        mnesia:dirty_write(#shard{node=Node, queue=Queue, count=0});
+    BadTerm ->
+        ?ERROR("error shard: ~p", [BadTerm])
     end,
     {noreply, State};
 
@@ -322,7 +318,6 @@ handle_info({offline, Node}, State) ->
     ?ERROR("~s is offline", [Node]),
     case mnesia:dirty_read(presence, Node) of
     [Presence] ->
-
         handle_offline(Presence);
     [] ->
         ok
@@ -338,7 +333,7 @@ handle_info({amqp, reconnected, Conn}, State) ->
 	?INFO("amqp is reconnected...", []),
 	{noreply, State#state{channel = open(Conn)}};
 
-handle_info({timeout, {node, Dn}}, State) ->
+handle_info({timeout, {node, monitor, Dn}}, State) ->
     ?ERROR("dispatch timeout: ~s", [Dn]),
     mnesia:dirty_delete(dispatch, Dn),
     {noreply, State};
@@ -388,4 +383,5 @@ handle_offline(#presence{node = Node, class = node}) ->
 
 handle_offline(_Presence) ->
     ignore.
+
 
