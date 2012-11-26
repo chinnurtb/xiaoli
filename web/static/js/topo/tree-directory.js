@@ -88,7 +88,7 @@ function loadDirectoryTree(sid) {
               .attr("height", "16px")
               .on("click",click);
       nodeEnter.append("svg:image")
-              .attr("xlink:href", "/static/js/topo/images/olt.png")
+              .attr("xlink:href", nodeImage)
               .attr("x", "-12px")
               .attr("y", "-10px")
               .attr("width", "20px")

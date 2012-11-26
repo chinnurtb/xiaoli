@@ -170,8 +170,9 @@ class EmailColumn(BaseLinkColumn):
 
 class PopoverColumn(BaseLinkColumn):
     def render(self, value, record=None, bound_column=None):
-        html = u'<button rel="popover" class="btn btn-small" popover-content="123" popover-title="12" data-placement="left">{text}</button>'.format(
+        html = u'<button rel="popover" class="btn btn-small" data-content="{content}" data-original-title="{title}" data-placement="bottom">{text}</button>'.format(
             content=escape(value),
+            title=escape(record.module.replace('<','').replace('>','')),
             text=escape(bound_column.verbose_name)
         )
         return Markup(html)

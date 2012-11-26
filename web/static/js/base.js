@@ -28,13 +28,17 @@ $(function(){
     $.get($(this).attr('href'), function(data){
       console.log(data);
       $('#myModal').html(data).modal('show');
+    }).error(function(err) {
+      console.log(err);
+      alert("错误:" + err.status);
     });
   });
 });
 
 
 $(function() { 
-  $("[rel=tooltip]").tooltip(); 
+    $("[rel=tooltip]").tooltip();
+    $("[rel=popover]").popover();
 });
 
 
