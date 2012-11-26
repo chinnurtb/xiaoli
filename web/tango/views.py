@@ -22,7 +22,6 @@ tangoview = Blueprint('tango', __name__)
 # ==============================================================================    
 from .tdata import *
 from tango.ui.charts.nvd3charts import *
-from tango.ui.charts.highcharts import *
 
 def nested_dict(name, form):
     dict = {}

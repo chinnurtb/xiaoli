@@ -111,16 +111,18 @@ def json_load_nodes():
         ca = a+1
         A = {'name': 'ONU-' + str(ca), 'children': [],
              'level': onu_lv, 'id': 'onu-'+str(ca), "size": ca * 30}
+        A['status'] = rand.randint(0, 5)
         for b in range(nb):     # EOC
             cb = b+1
             B = {'name': 'EOC-' + str(cb), 'children': [],
                  'level': eoc_lv, 'id': 'eoc-'+str(cb), "size": cb * 30}
+            B['status'] = rand.randint(0, 5)
             nc = nnc
             for c in range(nc): # CPE
                 cc = c+1
                 C = {'name': 'CPE-' + str(cc), 'url': 'http://www.stackoverflow.com',
                      'level': cpe_lv, 'id': 'cpe-'+str(cc) , "size": cc * 30}
-                C['status'] = 1 if c % rand.randint(2, 6) != 0 else 0
+                C['status'] = rand.randint(0, 5)
                 C['lstatus'] =  1 if c % 5 > 1 else 0
                 if selected('CPE', cc):
                     if data['maxlevel'] < cpe_lv:

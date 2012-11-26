@@ -70,6 +70,28 @@
     fill: #FFF;
 }
 
+
+/* Statuses Color */
+/* badge */
+.badge-alarm-clear { 
+     fill: #00FF00; 
+}
+.badge-alarm-indeterminate {
+    fill: #773EF7; 
+}
+.badge-alarm-warning {
+    fill: #43d5fa; 
+}
+.badge-alarm-minor {
+    fill: #E6F940;
+}
+.badge-alarm-major {
+    fill: #F6983E;
+}
+.badge-alarm-critical {
+    fill: #ED4D5A;
+}
+
 /* Force chart */
 #fcchart circle.node {
     cursor: pointer;
