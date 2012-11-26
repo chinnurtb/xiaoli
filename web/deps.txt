@@ -8,7 +8,6 @@ SQLAlchemy
 Flask-SQLAlchemy
 Flask-Auth
 Flask-Login
-flask_cache
 redis
 psycopg2
 pydot
@@ -16,3 +15,4 @@ simplejson
 blinker # signalling support
 uwsgi
 supervisor
+pyDes
