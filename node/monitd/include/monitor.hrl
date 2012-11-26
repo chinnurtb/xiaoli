@@ -7,7 +7,7 @@
 	 tref=undefined,
 	 duration,
 	 latency,
-	 handler, %function
+	 handler,
 	 created_at,
 	 last_sched_at,
 	 next_sched_at}). 

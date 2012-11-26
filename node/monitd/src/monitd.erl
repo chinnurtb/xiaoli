@@ -141,20 +141,18 @@ handle_info({deliver, <<"ping">>, _, _}, #state{shards = Shards, channel = Ch} =
 
 handle_info({deliver, <<"table.", Tab/binary>>, _, Payload}, State) ->
 	?INFO("dbtab: ~s, payload: ~p", [Tab, size(Payload)]),
-	case binary_to_term(Payload) of
-	{miboids, Records} ->
-		mib_registry:initialize({miboids, Records});
-    {metrics, Records} ->
-		monitd_hub:initialize({metrics, Records});
-	{sysoids, Records} ->
-		monitd_disco:initialize({sysoids, Records});
-    {monitors, Records} -> 
-        broadcast(monitors, Records);
-    {timeperiods, Records} ->
-        broadcast(timeperiods, Records);
-    {Table, _Records} ->
-        ?ERROR("~p table is not used", [Table])
+	{Table, Records} = binary_to_term(Payload),
+    case Table of
+	miboids ->
+	   mib_registry:initialize({miboids, Records});
+    metrics ->
+	   monitd_hub:initialize({metrics, Records});
+	sysoids ->
+	   monitd_disco:initialize({sysoids, Records});
+    _ ->
+        ignore
     end,
+    broadcast(Table, Records),
     {noreply, State};
 
 handle_info({amqp, disconnected}, State) ->
