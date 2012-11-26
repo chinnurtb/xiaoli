@@ -1,4 +1,5 @@
 # coding: utf-8
+from tango import db
 
 class Dashboard(object):
     
@@ -24,7 +25,8 @@ class Dashboard(object):
         self.welcome = '1'
 
     def add_widget(self, id, title, content=None, url=None, column='normal'):
-        self.widgets.append(Widget(id, title, content, url, column)) 
+        if db.app.config['license_permit'].has_key(id):
+            self.widgets.append(Widget(id, title, content, url, column))
 
     def configure(self, profile):
         self.layout = int(profile.get(Dashboard.layout_meta, '2'))

@@ -1,25 +1,23 @@
-{% from "tango/_sidebar_h.html" import render_sidebar %}
-
-{{ render_sidebar('节点性能', menuid, [
+{{ sidebar('节点性能', menuid, [
     ('ping', 'PING时延', url_for('perf.ping', _advshow='1')),
     ('cpumem', 'CPU/内存', url_for('perf.cpumem', _advshow='1')),
     ('intfusage', '端口占用', url_for('perf.intfusage', name='all', _advshow='1')), 
     ('intftraffic', '端口流量', url_for('perf.intftraffic', name='all', _advshow='1')) 
 ]) }}
 
-{{ render_sidebar('OLT性能', menuid, [
+{{ sidebar('OLT性能', menuid, [
     ('intftraffic_oltup', '上联口流量流速', url_for('perf.intftraffic', name='oltup', _advshow='1')), 
     ('intftraffic_oltpon', 'PON口流量流速', url_for('perf.intftraffic', name='oltpon', _advshow='1')), 
     ('ponusage', 'PON口占用率', url_for('perf.ponusage', _advshow='1')), 
     ('ponpower', 'PON口光功率', url_for('perf.ponpower', _advshow='1'))
 ]) }}
 
-{{ render_sidebar('ONU性能', menuid, [
+{{ sidebar('ONU性能', menuid, [
     ('intftraffic_onupon', 'PON口流量流速', url_for('perf.intftraffic', name='onupon', _advshow='1')), 
     ('intfusage_onu', '用户口占用率', url_for('perf.intfusage', name='onu', _advshow='1')) 
 ]) }}
 
-{{ render_sidebar('EOC性能', menuid, [ 
+{{ sidebar('EOC性能', menuid, [
     ('intftraffic_eocup', '上联口流量流速', url_for('perf.intftraffic', name='eocup', _advshow='1')), 
     ('intftraffic_cpe', 'CPE流量流速', url_for('perf.intftraffic', name='cpe', _advshow='1')) 
 ]) }} 

@@ -141,12 +141,10 @@ def is_ie():
 
 def check_permissions():
     permissions_all = [p.endpoint for p in Permission.query.all()]
-    permissions = current_user.role.permissions
-    for p in permissions:
-        if request.endpoint in permissions_all and  request.endpoint == p.endpoint:
-            return
-    print 'Permission check failed'
-    abort(403)
+    permissions = [p.endpoint for p in current_user.role.permissions]
+    if request.endpoint in permissions_all and request.endpoint not in permissions:
+        print 'Permission check failed'
+        abort(403)
 
 from alarms.models import query_severities
 
