@@ -46,7 +46,7 @@ def json_load_directory():
             node = {
                 'name'     : '%s-%s' % (lv ,str(i)),
                 'children' : None,
-                'level'    : len(lvs)-1,
+                'level'    : len(lvs),
                 'id'       : '%s-%s' % (lv.lower() ,str(i)),
             }
             node['_children'] = [] if  (len(path) < len(lvs_all)-1) else None
