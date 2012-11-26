@@ -7,10 +7,12 @@
     coord_ctl,
     coord_db
   ]},
-  {registered, [coord,
+  {registered, [
+    coord,
     coord_db,
     coord_dist
   ]},
   {applications, [kernel, stdlib]},
   {env, []},
   {mod, {coord_app, []}}]}.
+
