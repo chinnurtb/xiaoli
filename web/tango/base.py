@@ -20,7 +20,7 @@ class Page(Blueprint):
 
 class AutoIncrDict(dict):
     '''
-    Used by :: [demjson.py, highcharts.py]
+    Used by :: [demjson.py]
     
     ``` Example:
         >>> d = AutoIncrSortedDict()

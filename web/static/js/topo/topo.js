@@ -10,6 +10,10 @@ $(function(){
       sid : '#tfchart',
       updater : loadFlowTree,
     },
+    flowDrag : {
+      sid : '#tfdchart',
+      updater : loadFlowDragTree,
+    },
     interactive : {
       sid : '#tichart',
       updater : loadInteractiveTree,
