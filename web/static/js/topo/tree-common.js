@@ -25,6 +25,18 @@ function nodeImage(d){
   return images[d.level];
 }
 
+function statusClass(d){
+  var statuses = {
+    0 : 'badge-alarm-clear',
+    1 : 'badge-alarm-indeterminate',
+    2 : 'badge-alarm-warning',
+    3 : 'badge-alarm-minor',
+    4 : 'badge-alarm-major',
+    5 : 'badge-alarm-critical',
+  };
+  return statuses[d.status];
+}
+
 function getTransform(selector){
   var transform = $(selector).attr("transform");
   if (!transform){
@@ -74,18 +86,16 @@ function renderNodes(sid, node, collapse) {
   // 1. xlink, 2. image, 3. circle, 4. menu
   d3.selectAll(sid + " path.link").attr("class", function(d) {return d.target.lstatus == 0 ? "broken link" : "link"})
   
+  node.append("circle")
+    .attr("r", 10)
+    .attr("class", statusClass);
+  
   node.append("svg:image")
     .attr("xlink:href", nodeImage)
     .attr("x", "-10px")
     .attr("y", "-10px")
     .attr("width", "20px")
     .attr("height", "20px");
-  
-  node.append("circle")
-    .attr("r", 10)
-    .attr("class", "status")
-    .style("opacity", 0.2)
-    .style("fill", function(d) { return d.status == 0 ? "red" : "green"});
   
   if (collapse){
     node.append("circle")
