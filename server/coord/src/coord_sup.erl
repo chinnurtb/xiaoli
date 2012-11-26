@@ -17,3 +17,4 @@ init([]) ->
 	            permanent, 5000, worker, [coord]},
 	{ok, {{one_for_one, 10, 1000}, [Db, Srv]}}. 
 
+

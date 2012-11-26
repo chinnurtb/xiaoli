@@ -26,61 +26,29 @@ syncdb() ->
     ?PRINT_MSG("[done] ~n").
 
 run() ->
-	run(undefined).
-
-%dispatch tasks
-run(City) ->
     ?PRINT_MSG("runing...~n"),
-	Dispatch = fun(Dn) ->
-		case mit:lookup(Dn) of
-		{ok, Node} ->
-			case should_dispath(City, Node) of
-			true -> 
-				increas(dispatched, 1),
-				coord:dispatch(Node),
-                timer:sleep(2),
-				case get(dispatched) rem 1000 of
-				0 -> ?INFO("~p entries dispatched.", [get(dispatched)]);
-				_ -> ignore
-				end;
-			false ->
-                ?INFO("ignore ~p", [Dn]),
-				ignore
-			end;
-		{false, _} -> 
-			?ERROR("~p is not found", [Dn])
-		end
-	end,
-    AllDn = mit:alldn(),
-    ?INFO("begin to dispatch ~p nodes...", [length(AllDn)]),
+    ?INFO("begin to dispatch ~p nodes...", [mnesia:table_info(node, size)]),
     try
-        lists:foreach(Dispatch, AllDn),
-        ?INFO("~p dispatched, done.", [get(dispatched)])
+        dispatch(mnesia:first(node)),
+        ?PRINT("dispatched, done.~n", [])
     catch
-        _:Err -> 
-            ?ERROR("dispatch error: ~p", [Err]),
-            ?ERROR("~p", [erlang:get_stacktrace()])
+    _:Err -> 
+        ?ERROR("dispatch error: ~p", [Err]),
+        ?ERROR("~p", [erlang:get_stacktrace()])
+    end.
+
+dispatch('$end_of_table') -> 
+    ok;
+dispatch(Dn) ->
+    case mnesia:dirty_read(node, Dn) of
+    [Node] ->
+        coord:dispatch({monitor, Node}),
+        timer:sleep(2);
+    [] ->
+        ?ERROR("~p is not found", [Dn])
     end,
-    ?PRINT("dispatching tasks...~n", []),
-    ?PRINT("relax and enjoy:)~n", []).
-
-should_dispath(undefined, _Node) ->
-	true;
-should_dispath(City, Node) when is_list(City) ->
-    should_dispath(list_to_binary(City), Node);
-should_dispath(City, #node{city= City}) when is_binary(City) ->
-    true;
-should_dispath(_, _) ->
-    false.
-
-increas(dispatched, Num) ->
-	case get(dispatched) of
-	undefined ->
-		put(dispatched, Num);
-	Total ->
-		put(dispatched, Total+Num)
-	end.
-
+    dispatch(mnesia:next(Dn)).
+    
 status() ->
     {InternalStatus, _ProvidedStatus} = init:get_status(),
     ?PRINT("Node ~p is ~p.", [node(), InternalStatus]),
