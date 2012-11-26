@@ -3,7 +3,7 @@
 from flask import (Blueprint, request, url_for, redirect,
                    render_template, flash, json)
 
-from tango import db
+from tango import db, cache
 from tango.ui.tables import make_table
 from tango.models import Setting, DictCode, Category
 from tango.ui import navbar
@@ -50,6 +50,7 @@ def settings_edit(id):
         old_value = setting.value
         setting.value = form.value.data
         db.session.commit()
+        cache.delete(setting.mod+'.'+setting.name)
         flash(u'%s 被修改:(%s)--> %s' % (setting.name, old_value, form.value.data), 'success')
         return redirect('/system/settings/')
     form.process(obj=setting)
