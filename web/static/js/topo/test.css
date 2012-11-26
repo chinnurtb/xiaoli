@@ -95,7 +95,7 @@
     width: 220px;
     overflow-y: auto;
     fill: #D5D5D5;
-    margin-top: -20px;
+    margin-top: -26px;
     padding: 4px;
 }
 
@@ -106,7 +106,6 @@
 
 #tree .node text {
   fill: #111;
-  font: 14px sans-serif;
   pointer-events: none;
 }
 

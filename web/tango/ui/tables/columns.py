@@ -11,7 +11,7 @@ from flask import url_for
 from .utils import *
 
 __all__ = ['Column', 'EnumColumn', 'CheckBoxColumn', 'BaseLinkColumn', 'LinkColumn',
-           'EmailColumn', 'DateTimeColumn', 'BoundColumn', 'BoundColumns']
+           'EmailColumn', 'DateTimeColumn', 'BoundColumn', 'BoundColumns','PopoverColumn']
 
 ## Column
 class Column(object):
@@ -168,6 +168,13 @@ class EmailColumn(BaseLinkColumn):
     def render(self, value):
         return self.render_link("mailto:%s" % value, value)
 
+class PopoverColumn(BaseLinkColumn):
+    def render(self, value, record=None, bound_column=None):
+        html = u'<button rel="popover" class="btn btn-small" popover-content="123" popover-title="12" data-placement="left">{text}</button>'.format(
+            content=escape(value),
+            text=escape(bound_column.verbose_name)
+        )
+        return Markup(html)
 
 class DateTimeColumn(Column):
     def __init__(self, verbose_name, format='%Y-%m-%d %H:%M:%S', *args, **extra):

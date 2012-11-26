@@ -48,7 +48,7 @@ class Accessor(str):
                 current = current[bit]
             except (TypeError, AttributeError, KeyError):
                 try:  # attribute lookup
-                    current = getattr(current, bit)
+                    if hasattr(current, bit): current = getattr(current, bit)
                 except (TypeError, AttributeError):
                     try:  # list-index lookup
                         current = current[int(bit)]

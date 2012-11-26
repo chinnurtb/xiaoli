@@ -160,3 +160,14 @@ class Category(db.Model):
 
     def __unicode__(self):
         return u'<全局分类 %s>' % self.alias
+
+class SysParam(db.Model):
+    __tablename__ = 'sysparams'
+    id          = db.Column(db.Integer, primary_key=True)
+    param_code  = db.Column(db.String(50))
+    param_name  = db.Column(db.String(50))
+    param_value = db.Column(db.String(200))
+    remark      = db.Column(db.String(100))
+
+    def __unicode__(self):
+        return u'<系统参数 %s>' % self.param_name

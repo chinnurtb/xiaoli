@@ -88,11 +88,11 @@ def olts_edit(id):
     node = NodeOlt.query.get_or_404(id)
     if request.method == 'POST':
         if form.validate_on_submit():
-            if node.name != form.name.data and NodeOlt.query.filter(NodeOlt.name==node.name).count() > 0:
+            if node.name != form.name.data and NodeOlt.query.filter(NodeOlt.name==form.name.data).count() > 0:
                 flash(u'OLT名称不能重复','error')
-            elif node.alias != form.alias.data and NodeOlt.query.filter(NodeOlt.alias==node.alias).count() > 0:
+            elif node.alias != form.alias.data and NodeOlt.query.filter(NodeOlt.alias==form.alias.data).count() > 0:
                 flash(u'OLT别名不能重复','error')
-            elif node.addr != form.addr.data and NodeOlt.query.filter(NodeOlt.addr==node.addr).count() > 0:
+            elif node.addr != form.addr.data and NodeOlt.query.filter(NodeOlt.addr==form.addr.data).count() > 0:
                 flash(u'OLT IP地址不能重复','error')
             else:
                 del form._fields["cityid"]

@@ -15,7 +15,7 @@ from tango.ui import navbar
 from tango.ip import ip_from
 from tango import db, cache, login_mgr
 from tango.login import login_required, current_user
-from tango.models import Setting
+from tango.models import Setting, SysParam
 
 from users.models import User
 
@@ -24,6 +24,10 @@ app.config.from_pyfile('settings.py')
 db.init_app(app)
 db.app = app
 cache.init_app(app)
+
+#加载LICENSE
+from decrypt_license import decrypt_license
+app.config['license_permit'] = decrypt_license(app.config.get("LICENSE_KEY"))
 
 login_mgr.login_view = "/login"
 login_mgr.login_message = u"请先登录系统."
@@ -39,10 +43,10 @@ def record_oplogs(app,changes):
             continue
         oplog = OperationLog()
         oplog.user = current_user
-        oplog.module = request.endpoint
+        oplog.module = unicode(change[0])
         oplog.action = change[1]
         oplog.terminal_ip = request.remote_addr
-        oplog.summary = unicode(change[0])
+        oplog.summary = str(change[0].__dict__)
         db.session.add(oplog)
 models_committed.connect(record_oplogs)
 before_models_committed.connect(record_oplogs)
@@ -199,6 +203,25 @@ def ifnull(value, default=""):
         return default
     else:
         return value
+
+@app.context_processor
+def utility_processor():
+    def sidebar(title, current_menuid, items):
+        from jinja2 import Markup
+        html = ['<ul class="nav bs-docs-sidenav">']
+        for id, text, href in items:
+            if id == '#divider':
+                html.append('<li class="divider"></li>')
+            else:
+                li_class = 'active' if current_menuid and current_menuid ==id else ''
+                if app.config["license_permit"].has_key(id):
+                    html.append('<li class="%s"><a href="%s"><i class="icon-chevron-right"></i> %s</a></li>' % (
+                        li_class, href, text) )
+        if title != '' and len(html) > 1:
+            html.insert(1, '<li class="nav-header popover-title">%s</li>' % title)
+        html.append('</ul>')
+        return Markup(u"\n".join(html))
+    return dict(sidebar=sidebar)
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', debug=True)
