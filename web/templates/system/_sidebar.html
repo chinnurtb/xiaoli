@@ -1,6 +1,4 @@
-{% from "tango/_sidebar_h.html" import render_sidebar %}
-
-{{ render_sidebar('系统管理', menuid, [
+{{ sidebar('系统管理', menuid, [
         ('settings', '参数设置', url_for('system.settings')),
         ('dict_codes', '字典管理', url_for('system.dict_codes')),
         ('thresholds','阀值管理', url_for('system.thresholds')),
@@ -9,12 +7,12 @@
         ])
 }}
 
-{{ render_sidebar('日志管理', menuid, [
+{{ sidebar('日志管理', menuid, [
         ('seclogs', '安全日志', url_for('system.seclogs')),
         ('oplogs', '操作日志', url_for('system.oplogs'))])
 }}
 
-{{ render_sidebar('网管系统', menuid, [
+{{ sidebar('网管系统', menuid, [
     ('hosts','所有服务器', '/hosts'),
     ('subsystems','所有子系统', '/subsystems')])
 }}

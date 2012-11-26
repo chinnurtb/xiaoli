@@ -1,7 +1,4 @@
-
-{% from "tango/_sidebar_h.html" import render_sidebar %}
-
-{{ render_sidebar('系统管理', menuid, [
+{{ sidebar('系统管理', menuid, [
     ('categories',   '分类',     url_for('admin.categories')),
     ('permissions',   '权限',     url_for('admin.permissions')),
     ('vendors',     '供应商',     url_for('admin.vendors')),
@@ -12,5 +9,5 @@
 }}
 
 
-{{ render_sidebar('MIB管理', menuid, mibs)}}
+{{ sidebar('MIB管理', menuid, mibs)}}
 
