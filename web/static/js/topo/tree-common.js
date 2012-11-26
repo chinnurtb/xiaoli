@@ -14,6 +14,17 @@ function updateChart(){
   });
 }
 
+function nodeImage(d){
+  var images = {
+    1 : "/static/js/topo/images/olt.png",
+    2 : "/static/js/topo/images/onu.png",
+    3 : "/static/js/topo/images/eoc.png",
+    4 : "/static/js/topo/images/cpe.png",
+  };
+  
+  return images[d.level];
+}
+
 function getTransform(selector){
   var transform = $(selector).attr("transform");
   if (!transform){
@@ -64,7 +75,7 @@ function renderNodes(sid, node, collapse) {
   d3.selectAll(sid + " path.link").attr("class", function(d) {return d.target.lstatus == 0 ? "broken link" : "link"})
   
   node.append("svg:image")
-    .attr("xlink:href", function(d){return "http://ww2.sinaimg.cn/large/412e82dbjw1dsbny7igx2j.jpg";})
+    .attr("xlink:href", nodeImage)
     .attr("x", "-10px")
     .attr("y", "-10px")
     .attr("width", "20px")
@@ -73,7 +84,7 @@ function renderNodes(sid, node, collapse) {
   node.append("circle")
     .attr("r", 10)
     .attr("class", "status")
-    .style("opacity", 0.3)
+    .style("opacity", 0.2)
     .style("fill", function(d) { return d.status == 0 ? "red" : "green"});
   
   if (collapse){
