@@ -153,12 +153,17 @@ from alarms.models import query_severities
 def brand():
     return Setting.find('product', 'brand').value
 
+@cache.cached(key_prefix="product.navrow")
+def navrow():
+    return Setting.find('product', 'navrow').value
+
 @app.before_request
 def before_request():
     if not app.config['DEBUG']:
         check_ip()
         
     g.brand = brand()
+    g.navrow = navrow()
     # Equal to @login_required
     if current_user.is_anonymous():
         if request.endpoint not in current_app.config['SAFE_ENDPOINTS']:

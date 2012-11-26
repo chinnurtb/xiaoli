@@ -94,8 +94,8 @@ case "$1" in
         ;;
 
     run)
-        if [ $# -lt 1 ]; then
-            echo "Usage: $SCRIPT run [BDN]"
+        if [ $# -ne 1 ]; then
+            echo "Usage: $SCRIPT run"
             exit 1
         fi
 
@@ -195,32 +195,14 @@ case "$1" in
         $NODETOOL rpc coord_ctl lookup $@
         ;;
 
-    mit_sync)
-        if [ $# -lt 2 ]; then
-            echo "Usage: $SCRIPT mit_sync BDN"
-            exit 1
-        fi
-
-        # Make sure the local node IS running
-        RES=`$NODETOOL ping`
-        if [ "$RES" != "pong" ]; then
-            echo "Node is not running!"
-            exit 1
-        fi
-        shift
-
-        $NODETOOL rpc coord_ctl mit_sync $@
-        ;;
-
     *)
         echo "Usage: $SCRIPT status       #query coord status"
 		echo "		 syncdb		#loading db and sync with nodes"
-		echo "		 run [BDN]		#dispatch tasks to node"
+		echo "		 run     	#dispatch nodes to node"
 		echo "		 shards		#query shards"
 		echo "		 presences	#query presences"
 		echo "		 dispatches <DN>#query dispatched tasks of this DN"
 		echo "		 lookup <DN>	#query cached info of this DN"
-		echo "		 mit_syn <BDN>	#dispatch tasks to nodes"
 		echo "		 cluster_info		#query cluster nodes"
         exit 1
         ;;

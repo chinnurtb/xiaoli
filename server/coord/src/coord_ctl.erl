@@ -29,7 +29,7 @@ run() ->
     ?PRINT_MSG("runing...~n"),
     ?INFO("begin to dispatch ~p nodes...", [mnesia:table_info(node, size)]),
     try
-        dispatch(mnesia:first(node)),
+        dispatch(mnesia:dirty_first(node)),
         ?PRINT("dispatched, done.~n", [])
     catch
     _:Err -> 
@@ -47,7 +47,7 @@ dispatch(Dn) ->
     [] ->
         ?ERROR("~p is not found", [Dn])
     end,
-    dispatch(mnesia:next(Dn)).
+    dispatch(mnesia:dirty_next(node, Dn)).
     
 status() ->
     {InternalStatus, _ProvidedStatus} = init:get_status(),

@@ -42,7 +42,7 @@
         terminate/2, 
         code_change/3]).
 
--record(state, {channel}).
+-record(state, {channel, queue}).
 
 -define(TIMEOUT, 600000).
 
@@ -87,7 +87,8 @@ init([_Opts]) ->
         {attributes, record_info(fields, dispatch)}]),
 	{ok, Conn} = amqp:connect(),
     Channel = open(Conn),
-    State = #state{channel = Channel},
+    Queue = list_to_binary(atom_to_list(node())),
+    State = #state{channel = Channel, queue=Queue},
     handle_info(ping, State),
     ?INFO_MSG("coord is started...[ok]"),
     {ok, State}.
@@ -281,9 +282,10 @@ handle_info({deliver, <<"heartbeat">>, _, Payload}, State) ->
     end,
 	{noreply, State};
 
-handle_info({deliver, <<"node.monitored">>, _, Payload}, State) ->
+handle_info({deliver, Queue, _, Payload}, #state{queue=Queue} = State) ->
     case binary_to_term(Payload) of
     {node, FromShard, {monitored, Dn}} ->
+        ?INFO("monitored ~s by ~s", [Dn, FromShard]),
         case mnesia:dirty_read(dispatch, Dn) of
         [#dispatch{shard = OldShard} = Dispatch] ->
             if
@@ -307,8 +309,8 @@ handle_info({deliver, <<"node.monitored">>, _, Payload}, State) ->
 
 handle_info({deliver, <<"join.shard">>, _, Payload}, State) ->
     case binary_to_term(Payload) of
-    {join, Node, Queue} ->
-        mnesia:dirty_write(#shard{node=Node, queue=Queue, count=0});
+    {join, Node, Queues} ->
+        mnesia:dirty_write(#shard{node=Node, queue=Queues, count=0});
     BadTerm ->
         ?ERROR("error shard: ~p", [BadTerm])
     end,

@@ -57,6 +57,13 @@
 	<div class="navbar-inner">
 		<div class="container-fluid">
 			<a class="brand" href="/"> {{g.brand}} </a>
+            {% if current_user.id and g.navrow == '1' %}
+            <ul class="nav pull-left">
+                {% for nav in g.navbar %}
+                    {{ nav.render(navid)|safe }} 
+                {% endfor %}
+            </ul>
+            {% endif %}
             <ul class="nav pull-right">
                 {% if current_user.id %}
                     {% for s in g.severities %} 
@@ -75,7 +82,7 @@
                 </li>
                 {% endif %}
             </ul>
-            {% if current_user.id %}
+            {% if current_user.id and g.navrow == '2' %}
             <hr class="clear" style="margin:0px;">
             <ul class="nav">
                 {% for nav in g.navbar %}
