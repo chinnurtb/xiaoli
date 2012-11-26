@@ -1,10 +1,14 @@
 {% extends "layout.html" %}
 
 {% block content %}
+{{ javascript("/static/js/bootstrap-tooltip.js") }}
+
 <a class="mm" href="{{ url_for('users.users_delete', id=12) }}">Delete</a>
 <a class="mm" href="{{ url_for('users.users_delete', id=11) }}">Delete</a>
 
 <div class="modal hide fade" id="myModal"></div>
+
+<button id="pop" class="btn" rel="popover" data-placement="bottom" data-content="Vivamus sagittis lacus vel augue laoreet rutrum faucibus." data-original-title="Popover on top">Click</button>
 
 <script type="text/javascript">
   $('.mm').click(function(){
@@ -14,6 +18,8 @@
       });
       return false;
   });
+
+  $('#pop').popover('toggle');
 </script>
   
 {% endblock content %}
