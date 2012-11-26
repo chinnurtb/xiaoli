@@ -88,11 +88,11 @@ def routers_edit(id):
     node = NodeRouter.query.get_or_404(id)
     if request.method == 'POST':
         if form.validate_on_submit():
-            if node.name != form.name.data and NodeRouter.query.filter(NodeRouter.name==node.name).count() > 0:
+            if node.name != form.name.data and NodeRouter.query.filter(NodeRouter.name==form.name.data).count() > 0:
                 flash(u'路由器名称不能重复','error')
-            elif node.alias != form.alias.data and NodeRouter.query.filter(NodeRouter.alias==node.alias).count() > 0:
+            elif node.alias != form.alias.data and NodeRouter.query.filter(NodeRouter.alias==form.alias.data).count() > 0:
                 flash(u'路由器别名不能重复','error')
-            elif node.addr != form.addr.data and NodeRouter.query.filter(NodeRouter.addr==node.addr).count() > 0:
+            elif node.addr != form.addr.data and NodeRouter.query.filter(NodeRouter.addr==form.addr.data).count() > 0:
                 flash(u'路由器 IP地址不能重复','error')
             else:
                 del form._fields["cityid"]

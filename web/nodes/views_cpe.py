@@ -86,11 +86,11 @@ def cpes_edit(id):
     node = NodeCpe.query.get_or_404(id)
     if request.method == 'POST':
         if form.validate_on_submit():
-            if node.name != form.name.data and NodeCpe.query.filter(NodeCpe.name==node.name).count() > 0:
+            if node.name != form.name.data and NodeCpe.query.filter(NodeCpe.name==form.name.data).count() > 0:
                 flash(u'CPE名称不能重复','error')
-            elif node.alias != form.alias.data and NodeCpe.query.filter(NodeCpe.alias==node.alias).count() > 0:
+            elif node.alias != form.alias.data and NodeCpe.query.filter(NodeCpe.alias==form.alias.data).count() > 0:
                 flash(u'CPE别名不能重复','error')
-            elif node.mac != form.mac.data and NodeCpe.query.filter(NodeCpe.mac==node.mac).count() > 0:
+            elif node.mac != form.mac.data and NodeCpe.query.filter(NodeCpe.mac==form.mac.data).count() > 0:
                 flash(u'CPE MAC地址不能重复','error')
             else:
                 form.populate_obj(node)

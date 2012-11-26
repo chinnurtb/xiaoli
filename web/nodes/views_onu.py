@@ -87,11 +87,11 @@ def onus_edit(id):
     node = NodeOnu.query.get_or_404(id)
     if request.method == 'POST':
         if form.validate_on_submit():
-            if node.name != form.name.data and NodeOnu.query.filter(NodeOnu.name==node.name).count() > 0:
+            if node.name != form.name.data and NodeOnu.query.filter(NodeOnu.name==form.name.data).count() > 0:
                 flash(u'ONU名称不能重复','error')
-            elif node.alias != form.alias.data and NodeOnu.query.filter(NodeOnu.alias==node.alias).count() > 0:
+            elif node.alias != form.alias.data and NodeOnu.query.filter(NodeOnu.alias==form.alias.data).count() > 0:
                 flash(u'ONU别名不能重复','error')
-            elif node.addr != form.addr.data and NodeOnu.query.filter(NodeOnu.addr==node.addr).count() > 0:
+            elif node.addr != form.addr.data and NodeOnu.query.filter(NodeOnu.addr==form.addr.data).count() > 0:
                 flash(u'ONU IP地址不能重复','error')
             else:
                 form.populate_obj(node)

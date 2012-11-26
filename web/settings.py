@@ -11,6 +11,8 @@ SESSION_COOKIE_NAME = 'xiaoli'
 
 SQLALCHEMY_DATABASE_URI = 'postgresql://ipon:public@localhost/ipon'
 
+LICENSE_KEY = 'cn=hunan,c=cn'
+
 #SQLALCHEMY_BINDS = {
 #    'report': 'sqlite://'
 #}

@@ -88,11 +88,11 @@ def switches_edit(id):
     node = NodeSwitch.query.get_or_404(id)
     if request.method == 'POST':
         if form.validate_on_submit():
-            if node.name != form.name.data and NodeSwitch.query.filter(NodeSwitch.name==node.name).count() > 0:
+            if node.name != form.name.data and NodeSwitch.query.filter(NodeSwitch.name==form.name.data).count() > 0:
                 flash(u'交换机名称不能重复','error')
-            elif node.alias != form.alias.data and NodeSwitch.query.filter(NodeSwitch.alias==node.alias).count() > 0:
+            elif node.alias != form.alias.data and NodeSwitch.query.filter(NodeSwitch.alias==form.alias.data).count() > 0:
                 flash(u'交换机别名不能重复','error')
-            elif node.addr != form.addr.data and NodeSwitch.query.filter(NodeSwitch.addr==node.addr).count() > 0:
+            elif node.addr != form.addr.data and NodeSwitch.query.filter(NodeSwitch.addr==form.addr.data).count() > 0:
                 flash(u'交换机 IP地址不能重复','error')
             else:
                 del form._fields["cityid"]
