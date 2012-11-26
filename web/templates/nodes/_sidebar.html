@@ -1,11 +1,9 @@
-{% from "tango/_sidebar_h.html" import render_sidebar %}
-
-{{ render_sidebar('资源浏览', menuid, [
+{{ sidebar('资源浏览', menuid, [
     ('nodes','所有节点', '/nodes'),
     ('cities','区域导航', '/nodes/cities'),
     ])}}
 
-{{ render_sidebar('资源管理', menuid, [
+{{ sidebar('资源管理', menuid, [
         ('entrances', '接入点', '/nodes/entrances/'),
         ('routers', '路由器', '/nodes/routers/'),
         ('switches', '交换机', '/nodes/switches/'),
@@ -15,7 +13,7 @@
         ('cpes', 'CPE', '/nodes/cpes/'),
     ])}}
 
-{{ render_sidebar('资源统计', menuid, [
+{{ sidebar('资源统计', menuid, [
     ('areas','区域统计', '/nodes/statistics/areas'),
     ('vendors','厂商统计', '/nodes/statistics/vendors'),
     ('categories','设备分类统计', '/nodes/statistics/categories'),

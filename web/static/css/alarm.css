@@ -41,7 +41,7 @@ span.severity-0 {
     background-color: #00FF00; 
 }
 th.severity-column{
-    width:2.4em;
+    width:4em;
 }
 th.alarm_state-column{
     width:4.4em;
