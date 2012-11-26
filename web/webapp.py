@@ -17,7 +17,7 @@ from tango import db, cache, login_mgr
 from tango.login import login_required, current_user
 from tango.models import Setting, SysParam
 
-from users.models import User
+from users.models import User, Permission
 
 app = Flask(__name__)
 app.config.from_pyfile('settings.py')
@@ -140,9 +140,10 @@ def is_ie():
     return False
 
 def check_permissions():
+    permissions_all = [p.endpoint for p in Permission.query.all()]
     permissions = current_user.role.permissions
     for p in permissions:
-        if p.endpoint == request.endpoint:
+        if request.endpoint in permissions_all and  request.endpoint == p.endpoint:
             return
     print 'Permission check failed'
     abort(403)

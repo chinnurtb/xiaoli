@@ -139,6 +139,11 @@ MODULE_TEXTS = {
 ENDPOINT_IGNORE = ['tango.shell',
                    'perf.add_time']
 
+SPECIAL_NAMES = {
+    'index' : u'首页',
+    'timeline' : u'TimeLine',
+}
+
 NAMES = {
     # Admin
     'admin.categories'   : u'类别',
@@ -190,10 +195,12 @@ NAMES = {
     # 用户
     'users.domains'      : u'管理域',
     'users.roles'        : u'角色',
-    'users.users'        : u'用户'
+    'users.users'        : u'用户',
+    'users.settings'     : u'用户设置',
 }
-    
+
 OPERATIONS = {
+    'import'          : u'导入',
     'new'             : u'添加',
     'edit'            : u'修改',
     'delete'          : u'删除',
@@ -215,6 +222,7 @@ def permissions_update():
         endpoint = rule.endpoint
         if endpoint in current_app.config['SAFE_ENDPOINTS'] \
            or endpoint in ENDPOINT_IGNORE \
+           or endpoint.find('admin') == 0 \
            or endpoint.find('demo') > -1 or endpoint.find('test') > -1:
             print 'Safe or Very Danger>> ', endpoint
             continue
@@ -228,13 +236,10 @@ def permissions_update():
             continue
             
         name = ''
-        SPECIAL_NAMES = {
-            'index' : u'首页',
-            'timeline' : u'TimeLine',
-        }
         endpoint_tail = endpoint.split('.')[-1]
         if  endpoint_tail in SPECIAL_NAMES.keys():
             name = SPECIAL_NAMES[endpoint_tail]
+            continue
         else:
             for k in NAMES.keys():
                 if endpoint.find(k) == 0:
@@ -245,6 +250,7 @@ def permissions_update():
         operation = ''
         if endpoint in NAMES.keys():
             operation = u'查看'
+            continue
         elif len(pieces) > 1:
             if pieces[-1] in OPERATIONS:
                 operation = OPERATIONS[pieces[-1]]
