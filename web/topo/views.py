@@ -35,7 +35,6 @@ def json_load_directory():
         data = []
         path = spath.split(',')
         pre_id = '-'.join(path[-1].split('-')[1:])
-        print 'pre_id:', pre_id
         if len(path) >= len(lvs_all):
             return json.dumps([])
         lvs = [i.split('-')[0].upper() for i in path]
@@ -150,21 +149,34 @@ def json_load_nodes():
     return json.dumps(data)
 
 
+from tango.models import Profile    
 from tango.login import current_user    
 from tango.cache import cache
 from tango.profile import cached_profile
 from tango import db, update_profile, get_profile
+@topoview.route('/topo/clear-drag-history')
+def ajax_clear_drag_history():
+    path = request.args.get('path', '')
+    if path:
+        profile = Profile.query.filter_by(grp='topo.drag', key=path).first()
+        if profile:
+            db.session.delete(profile)
+            db.session.commit()
+            cache.delete_memoized(cached_profile, current_user.id, 'topo.drag')
+            return 'OK'
+        return 'No Profile'
+    return 'Path empty!'
+        
 @topoview.route('/topo/dump-drag-history', methods=['POST'])
 def ajax_dump_drag_history():
     args = request.values
     path = args.get('path','')
     nodes = args.get('nodes', '') #
-    print 'path, nodes:', path, nodes
     if path and nodes:
         update_profile('topo.drag', path, nodes)
         db.session.commit()
     return 'ERROR:%s:%s' % (path, nodes)
-
+    
     
 @topoview.route('/topo/load-drag-history.json')
 def json_load_drag_history():
