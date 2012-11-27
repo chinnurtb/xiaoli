@@ -3,10 +3,20 @@ function loadForce(sid) {
   $(sid).html('');
   
   var width = $(sid).width() - 18,
-  height = 600,
+  height = 595,
   node,
   link,
   root, vis, force;
+
+    function compute_level(root) {
+        var level = 0;
+        while(true) {
+            if(root.children.length != 1) break;
+            level += 1;
+            root = root.children[0]
+        }
+        return level
+    }
 
   d3.json("/topo/nodes.json?path="+path, function(tjson) {
     root = tjson;
@@ -17,13 +27,18 @@ function loadForce(sid) {
       height = k*nodeCount > height ? k*nodeCount : height;
       width = height > width ? height : width;
     }
-    
-    root.x = width / 2;
+
+    var level = compute_level(root)
+    if(level == 0) {
+        root.x = height / 2;
+    }else {
+        root.x = 50;
+    }
     root.y = height / 2;
 
     force = d3.layout.force()
       .on("tick", tick)
-      .charge(function(d) { return d._children ? -d.size*1.5 : -100; })
+      .charge(-140 - 300*level)
       .linkDistance(function(d) { return d.target._children ? 200 : 60; })
       .size([width, height]);
 
