@@ -110,7 +110,7 @@ handle_info({monitor, Dn, Entry}, State) ->
     {noreply, State};
 
 handle_info({disco, update, Dn, Entry}, State)  ->
-	disco_server:update(Dn, Entry),
+	monitd_disco:update(Dn, Entry),
     {noreply, State};
 
 handle_info({monitor, update, Dn, Entry}, State) ->
@@ -122,34 +122,30 @@ handle_info({unmonitor, Dn}, State) ->
     {noreply, State};
 
 handle_info({discover, Dn, Entry}, State) ->
-	disco_server:discover(Dn, Entry),
-    {noreply, State};
-
-handle_info({auto_discover, Dn, Task}, State) ->
-	disco_server:auto_discover(Dn, Task),
+	monitd_disco:discover(Dn, Entry),
     {noreply, State};
 
 handle_info({undiscover, Dn}, State) ->
-	disco_server:undiscover(Dn),
+	monitd_disco:undiscover(Dn),
     {noreply, State};
 
 handle_info({reset, Dn, Entry}, State) ->
-	disco_server:discover(Dn, Entry),
+	monitd_disco:discover(Dn, Entry),
     {noreply, State};
 
-handle_info({'db.mib_oids', Oids}, State) ->
-    mib_registry:initialize({mib_oids, Oids}),
+handle_info({miboids, Oids}, State) ->
+    mib_registry:initialize({miboids, Oids}),
     {noreply, State};
 
-handle_info({'db.metrics', Metrics}, State) ->
+handle_info({metrics, Metrics}, State) ->
     monitd_hub:initialize({metrics, Metrics}),
     {noreply, State};
 
-handle_info({'db.disco_mods', Mods}, State) ->
-    disco_server:initialize({disco_mods, Mods}),
+handle_info({sysoids, Mods}, State) ->
+    monitd_disco:initialize({sysoids, Mods}),
     {noreply, State};
 
-handle_info({'db.monitor_mods', Mods}, State) ->
+handle_info({monitors, Mods}, State) ->
     ?INFO("initialize monitor_mods: ~p", [length(Mods)]),
     [ets:insert(monitor_mod, monitor_mod(Mod)) || Mod <- Mods],
     {noreply, State};
@@ -157,7 +153,7 @@ handle_info({'db.monitor_mods', Mods}, State) ->
 handle_info(Info, State) ->
     {stop, {error, {badinfo, Info}}, State}.
 
-prioritise_info({'db.metrics', _}, _State) ->
+prioritise_info({metrics, _}, _State) ->
     9;
 
 prioritise_info(_, _State) ->

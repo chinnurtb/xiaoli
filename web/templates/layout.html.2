@@ -57,16 +57,6 @@
 	<div class="navbar-inner">
 		<div class="container-fluid">
 			<a class="brand" href="/"> {{g.brand}} </a>
-            {% if current_user.id and g.navrow == '1' %}
-            <ul class="nav pull-left">
-                <li class="divider-vertical" style="margin-right:0px;"></li>
-                {% for nav in g.navbar %}
-                    <li id="menu-{{nav.name}}" {% if nav.name == navid %} class="active" {% endif %}>
-                        <a href="{{nav.href}}">{{nav.title}}</a>
-                    </li>
-                {% endfor %}
-            </ul>
-            {% endif %}
             <ul class="nav pull-right">
                 {% if current_user.id %}
                     {% for s in g.severities %} 
@@ -85,7 +75,7 @@
                 </li>
                 {% endif %}
             </ul>
-            {% if current_user.id and g.navrow == '2' %}
+            {% if current_user.id %}
             <hr class="clear" style="margin:0px;">
             <ul class="nav">
                 {% for nav in g.navbar %}
@@ -97,7 +87,7 @@
 	</div>
 </div>
 
-<div class="container-fluid {% if page != 'login' %} navrow{{g.navrow}}-container {% endif %}" >
+<div class="container-fluid" {% if page != 'login' %} style="margin-top:52px;" {% endif %}>
 
     {% block screen_meta %} {% endblock %}
 

@@ -104,6 +104,7 @@ class OperationLogTable(tables.Table):
         enums={'insert':u'添加', 'update': u'更新', 'delete': u'删除'}, orderable=True)
     module         = tables.Column(u'操作对象', orderable=True)
     created_at     = tables.DateTimeColumn(u'时间', orderable=True,format='%Y-%m-%d %H:%M:%S')
+    summary        = tables.PopoverColumn(u'详细')
 
     class Meta():
         model = OperationLog
