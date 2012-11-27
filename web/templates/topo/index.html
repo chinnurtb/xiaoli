@@ -31,20 +31,7 @@
     <div class="span9">
       <div id="panel">
         <div id="toolbar">
-          <div id="zoom" class="btn-group toolbar-item">
-            <button type="button" id="zoom-out" class="btn btn-small"><i class="icon-minus"></i></button>
-            <button type="button" id="zoom-in" class="btn btn-small"><i class="icon-plus"></i></button>
-            <button type="button" id="zoom-reset" class="btn btn-small">1:1</button>
-          </div>
-          <form method="GET" class="form filter-form toolbar-item">
-            <div class="form-inline input-append" style="margin:0px;">
-              <input type="hidden" id="lastid" name="lastid" value="" />
-              <input class="input-low" data-provide="typeahead" id="keyword" name="keyword" placeholder="节点名称" type="text">
-                <button type="submit" data-placement="bottom" rel="tooltip"
-	                class="btn btn-small" data-original-title="搜索"><i class="icon-search"></i></button>
-            </div>
-          </form>
-          <div id="layout", class="toolbar-item">
+          <div id="layout", class="toolbar-item all">
             <select class="auto-width input-low">
               <option value="flowDrag">树型(可拖拽)</option>
               <option value="interactive">树型(可折叠)</option>
@@ -53,6 +40,25 @@
               <option value="circle">环型</option>
             </select>
           </div>
+          
+          <div id="zoom" class="btn-group toolbar-item circle">
+            <button type="button" id="zoom-out" class="btn btn-small"><i class="icon-minus"></i></button>
+            <button type="button" id="zoom-in" class="btn btn-small"><i class="icon-plus"></i></button>
+            <button type="button" id="zoom-reset" class="btn btn-small">1:1</button>
+          </div>
+          
+          <div class="toolbar-item flowDrag">
+            <button type="button" id="drag-reset" class="btn btn-small">重置当前布局</button>
+          </div>
+          
+          <form method="GET" class="form filter-form toolbar-item circle">
+            <div class="form-inline input-append" style="margin:0px;">
+              <input type="hidden" id="lastid" name="lastid" value="" />
+              <input class="input-low" data-provide="typeahead" id="keyword" name="keyword" placeholder="节点名称" type="text">
+                <button type="submit" data-placement="bottom" rel="tooltip"
+	                class="btn btn-small" data-original-title="搜索"><i class="icon-search"></i></button>
+            </div>
+          </form>
           <br class="clear" />
         </div>
         <div id="tichart" class="chart tree-chart"></div> <!-- Interactive -->

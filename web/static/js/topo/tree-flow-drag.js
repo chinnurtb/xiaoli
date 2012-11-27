@@ -1,3 +1,13 @@
+$(function(){
+  $('#drag-reset').click(function(){
+    $.get("/topo/clear-drag-history", {path: path}, function(rs){
+      if (rs == 'OK'){
+        $('#layout select').change();
+      }
+    });
+  });  
+});
+
 
 function loadFlowDragTree(sid){
   $(sid).html('');
@@ -27,11 +37,8 @@ function loadFlowDragTree(sid){
     var ey = d3.event.dy;
     d.x += ex;
     d.y += ey;
-    console.log("this:", this);
-    console.log("d:", d);
     if (d.links.sources) {
       d.links.sources.forEach(function(td) {
-        console.log("td:", td);
         td.source.x = d.x;
         td.source.y = d.y;
         d3.select("#"+td.id).attr("d", diagonal);
@@ -40,7 +47,6 @@ function loadFlowDragTree(sid){
     
     if (d.links.targets) {
       d.links.targets.forEach(function(td) {
-        console.log("td:", td);
         td.target.x = d.x;
         td.target.y = d.y;
         d3.select("#"+td.id).attr("d", diagonal);
@@ -55,7 +61,6 @@ function loadFlowDragTree(sid){
       dragHistory.push(""+ [d.id, d.x, d.y]);
     });
     dragHistory = dragHistory.join(";");
-    console.log(dragHistory);
     $.post("/topo/dump-drag-history", {path: path, nodes: dragHistory});
   }
 
@@ -79,7 +84,6 @@ function loadFlowDragTree(sid){
 
   function loadHistory(d){
     var hd = chart.history[d.id];
-    console.log("id, d, hd:", d.id, d, hd);
     d.x = hd.x;
     d.y = hd.y;
     d.links = {};
@@ -104,8 +108,8 @@ function loadFlowDragTree(sid){
     }
   });
 
-  console.log("nodes: ", nodes);
-  console.log("links: ", links);
+  //console.log("nodes: ", nodes);
+  //console.log("links: ", links);
   var link = vis.selectAll("path.link")
     .data(links)
     .enter().append("path")

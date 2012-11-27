@@ -6,6 +6,11 @@ var json = null;
 // Totally common
 function updateChart(){
   $(chart.sid).show();
+  $('.toolbar-item').hide();
+  $('.all').show();
+  if (chart.sclass) {
+    $(chart.sclass).show();
+  }
   
   d3.json("/topo/nodes.json?path="+path, function(tjson) {
     json = tjson;

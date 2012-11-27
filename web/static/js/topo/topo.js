@@ -4,6 +4,7 @@ $(function(){
   var charts = {
     circle : {
       sid : '#chart',
+      sclass : '.circle',
       updater : loadCircleTree,
     },
     flow : {
@@ -12,6 +13,7 @@ $(function(){
     },
     flowDrag : {
       sid : '#tfdchart',
+      sclass : '.flowDrag',
       updater : loadFlowDragTree,
       history : [],
     },
