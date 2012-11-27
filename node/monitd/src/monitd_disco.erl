@@ -21,7 +21,7 @@
 
 %%api
 -export([start_link/0, 
-		initialize/1,
+		setup/1,
         status/0,
         discover/2,
         undiscover/1,
@@ -46,8 +46,8 @@
 start_link() ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
 
-initialize({sysoids, Sysoids}) ->
-	gen_server:cast(?MODULE, {initialize, sysoids, Sysoids}).
+setup({sysoids, Sysoids}) ->
+	gen_server:cast(?MODULE, {setup, sysoids, Sysoids}).
 
 status() ->
     gen_server:call(?MODULE, status).
@@ -92,8 +92,8 @@ handle_call(Req, _From, State) ->
     ?ERROR("badreq: ~p", [Req]),
     {reply, {badreq, Req}, State}.
 
-handle_cast({initialize, sysoids, Records}, State) ->
-    ?INFO("initialize sysoids: ~p", [length(Records)]),
+handle_cast({setup, sysoids, Records}, State) ->
+    ?INFO("setup sysoids: ~p", [length(Records)]),
     %TODO: 
     %[ets:insert(sysmod, sysmod(Record)) || Record <- Records],
     {noreply, State};
