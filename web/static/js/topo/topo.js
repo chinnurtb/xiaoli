@@ -41,6 +41,6 @@ $(function(){
   path = '';
   loadDirectoryTree('#tree');
   
-  path = 'root-0,olt-1';
+  path = 'root-0,olt-1,onu-2,eoc-3';
   $('#layout select').change();
 });
