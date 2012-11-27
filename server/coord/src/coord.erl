@@ -120,7 +120,7 @@ handle_call(status, _From, State) ->
     {reply, {ok, Reply}, State};
 
 handle_call({lookup, Dn}, _From, State) ->
-    {reply, mnesia:dirty_index_read(dispatch, iolist_to_binary(Dn)), State};
+    {reply, mnesia:dirty_read(dispatch, iolist_to_binary(Dn)), State};
 
 handle_call(shards, _From, State) ->
     Keys = mnesia:dirty_all_keys(shard),

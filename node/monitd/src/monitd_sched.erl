@@ -9,15 +9,16 @@
 %%%----------------------------------------------------------------------
 -module(monitd_sched).
 
--author('ery.lee@gmail.com').
+-include("mit.hrl").
 
 -include("monitor.hrl").
 
 -include_lib("elog/include/elog.hrl").
 
--behavior(gen_server).
+-import(proplists, [get_value/2, get_value/3]).
 
--export([start_link/0]).
+-export([start_link/0,
+        setup/1]).
 
 -export([schedule/2, 
          schedule/3, 
@@ -26,6 +27,8 @@
          update_task/2, 
          clear_tasks/0,
          task_num/0]).
+
+-behavior(gen_server).
 
 -export([init/1, 
          handle_call/3, 
@@ -40,6 +43,9 @@
 %%--------------------------------------------------------------------
 start_link() ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
+
+setup({timeperiods, Periods}) ->
+    gen_server:call(?MODULE, {setup, timeperiods, Periods}).
 
 schedule(Task, Interval) ->
     schedule(Task, Interval, 0).
@@ -73,6 +79,7 @@ task_num() ->
 %% Description: Initiates the server
 %%--------------------------------------------------------------------
 init([]) ->
+    ets:new(timeperiod, [set, named_table, protected, {keypos, 2}]),
     ets:new(monitor_task, [set, named_table, protected, {keypos, 2}]),
     erlang:send_after(300 * 1000, self(), introspect),
     ?INFO_MSG("monitd_sched is started...[ok]"),
@@ -87,6 +94,25 @@ init([]) ->
 %%                                      {stop, Reason, State}
 %% Description: Handling call messages
 %%--------------------------------------------------------------------
+handle_call({setup, timeperiods, Records}, _From, State) ->
+    lists:foreach(fun(R) -> 
+        Hour = split(get_value(hour, R, <<"*">>)),
+        DayOfMonth = split(get_value(dayofmonth, R, <<"*">>)),
+        Month = split(get_value(month, R, <<"*">>)),
+        DayOfWeek = split(get_value(dayofweek, R, <<"*">>)),
+        TimePeriod = #timeperiod{
+            id = get_value(id, R),
+            name = get_value(name, R),
+            hour = Hour,
+            dayofmonth = DayOfMonth,
+            month = Month,
+            dayofweek = DayOfWeek
+        },
+        ?INFO("~p", [TimePeriod]),
+        ets:insert(timeperiod, TimePeriod)
+    end, Records),
+    {reply, ok, State};
+
 handle_call(Req, _From, State) ->
     {reply, {badreq, Req}, State}.
 
@@ -119,14 +145,13 @@ handle_cast({unschedule, TaskId}, State) ->
     {noreply, State};
 
 %%TODO: should refactor later.
-handle_cast({reschedule, #monitor_task{id = TaskId, duration = Duration, latency = Latency, last_sched_at = LastSchedAt} = Task, Interval}, State) ->
+handle_cast({reschedule, #monitor_task{id = TaskId} = Task, Interval}, State) ->
     case ets:lookup(monitor_task, TaskId) of
     [OldTask] -> %%TODO: task period, args maybe updated by user!!! so we should not update args and period!
         Args = OldTask#monitor_task.args,
         Period = OldTask#monitor_task.period,
         NextSchedAt = extbif:timestamp() + Interval,
         cancel_timer(OldTask#monitor_task.tref),
-        %?INFO("reschedule task: ~p, ~n duration: ~p, ~n latency: ~p, ~n last_sched_at: ~p, ~n next_sched_at: ~p", [TaskId, Duration, Latency, LastSchedAt, NextSchedAt]),
         TRef = erlang:send_after(Interval * 1000, self(), {run, TaskId}),
         ets:insert(monitor_task, Task#monitor_task{period = Period, args = Args, tref = TRef, next_sched_at = NextSchedAt});
     [] ->
@@ -172,12 +197,11 @@ handle_info({run, TaskId}, State) ->
     case ets:lookup(monitor_task, TaskId) of
     [Task] -> 
         spawn(fun() ->
-            try run_task(Task) of
-                ok ->
-                    normal
-            catch
-                _:Error ->
-                    ?ERROR("monitd_run_catch : ~p ~n Task: ~p ~n ~p", [Error, Task, erlang:get_stacktrace()])
+            case in_timeperiod(Task) of
+            true ->
+                run_task(Task);
+            false ->
+                skip_task(Task)
             end
         end);
     [] ->
@@ -231,11 +255,14 @@ run_task(#monitor_task{id = Id, period = Period, next_sched_at = NextSchedAt} = 
             Interval
         end,
         NewTask1 = NewTask#monitor_task{duration = Duration, latency = Latency, last_sched_at = SchedTime},
-        monitd_sched:reschedule(NewTask1, Interval1)
+        reschedule(NewTask1, Interval1)
     catch
     _:Error ->
         ?ERROR("monitd_sched_catch : ~p ~n Task: ~p ~n ~p", [Error, Task, erlang:get_stacktrace()])
     end.
+
+skip_task(#monitor_task{period=Period} = Task) ->
+    reschedule(Task, Period).
 
 clear_task('$end_of_table') ->
     ok;
@@ -253,3 +280,42 @@ cancel_timer(undefined) ->
     ok;
 cancel_timer(TRef) ->
     erlang:cancel_timer(TRef).
+
+%=========================================================
+% Timeperiod
+%=========================================================
+in_timeperiod(#monitor_task{node=#node{tpid = undefined}}) ->
+    true;
+in_timeperiod(#monitor_task{node = Node}) ->
+    case ets:lookup(timeperiod, Node#node.tpid) of
+    [] -> true;
+    [TP] ->
+        date_in_timeperiod(TP) and time_in_timeperiod(TP)
+    end.
+
+date_in_timeperiod(#timeperiod{dayofmonth=DayOfMonth, 
+    month=Month, dayofweek=DayOfWeek}) ->
+    {_Y, M ,D} = date(),
+    Day = calendar:day_of_the_week(date()),
+    Day1 =
+    if
+    Day == 7 -> 0;
+    true -> Day
+    end,
+    in_(M, Month) and in_(D, DayOfMonth) and in_(Day1, DayOfWeek).
+
+time_in_timeperiod(#timeperiod{hour=Hour}) ->
+    {H, _M, _S} = time(),
+    in_(H, Hour).
+
+in_(_I, ['*']) -> true;
+in_(I, L) -> lists:member(I, L).
+
+
+split(B) when is_binary(B) ->
+    L = string:tokens(binary_to_list(B), ","),
+    lists:map(
+        fun("*") -> '*';
+           (S) -> list_to_integer(S)
+    end, L).
+

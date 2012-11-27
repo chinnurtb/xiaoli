@@ -3,14 +3,21 @@ var path = null;
 var chart = null;
 var json = null;
 
-
 // Totally common
 function updateChart(){
   $(chart.sid).show();
   
   d3.json("/topo/nodes.json?path="+path, function(tjson) {
     json = tjson;
-    chart.updater(chart.sid);
+    if (!(typeof chart.history === 'undefined')) {
+      d3.json("/topo/load-drag-history.json?path="+path, function(tjson){
+        chart.history = tjson;
+        console.log(tjson);
+        chart.updater(chart.sid);
+      });
+    } else {
+      chart.updater(chart.sid);
+    }
   });
 }
 

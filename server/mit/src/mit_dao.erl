@@ -26,7 +26,7 @@
 
 -define(NODE_SQL,
     "select t.id, t.rdn, t.name, t.alias, t.addr as ip, t.area_id, "
-    "t.sysoid, t.snmp_comm, t.snmp_wcomm, t.oid_idx, "
+    "t.sysoid, t.snmp_comm, t.snmp_wcomm, t.oid_idx, t.timeperiod_id, "
     "t1.name as category, "
     "t2.name as vendor, "
     "t3.name as model, "
@@ -95,5 +95,6 @@ node_record(N) ->
         cityid = get_value(cityid, N),
         name = get_value(name, N),
         alias = get_value(alias, N),
+        tpid = get_value(timeperiod_id, N),
         attrs = N}.
 

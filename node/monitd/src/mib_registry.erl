@@ -17,7 +17,7 @@
 
 -import(proplists, [get_value/2]).
 
--export([start_link/0, initialize/1,  lookup/2]).
+-export([start_link/0, setup/1,  lookup/2]).
 
 -behavior(gen_server).
 
@@ -31,8 +31,8 @@
 start_link() ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
 
-initialize({miboids, Records}) ->
-	gen_server:cast(?MODULE, {initialize, miboids, Records}).
+setup({miboids, Records}) ->
+	gen_server:cast(?MODULE, {setup, miboids, Records}).
 
 lookup(Mib, Tab) ->
     case ets:lookup(mib, {Mib, Tab}) of
@@ -54,8 +54,8 @@ init([]) ->
 handle_call(Req, _From, State) ->
     {stop, {error, {badreq, Req}}, State}.
 
-handle_cast({initialize, miboids, Records}, State) ->
-    ?INFO("initialize miboids: ~p", [length(Records)]),
+handle_cast({setup, miboids, Records}, State) ->
+    ?INFO("setup miboids: ~p", [length(Records)]),
     MibDict =
     lists:foldl(fun(Record, Dict) ->
         Mib = get_value(mib, Record),

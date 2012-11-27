@@ -8,6 +8,8 @@ function loadFlowDragTree(sid){
   newHeight = countNodes(json) * 22;
   height = newHeight > 600 ? newHeight : height;
 
+  var dragHistory = "";
+
   var tree = d3.layout.tree()
     .size([height, width - 160]);
 
@@ -18,9 +20,8 @@ function loadFlowDragTree(sid){
     .on("drag", dragmove)
     .on("dragend", dragend);
   
-  function dragstart() {
-  }
-
+  function dragstart() { }
+  
   function dragmove(d, i) {
     var ex = d3.event.dx;
     var ey = d3.event.dy;
@@ -29,7 +30,7 @@ function loadFlowDragTree(sid){
     console.log("this:", this);
     console.log("d:", d);
     if (d.links.sources) {
-      d.links.sources.forEach(function(td){
+      d.links.sources.forEach(function(td) {
         console.log("td:", td);
         td.source.x = d.x;
         td.source.y = d.y;
@@ -37,8 +38,8 @@ function loadFlowDragTree(sid){
       });
     }
     
-    if (d.links.targets){
-      d.links.targets.forEach(function(td){
+    if (d.links.targets) {
+      d.links.targets.forEach(function(td) {
         console.log("td:", td);
         td.target.x = d.x;
         td.target.y = d.y;
@@ -47,9 +48,15 @@ function loadFlowDragTree(sid){
     }
     d3.select(this).attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
   }
-
+  
   function dragend() {
-    d3.select(this);
+    dragHistory = [];
+    nodes.forEach(function(d){
+      dragHistory.push(""+ [d.id, d.x, d.y]);
+    });
+    dragHistory = dragHistory.join(";");
+    console.log(dragHistory);
+    $.post("/topo/dump-drag-history", {path: path, nodes: dragHistory});
   }
 
   var diagonal = d3.svg.diagonal()
@@ -62,15 +69,25 @@ function loadFlowDragTree(sid){
     .attr("transform", "translate(60, 0)");
   
   var nodes = tree.nodes(json);
-  var links = tree.links(nodes);
-  
-  nodes.forEach(function(d){
+
+  function exchange(d){
     var t = d.x;
     d.x = d.y;
     d.y = t;
     d.links = {};
-  });
+  }
+
+  function loadHistory(d){
+    var hd = chart.history[d.id];
+    console.log("id, d, hd:", d.id, d, hd);
+    d.x = hd.x;
+    d.y = hd.y;
+    d.links = {};
+  }
   
+  nodes.forEach(!chart.history.error ? loadHistory : exchange);
+  
+  var links = tree.links(nodes);
   links.forEach(function(d){
     d.id = d.source.id + "-" + d.target.id;
     var srcs = d.source.links.sources;
@@ -87,18 +104,15 @@ function loadFlowDragTree(sid){
     }
   });
 
-  console.log("nodes:", nodes);
+  console.log("nodes: ", nodes);
   console.log("links: ", links);
   var link = vis.selectAll("path.link")
     .data(links)
     .enter().append("path")
     .attr("class", "link")
-    .attr("id", function(d){
-      console.log(d);
-      return d.id;
-    })
+    .attr("id", function(d){ return d.id; })
     .attr("d", diagonal);
-
+  
   // render nodes
   var node = vis.selectAll("g.node")
     .data(nodes)
@@ -124,7 +138,7 @@ function loadFlowDragTree(sid){
   node.append("a")
     .attr("xlink:href", function(d){return d.url;});
   
-  //addMenus(sid);
+  addMenus(sid);
 
   node.selectAll('a')
     .append("text")
