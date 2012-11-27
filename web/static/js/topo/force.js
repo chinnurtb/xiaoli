@@ -2,27 +2,35 @@
 function loadForce(sid) {
   $(sid).html('');
   
-  var width = $(sid).width(),
+  var width = $(sid).width() - 18,
   height = 600,
   node,
   link,
-  root;
-
-  var force = d3.layout.force()
-    .on("tick", tick)
-    .charge(function(d) { return d._children ? -d.size / 10 : -50; })
-    .linkDistance(function(d) { return d.target._children ? 120 : 20; })
-    .size([width, height]);
-
-  var vis = d3.select(sid).append("svg")
-    .attr("width", width)
-    .attr("height", height);
+  root, vis, force;
 
   d3.json("/topo/nodes.json?path="+path, function(tjson) {
     root = tjson;
     root.fixed = true;
+    var nodeCount = countNodes(root);
+    var k = 3;
+    if (nodeCount > 150) {
+      height = k*nodeCount > height ? k*nodeCount : height;
+      width = height > width ? height : width;
+    }
+    
     root.x = width / 2;
     root.y = height / 2;
+
+    force = d3.layout.force()
+      .on("tick", tick)
+      .charge(function(d) { return d._children ? -d.size*1.5 : -100; })
+      .linkDistance(function(d) { return d.target._children ? 200 : 60; })
+      .size([width, height]);
+
+    vis = d3.select(sid).append("svg")
+      .attr("width", width)
+      .attr("height", height);
+    
     update();
   });
 
@@ -67,13 +75,13 @@ function loadForce(sid) {
 
     node.append("circle")
       .attr("class", "node")
-      .attr("r", function(d) { return d.children ? 4.5 : Math.sqrt(d.size) / 2; })
+      .attr("r", function(d) { return d.children ? 10 : Math.sqrt(d.size) / 1.3; })
       .style("fill", color);
     
     node.append("text")
       .attr("dy", ".31em")
       .attr("text-anchor", function(d) { return d.x < 180 ? "start" : "end"; })
-      .attr("transform", "translate(0,0)")
+      .attr("transform", "translate(5,0)")
       .text(function(d) { return d.name; });
 
     // Exit any old nodes.
@@ -86,7 +94,7 @@ function loadForce(sid) {
       .attr("x2", function(d) { return d.target.x; })
       .attr("y2", function(d) { return d.target.y; });
 
-    node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });    
+    node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
   }
 
   // Color leaf nodes orange, and packages white or blue.
