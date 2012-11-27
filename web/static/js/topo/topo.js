@@ -1,6 +1,10 @@
 
 $(function(){
-  
+  document.body.parentNode.style.overflow="hidden";
+  page_height = $(document.body).height() - $(".navbar").height() -98;
+  $(".tree-chart").css({"height":page_height+"px"});
+  $("#tree").css({"height":page_height+18+"px"});
+
   var charts = {
     circle : {
       sid : '#chart',
