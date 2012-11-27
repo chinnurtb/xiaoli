@@ -12,7 +12,6 @@
 -author('ery.lee@gmail.com').
 
 -import(extbif, [timestamp/0, zeropad/1]).
--import(monitd_hub, [unique_rdn/1]).
 
 -include("metric.hrl").
 
@@ -141,7 +140,7 @@ flush_to_disk(LogFile, Q) ->
     file:write(LogFile, list_to_binary(Lines)).
 
 line(#metric{name=Name, from=From, dn=Dn, timestamp=Ts, data=Data}) ->
-	io_lib:format("~s:~s:~p@~s: ~s~n", [unique_rdn(Dn), Name, Ts, From, encode(Data)]).
+	io_lib:format("~s:~s:~p@~s: ~s~n", [Dn, Name, Ts, From, encode(Data)]).
 
 encode(Data) ->
 	Tokens = [lists:concat([atom_to_list(N), "=", strnum(V)]) || {N, V} <- Data],

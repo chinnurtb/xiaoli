@@ -21,8 +21,7 @@
 -include_lib("elog/include/elog.hrl").
 
 -export([start_link/0,
-		initialize/1,
-		unique_rdn/1,
+		setup/1,
 		emit/1]).
 
 -behavior(gen_server).
@@ -40,8 +39,8 @@
 start_link() ->
     gen_server2:start_link({local, ?MODULE}, ?MODULE, [], []).
 
-initialize({metrics, Metrics}) ->
-	gen_server2:cast(?MODULE, {initialize, metrics, Metrics}).
+setup({metrics, Metrics}) ->
+	gen_server2:cast(?MODULE, {setup, metrics, Metrics}).
 
 channel() ->
 	gen_server2:call(?MODULE, channel).
@@ -144,8 +143,8 @@ handle_call(channel, _From, #state{channel = Chan} = State) ->
 handle_call(Req, _From, State) ->
     {stop, {error, {badreq, Req}}, State}.
 
-handle_cast({initialize, metrics, Records}, State) ->
-    ?INFO("initialize metrics: ~p.", [length(Records)]),
+handle_cast({setup, metrics, Records}, State) ->
+    ?INFO("setup metrics: ~p.", [length(Records)]),
 	Store = fun(Record) ->
 		Grp = get_value(grp, Record),
 		Name = get_value(name, Record),
@@ -275,25 +274,10 @@ emit_metrics(#state{errdb = undefined, channel = Chan}, Metrics) ->
 	amqp:send(Chan, <<"metric">>, Payload);
 
 emit_metrics(#state{errdb = Errdb}, Metrics) ->
-	lists:foreach(fun(#metric{name=Type, dn=Dn, timestamp=Ts, data=Data}) -> 
-		Grp = lists:last(string:tokens(atom_to_list(Type), ".")),
-		Key = list_to_binary([unique_rdn(Dn), ":", Grp]),
+	lists:foreach(fun(#metric{name=Name, dn=Dn, timestamp=Ts, data=Data}) -> 
+		Key = iolist_to_binary([Dn, ":", atom_to_list(Name)]),
 		errdb_client:insert(Errdb, Key, Ts, Data)
 	end, Metrics).
-
-%c
-unique_rdn(<<"c=cn">>) ->
-	<<"c=cn">>;	
-%ap, ac, sw
-unique_rdn(<<"cn=", _/binary>> = Dn) ->
-	[H1|_] = binary:split(Dn, [<<",">>]),
-	H1;
-%host
-unique_rdn(<<"host=", _/binary>> = Dn) ->
-	Dn;
-unique_rdn(Dn) ->
-	[H1, H2|_] = binary:split(Dn, [<<",">>], [global]),
-	<<H1/binary, ",", H2/binary>>.
 
 reset_timer(OldTimer, Aging, {TimerKey, Names}) ->
 	cancel_timer(OldTimer),

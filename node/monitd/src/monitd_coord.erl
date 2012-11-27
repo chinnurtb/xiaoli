@@ -11,6 +11,8 @@
 
 -author('ery.lee@gmail.com').
 
+-include("mit.hrl").
+
 -include("monitor.hrl").
 
 -include_lib("elog/include/elog.hrl").
@@ -105,8 +107,10 @@ handle_cast(Msg, State) ->
 %%                                       {stop, Reason, State}, 
 %% Description: Handling all non call/cast messages
 %%--------------------------------------------------------------------
-handle_info({monitor, Dn, Entry}, State) ->
-	sched_monitors(Dn, Entry, State),
+handle_info({monitor, #node{dn=Dn}=Node}, State) ->
+    %TODO: 
+    ?INFO("sched to monitor ~s", [Dn]),
+	%sched_monitors(Dn, Entry, State),
     {noreply, State};
 
 handle_info({disco, update, Dn, Entry}, State)  ->
@@ -134,24 +138,30 @@ handle_info({reset, Dn, Entry}, State) ->
     {noreply, State};
 
 handle_info({miboids, Oids}, State) ->
-    mib_registry:initialize({miboids, Oids}),
+    mib_registry:setup({miboids, Oids}),
     {noreply, State};
 
 handle_info({metrics, Metrics}, State) ->
-    monitd_hub:initialize({metrics, Metrics}),
+    monitd_hub:setup({metrics, Metrics}),
     {noreply, State};
 
 handle_info({sysoids, Mods}, State) ->
-    monitd_disco:initialize({sysoids, Mods}),
+    monitd_disco:setup({sysoids, Mods}),
+    {noreply, State};
+
+handle_info({timeperiods, Records}, State) ->
+    monitd_sched:setup({timeperiods, Records}),
     {noreply, State};
 
 handle_info({monitors, Mods}, State) ->
-    ?INFO("initialize monitor_mods: ~p", [length(Mods)]),
+    ?INFO("setup monitor_mods: ~p", [length(Mods)]),
     [ets:insert(monitor_mod, monitor_mod(Mod)) || Mod <- Mods],
     {noreply, State};
 
 handle_info(Info, State) ->
-    {stop, {error, {badinfo, Info}}, State}.
+    ?ERROR("badinfo: ~p", [Info]),
+    {noreply, State}.
+    %{stop, {error, {badinfo, Info}}, State}.
 
 prioritise_info({metrics, _}, _State) ->
     9;

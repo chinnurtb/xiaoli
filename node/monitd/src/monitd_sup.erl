@@ -34,7 +34,7 @@ init([worker]) ->
 			?CHILD(mib_registry),
 			?CHILD2(monitd_oscmd, CmdPool),
 			?CHILD(monitd_sched),
-			?CHILD(disco_server),
+			?CHILD(monitd_disco),
 			?CHILD2(monitd_journal, JournalOpts),
 			?CHILD(monitd_hub),
 			?CHILD(monitd_coord)
@@ -49,7 +49,7 @@ init([node]) ->
 		?CHILD(mib_registry),
 		?CHILD2(monitd_oscmd, CmdPool),
 		?CHILD2(monitd_journal, JournalOpts),
-		?CHILD(disco_server),
+		?CHILD(monitd_disco),
 		?CHILD(monitd_hub),
 		?CHILD2(monitd, application:get_all_env())]}}.
 

@@ -13,6 +13,7 @@ $(function(){
     flowDrag : {
       sid : '#tfdchart',
       updater : loadFlowDragTree,
+      history : [],
     },
     interactive : {
       sid : '#tichart',
@@ -41,6 +42,6 @@ $(function(){
   path = '';
   loadDirectoryTree('#tree');
   
-  path = 'root-0,olt-1,onu-2,eoc-3';
+  path = 'root-0,olt-1,onu-1-2';
   $('#layout select').change();
 });
