@@ -10,7 +10,7 @@ from sqlalchemy import or_
 
 from tango import db,get_profile
 from tango.ui.tables import make_table
-from tango.login import current_user, login_required
+from tango.login import current_user
 from tango.models import Profile, Category
 from tango.excel.CsvExport import CsvExport
 
@@ -21,7 +21,6 @@ from .views import nodeview
 
 @nodeview.route('/nodes/olts.csv/', methods=['POST', 'GET'])
 @nodeview.route('/nodes/olts/', methods=['POST', 'GET'])
-@login_required
 def olts():
     form = OltSearchForm()
     query = NodeOlt.query
@@ -56,7 +55,6 @@ def olts():
         return render_template('/nodes/olts/index.html', table = table, form=form, status_statistcs=status_statistcs)
 
 @nodeview.route('/nodes/olts/new/', methods=['GET','POST'])
-@login_required
 def olts_new():
     next = request.form["next"] if request.form.get("next") else request.referrer
     form = OltNewForm()
@@ -81,7 +79,6 @@ def olts_new():
     return render_template('nodes/olts/new.html', form = form, next=next)
 
 @nodeview.route('/nodes/olts/edit/<int:id>/', methods=['POST', 'GET'])
-@login_required
 def olts_edit(id):
     next = request.form["next"] if request.form.get("next") else request.referrer
     form = OltNewForm()
@@ -119,7 +116,6 @@ def olts_delete():
         return redirect(url_for('nodes.olts'))
 
 @nodeview.route('/nodes/olts/<int:id>/', methods=['GET'])
-@login_required
 def olts_show(id):
     node = NodeOlt.query.get_or_404(id)
     chartdata = [
@@ -165,7 +161,6 @@ from flask import Markup
 from werkzeug import secure_filename
 from tango.excel.CsvImport import CsvImport,ImportColumn
 @nodeview.route('/nodes/olts/import/', methods=['POST'])
-@login_required
 def olts_import():
     if request.method == 'POST':
         file = request.files['file']

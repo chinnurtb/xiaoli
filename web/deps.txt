@@ -16,3 +16,4 @@ blinker # signalling support
 uwsgi
 supervisor
 pyDes
+# py2cairo --> install by source code

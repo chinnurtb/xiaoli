@@ -1,53 +1,59 @@
 
 function loadForce(sid) {
-  $(sid).html('');
-  
   var width = $(sid).width() - 18,
   height = 595,
   node,
   link,
+  isFirst = true,
   root, vis, force;
 
-    function compute_level(root) {
-        var level = 0;
-        while(true) {
-            if(root.children.length != 1) break;
-            level += 1;
-            root = root.children[0]
-        }
-        return level
+  function compute_level(root) {
+    var level = 0;
+    while(true) {
+      if(root.children.length != 1) break;
+      level += 1;
+      root = root.children[0]
     }
+    return level
+  }
 
-  d3.json("/topo/nodes.json?path="+path, function(tjson) {
-    root = tjson;
-    root.fixed = true;
-    var nodeCount = countNodes(root);
-    var k = 3;
-    if (nodeCount > 150) {
-      height = k*nodeCount > height ? k*nodeCount : height;
-      width = height > width ? height : width;
-    }
+  root = json; // 此 json 为通用的全局变量统一在 updateChart 中更新, rel:: tree-common.jsb
+  root.fixed = true;
+  var nodeCount = countNodes(root);
+  var k = 3;
+  if (nodeCount > 150) {
+    height = k*nodeCount > height ? k*nodeCount : height;
+    width = height > width ? height : width;
+  }
 
-    var level = compute_level(root)
-    if(level == 0) {
-        root.x = height / 2;
-    }else {
-        root.x = 50;
-    }
-    root.y = height / 2;
+  var level = compute_level(root)
+  if(level == 0) {
+    root.x = height / 2;
+  }else {
+    root.x = 50;
+  }
+  root.y = height / 2;
 
-    force = d3.layout.force()
-      .on("tick", tick)
-      .charge(-140 - 300*level)
-      .linkDistance(function(d) { return d.target._children ? 200 : 60; })
-      .size([width, height]);
+  force = d3.layout.force()
+    .on("tick", tick)
+    .charge(-140 - 300*level)
+    .linkDistance(function(d) { return d.target._children ? 200 : 60; })
+    .size([width, height]);
 
-    vis = d3.select(sid).append("svg")
-      .attr("width", width)
-      .attr("height", height);
+  d3.select(sid).append("svg")
+    .attr("width", width)
+    .attr("height", height)
+    .append("rect")
+    .attr("width", width)
+    .attr("height", height);
+  
+  vis = d3.select(sid + " svg")
+    .append("g")
+    .attr("transform", "translate(0, 0)");
+
     
-    update();
-  });
+  update();
+  
 
   function update() {
     var nodes = flatten(root),
@@ -86,7 +92,7 @@ function loadForce(sid) {
       .attr("id", function(d){ return d.id })
       .attr("class", "node")
       .call(force.drag);
-      //.on("click", click)
+    //.on("click", click)
 
     node.append("circle")
       .attr("class", "node")
@@ -109,6 +115,10 @@ function loadForce(sid) {
       .attr("x2", function(d) { return d.target.x; })
       .attr("y2", function(d) { return d.target.y; });
 
+    if (isFirst){
+      isFirst = false;
+      d3.selectAll("circle").style("fill", color);
+    }
     node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
   }
 

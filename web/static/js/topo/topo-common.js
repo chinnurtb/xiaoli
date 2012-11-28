@@ -6,10 +6,16 @@ var json = null;
 // Totally common
 function updateChart(){
   $(chart.sid).show();
+  $(chart.sid).html('');
   $('.toolbar-item').hide();
   $('.all').show();
   if (chart.sclass) {
     $(chart.sclass).show();
+  }
+
+  function update(){
+    chart.updater(chart.sid);
+    injectStyle();
   }
   
   d3.json("/topo/nodes.json?path="+path, function(tjson) {
@@ -17,14 +23,152 @@ function updateChart(){
     if (!(typeof chart.history === 'undefined')) {
       d3.json("/topo/load-drag-history.json?path="+path, function(tjson){
         chart.history = tjson;
-        console.log(tjson);
-        chart.updater(chart.sid);
+        update();
       });
     } else {
-      chart.updater(chart.sid);
+      update();
     }
   });
 }
+
+var styles = {
+  '.chart svg': {
+    'background-color': '#FFF',
+  },
+  '.chart .node': {
+    'font' : '10px sans-serif'
+  },
+  '.chart rect' :{
+    'fill': '#FFF',
+  },
+  '.chart .node circle' : {
+    'fill'   : '#FFF',
+    'stroke' : '#D5D5D5',
+    'stroke-width': '1px',
+  },
+  '.chart .node text':{
+    'fill': '#333',
+  },
+  '.chart .link': {
+    'fill': 'none',
+    'stroke': '#7D7',
+    'stroke-width': '1.5px',
+  },
+  '.chart .broken': {
+    'stroke': '#D77',
+  },
+  // Alarms Status
+  '.badge-alarm-clear': {
+    'fill': '#00FF00'
+  },
+  '.badge-alarm-indeterminate': {
+    'fill': '#773EF7', 
+  },
+  '.badge-alarm-warning': {
+    'fill': '#43d5fa', 
+  },
+  '.badge-alarm-minor':{
+    'fill': '#E6F940',
+  },
+  '.badge-alarm-major':{
+    'fill': '#F6983E',
+  },
+  '.badge-alarm-critical':{
+    'fill': '#ED4D5A',
+  }
+};
+
+function injectStyle(){
+  for( selector in styles ){
+    var style = styles[selector];
+    for(name in style) {
+      $(selector).css(name, style[name]);
+    }
+  }
+  console.log("Styles injected!");
+}
+
+
+// Copy from highcharts
+function extend(a, b) {
+  var n;
+  if (!a) {
+    a = {};
+  }
+  for (n in b) {
+    a[n] = b[n];
+  }
+  return a;
+}
+
+function css(el, styles) {
+  extend(el.style, styles);
+}
+
+function createElement(tag, attribs, styles, parent, nopad) {
+  var el = document.createElement(tag);
+  if (attribs) {
+    extend(el, attribs);
+  }
+  if (nopad) {
+    css(el, {padding: 0, border: 'none', margin: 0});
+  }
+  if (styles) {
+    css(el, styles);
+  }
+  if (parent) {
+    parent.appendChild(el);
+  }
+  return el;
+}
+
+function discardElement(element) {
+  // create a garbage bin element, not part of the DOM
+  if (!garbageBin) {
+    var garbageBin = createElement('div');
+  }
+
+  // move the node and empty bin
+  if (element) {
+    garbageBin.appendChild(element);
+  }
+  garbageBin.innerHTML = '';
+}
+
+function exportChart(sid) {
+  var form,
+  filename = 'chart',
+  type = $('#export-type').val(),
+  svg = $(sid).html();
+  // create the form
+  form = createElement('form', {
+    method: 'post',
+    action: '/svg-export',
+    enctype: 'multipart/form-data'
+  }, {
+    display: 'none'
+  }, document.body);
+
+  // add the values
+  ['filename', 'type', 'svg'].forEach(function (name) {
+    createElement('input', {
+      type: 'hidden',
+      name: name,
+      value: {
+	filename: filename,
+	type: type,
+	svg: svg,
+      }[name]
+    }, null, form);
+  });
+
+  // submit
+  form.submit();
+
+  // clean up
+  discardElement(form);
+}
+
 
 function nodeImage(d){
   var images = {

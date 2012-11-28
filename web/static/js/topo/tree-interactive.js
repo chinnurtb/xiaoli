@@ -121,16 +121,26 @@ function loadInteractiveTree(sid){
       d.x0 = d.x;
       d.y0 = d.y;
     });
+
+    injectStyle();
   }
   
   function update(source) {
-    $(sid).html('');
     
     tree.size([height, width]);
 
-    vis = d3.select(sid).append("svg")
-      .attr("width", width + margin.right + margin.left - 18)
-      .attr("height", height + margin.top + margin.bottom)
+    var w = width + margin.right + margin.left - 18;
+    var h = height + margin.top + margin.bottom;
+    
+    $(sid).html("");
+    d3.select(sid).append("svg")
+      .attr("width", w)
+      .attr("height", h)
+      .append("rect")
+      .attr("width", w)
+      .attr("height", h);
+
+    vis = d3.select(sid + " svg")
       .append("g")
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
     

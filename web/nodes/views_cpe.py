@@ -10,7 +10,7 @@ from sqlalchemy import or_
 
 from tango import db,get_profile
 from tango.ui.tables import make_table
-from tango.login import current_user, login_required
+from tango.login import current_user
 from tango.models import Profile, Category
 from tango.excel.CsvExport import CsvExport
 
@@ -21,7 +21,6 @@ from .views import nodeview
 
 @nodeview.route('/nodes/cpes.csv/', methods=['POST', 'GET'])
 @nodeview.route('/nodes/cpes/', methods=['POST', 'GET'])
-@login_required
 def cpes():
     form = CpeSearchForm()
     query = NodeCpe.query
@@ -56,7 +55,6 @@ def cpes():
         return render_template('/nodes/cpes/index.html', table = table, form=form, status_statistcs=status_statistcs)
 
 @nodeview.route('/nodes/cpes/new/', methods=['GET','POST'])
-@login_required
 def cpes_new():
     next = request.form["next"] if request.form.get("next") else request.referrer
     form = CpeNewForm()
@@ -79,7 +77,6 @@ def cpes_new():
     return render_template('nodes/cpes/new.html', form = form, next=next)
 
 @nodeview.route('/nodes/cpes/edit/<int:id>/', methods=['POST', 'GET'])
-@login_required
 def cpes_edit(id):
     next = request.form["next"] if request.form.get("next") else request.referrer
     form = CpeNewForm()
@@ -115,7 +112,6 @@ def cpes_delete():
         return redirect(url_for('nodes.cpes'))
 
 @nodeview.route('/nodes/cpes/<int:id>/', methods=['GET'])
-@login_required
 def cpes_show(id):
     node = NodeCpe.query.get_or_404(id)
     chartdata = [

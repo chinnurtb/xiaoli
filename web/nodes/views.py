@@ -11,7 +11,7 @@ from sqlalchemy import or_
 from tango import db, get_profile
 from tango.ui import navbar, dashboard
 from tango.ui.tables import make_table
-from tango.login import current_user, login_required
+from tango.login import current_user
 from tango.models import Profile, Category
 from tango.excel.CsvExport import CsvExport
 
@@ -102,7 +102,6 @@ def area_select():
 from tango.ui.queries import NodeForm
 @nodeview.route('/nodes.csv/', methods=['POST', 'GET'])
 @nodeview.route('/nodes/', methods=['POST', 'GET'])
-@login_required
 def nodes():
     form = NodeSearchForm()
 
@@ -190,7 +189,6 @@ def ajax_entrances_for_town():
 
 
 @nodeview.route('/nodes/import', methods=['GET'])
-@login_required
 def nodes_import():
     return render_template('/nodes/import.html')
 

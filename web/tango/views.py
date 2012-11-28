@@ -3,17 +3,10 @@
 
 import re, os
 
+from flask import Blueprint, request, render_template, send_file
+
 from tango import db, update_profile
-
-from flask import Blueprint, request, make_response, render_template, send_file
-
-from users.models import User
-
-from tango.ui import tables
-
 from tango.login import current_user
-
-from tango.models import Profile
 
 tangoview = Blueprint('tango', __name__)
 
@@ -54,7 +47,6 @@ def shell():
 @tangoview.route('/dashboard/settings', methods = ['POST'])
 def dashboard_setting():
     form = request.form
-    uid = current_user.id
     if form['action'] == 'meta-box-order': # and form['page'] == 'dashboard':
         order = nested_dict('order', form)
         layout = form['page_columns']
