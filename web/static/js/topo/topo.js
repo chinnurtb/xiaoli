@@ -45,10 +45,12 @@ $(function(){
     }
     console.log('===================Layout Changed=====================');
   });
-  
+
+  /*
   $('#export').click(function(){
     exportChart(chart.sid);
   });
+  */
 
   // Action
   path = '';
