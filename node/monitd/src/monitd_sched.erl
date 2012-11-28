@@ -20,7 +20,8 @@
 -export([start_link/0,
         setup/1]).
 
--export([schedule/2, 
+-export([lookup/1,
+         schedule/2, 
          schedule/3, 
          unschedule/1, 
          reschedule/2, 
@@ -47,11 +48,20 @@ start_link() ->
 setup({timeperiods, Periods}) ->
     gen_server:call(?MODULE, {setup, timeperiods, Periods}).
 
+lookup({dn, Dn}) ->
+    mnesia:dirty_index_read(monitor_task, Dn, #monitor_task.dn);
+
+lookup(TaskId) when is_list(TaskId) or is_binary(TaskId) ->
+    mnesia:dirty_read(monitor_task, TaskId).
+
 schedule(Task, Interval) ->
     schedule(Task, Interval, 0).
 
 schedule(Task, Interval, Delay) ->
     gen_server:cast(?MODULE, {schedule, Task, Interval, Delay}).
+
+unschedule({dn, Dn}) ->
+    gen_server:cast(?MODULE, {unschedule, dn, Dn});
 
 unschedule(TaskId) ->
     gen_server:cast(?MODULE, {unschedule, TaskId}).
@@ -62,14 +72,14 @@ reschedule(Task, Interval) ->
 update_task(TaskId, Period) when is_integer(Period) ->
     gen_server:cast(?MODULE, {update_period, TaskId, Period});
 
-update_task(TaskId, Args) when is_list(Args) ->
-    gen_server:cast(?MODULE, {update_args, TaskId, Args}).
+update_task(TaskId, {Node, Args}) when is_list(Args) ->
+    gen_server:cast(?MODULE, {update_args, TaskId, {Node, Args}}).
 
 clear_tasks() ->
     gen_server:cast(?MODULE, clear_tasks).
 
 task_num() ->
-    ets:info(monitor_task, size).
+    mnesia:table_info(monitor_task, size).
 
 %%--------------------------------------------------------------------
 %% Function: init(Args) -> {ok, State} |
@@ -79,11 +89,10 @@ task_num() ->
 %% Description: Initiates the server
 %%--------------------------------------------------------------------
 init([]) ->
-    Result = mnesia:create_table(xxxxxx, [{ram_copies, [node()]},
-        {attributes, record_info(fields, timeperiod)}]),
-    ?INFO("~p", [Result]),
+    mnesia:create_table(monitor_task, [
+        {ram_copies, [node()]}, {index, [dn]}, 
+        {attributes, record_info(fields, monitor_task)}]),
     ets:new(timeperiod, [set, named_table, protected, {keypos, 2}]),
-    ets:new(monitor_task, [set, named_table, protected, {keypos, 2}]),
     erlang:send_after(300 * 1000, self(), introspect),
     ?INFO_MSG("monitd_sched is started...[ok]"),
     {ok, state}.
@@ -126,64 +135,64 @@ handle_call(Req, _From, State) ->
 %% Description: Handling cast messages
 %%--------------------------------------------------------------------
 handle_cast({schedule, #monitor_task{id = TaskId} = Task, Interval, Delay}, State) -> 
-    case ets:lookup(monitor_task, TaskId) of
+    case mnesia:dirty_read(monitor_task, TaskId) of
     [_] ->
         ?ERROR("Task has been scheduled: ~p", [Task]);
     [] ->
         NextSchedAt = extbif:timestamp() + Interval + Delay,
         %?INFO("schedule task: ~p, next_sched_at: ~p", [TaskId, NextSchedAt]),
         TRef = erlang:send_after((Interval + Delay) * 1000, self(), {run, TaskId}),
-        ets:insert(monitor_task, Task#monitor_task{tref = TRef, next_sched_at = NextSchedAt})
+        mnesia:dirty_write(Task#monitor_task{tref = TRef, next_sched_at = NextSchedAt})
     end,
     {noreply, State};
 
+handle_cast({unschedule, dn, Dn}, State) ->
+    Tasks = mnesia:dirty_index_read(monitor_task, Dn, #monitor_task.dn),
+    [delete_task(Task) || Task <- Tasks],
+    {noreply, State};
+
 handle_cast({unschedule, TaskId}, State) ->
-    case ets:lookup(monitor_task, TaskId) of
-    [#monitor_task{tref = TRef} = _Task] ->
-        cancel_timer(TRef),
-        ets:delete(monitor_task, TaskId);
-    [] ->
-        ?WARNING("cannot find task: ~p", [TaskId])
-    end,
+    Tasks = mnesia:dirty_read(monitor_task, TaskId), 
+    [delete_task(Task) || Task <- Tasks],
     {noreply, State};
 
 %%TODO: should refactor later.
 handle_cast({reschedule, #monitor_task{id = TaskId} = Task, Interval}, State) ->
-    case ets:lookup(monitor_task, TaskId) of
+    case mnesia:dirty_read(monitor_task, TaskId) of
     [OldTask] -> %%TODO: task period, args maybe updated by user!!! so we should not update args and period!
         Args = OldTask#monitor_task.args,
         Period = OldTask#monitor_task.period,
         NextSchedAt = extbif:timestamp() + Interval,
         cancel_timer(OldTask#monitor_task.tref),
         TRef = erlang:send_after(Interval * 1000, self(), {run, TaskId}),
-        ets:insert(monitor_task, Task#monitor_task{period = Period, args = Args, tref = TRef, next_sched_at = NextSchedAt});
+        mnesia:dirty_write(Task#monitor_task{period = Period, args = Args, tref = TRef, next_sched_at = NextSchedAt});
     [] ->
         ?WARNING("cannot find task: ~p", [TaskId])
     end,
     {noreply, State};
 
 handle_cast({update_period, TaskId, Period}, State) ->
-    case ets:lookup(monitor_task, TaskId) of
+    case mnesia:dirty_read(monitor_task, TaskId) of
     [Task] ->
-        ets:insert(monitor_task, Task#monitor_task{period = Period});
+        mnesia:dirty_write(Task#monitor_task{period = Period});
     [] ->
-        ?WARNING("cannot find task: ~p", [TaskId])
+        ?ERROR("cannot find task: ~p", [TaskId])
     end,
     {noreply, State};
 
-handle_cast({update_args, TaskId, Args}, State) ->
+handle_cast({update_args, TaskId, {Node, Args}}, State) ->
     ?INFO("monitd_sched update :~p, ~p",[TaskId, Args]),
-    case ets:lookup(monitor_task, TaskId) of
+    case mnesia:dirty_read(monitor_task, TaskId) of
     [Task] ->
-        ets:insert(monitor_task, Task#monitor_task{args = Args});
+        mnesia:dirty_write(monitor_task, Task#monitor_task{node=Node,args = Args});
     [] ->
         ?WARNING("cannot find task: ~p", [TaskId])
     end,
     {noreply, State};
 
 handle_cast(clear_tasks, State) ->
-    clear_task(ets:first(monitor_task)),
-    ets:delete_all_objects(monitor_task),
+    Keys = mnesia:dirty_all_keys(monitor_task),
+    [delete_task(Key) || Key <- Keys],
     {noreply, State};
 
 handle_cast(Msg, State) ->
@@ -197,7 +206,7 @@ handle_cast(Msg, State) ->
 %% Description: Handling all non call/cast messages
 %%--------------------------------------------------------------------
 handle_info({run, TaskId}, State) ->
-    case ets:lookup(monitor_task, TaskId) of
+    case mnesia:dirty_read(monitor_task, TaskId) of
     [Task] -> 
         spawn(fun() ->
             case in_timeperiod(Task) of
@@ -213,7 +222,7 @@ handle_info({run, TaskId}, State) ->
     {noreply, State};
 
 handle_info(introspect, State) ->
-    Size = ets:info(monitor_task, size),
+    Size = mnesia:table_info(monitor_task, size),
     {_, QueueLen} = process_info(self(), message_queue_len),
     if
     QueueLen > 5 ->
@@ -229,7 +238,7 @@ handle_info(Info, State) ->
     {noreply, State}.
 
 terminate(_Reason, _State) ->
-    ets:delete(monitor_task),
+    mnesia:delete_table(monitor_task),
     ok.
 
 code_change(_OldVsn, State, _Extra) ->
@@ -267,17 +276,9 @@ run_task(#monitor_task{id = Id, period = Period, next_sched_at = NextSchedAt} = 
 skip_task(#monitor_task{period=Period} = Task) ->
     reschedule(Task, Period).
 
-clear_task('$end_of_table') ->
-    ok;
-
-clear_task(TaskId) -> 
-    case ets:lookup(monitor_task, TaskId) of
-    [#monitor_task{tref=TRef} = _Task] -> 
-        cancel_timer(TRef);
-    [] -> 
-        ok
-    end,
-    clear_task(ets:next(monitor_task, TaskId)).
+delete_task(#monitor_task{id=TaskId, tref=TRef}) ->
+    cancel_timer(TRef),
+    mnesia:dirty_delete(monitor_task, TaskId).
 
 cancel_timer(undefined) ->
     ok;

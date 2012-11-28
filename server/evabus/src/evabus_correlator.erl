@@ -238,41 +238,16 @@ analyze(event, #event{name = snmp_status, severity = Severity, sender = Dn} = Ev
 		{ok, Event}
 	end;
 
-analyze(event, #event{name = avail_status, sender = Dn, timestamp = Ts, vars = Vars} = Event) ->
-	Key = event_key(Dn, avail_status),
-	TimeAt = {datetime, extbif:datetime(Ts)},
-	Existed = 
-	case ets:lookup(history_event, Key) of
-	[] ->
-		case emysql:select(avail_devices, [id], {dn, Dn}) of
-		{ok, [_]} -> true;
-		{ok, []} -> false
-		end;
-	[{_, _Event, TRef}] ->
-		cancel(TRef), true
-	end,
-	case Existed of
-	true ->
-		emysql:update(avail_devices, [{updated_at, TimeAt}|Vars], {dn, Dn});
-	false ->
-		case mit:lookup(Dn) of
-		{ok, #entry{dn = Dn, ip = Ip, class = ObjClass}} ->
-			Record = [{dn, Dn}, {object_class, ObjClass},
-					  {ip, Ip}, {updated_at, TimeAt}|Vars],
-			emysql:insert(avail_devices, Record);
-		{false, _} ->
-			?ERROR("~p not found.", [Dn])
-		end
-	end,
-	TimerRef = erlang:send_after(600*1000, self(), {aging, event, Key}),
-	ets:insert(history_event, {Key, Event, TimerRef}),
+analyze(event, #event{name = avail_status, sender = Dn, timestamp = _Ts, vars = Vars}) ->
+	TimeAt = {datetime, date(), time()},
+    Res = epgsql:update(main, nodes, [{updated_at, TimeAt}|Vars], {rdn, Dn}),
+    ?INFO("~p", [Res]),
 	ignore;
 
 analyze(event, Event) ->
 	{ok, Event};
 
-analyze(alarm, #alarm{alarm_name = apOfflineTrap, perceived_severity = Severity} = Alarm) ->
-    update_fitap_status(Alarm),
+analyze(alarm, #alarm{alarm_name = apOfflineTrap, severity = Severity} = Alarm) ->
     if
     Severity == 0 ->
         clear_longoffline(Alarm);
@@ -293,25 +268,6 @@ cancel(TRef) ->
 event_key(SenderOrSource, Name) ->
 	{SenderOrSource, Name}.
 
-update_fitap_status(#alarm{alarm_name = apOfflineTrap,
-                           alarm_sender = Sender,
-                           alarm_source = Source, 
-                           perceived_severity = Severity}) ->
-	{ok, #entry{uid = {fitap, Id}}} = mit:lookup(Source),
-    State = managed_state(Severity),
-    Record = 
-    if
-    State == 1 -> %if online, update ac_id
-        {ok, #entry{uid = {ac, AcId}}} = mit:lookup(Sender), 
-        [{ac_id, AcId}, {managed_state, State}];
-    true ->
-        [{managed_state, State}]
-    end,
-    emysql:update(mit_aps, Record, {id, Id}).
-
-managed_state(0) -> 1;
-managed_state(_) -> 0.
-
 clear_longoffline(#alarm{alarm_name = apOfflineTrap} = Alarm) ->
 	LongOffline = evabus_setting:lookup('long.offline.alarm'),
 	case LongOffline of
@@ -319,8 +275,8 @@ clear_longoffline(#alarm{alarm_name = apOfflineTrap} = Alarm) ->
 		Summary = list_to_binary([Alarm#alarm.summary, ", AP上线时间: ",
 			extbif:strftime(extbif:datetime(Alarm#alarm.timestamp))]),
 		Event = #event{name = long_offline, 
-					   sender = Alarm#alarm.alarm_sender,
-					   source = Alarm#alarm.alarm_source,
+					   sender = Alarm#alarm.agent,
+					   source = Alarm#alarm.source,
 					   evtkey = <<"long_offline">>,
 					   severity = clear,
 					   summary = Summary,

@@ -64,6 +64,7 @@ emit(_Chan, metric, Metric) ->
 		?ERROR("~p", [Metric]);
 	{'EXIT', Reason} ->
 		?ERROR("diff exit: ~p", [Reason]),
+        ?ERROR("~p", [erlang:get_stacktrace()]),
 		?ERROR("~p", [Metric])
 	end;
 

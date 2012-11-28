@@ -224,7 +224,7 @@ discover("SNMP OK", node, Dn, Ip, Agent) ->
           {ok, SpecAttrs, DataList} = Mod:disco(Dn, Ip, Agent, [{mib, Mib}]),
           ?INFO("DiscoMod: ~s, model: ~p, Ip: ~s",[Mod, ModelId, Ip]),
 		  Attrs2 = Attrs1 ++ SpecAttrs,
-          {ok, [{node, Dn, Attrs2} | DataList]};
+          {ok, [{entry, node, Dn, Attrs2} | DataList]};
         [] ->
           ?ERROR("No disco mod for: ~s, ip: ~s, sysdescr: ~s", [SysOid, Ip, SysDescr]),
           {error, no_sysmod};

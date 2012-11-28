@@ -13,8 +13,7 @@
 
 -import(extbif, [to_list/1, timestamp/0]).
 
--export([run/2,
-		 runomc/2]).
+-export([run/2]).
 
 run(Args, Fun) ->
 	{value, Dn} = get_value(dn, Args),
@@ -23,10 +22,3 @@ run(Args, Fun) ->
 	Agent= [{community, to_list(Community)}],
     Fun(Dn, to_list(Ip), timestamp(), Agent).
 
-runomc(Args, Fun) ->
-	{value, Dn} = get_value(dn, Args),
-	{value, Ip} = get_value(extra, Args),
-	{value, Community} = get_value(snmpCommunity, Args, <<"public">>),
-	Agent= [{community, to_list(Community)}],
-    Fun(Dn, to_list(Ip), timestamp(), Agent).
-   

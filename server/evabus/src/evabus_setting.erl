@@ -9,8 +9,6 @@
 %%%----------------------------------------------------------------------
 -module(evabus_setting).
 
--author('ery.lee@gmail.com').
-
 -import(proplists, [get_value/2]).
 
 -include_lib("elog/include/elog.hrl").
@@ -49,12 +47,12 @@ handle_cast(Msg, State) ->
     {stop, {error, {badmsg, Msg}}, State}.
 
 handle_info(reload, State) ->
-	{ok, Records} = emysql:select(fault_settings),
+	{ok, Records} = epgsql:select(main, settings, {mod, "alarms"}),
 	lists:foreach(fun(Record) -> 
-		Attr = get_value(attr, Record),
+		Name = get_value(name, Record),
 		Type = get_value(type, Record),
-		Val = get_value(val, Record),
-		ets:insert(evabus_setting, {atom(Attr), format(Type, Val)})
+		Val = get_value(value, Record),
+		ets:insert(evabus_setting, {atom(Name), format(Type, Val)})
 	end, Records),
 	erlang:send_after(300 * 1000, self(), reload),
     {noreply, State};

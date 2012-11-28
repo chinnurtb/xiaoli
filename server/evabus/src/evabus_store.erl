@@ -44,7 +44,6 @@ updated(Record, _Where) when is_list(Record) ->
     unsupported.
 
 init([]) ->
-    emysql:delete(fault_events, {alarm_type, <<"Quality of Service">>}),
 	?INFO_MSG("evabus db is started."),
     {ok, #state{}}.
 
@@ -74,13 +73,13 @@ code_change(_OldVsn, State, _Extra) ->
 
 do_save(#alarm{alarm_key = AlarmKey,
 			   alarm_name = AlarmName,
-			   alarm_source = AlarmSource,
-			   perceived_severity = Severity} = Alarm) ->
+			   source = AlarmSource,
+			   severity = Severity} = Alarm) ->
 	%%query events with the same type
     SavedRes = 
 	case select(AlarmKey, AlarmSource) of
     {ok, OldAlarm} ->
-        OldSeverity = proplists:get_value(perceived_severity, OldAlarm),
+        OldSeverity = proplists:get_value(severity, OldAlarm),
         case (Severity == 0) and (OldSeverity == 0) of
         true -> 
             {ok, ignore};
@@ -112,7 +111,7 @@ do_save(#alarm{alarm_key = AlarmKey,
 	{ok, supressed} -> true;
     _ -> false
     end,
-    case ( ShouldNotify or is_hotsport_alarm(AlarmName) ) of
+    case ( ShouldNotify ) of
     true ->
         todo;
         %evabus_forward:send(Alarm);
@@ -124,16 +123,16 @@ do_save(#alarm{alarm_key = AlarmKey,
 %%% Internal functions
 %%--------------------------------------------------------------------
 select(AlarmKey, AlarmSource) ->
-	Where = {'and', {alarm_key, AlarmKey}, {alarm_source, AlarmSource}},
+	Where = {'and', {alarm_key, AlarmKey}, {source, AlarmSource}},
 	select(Where).
 
 select(Where) ->
-    case emysql:select(fault_events, Where) of
+    case epgsql:select(main, alarms, Where) of
     {ok, [Alarm|_]} -> {ok, Alarm};
     {ok, []} -> false
     end.
 
-try_insert(#alarm{alarm_name = snmp_status, alarm_source = Source} = Alarm) ->
+try_insert(#alarm{alarm_name = snmp_status, source = Source} = Alarm) ->
     case select("ping_status", Source) of
     {ok, _PingAlarm} -> ignore;
     false -> do_insert(Alarm)
@@ -145,26 +144,24 @@ try_insert(Alarm) ->
 do_insert(Alarm) ->
 	CreatedAt = UpdatedAt = {datetime, calendar:local_time()},
 	Record = [{created_at, CreatedAt}, {updated_at, UpdatedAt} | evabus_alarm:record(Alarm)],
-    case emysql:insert(fault_events, Record) of
+    case epgsql:insert(main, alarms, Record) of
     {error, Reason} -> 
         ?ERROR("failed to insert alarm: ~p, ~n~p", [Reason, Alarm]);
     _ ->
         ok
     end.
 
-do_update(#alarm{alarm_name = AlarmName,
+do_update(#alarm{class_id = ClassId,
+                 alarm_name = AlarmName,
 				 alarm_alias = AlarmAlias,
-			     alarm_type = AlarmType,
-				 alarm_sender = AlarmSender,
-				 sender_ip = SenderIp,
-				 sender_alias = SenderAlias,
-				 source_alias = SourceAlias,
+				 node_id = NodeId,
+				 source = Source,
 				 occur_count = Count,
 				 probable_cause = ProbableCause,
-				 perceived_severity = Severity,
+				 severity = Severity,
 				 summary = Summary,
 				 last_occurrence = LastOccurrence,
-				 clear_time = ClearTime
+				 cleared_time = ClearTime
 				 } = _Alarm, OldRecord) ->
 
 	Id = proplists:get_value(id, OldRecord),
@@ -178,14 +175,12 @@ do_update(#alarm{alarm_name = AlarmName,
 	true -> OldCount
 	end,
 
-	Record = [{alarm_type, AlarmType},
+	Record = [{class_id, ClassId},
 			  {alarm_alias, AlarmAlias},
-			  {alarm_sender, AlarmSender},
-			  {sender_alias, SenderAlias},
-			  {sender_ip, SenderIp},
-			  {source_alias, SourceAlias},
+			  {node_id, NodeId},
+			  {source, Source},
 			  {occur_count, NewCount},
-			  {perceived_severity, Severity},
+			  {severity, Severity},
 			  {summary, Summary},
 			  {last_occurrence, LastOccurrence},
 			  {probable_cause, ProbableCause},
@@ -199,22 +194,10 @@ do_update(#alarm{alarm_name = AlarmName,
 		Record
 	end,
 
-	case emysql:update(fault_events, Record1, {id, Id}) of
+	case epgsql:update(main, alarms, Record1, {id, Id}) of
     {error, Reason} ->
         ?ERROR("failed to update: ~p ~n~p ~n~p", [AlarmName, Reason, Record1]);
     _ ->
         ok
     end.
-
-is_hotsport_alarm(<<"hotspot_offline">>) ->
-    true;
-
-is_hotsport_alarm("hotspot_offline") ->
-    true;
-
-is_hotsport_alarm(hotspot_offline) ->
-    true;
-
-is_hotsport_alarm(_) ->
-    false.
 

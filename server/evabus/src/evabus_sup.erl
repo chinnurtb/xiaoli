@@ -29,11 +29,9 @@ start_link() ->
 init([]) ->
     {ok, CronConf} = application:get_env(cron),
     {ok, FilterDir} = application:get_env(filter_dir),
-    %{ok, ForwardArgs} = application:get_env(forward),
 	{ok, {{one_for_one, 10, 3600}, [
 		?CHILD(evabus_setting),
 		?CHILD(evabus_class),
-		%?CHILD2(evabus_forward, ForwardArgs),
 		?CHILD(evabus_store),
 		?CHILD(evabus_correlator),
 		?CHILD2(evabus_filter, FilterDir),

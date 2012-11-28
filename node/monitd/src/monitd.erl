@@ -16,7 +16,8 @@
 
 -include_lib("elog/include/elog.hrl").
 
--export([start_link/1]).
+-export([start_link/1,
+        tasks/1]).
 
 -behavior(gen_server).
 
@@ -36,6 +37,9 @@
 %%--------------------------------------------------------------------
 start_link(Env) ->
     gen_server2:start_link({global, ?MODULE}, ?MODULE, [Env], []).
+
+tasks(Dn) ->
+    gen_server2:call({global, ?MODULE}, {tasks, Dn}).
 
 %%--------------------------------------------------------------------
 %% Function: init(Args) -> {ok, State} |
@@ -86,6 +90,11 @@ open(Conn, Shards) ->
 	amqp:consume(Ch, NodeQ),
 
 	Ch.
+
+handle_call({tasks, Dn}, _From, State) ->
+    Pid = chash_pg:get_pid(monitd_coord, Dn), 
+    Tasks = rpc:call(node(Pid), monitd_sched, lookup, [{dn, Dn}]), 
+    {reply, Tasks, State};
 
 handle_call(Req, _From, State) ->
     {stop, {error, {badreq, Req}}, State}.
@@ -232,7 +241,9 @@ handle_task(Task, _State) ->
     ?ERROR("unexpected task: ~p", [Task]).
 
 unicast(Key, Task) ->
-	chash_pg:get_pid(monitd_coord, Key) ! Task.
+	Pid = chash_pg:get_pid(monitd_coord, Key),
+    ?INFO("Key: ~s, Pid: ~p", [Key, Pid]),
+    Pid ! Task.
 
 broadcast(Table, Records) ->
     Pids = chash_pg:get_pids(monitd_coord),

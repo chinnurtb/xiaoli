@@ -46,8 +46,8 @@ handle_cast({log, Type, #event{name=Name,
 	{noreply, State};
 
 handle_cast({log, Type, #alarm{alarm_key=Key, 
-	alarm_sender = Sender, alarm_source = Source}}, State) ->
-	?INFO("alarm ~p: key=~p, sender=~p, source=~p", [Type, Key, Sender, Source]), 
+	agent = Agent, source = Source}}, State) ->
+	?INFO("alarm ~p: key=~p, agent=~p, source=~p", [Type, Key, Agent, Source]), 
 	{noreply, State};
 
 handle_cast(Msg, State) ->
