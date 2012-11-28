@@ -126,13 +126,14 @@ def nodes():
     if query_dict.get("model_id"): query=query.filter(Node.model_id == query_dict["model_id"])    # ==
     if query_dict.get("category_id"): query=query.filter(Node.category_id == query_dict["category_id"])
     if query_dict.get("status"): query=query.filter(Node.status == query_dict["status"])
+    query = query.filter(Area.id.in_(current_user.domain.area_ids())) # 过滤不在当前用户管理域的节点
     form.process(**query_dict)
     table = make_table(query, NodeTable)
 
     # 节点状态统计
     status_statistcs = []
     for status in NODE_STATUS_DICT.keys():
-        num = Node.query.filter(Node.status == status).count()
+        num = Node.query.filter(Node.status == status).filter(Node.area_id.in_(current_user.domain.area_ids())).count()
         status_statistcs.append({"status": status, "number": num, "name": NODE_STATUS_DICT.get(status)})
 
     if request.base_url.endswith(".csv/"):
@@ -166,25 +167,25 @@ def ajax_models_for_vendor():
 @nodeview.route('/nodes/ajax_towns_for_city', methods=['GET'])
 def ajax_towns_for_city():
     cityid = request.args.get('key')
-    towns = Area.query.filter(Area.cityid==cityid).filter(Area.area_type==2)
+    towns = Area.query.filter(Area.cityid==cityid).filter(Area.area_type==2).filter(Area.id.in_(current_user.domain.area_ids(2)))
     return json.dumps([{'value':town.id, 'name':town.alias} for town in towns])
 
 @nodeview.route('/nodes/ajax_branches_for_town', methods=['GET'])
 def ajax_branches_for_town():
     town = request.args.get('key')
-    branches = Area.query.filter(Area.town==town).filter(Area.area_type==3)
+    branches = Area.query.filter(Area.town==town).filter(Area.area_type==3).filter(Area.id.in_(current_user.domain.area_ids(3)))
     return json.dumps([{'value':branch.id, 'name':branch.alias} for branch in branches])
 
 @nodeview.route('/nodes/ajax_entrances_for_branch', methods=['GET'])
 def ajax_entrances_for_branch():
     branch = request.args.get('key')
-    entrances = Area.query.filter(Area.branch==branch).filter(Area.area_type==4)
+    entrances = Area.query.filter(Area.branch==branch).filter(Area.area_type==4).filter(Area.id.in_(current_user.domain.area_ids(4)))
     return json.dumps([{'value':entrance.id, 'name':entrance.alias} for entrance in entrances])
 
 @nodeview.route('/nodes/ajax_entrances_for_town', methods=['GET'])
 def ajax_entrances_for_town():
     town = request.args.get('key')
-    entrances = Area.query.filter(Area.town==town).filter(Area.area_type==4)
+    entrances = Area.query.filter(Area.town==town).filter(Area.area_type==4).filter(Area.id.in_(current_user.domain.area_ids(4)))
     return json.dumps([{'value':entrance.id, 'name':entrance.alias} for entrance in entrances])
 
 

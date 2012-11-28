@@ -14,6 +14,7 @@ from tango.ui.form.forms import FormPro
 from tango.ui.form.fields import SelectFieldPro, AreaSelectField, DateFieldPro, DecimalFieldPro
 from tango.ui.tables.utils import Attrs
 from tango.models import  Category
+from tango.login import current_user
 
 class NodeSearchForm(FormPro):
     keyword         = TextField()
@@ -37,11 +38,11 @@ class NodeSearchForm(FormPro):
 
 class OltNewForm(FormPro):
     cityid          = SelectFieldPro(u'所属地市', validators=[required(message=u'必填')],
-        choices=lambda: [('', u'请选择地市')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==1)])
+        choices=lambda: [('', u'请选择地市')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==1).filter(Area.id.in_(current_user.domain.area_ids(1)))])
     town         = SelectFieldPro(u'', validators=[required(message=u'必填')],
-        choices=lambda: [('', u'请选择区县')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==2)])
+        choices=lambda: [('', u'请选择区县')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==2).filter(Area.id.in_(current_user.domain.area_ids(2)))])
     area_id         = SelectFieldPro(u'所属区域', validators=[required(message=u'必填')],
-        choices=lambda: [('', u'请选择分局')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==3)])
+        choices=lambda: [('', u'请选择分局')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==3).filter(Area.id.in_(current_user.domain.area_ids(3)))])
     name            = TextField(u'OLT名称', validators=[required(message=u'必填')])
     alias           = TextField(u'OLT别名', validators=[required(message=u'必填')])
     addr            = TextField(u'IP 地址', validators=[required(message=u'必填'), IPAddress(message=u'IP地址格式不正确'), NoneOf(['0.0.0.0','255.255.255.255'], message=u'IP地址格式不正确')])
@@ -59,11 +60,11 @@ class OltNewForm(FormPro):
 
 class EocNewForm(FormPro):
     cityid          = SelectFieldPro(u'所属地市', validators=[required(message=u'必填')],
-        choices=lambda: [('', u'请选择地市')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==1)])
+        choices=lambda: [('', u'请选择地市')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==1).filter(Area.id.in_(current_user.domain.area_ids(1)))])
     town         = SelectFieldPro(u'', validators=[required(message=u'必填')],
-        choices=lambda: [('', u'请选择区县')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==2)])
+        choices=lambda: [('', u'请选择区县')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==2).filter(Area.id.in_(current_user.domain.area_ids(2)))])
     area_id         = SelectFieldPro(u'所属区域', validators=[required(message=u'必填')],
-        choices=lambda: [('', u'请选择分局')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==3)])
+        choices=lambda: [('', u'请选择分局')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==3).filter(Area.id.in_(current_user.domain.area_ids(3)))])
     name            = TextField(u'EOC名称', validators=[required(message=u'必填')])
     alias           = TextField(u'EOC别名', validators=[required(message=u'必填')])
     addr            = TextField(u'IP 地址', validators=[required(message=u'必填'), IPAddress(message=u'IP地址格式不正确'), NoneOf(['0.0.0.0','255.255.255.255'], message=u'IP地址格式不正确')])
@@ -85,9 +86,9 @@ class EocNewForm(FormPro):
 
 class CpeNewForm(FormPro):
     controller_id      = SelectFieldPro(u'所属EOC', validators=[required(message=u'必填')],
-        choices=lambda: [('', u'请选择EOC')] + [(unicode(r.id), r.alias+' <'+r.addr+'>') for r in NodeEoc.query])
+        choices=lambda: [('', u'请选择EOC')] + [(unicode(r.id), r.alias+' <'+r.addr+'>') for r in NodeEoc.query.filter(NodeEoc.area_id.in_(current_user.domain.area_ids(3)))])
     area_id         = SelectFieldPro(u'接入点', validators=[required(message=u'必填')],
-        choices=lambda: [('', u'请选择接入点')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==4)])
+        choices=lambda: [('', u'请选择接入点')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==4).filter(Area.id.in_(current_user.domain.area_ids(4)))])
     name            = TextField(u'CPE名称', validators=[required(message=u'必填')])
     alias           = TextField(u'CPE别名', validators=[required(message=u'必填')])
     mac            = TextField(u'MAC地址', validators=[required(message=u'必填')])
@@ -105,11 +106,11 @@ class CpeNewForm(FormPro):
 
 class SwitchNewForm(FormPro):
     cityid          = SelectFieldPro(u'所属地市', validators=[required(message=u'必填')],
-        choices=lambda: [('', u'请选择地市')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==1)])
+        choices=lambda: [('', u'请选择地市')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==1).filter(Area.id.in_(current_user.domain.area_ids(1)))])
     town         = SelectFieldPro(u'', validators=[required(message=u'必填')],
-        choices=lambda: [('', u'请选择区县')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==2)])
+        choices=lambda: [('', u'请选择区县')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==2).filter(Area.id.in_(current_user.domain.area_ids(2)))])
     area_id         = SelectFieldPro(u'所属区域', validators=[required(message=u'必填')],
-        choices=lambda: [('', u'请选择接入点')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==4)])
+        choices=lambda: [('', u'请选择接入点')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==4).filter(Area.id.in_(current_user.domain.area_ids(4)))])
     name            = TextField(u'交换机名称', validators=[required(message=u'必填')])
     alias           = TextField(u'交换机别名', validators=[required(message=u'必填')])
     addr            = TextField(u'IP 地址', validators=[required(message=u'必填'), IPAddress(message=u'IP地址格式不正确'), NoneOf(['0.0.0.0','255.255.255.255'], message=u'IP地址格式不正确')])
@@ -123,11 +124,11 @@ class SwitchNewForm(FormPro):
 
 class RouterNewForm(FormPro):
     cityid          = SelectFieldPro(u'所属地市', validators=[required(message=u'必填')],
-        choices=lambda: [('', u'请选择地市')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==1)])
+        choices=lambda: [('', u'请选择地市')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==1).filter(Area.id.in_(current_user.domain.area_ids(1)))])
     town         = SelectFieldPro(u'', validators=[required(message=u'必填')],
-        choices=lambda: [('', u'请选择区县')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==2)])
+        choices=lambda: [('', u'请选择区县')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==2).filter(Area.id.in_(current_user.domain.area_ids(2)))])
     area_id         = SelectFieldPro(u'所属区域', validators=[required(message=u'必填')],
-        choices=lambda: [('', u'请选择接入点')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==4)])
+        choices=lambda: [('', u'请选择接入点')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==4).filter(Area.id.in_(current_user.domain.area_ids(4)))])
     name            = TextField(u'路由器名称', validators=[required(message=u'必填')])
     alias           = TextField(u'路由器别名', validators=[required(message=u'必填')])
     addr            = TextField(u'IP 地址', validators=[required(message=u'必填'), IPAddress(message=u'IP地址格式不正确'), NoneOf(['0.0.0.0','255.255.255.255'], message=u'IP地址格式不正确')])
@@ -141,9 +142,9 @@ class RouterNewForm(FormPro):
 
 class OnuNewForm(FormPro):
     controller_id      = SelectFieldPro(u'所属OLT', validators=[required(message=u'必填')],
-        choices=lambda: [('', u'请选择OLT')] + [(unicode(r.id), r.alias+' <'+r.addr+'>') for r in NodeOlt.query])
+        choices=lambda: [('', u'请选择OLT')] + [(unicode(r.id), r.alias+' <'+r.addr+'>') for r in NodeOlt.query.filter(NodeOlt.area_id.in_(current_user.domain.area_ids(3)))])
     area_id         = SelectFieldPro(u'接入点', validators=[required(message=u'必填')],
-        choices=lambda: [('', u'请选择接入点')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==4)])
+        choices=lambda: [('', u'请选择接入点')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==4).filter(Area.id.in_(current_user.domain.area_ids(4)))])
     name            = TextField(u'ONU名称', validators=[required(message=u'必填')])
     alias           = TextField(u'ONU别名', validators=[required(message=u'必填')])
     addr            = TextField(u'IP 地址', validators=[required(message=u'必填'), IPAddress(message=u'IP地址格式不正确'), NoneOf(['0.0.0.0','255.255.255.255'], message=u'IP地址格式不正确')])
@@ -232,7 +233,7 @@ class CityNewForm(FormPro):
 
 class TownNewForm(FormPro):
     parent_id       = SelectFieldPro(u'所属地市', validators=[required(message=u'必填')],
-        choices=lambda: [('', u'请选择地市')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==1)])
+        choices=lambda: [('', u'请选择地市')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==1).filter(Area.id.in_(current_user.domain.area_ids(1)))])
     name            = TextField(u'区县名称', validators=[required(message=u'必填')])
     alias           = TextField(u'区县别名', validators=[required(message=u'必填')])
     longitude       = DecimalFieldPro(u'经度')
@@ -241,9 +242,9 @@ class TownNewForm(FormPro):
 
 class BranchNewForm(FormPro):
     cityid          = SelectFieldPro(u'所属地市', validators=[required(message=u'必填')],
-        choices=lambda: [('', u'请选择地市')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==1)])
+        choices=lambda: [('', u'请选择地市')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==1).filter(Area.id.in_(current_user.domain.area_ids(1)))])
     parent_id       = SelectFieldPro(u'所属区县', validators=[required(message=u'必填')],
-        choices=lambda: [('', u'请选择区县')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==2)])
+        choices=lambda: [('', u'请选择区县')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==2).filter(Area.id.in_(current_user.domain.area_ids(2)))])
     name            = TextField(u'分局名称', validators=[required(message=u'必填')])
     alias           = TextField(u'分局别名', validators=[required(message=u'必填')])
     longitude       = DecimalFieldPro(u'经度')
@@ -252,11 +253,11 @@ class BranchNewForm(FormPro):
 
 class EntranceNewForm(FormPro):
     cityid          = SelectFieldPro(u'所属地市', validators=[required(message=u'必填')],
-        choices=lambda: [('', u'请选择地市')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==1)])
+        choices=lambda: [('', u'请选择地市')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==1).filter(Area.id.in_(current_user.domain.area_ids(1)))])
     town            = SelectFieldPro(u'所属区县', validators=[required(message=u'必填')],
-        choices=lambda: [('', u'请选择区县')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==2)])
+        choices=lambda: [('', u'请选择区县')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==2).filter(Area.id.in_(current_user.domain.area_ids(2)))])
     parent_id       = SelectFieldPro(u'所属分局', validators=[required(message=u'必填')],
-        choices=lambda: [('', u'请选择分局')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==3)])
+        choices=lambda: [('', u'请选择分局')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==3).filter(Area.id.in_(current_user.domain.area_ids(3)))])
     name            = TextField(u'接入点名称', validators=[required(message=u'必填')])
     alias           = TextField(u'接入点别名', validators=[required(message=u'必填')])
     longitude       = DecimalFieldPro(u'经度')
