@@ -35,11 +35,20 @@
           <div id="layout", class="toolbar-item all">
             <select class="auto-width input-low">
               <option value="force">散射</option>
+              <option value="flow">树型</option>
               <option value="flowDrag">树型(可拖拽并记忆)</option>
               <option value="interactive">树型(可折叠)</option>
-              <option value="flow">树型</option>
               <option value="circle">环型</option>
             </select>
+          </div>
+
+          <div class="toolbar-item all">
+            <select id="export-type" name="type" class="auto-width input-low">
+              <option value="image/png">导出为PNG</option>
+              <option value="application/pdf">导出为PDF</option>
+              <option value="image/svg+xml">导出为SVG</option>
+            </select>
+            <button type="button" id="export" class="btn btn-small">导出</button>
           </div>
           
           <div id="zoom" class="btn-group toolbar-item circle">

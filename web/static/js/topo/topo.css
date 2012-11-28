@@ -19,6 +19,11 @@
     /* border-right: 1px solid #D5D5D5; */
 }
 
+#export {
+    margin-bottom: 9px;
+}
+
+
 .chart {
     height: 600px;
     margin-bottom: 0px;

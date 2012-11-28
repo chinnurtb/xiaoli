@@ -12,9 +12,14 @@ function loadFlowTree(sid){
   var diagonal = d3.svg.diagonal()
     .projection(function(d) { return [d.y, d.x]; });
 
-  var vis = d3.select(sid).append("svg")
+  d3.select(sid).append("svg")
     .attr("width", width)
     .attr("height", height)
+    .append("rect")
+    .attr("width", width)
+    .attr("height", height);
+
+  var vis = d3.select(sid + " svg")
     .append("g")
     .attr("transform", "translate(60, 0)");
   
