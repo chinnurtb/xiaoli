@@ -6,10 +6,16 @@ var json = null;
 // Totally common
 function updateChart(){
   $(chart.sid).show();
+  $(chart.sid).html('');
   $('.toolbar-item').hide();
   $('.all').show();
   if (chart.sclass) {
     $(chart.sclass).show();
+  }
+
+  function update(){
+    chart.updater(chart.sid);
+    injectStyle();
   }
   
   d3.json("/topo/nodes.json?path="+path, function(tjson) {
@@ -17,12 +23,81 @@ function updateChart(){
     if (!(typeof chart.history === 'undefined')) {
       d3.json("/topo/load-drag-history.json?path="+path, function(tjson){
         chart.history = tjson;
-        console.log(tjson);
-        chart.updater(chart.sid);
+        update();
       });
     } else {
-      chart.updater(chart.sid);
+      update();
     }
+  });
+}
+
+var styles = {
+  '.chart svg': {
+    'background-color': '#FFF',
+  },
+  '.chart .node': {
+    'font' : '10px sans-serif'
+  },
+  '.chart rect' :{
+    'fill': '#FFF',
+  },
+  '.chart .node circle' : {
+    'stroke' : '#D5D5D5',
+    'stroke-width': '1px',
+  },
+  '.chart .node text':{
+    'fill': '#333',
+  },
+  '.chart .link': {
+    'fill': 'none',
+    'stroke': '#7D7',
+    'stroke-width': '1.5px',
+  },
+  '.chart .broken': {
+    'stroke': '#D77',
+  },
+  // Alarms Status
+  '.badge-alarm-clear': {
+    'fill': '#00FF00'
+  },
+  '.badge-alarm-indeterminate': {
+    'fill': '#773EF7', 
+  },
+  '.badge-alarm-warning': {
+    'fill': '#43d5fa', 
+  },
+  '.badge-alarm-minor':{
+    'fill': '#E6F940',
+  },
+  '.badge-alarm-major':{
+    'fill': '#F6983E',
+  },
+  '.badge-alarm-critical':{
+    'fill': '#ED4D5A',
+  }
+};
+
+function injectStyle(){
+  for( selector in styles ){
+    var style = styles[selector];
+    for(name in style) {
+      $(selector).css(name, style[name]);
+    }
+  }
+  console.log("Styles injected!");
+}
+
+
+function svgExport(sid){
+  var svg = $(sid).html();
+  $.ajax({
+    type: 'POST',
+    url:'/svg-export',
+    data: {'svg': svg, 'filename': 'tree', 'type': 'svg'},
+    success: function(data){
+      console.log('success!');
+    },
+    
   });
 }
 

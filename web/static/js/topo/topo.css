@@ -5,7 +5,7 @@
     border: 1px solid #D5D5D5;
 }
 
-/* Toolbar */
+/* =Toolbar */
 #toolbar {
     padding: 8px 2px;
     margin-bottom: 1px;
@@ -19,47 +19,12 @@
     /* border-right: 1px solid #D5D5D5; */
 }
 
-#zoom {
-}
 .chart {
     height: 600px;
     margin-bottom: 0px;
 }
 
-.chart svg {
-    background-color: #FFF;
-    border-right: 1px solid #D5D5D5;
-    font-family: Times, "宋体";
-}
-.chart rect {
-    fill: #FFF;
-}
-
-.chart .node circle {
-    stroke: #D5D5D5;
-    stroke-width: 1px;
-}
-
-.chart .node {
-    font: 10px sans-serif;
-}
-
-
-.chart .node text{
-    fill: #333;
-}
-
-.chart .link {
-    fill: none;
-    stroke: #7D7;
-    stroke-width: 1.5px;
-}
-
-.chart .broken {
-    stroke: #D77;
-}
-
-/* Tree interactive chart */
+/* =Tree interactive chart */
 .tree-chart {
     overflow: auto;
     height: 600px;
@@ -67,30 +32,8 @@
 
 .tree-chart svg{
     overflow: auto;
-    fill: #FFF;
 }
 
-
-/* Statuses Color */
-/* badge */
-.badge-alarm-clear { 
-     fill: #00FF00; 
-}
-.badge-alarm-indeterminate {
-    fill: #773EF7; 
-}
-.badge-alarm-warning {
-    fill: #43d5fa; 
-}
-.badge-alarm-minor {
-    fill: #E6F940;
-}
-.badge-alarm-major {
-    fill: #F6983E;
-}
-.badge-alarm-critical {
-    fill: #ED4D5A;
-}
 
 /* Force chart */
 #fcchart circle.node {

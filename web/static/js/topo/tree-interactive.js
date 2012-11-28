@@ -124,7 +124,6 @@ function loadInteractiveTree(sid){
   }
   
   function update(source) {
-    $(sid).html('');
     
     tree.size([height, width]);
 

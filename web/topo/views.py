@@ -1,10 +1,7 @@
 #coding: utf-8
 
-from flask import Blueprint, request, url_for, \
-    render_template, json
-
+from flask import Blueprint, request, make_response, render_template, json, abort
 from tango.ui import navbar
-from nodes.models import Node, Area, AREA_PROVINCE
 
 topoview = Blueprint('topo', __name__)
 
@@ -154,6 +151,8 @@ from tango.login import current_user
 from tango.cache import cache
 from tango.profile import cached_profile
 from tango import db, update_profile, get_profile
+
+
 @topoview.route('/topo/clear-drag-history')
 def ajax_clear_drag_history():
     path = request.args.get('path', '')
@@ -167,8 +166,8 @@ def ajax_clear_drag_history():
         return 'No Profile'
     return 'Path empty!'
         
-@topoview.route('/topo/dump-drag-history', methods=['POST'])
-def ajax_dump_drag_history():
+@topoview.route('/topo/save-drag-history', methods=['POST'])
+def ajax_save_drag_history():
     args = request.values
     path = args.get('path','')
     nodes = args.get('nodes', '') #
@@ -194,6 +193,37 @@ def json_load_drag_history():
         data['error'] = 'No nodes'
     data['error'] = 'Path empty!'
     return json.dumps(data)
+    
+
+
+@topoview.route('/svg-export', methods=['POST'])
+def svg_export():
+    # 1. 样式问题
+    # 2. 图片问题
+    
+    from tango.ui.cairosvg import svg2png, svg2pdf, svg2svg
+    svg = request.form.get('svg', None)
+    filename = request.form.get('filename', None)
+    content_type = request.form.get('type', None)
+    if not (svg and filename and content_type):
+        abort(404)
+        
+    type_dict = {
+        'image/png'       : {'ext':'png',
+                             'converter': svg2png},
+        'application/pdf' : {'ext':'pdf',
+                             'converter': svg2pdf},
+        'image/svg+xml'   : {'ext':'svg',
+                             'converter': svg2svg},
+    }
+    
+    ext = type_dict[content_type]['ext']
+    svg = unicode(svg).encode('utf-8')
+    content = type_dict[content_type]['converter'](svg)
+    resp = make_response(content)
+    resp.headers['Content-disposition'] = 'attachment; filename=%s.%s' % (filename, ext)
+    resp.headers['Content-Type'] = ';'.join([content_type, 'charset=utf-8'])
+    return resp
     
 navbar.add('topo', u'拓扑', 'random', '/topo')
 

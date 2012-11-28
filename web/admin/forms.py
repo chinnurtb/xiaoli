@@ -38,7 +38,7 @@ class VendorForm(Form):
     
 class ModelForm(Form):
     category = QuerySelectField(u'类别', get_label=u'alias',
-                                query_factory=lambda: Category.query)
+                                query_factory=lambda: Category.query.filter_by(obj='node'))
     name     = TextField(u'名称', [required(message=u'必填')])
     alias    = TextField(u'显示名', [required(message=u'必填')])
     sysoid   = TextField(u'Sysoid')

@@ -5,14 +5,15 @@
   <script type="text/javascript" src="/static/js/topo/d3.v2.js"></script>
   <script type="text/javascript" src="/static/js/topo/jquery.ui.position.js"></script>
   <script type="text/javascript" src="/static/js/topo/jquery.contextMenu.js"></script>
-  <script type="text/javascript" src="/static/js/topo/tree-common.js"></script>
+  <script type="text/javascript" src="/static/js/topo/topo-common.js"></script> <!-- Libs -->
   <script type="text/javascript" src="/static/js/topo/tree-circle.js"></script>
   <script type="text/javascript" src="/static/js/topo/tree-flow.js"></script>
   <script type="text/javascript" src="/static/js/topo/tree-flow-drag.js"></script>
   <script type="text/javascript" src="/static/js/topo/tree-interactive.js"></script>
   <script type="text/javascript" src="/static/js/topo/tree-directory.js"></script>
   <script type="text/javascript" src="/static/js/topo/force.js"></script>
-  <script type="text/javascript" src="/static/js/topo/topo.js"></script>
+  <script type="text/javascript" src="/static/js/topo/topo.js"></script> <!-- Main -->
+  
   <link type="text/css" rel="stylesheet" href="/static/js/topo/topo.css"/>
   <link type="text/css" rel="stylesheet" href="/static/js/topo/jquery.contextMenu.css"/>
 {% endblock head %}
@@ -33,10 +34,10 @@
         <div id="toolbar">
           <div id="layout", class="toolbar-item all">
             <select class="auto-width input-low">
-              <option value="flowDrag">树型(可拖拽)</option>
+              <option value="force">散射</option>
+              <option value="flowDrag">树型(可拖拽并记忆)</option>
               <option value="interactive">树型(可折叠)</option>
               <option value="flow">树型</option>
-              <option value="force">散射</option>
               <option value="circle">环型</option>
             </select>
           </div>

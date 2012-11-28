@@ -10,7 +10,6 @@ $(function(){
 
 
 function loadFlowDragTree(sid){
-  $(sid).html('');
   
   var width = $(sid).width()-18;
   height = 600 - 5;
@@ -37,6 +36,9 @@ function loadFlowDragTree(sid){
     var ey = d3.event.dy;
     d.x += ex;
     d.y += ey;
+    d.x = d.x < -30.0 ? -30.0 : (d.x > width-60.0 ? width-60.0: d.x);
+    d.y = d.y < 0.0 ? 0.0 : (d.y > height ? height: d.y);
+    
     if (d.links.sources) {
       d.links.sources.forEach(function(td) {
         td.source.x = d.x;
@@ -61,7 +63,7 @@ function loadFlowDragTree(sid){
       dragHistory.push(""+ [d.id, d.x, d.y]);
     });
     dragHistory = dragHistory.join(";");
-    $.post("/topo/dump-drag-history", {path: path, nodes: dragHistory});
+    $.post("/topo/save-drag-history", {path: path, nodes: dragHistory});
   }
 
   var diagonal = d3.svg.diagonal()
