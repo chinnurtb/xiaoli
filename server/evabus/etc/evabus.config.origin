@@ -43,18 +43,10 @@
 		]}
 	]}
  ]},
- {mit, [
-	{mode, slave}
- ]},
+ {mit, [ ]},
  {evabus, [
 	{locale, {zh, cn}},
 	{cron, "etc/evabus.tasks"},
-    {filter_dir, "etc/filters"},
-    {forward, [
-		{host, "FORWARD_HOST"},
-		{site_name, true},
-		{site_level, false},
-		{port, FORWARD_PORT} 
-	]}
+    {filter_dir, "etc/filters"}
  ]}
 ].

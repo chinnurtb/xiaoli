@@ -12,10 +12,10 @@
     {pools, [
         {main, [
             {pool_size, 2},
-            {host, "192.168.100.71"},
-            {username, "postgres"},
-            {password, "postgres"},
-            {database, "ipon"},
+            {host, "PG_HOST"},
+            {username, "PG_USER"},
+            {password, "PG_PASSWD"},
+            {database, "PG_DB"},
             {port, 5432},
             {timeout, 6000}
         ]}
@@ -43,13 +43,7 @@
 		]}
 	]}
  ]},
- {mit, [
-	{mode, master},
-	{is_fitap_cn_discovered, false},
-    {is_ap_cn_discovered, false},
-    {is_sw_cn_discovered, false},
-    {fitap_filter, undefined}
- ]},
+ {mit, []},
  {coord, [
     {sharded, city}
  ]}

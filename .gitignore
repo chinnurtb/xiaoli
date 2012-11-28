@@ -35,4 +35,6 @@ amqp/include/
 amqp/man/
 amqp/plugins/
 amqp/sbin/
-
+server/statd/ebin/*
+server/metrix/ebin/*
+errdb
