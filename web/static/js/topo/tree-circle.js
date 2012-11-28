@@ -8,7 +8,6 @@ var radius = 600/2;
 
 function loadCircleTree(sid) {
   circle_sid = sid;
-  $(sid).html('');
   $('#keyword').val('');
   
   nodeCount = countNodes(json);
