@@ -24,9 +24,16 @@ Setup Github
 
 Install python modules
 ----------------------
+1. By pip
 
 ``` sh
     pip install -r deps.txt
+```
+
+2. By source code
+``` sh
+    git clone git://git.cairographics.org/git/py2cairo
+    
 ```
 
 
@@ -53,6 +60,7 @@ Deploy stuff
 ------------
 
 1. Install lastest Nginx (or by System packages manager)
+
 ``` sh
     # Download PCRE
     wget http://iweb.dl.sourceforge.net/project/pcre/pcre/8.31/pcre-8.31.tar.gz
@@ -65,9 +73,11 @@ Deploy stuff
     make
     make install
 ```
+
 2. copy web/deploy/conf/nginx.conf --> `NGINX-CONFIG-FOLDER/nginx.conf`
 3. Change the paths in web/deploy/conf/*
 4. Start supervisor
+
 ``` sh
     cd PATH-TO-VIRTUALENV-ROOT
     source bin/active
@@ -76,6 +86,7 @@ Deploy stuff
     cd PATH-TO-XIAOLI-WEB
     supervisord -c deploy/conf/supervisor.conf
 ```
+
 5. Start Nignx
 6. If falied, see the logs of [supervisor, uwsgi, nginx]
 7. **DONE!**

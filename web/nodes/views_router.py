@@ -10,7 +10,7 @@ from sqlalchemy import or_
 
 from tango import db, get_profile
 from tango.ui.tables import make_table
-from tango.login import current_user, login_required
+from tango.login import current_user
 from tango.models import Profile, Category
 from tango.excel.CsvExport import CsvExport
 
@@ -21,7 +21,6 @@ from .views import nodeview
 
 @nodeview.route('/nodes/routers.csv/', methods=['POST', 'GET'])
 @nodeview.route('/nodes/routers/', methods=['POST', 'GET'])
-@login_required
 def routers():
     form = RouterSearchForm()
     query = NodeRouter.query
@@ -56,7 +55,6 @@ def routers():
         return render_template('/nodes/routers/index.html', table = table, form=form, status_statistcs=status_statistcs)
 
 @nodeview.route('/nodes/routers/new/', methods=['GET','POST'])
-@login_required
 def routers_new():
     next = request.form["next"] if request.form.get("next") else request.referrer
     form = RouterNewForm()
@@ -81,7 +79,6 @@ def routers_new():
     return render_template('nodes/routers/new.html', form = form, next=next)
 
 @nodeview.route('/nodes/routers/edit/<int:id>/', methods=['POST', 'GET'])
-@login_required
 def routers_edit(id):
     next = request.form["next"] if request.form.get("next") else request.referrer
     form = RouterNewForm()
@@ -119,7 +116,6 @@ def routers_delete():
         return redirect(url_for('nodes.routers'))
 
 @nodeview.route('/nodes/routers/<int:id>/', methods=['GET'])
-@login_required
 def routers_show(id):
     node = NodeRouter.query.get_or_404(id)
     data = [{'label': u'完全故障', 'color': 'red', 'value': 1},
@@ -135,7 +131,6 @@ from flask import Markup
 from werkzeug import secure_filename
 from tango.excel.CsvImport import CsvImport,ImportColumn
 @nodeview.route('/nodes/routers/import/', methods=['POST'])
-@login_required
 def routers_import():
     if request.method == 'POST':
         file = request.files['file']

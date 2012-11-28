@@ -11,7 +11,7 @@ from sqlalchemy.orm import aliased
 from tango import db, get_profile
 from tango.ui import navbar, dashboard
 from tango.ui.tables import make_table
-from tango.login import current_user, login_required
+from tango.login import current_user
 from tango.models import Profile, Category
 from tango.excel.CsvExport import CsvExport
 
@@ -22,7 +22,6 @@ from .views import nodeview
 
 @nodeview.route('/nodes/cities.csv/', methods=['POST', 'GET'])
 @nodeview.route("/nodes/cities/", methods=['POST', 'GET'])
-@login_required
 def cities():
     # 构造各个统计的子查询
     sub_query_list = []
@@ -75,7 +74,6 @@ def cities():
 
 @nodeview.route('/nodes/towns.csv/', methods=['POST', 'GET'])
 @nodeview.route("/nodes/towns/", methods=['POST', 'GET'])
-@login_required
 def towns():
     netloc = request.args.get('area_netloc')    # 区域过滤条件
     # 构造各个统计的子查询
@@ -131,7 +129,6 @@ def towns():
 
 @nodeview.route('/nodes/branches.csv/', methods=['POST', 'GET'])
 @nodeview.route("/nodes/branches/", methods=['POST', 'GET'])
-@login_required
 def branches():
     netloc = request.args.get('area_netloc')    # 区域过滤条件
     # 构造各个统计的子查询
@@ -186,7 +183,6 @@ def branches():
 
 @nodeview.route('/nodes/entrances.csv/', methods=['POST', 'GET'])
 @nodeview.route("/nodes/entrances/", methods=['POST', 'GET'])
-@login_required
 def entrances():
     netloc = request.args.get('area_netloc')    # 区域过滤条件
     # 构造各个统计的子查询
@@ -231,7 +227,6 @@ def entrances():
         return render_template('nodes/areas/entrances.html', table = table)
 
 @nodeview.route('/nodes/cities/new/', methods=['GET','POST'])
-@login_required
 def cities_new():
     next = request.form["next"] if request.form.get("next") else request.referrer
     form = CityNewForm()
@@ -252,7 +247,6 @@ def cities_new():
     return render_template('nodes/areas/cities_new.html', form = form, next=next)
 
 @nodeview.route('/nodes/cities/edit/<int:id>/', methods=['POST', 'GET'])
-@login_required
 def cities_edit(id):
     next = request.form["next"] if request.form.get("next") else request.referrer
     form = CityNewForm()
@@ -289,7 +283,6 @@ def cities_delete():
         return redirect(url_for('nodes.cities'))
 
 @nodeview.route('/nodes/towns/new/', methods=['GET','POST'])
-@login_required
 def towns_new():
     next = request.form["next"] if request.form.get("next") else request.referrer
     form = TownNewForm()
@@ -309,7 +302,6 @@ def towns_new():
     return render_template('nodes/areas/towns_new.html', form = form, next=next)
 
 @nodeview.route('/nodes/towns/edit/<int:id>/', methods=['POST', 'GET'])
-@login_required
 def towns_edit(id):
     next = request.form["next"] if request.form.get("next") else request.referrer
     form = TownNewForm()
@@ -346,7 +338,6 @@ def towns_delete():
         return redirect(url_for('nodes.towns'))
 
 @nodeview.route('/nodes/branches/new/', methods=['GET','POST'])
-@login_required
 def branches_new():
     next = request.form["next"] if request.form.get("next") else request.referrer
     form = BranchNewForm()
@@ -366,7 +357,6 @@ def branches_new():
     return render_template('nodes/areas/branches_new.html', form = form, next=next)
 
 @nodeview.route('/nodes/branches/edit/<int:id>/', methods=['POST', 'GET'])
-@login_required
 def branches_edit(id):
     next = request.form["next"] if request.form.get("next") else request.referrer
     form = BranchNewForm()
@@ -404,7 +394,6 @@ def branches_delete():
         return redirect(url_for('nodes.branches'))
 
 @nodeview.route('/nodes/entrances/new/', methods=['GET','POST'])
-@login_required
 def entrances_new():
     next = request.form["next"] if request.form.get("next") else request.referrer
     form = EntranceNewForm()
@@ -424,7 +413,6 @@ def entrances_new():
     return render_template('nodes/areas/entrances_new.html', form = form, next=next)
 
 @nodeview.route('/nodes/entrances/edit/<int:id>/', methods=['POST', 'GET'])
-@login_required
 def entrances_edit(id):
     next = request.form["next"] if request.form.get("next") else request.referrer
     form = EntranceNewForm()
@@ -473,7 +461,6 @@ from flask import Markup
 from werkzeug import secure_filename
 from tango.excel.CsvImport import CsvImport,ImportColumn
 @nodeview.route('/nodes/cities/import/', methods=['POST'])
-@login_required
 def cities_import():
     if request.method == 'POST':
         file = request.files['file']
@@ -515,7 +502,6 @@ def cities_import():
     return redirect(url_for('nodes.cities'))
 
 @nodeview.route('/nodes/towns/import/', methods=['POST'])
-@login_required
 def towns_import():
     if request.method == 'POST':
         file = request.files['file']
@@ -557,7 +543,6 @@ def towns_import():
     return redirect(url_for('nodes.towns'))
 
 @nodeview.route('/nodes/branches/import/', methods=['POST'])
-@login_required
 def branches_import():
     if request.method == 'POST':
         file = request.files['file']
@@ -599,7 +584,6 @@ def branches_import():
     return redirect(url_for('nodes.branches'))
 
 @nodeview.route('/nodes/entrances/import/', methods=['POST'])
-@login_required
 def entrances_import():
     if request.method == 'POST':
         file = request.files['file']
