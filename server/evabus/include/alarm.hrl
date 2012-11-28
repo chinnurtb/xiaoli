@@ -2,7 +2,7 @@
                 alarm_key,
 			    alarm_name,
 			    alarm_alias,
-			    alarm_state,
+			    alarm_state=1,
 				manager, %from event manager
                 agent,
                 node_id,

@@ -56,7 +56,10 @@ filter(#event{sender = Sender, source = Source} = Event) ->
         ?INFO("source ~p not exist", [Source]), true;
     _ ->
         rule_filter(ets:first(event_filter), Event)
-    end.
+    end;
+
+filter(_Alarm) ->
+    false.
 
 rule_filter('$end_of_table', _) ->
     false;

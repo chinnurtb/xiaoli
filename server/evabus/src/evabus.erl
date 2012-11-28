@@ -157,11 +157,11 @@ handle_alarm(Alarm) ->
 incre(Key) ->
 	put(Key, get(Key)+1).
 
-logevent(#event{name = avail_status}) ->
+logevent(#event{name = '/Status/Avail'}) ->
 	ignore;
-logevent(#event{name = ping_status}) ->
+logevent(#event{name = '/Status/Ping'}) ->
 	ignore;
-logevent(#event{name = snmp_status}) ->
+logevent(#event{name = '/Status/Snmp'}) ->
 	ignore;
 logevent(#event{name = Name, sender = Sender, source = Source, severity = Severity}) ->
 	?INFO("~p ~p event received", [Severity, Name]),
