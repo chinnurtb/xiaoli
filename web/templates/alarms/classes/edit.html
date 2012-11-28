@@ -23,9 +23,9 @@
             <legend>{{alarm_class.alias}}</legend>
 			{{ form.hidden_tag() }}
             {{ render_field(form.severity) }}
-            {{ render_field(form.probablecause) }}
+            {{ render_field(form.probable_cause) }}
             {{ render_field(form.specific_problem) }}
-            {{ render_field(form.additionalinfo) }}
+            {{ render_field(form.additional_info) }}
             {{ render_field(form.remark) }}
             {{ render_submit('提交') }}
             </form>

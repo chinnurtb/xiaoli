@@ -79,6 +79,9 @@ task_num() ->
 %% Description: Initiates the server
 %%--------------------------------------------------------------------
 init([]) ->
+    Result = mnesia:create_table(xxxxxx, [{ram_copies, [node()]},
+        {attributes, record_info(fields, timeperiod)}]),
+    ?INFO("~p", [Result]),
     ets:new(timeperiod, [set, named_table, protected, {keypos, 2}]),
     ets:new(monitor_task, [set, named_table, protected, {keypos, 2}]),
     erlang:send_after(300 * 1000, self(), introspect),
