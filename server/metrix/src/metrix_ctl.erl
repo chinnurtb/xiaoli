@@ -82,9 +82,6 @@ process(["status"]) ->
             ?STATUS_SUCCESS
     end;
 
-process(["mysql"]) ->
-	?PRINT("Mysql Connections Info: ~n~p~n", [emysql:info()]);
-
 process(["stop"]) ->
 	metrix_app:stop(),
     init:stop(),

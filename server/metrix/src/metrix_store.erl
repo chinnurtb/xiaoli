@@ -65,15 +65,11 @@ handle_cast({insert, #metric{name=Type, dn=Dn, data=[]}}, State) ->
 	?WARNING("empty metrix: ~p:~p", [Dn, Type]),
 	{noreply, State};
 
-handle_cast({insert, #metric{name=Type, dn=Dn, timestamp=Ts, data=Data}}, 
+handle_cast({insert, #metric{name=Name, dn=Dn, timestamp=Ts, data=Data}}, 
 	#state{errdb = Errdb} = State) ->
 	Inserted = get(inserted),
 	put(inserted, Inserted+1),
-	%TODO: FIX LATER
-	%metrix_meas:check({Type, Dn, Ts, Metrics}),
-	%metrixs obj and grp
-	Grp = lists:last(string:tokens(atom_to_list(Type), ".")),
-    Key = list_to_binary([unique_rdn(Dn), ":", Grp]),
+    Key = list_to_binary([Dn, ":", atom_to_list(Name)]),
     errdb_client:insert(Errdb, Key, Ts, Data),
     {noreply, State};
 
@@ -88,17 +84,3 @@ terminate(_Reason, _State) ->
 
 code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
-
-%c
-unique_rdn(<<"c=cn">> = Dn) ->
-	mit_dn:rdn(Dn);	
-%ap, ac, sw
-unique_rdn(<<"cn=", _/binary>> = Dn) ->
-	mit_dn:rdn(Dn);	
-%host
-unique_rdn(<<"host=", _/binary>> = Dn) ->
-	Dn;
-
-unique_rdn(Dn) ->
-	[H1, H2|_] = binary:split(Dn, [<<",">>], [global]),
-	<<H1/binary, ",", H2/binary>>.

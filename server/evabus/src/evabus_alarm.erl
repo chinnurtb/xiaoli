@@ -27,33 +27,29 @@ replace({Attr, _Val} = Tup, Record) ->
 
 from(Record) ->
 	#alarm{
+        class_id = get_value(class_id, Record),
 		alarm_key = get_value(alarm_key, Record),
 		alarm_name = atom(get_value(alarm_name, Record)),
 		alarm_alias = get_value(alarm_alias, Record),
-		alarm_type = get_value(alarm_type, Record),
 		alarm_state = get_value(alarm_state, Record),
-		perceived_severity = get_value(perceived_severity, Record),
-		sequence_no = get_value(sequence_no, Record),
-		summary = get_value(summary, Record),
-		alarm_sender = get_value(alarm_sender, Record),
-		sender_ip = get_value(sender_ip, Record),
-		sender_alias = get_value(sender_alias, Record),
-		sender_class = get_value(sender_class, Record),
-		alarm_source = get_value(alarm_source, Record),
-		source_alias = get_value(source_alias, Record),
+        manager = get_value(manager, Record),
+        agent = get_value(agent, Record),
+        node_id = get_value(node_id, Record),
+		source = get_value(source, Record),
 		source_class = get_value(source_class, Record),
-		alarm_priority = get_value(alarm_priority, Record, 2),
+		severity = get_value(severity, Record),
+		summary = get_value(summary, Record),
+		sequence_no = get_value(sequence_no, Record),
+		priority = get_value(priority, Record, 2),
 		occur_count = get_value(occur_count, Record, 1),
 		probable_cause = get_value(probable_cause, Record),
 		specific_problem = get_value(specific_problem, Record),
-		clear_user = get_value(clear_user, Record),
-		clear_time = get_value(clear_time, Record),
-		clear_type = get_value(clear_type, Record),
-		raised_time = get_value(raised_time, Record),
+		cleared = get_value(cleared, Record),
+		cleared_user = get_value(clear_user, Record),
+		cleared_time = get_value(clear_time, Record),
 		first_occurrence = get_value(first_occurrence, Record),
 		last_occurrence = get_value(last_occurrence, Record),
-		order_state = get_value(order_state, Record),
-		standard_id = get_value(standard_id, Record)
+		order_state = get_value(order_state, Record)
 	}.
 
 record(Alarm) when is_record(Alarm, alarm) ->
@@ -73,7 +69,6 @@ test() ->
 	Alarm = #alarm{alarm_key = "alarm_key",
 				alarm_name =  alarm_name,
 				alarm_alias = "test_alarm",
-				alarm_type = "qos",
 				alarm_state = 2},
 	Record = record(Alarm),
 	io:format("~p", [Record]).

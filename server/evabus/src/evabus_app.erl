@@ -24,7 +24,7 @@
 			   mnesia,
 			   extlib,
 			   elog,
-			   emysql,
+			   epgsql,
 			   amqp_client,
 			   mit,
 			   evabus]).
@@ -43,6 +43,9 @@ start_app(mnesia) ->
         ok
     end,
     mnesia:start();
+
+start_app(epgsql) ->
+    epgsql_app:start();
 
 start_app(App) ->
     application:start(App).

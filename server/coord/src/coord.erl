@@ -290,7 +290,12 @@ handle_info({deliver, Queue, _, Payload}, #state{queue=Queue} = State) ->
         [#dispatch{shard = OldShard} = Dispatch] ->
             if
             OldShard == undefined -> 
-                ok;
+                case mnesia:dirty_read(shard, FromShard) of
+                [#shard{count=Count}=Shard] -> 
+                    mnesia:dirty_write(Shard#shard{count=Count+1});
+                [] -> 
+                    ?ERROR("cannot find shard: ~p", [FromShard])
+                end;
             OldShard == FromShard -> 
                 ok;
             true -> 
@@ -298,7 +303,8 @@ handle_info({deliver, Queue, _, Payload}, #state{queue=Queue} = State) ->
                 ?ERROR("oldshard: ~s, newshard: ~s", [OldShard, FromShard])
             end,
             cancel_timer(Dispatch#dispatch.tref),
-            mnesia:dirty_write(Dispatch#dispatch{shard = FromShard, tref = undefined}); 
+            mnesia:dirty_write(Dispatch#dispatch{shard = FromShard, tref = undefined}),
+            epgsql:update(main, nodes, [{manager, FromShard}], {rdn, Dn});
         [] -> 
             ?ERROR("bad_shard_reply for ~s", [Dn])
         end;

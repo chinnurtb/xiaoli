@@ -31,9 +31,9 @@ class AlarmClassForm(Form):
     id              = HiddenField(u'Id')
     severity        = SelectFieldPro(u'级别', validators=[required(message=u'必填')], choices=lambda: [(unicode(r.id), r.alias) for r in AlarmSeverity.query])
     #x733_type       = tables.Column(verbose_name=u'X733类型')
-    probablecause   = TextAreaField(u'可能原因')
+    probable_cause   = TextAreaField(u'可能原因')
     specific_problem = TextAreaField(u'特定原因')
-    additionalinfo   = TextAreaField(u'附加信息')
+    additional_info   = TextAreaField(u'附加信息')
     remark           = TextAreaField(u'备注')
 
 class AlarmKnowledgeForm(Form):

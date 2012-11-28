@@ -56,28 +56,6 @@ filter(#event{sender = Sender, source = Source} = Event) ->
         ?INFO("source ~p not exist", [Source]), true;
     _ ->
         rule_filter(ets:first(event_filter), Event)
-    end;
-
-filter(#alarm{sender_class = <<"/top/ossArea/ossCity">>}) ->
-	false;
-filter(#alarm{sender_class = <<"/top/ossArea/ossDistrict">>}) ->
-	false;
-filter(#alarm{sender_class = <<"/top/ossArea/ossState">>}) -> 
-	false;
-filter(#alarm{sender_class = <<"/top/ossArea/ossSite">>}) ->
-	false;
-filter(#alarm{perceived_severity = 0}) ->
-	false;
-
-filter(#alarm{alarm_source = Source}) ->
-	state_filter(Source).
-
-state_filter(Dn) ->
-    case mit:lookup(Dn) of
-    {ok, #entry{oper_state = OperState}} ->
-		(OperState == 2) or (OperState == 3);
-    {false, _} -> 
-		true
     end.
 
 rule_filter('$end_of_table', _) ->
