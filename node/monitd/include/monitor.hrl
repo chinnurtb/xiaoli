@@ -13,9 +13,9 @@
 
 -record(monitor_task, 
 	{id,
+	 dn,
 	 period,
 	 mod,
-	 dn,
      node,
 	 args,
 	 tref=undefined,

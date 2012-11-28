@@ -13,13 +13,16 @@
 			   crypto,
 			   elog,
 			   evmon,
-			   emysql,
+			   epgsql,
 			   worker_pool,
 			   amqp_client,
 			   statd]).
 
 start() ->
 	[start_app(App) || App <- ?APPS].
+
+start_app(epgsql) ->
+    epgsql_app:start();
 
 start_app(App) ->
 	application:start(App).

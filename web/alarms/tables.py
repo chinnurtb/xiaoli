@@ -89,9 +89,9 @@ class AlarmClassTable(t.Table):
     alias       = t.LinkColumn(u'显示名', endpoint='alarms.classes_edit', orderable=True)
     category   = t.Column(u'分类', accessor="category.alias")
     severity    = SeverityColumn()
-    probablecause   = t.Column(u'可能原因')
+    probable_cause   = t.Column(u'可能原因')
     specific_problem = t.Column(u'特定原因')
-    additionalinfo   = t.Column(u'附加信息')
+    additional_info   = t.Column(u'附加信息')
     remark           = t.Column(u'备注')
 
     class Meta:

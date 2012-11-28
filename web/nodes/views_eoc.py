@@ -10,7 +10,7 @@ from sqlalchemy import or_
 
 from tango import db,get_profile
 from tango.ui.tables import make_table
-from tango.login import current_user, login_required
+from tango.login import current_user
 from tango.models import Profile, Category
 from tango.excel.CsvExport import CsvExport
 
@@ -21,7 +21,6 @@ from .views import nodeview
 
 @nodeview.route('/nodes/eocs.csv/', methods=['POST', 'GET'])
 @nodeview.route('/nodes/eocs/', methods=['POST', 'GET'])
-@login_required
 def eocs():
     form = EocSearchForm()
     query = NodeEoc.query
@@ -56,7 +55,6 @@ def eocs():
         return render_template('/nodes/eocs/index.html', table = table, form=form, status_statistcs=status_statistcs)
 
 @nodeview.route('/nodes/eocs/new/', methods=['GET','POST'])
-@login_required
 def eocs_new():
     next = request.form["next"] if request.form.get("next") else request.referrer
     form = EocNewForm()
@@ -81,7 +79,6 @@ def eocs_new():
     return render_template('nodes/eocs/new.html', form = form, next=next)
 
 @nodeview.route('/nodes/eocs/edit/<int:id>/', methods=['POST', 'GET'])
-@login_required
 def eocs_edit(id):
     next = request.form["next"] if request.form.get("next") else request.referrer
     form = EocNewForm()
@@ -119,7 +116,6 @@ def eocs_delete():
         return redirect(url_for('nodes.eocs'))
 
 @nodeview.route('/nodes/eocs/<int:id>/', methods=['GET'])
-@login_required
 def eocs_show(id):
     node = NodeEoc.query.get_or_404(id)
     chartdata = [
@@ -165,7 +161,6 @@ from flask import Markup
 from werkzeug import secure_filename
 from tango.excel.CsvImport import CsvImport,ImportColumn
 @nodeview.route('/nodes/eocs/import/', methods=['POST'])
-@login_required
 def eocs_import():
     if request.method == 'POST':
         file = request.files['file']

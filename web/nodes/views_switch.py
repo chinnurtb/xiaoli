@@ -10,7 +10,7 @@ from sqlalchemy import or_
 
 from tango import db,get_profile
 from tango.ui.tables import make_table
-from tango.login import current_user, login_required
+from tango.login import current_user
 from tango.models import Profile, Category
 from tango.excel.CsvExport import CsvExport
 
@@ -21,7 +21,6 @@ from .views import nodeview
 
 @nodeview.route('/nodes/switches.csv/', methods=['POST', 'GET'])
 @nodeview.route('/nodes/switches/', methods=['POST', 'GET'])
-@login_required
 def switches():
     form = SwitchSearchForm()
     query = NodeSwitch.query
@@ -56,7 +55,6 @@ def switches():
         return render_template('/nodes/switches/index.html', table = table, form=form, status_statistcs=status_statistcs)
 
 @nodeview.route('/nodes/switches/new/', methods=['GET','POST'])
-@login_required
 def switches_new():
     next = request.form["next"] if request.form.get("next") else request.referrer
     form = SwitchNewForm()
@@ -81,7 +79,6 @@ def switches_new():
     return render_template('nodes/switches/new.html', form = form, next=next)
 
 @nodeview.route('/nodes/switches/edit/<int:id>/', methods=['POST', 'GET'])
-@login_required
 def switches_edit(id):
     next = request.form["next"] if request.form.get("next") else request.referrer
     form = SwitchNewForm()
@@ -119,7 +116,6 @@ def switches_delete():
         return redirect(url_for('nodes.switches'))
 
 @nodeview.route('/nodes/switches/<int:id>/', methods=['GET'])
-@login_required
 def switches_show(id):
     node = NodeSwitch.query.get_or_404(id)
     data = [{'label': u'完全故障', 'color': 'red', 'value': 1},
@@ -135,7 +131,6 @@ from flask import Markup
 from werkzeug import secure_filename
 from tango.excel.CsvImport import CsvImport,ImportColumn
 @nodeview.route('/nodes/switches/import/', methods=['POST'])
-@login_required
 def switches_import():
     if request.method == 'POST':
         file = request.files['file']

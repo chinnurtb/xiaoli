@@ -77,90 +77,76 @@ do_mapping(#event{name = Name, %event class name
 				  timestamp = Timestamp, %event timestamp
 				  manager = Manager, %manager that generate this event
 				  from = From, %syslog, trap, evabus or monitor
-				  trapoid = TrapOid, %only for trap
+				  trapoid = _TrapOid, %only for trap
 				  vars = Vars}) ->
 	RaisedTime = {datetime, extbif:datetime(Timestamp)},
 	Alarm = #alarm{alarm_key = EvtKey,
 				   alarm_name = Name,
 				   alarm_state = alarm_state(Severity),
-				   perceived_severity = evabus:severity(Severity),
+				   severity = evabus:severity(Severity),
 				   summary = Summary,
-				   raised_time = RaisedTime,
 				   first_occurrence = RaisedTime,
 				   last_occurrence = RaisedTime,
 				   timestamp = Timestamp,
 				   manager = Manager,
+                   agent = Sender,
 				   vars = Vars},
-	{ok, enrich(Severity, RaisedTime, 
-			enrich(source, {From, Source}, 
+	{ok, enrich(Severity, RaisedTime,
+			enrich(source, {From, Source},
 				enrich(sender, {From, Sender},
-					enrich(standard, TrapOid, 
-						enrich(class, transform(Alarm))))))}.
+						enrich(class, transform(Alarm)))))}.
 
-enrich(class, #alarm{alarm_name = Name, perceived_severity = Severity} = Alarm) ->
+enrich(class, #alarm{alarm_name = Name, severity = Severity} = Alarm) ->
 	{ok, Class} = evabus_class:lookup(Name),
     Alias = get_value(alias, Class),
-    Type = get_value(event_type, Class),
+    ClassId = get_value(id, Class),
 	%update severity
-	PeceivedSeverity = 
+	Severity1 = 
 	if
 	Severity == 0 -> 0;
-	true -> get_value(event_severity, Class)
+	true -> get_value(severity, Class)
 	end,
     ProbableCause = get_value(probable_cause, Class),
 	SpecificProblem = get_value(specific_problem, Class),
-	Alarm#alarm{alarm_alias = Alias,
-		   alarm_type = Type,
-		   perceived_severity = PeceivedSeverity,
+	Alarm#alarm{
+           class_id = ClassId,
+           alarm_alias = Alias,
+		   severity = Severity1,
 		   probable_cause = ProbableCause,
 		   specific_problem = SpecificProblem}.
 
-enrich(standard, TrapOid, Alarm) ->
-	Id = evabus_class:lookup(standard, TrapOid),
-	Alarm#alarm{standard_id = Id};
-	
-enrich(sender, {_From, Sender}, Alarm) ->
-	{ok, #entry{ip = Ip} = Entry} = mit:lookup(Sender),
-	enrich(sender, entry, Entry, Alarm#alarm{sender_ip = Ip});
+enrich(sender, {_, Sender}, Alarm) ->
+    {ok, Node} = mit:lookup(Sender),
+    Alarm#alarm{node_id = Node#node.id};
 
 enrich(source, {_, undefined}, Alarm) -> 
-	#alarm{alarm_sender = Sender,
-		   sender_alias = SenderAlias,
-		   sender_class = SenderClass} = Alarm, 
-	Alarm#alarm{alarm_source = Sender,
-				source_alias = SenderAlias,
-				source_class = SenderClass};
+	Alarm;
 
 enrich(source, {_From, Source}, Alarm) ->
-	{ok, Entry} = mit:lookup(Source),
-	enrich(source, entry, Entry, Alarm);
+	case mit:lookup(Source) of
+    {ok, Node} -> 
+        Alarm#alarm{source = Node#node.dn,
+                    source_class = Node#node.category};
+    _ ->
+        Alarm
+    end;
 
 enrich(clear, RaisedTime, Alarm) ->
-	Alarm#alarm{clear_type = 0,
-				clear_time = RaisedTime};
+	Alarm#alarm{cleared = 1,
+				cleared_time = RaisedTime};
 
 enrich(_, _, Alarm) ->
 	Alarm.
 
-enrich(sender, entry, #entry{dn = Dn, text = Text, class = Class}, Alarm) ->
-	Alarm#alarm{alarm_sender = Dn,
-			    sender_alias = Text,
-			    sender_class = Class};
-
-enrich(source, entry, #entry{dn = Dn, text = Text, class = Class}, Alarm) ->
-	Alarm#alarm{alarm_source = Dn,
-			    source_alias = Text,
-			    source_class = Class}.
-
 transform(#alarm{alarm_name = fitap_online} = Alarm) ->
 	Alarm#alarm{alarm_name = apOfflineTrap, 
 				alarm_key = "apOfflineTrap",
-				perceived_severity = 0};
+				severity = 0};
 
 transform(#alarm{alarm_name = fitap_offline} = Alarm) ->
 	Alarm#alarm{alarm_name = apOfflineTrap, 
 				alarm_key = "apOfflineTrap",
-				perceived_severity = 4};
+				severity = 4};
 
 transform(Alarm) ->
 	Alarm.

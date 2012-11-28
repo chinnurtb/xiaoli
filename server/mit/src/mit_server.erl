@@ -110,55 +110,11 @@ handle_entry({entry, ac, AcDn, Attrs}) ->
 handle_entry({entry, sw, SwDn, Attrs}) ->
 	mit_sw:update(SwDn, Attrs);
 
-handle_entry({entry, omcintfs, Dn, Intfs}) ->
-	mit_omc:update(omcintfs, Dn, Intfs);
-
 handle_entry({entry, intfs, Dn, []}) ->
 	?WARNING("empty intfs from ~s", [Dn]);
 	
 handle_entry({entry, intfs, Dn, Intfs}) ->
 	mit_intf:update(Dn, Intfs);
-
-handle_entry({entry, fatap, ApDn, Attrs}) -> 
-	case mit:lookup(ApDn) of
-	{ok, _} ->
-		Attrs1 = mit_dict:transform(ap, Attrs),
-		mit_ap:update(fatap, ApDn, Attrs1);
-	{false, _}  ->
-		?ERROR("failed to lookup ap: ~s", [ApDn])
-	end;
-
-handle_entry({entry, fitap, ApDn, Attrs}) ->
-	case mit:lookup(ApDn) of
-	{ok, _} ->
-		Attrs1 = mit_dict:transform(ap, Attrs),
-		mit_ap:update(fitap, ApDn, Attrs1);
-	{false, _} ->
-		?ERROR("failed to lookup ap ~s", [ApDn])
-	end;
-
-handle_entry({entry, fitaps, AcDn, FitAps}) ->
-	mit_ap:update(fitaps, AcDn, FitAps);
-
-handle_entry({entry, ssids, ApDn, []}) ->
-	?WARNING("empty ssids: ~s", [ApDn]);
-
-handle_entry({entry, ssids, ApDn, Ssids}) ->
-	mit_ssid:update(ApDn, Ssids);
-
-handle_entry({entry, radios, ApDn, []}) ->
-	?WARNING("empty radios form ~s", [ApDn]);
-
-handle_entry({entry, radios, ApDn, Radios}) ->
-	mit_radio:update(ApDn, Radios);
-
-%for wlan opti
-handle_entry({entry, apssid, _AcDn, Entry}) ->
-	emysql:insert(monaps, Entry);
-
-%for wlan opti
-handle_entry({entry, ssidinfo, _AcDn, Entry}) ->
-	emysql:insert(monapinfos, Entry);
 
 handle_entry(Item) ->
 	?ERROR("unexpected item: ~p", [Item]).

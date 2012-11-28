@@ -8,14 +8,14 @@
    :copyright: (c) 2012 by Ery Lee(ery.lee@gmail.com)
 """
 
-from flask import Flask, session, redirect, url_for, \
+from flask import Flask, redirect, url_for, \
     render_template, g, request, abort, current_app
 
 from tango.ui import navbar
 from tango.ip import ip_from
 from tango import db, cache, login_mgr
-from tango.login import login_required, current_user
-from tango.models import Setting, SysParam
+from tango.login import current_user
+from tango.models import Setting
 
 from users.models import User, Permission
 
@@ -116,12 +116,7 @@ blueprints = [tangoview,
 for bp in blueprints:
     app.register_blueprint(bp)
 
-# @app.route('/')
-# @login_required
-# def index():
-#     return redirect('/dashboard')
-
-
+    
 allowed_ips = ['192.168.1.1/24',
                '192.168.100.1/24',
                '127.0.0.1',]

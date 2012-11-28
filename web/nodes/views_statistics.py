@@ -11,7 +11,7 @@ from sqlalchemy import func
 from tango import db,get_profile
 from tango.ui import navbar, dashboard, Dashboard
 from tango.ui.tables import make_table
-from tango.login import current_user, login_required
+from tango.login import current_user
 from tango.models import Profile, Category
 
 from .models import Node,AREA_TYPE_DICT, Area, Vendor, NODE_STATUS_DICT,NODE_STATUS_COLOR
@@ -20,7 +20,6 @@ from .views import nodeview
 from .forms import AreaStatisticsForm
 
 @nodeview.route("/nodes/statistics/areas/")
-@login_required
 def areas():
     form = AreaStatisticsForm()
 
@@ -70,7 +69,6 @@ def areas():
         return render_template('nodes/statistics/area_statistics.html', table = table, form = form)
 
 @nodeview.route("/nodes/statistics/vendors/")
-@login_required
 def vendors():
     query = db.session.query(func.count(Node.id), Node.status, Vendor.id, Vendor.alias)
     query = query.outerjoin(Vendor, Vendor.id==Node.vendor_id)
@@ -94,7 +92,6 @@ def vendors():
             chartid = "category_vendors_chart",chartdata = data,)
 
 @nodeview.route("/nodes/statistics/categories/")
-@login_required
 def categories():
     query = db.session.query(func.count(Node.id), Node.status, Category.id, Category.alias)
     query = query.outerjoin(Category, Category.id==Node.category_id)
@@ -118,7 +115,6 @@ def categories():
             chartid = "category_vendors_chart",chartdata = data,)
 
 @nodeview.route("/nodes/statistics/category_vendors/")
-@login_required
 def category_vendors():
     vendors = Vendor.query.filter(Vendor.is_valid==1).order_by(Vendor.id).all()
     query = db.session.query(func.count(Node.id), Vendor.id, Category.id, Category.alias)

@@ -37,23 +37,16 @@ lookup(Name) when is_atom(Name) ->
 	lookup(class, Name).
 
 lookup(class, Name) when is_atom(Name) ->
-    case ets:lookup(event_class, Name) of
+    case ets:lookup(alarm_class, Name) of
     [{_, Class}] -> {ok, Class};
     [] -> {false, Name}
     end;
 
 lookup(class, Name) ->
-    lookup(class, extbif:to_atom(Name));
-
-lookup(standard, TrapOid) ->
-    case ets:lookup(event_standard, extbif:to_binary(TrapOid)) of
-    [{_, Id}] -> Id;
-    [] -> undefined
-    end.
+    lookup(class, extbif:to_atom(Name)).
 
 init([]) ->
-    ets:new(event_class, [set, protected, named_table]), 
-	ets:new(event_standard, [set, protected, named_table]),
+    ets:new(alarm_class, [set, protected, named_table]), 
     handle_info(reload, #state{}),
     {ok, #state{}}.
 
@@ -64,10 +57,8 @@ handle_cast(Msg, State) ->
     {stop, {error, {badmsg, Msg}}, State}.
 
 handle_info(reload, State) ->
-	{ok, Classes} = emysql:select(fault_event_classes),
-	[ets:insert(event_class, {atom(get_value(name, C)), C}) || C <- Classes],
-	{ok, Standards} = emysql:select(fault_event_standardizations, [alarm_oid, id]),
-	[ets:insert(event_standard, {binary_to_list(get_value(alarm_oid, R)), get_value(id, R)}) || R <- Standards],
+	{ok, Classes} = epgsql:select(main, alarm_classes),
+	[ets:insert(alarm_class, {atom(get_value(name, C)), C}) || C <- Classes],
 	erlang:send_after((300 + random:uniform(100)) * 1000, self(), reload),
     {noreply, State};
 

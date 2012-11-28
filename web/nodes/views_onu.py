@@ -10,7 +10,7 @@ from sqlalchemy import or_
 
 from tango import db,get_profile
 from tango.ui.tables import make_table
-from tango.login import current_user, login_required
+from tango.login import current_user
 from tango.models import Profile, Category
 from tango.excel.CsvExport import CsvExport
 
@@ -21,7 +21,6 @@ from .views import nodeview
 
 @nodeview.route('/nodes/onus.csv/', methods=['GET'])
 @nodeview.route('/nodes/onus/', methods=['GET'])
-@login_required
 def onus():
     form = OnuSearchForm()
     query = NodeOnu.query
@@ -57,7 +56,6 @@ def onus():
         return render_template('/nodes/onus/index.html', table = table, form=form, status_statistcs=status_statistcs)
 
 @nodeview.route('/nodes/onus/new/', methods=['GET','POST'])
-@login_required
 def onus_new():
     next = request.form["next"] if request.form.get("next") else request.referrer
     form = OnuNewForm()
@@ -80,7 +78,6 @@ def onus_new():
     return render_template('nodes/onus/new.html', form = form, next=next)
 
 @nodeview.route('/nodes/onus/edit/<int:id>/', methods=['POST', 'GET'])
-@login_required
 def onus_edit(id):
     next = request.form["next"] if request.form.get("next") else request.referrer
     form = OnuNewForm()
@@ -116,7 +113,6 @@ def onus_delete():
         return redirect(url_for('nodes.onus'))
 
 @nodeview.route('/nodes/onus/<int:id>/', methods=['GET'])
-@login_required
 def onus_show(id):
     node = NodeOnu.query.get_or_404(id)
     chartdata = [

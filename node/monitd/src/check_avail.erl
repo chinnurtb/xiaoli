@@ -9,29 +9,26 @@
 %%%----------------------------------------------------------------------
 -module(check_avail).
 
+-include("mit.hrl").
+
 -include("event.hrl").
 
 -include("metric.hrl").
 
 -include_lib("elog/include/elog.hrl").
 
--export([run/1]).
+-export([run/2]).
 
 -import(proplists, [get_value/2, get_value/3]).
 
-run(Args) ->
-	{value, IsFit} = dataset:get_value(ap_fit, Args, 0),
-    run(IsFit, Args).
-
-run(1, Args) -> 
-    ?ERROR("assert failure: should not call check_avail for fitap. ~n~p", [Args]),
+run(#node{ip=undefined}, _Args) ->
     ignore;
 
-run(_, Args) ->
+run(#node{attrs=Attrs}=Node, Args) ->
 	Ts = extbif:timestamp(),
-	Ip = get_value(ip, Args),
-	Dn = get_value(dn, Args),
-    Community = get_value(snmpCommunity, Args, <<"public">>),
+	Ip = Node#node.ip, 
+	Dn = Node#node.dn,
+    Community = get_value(snmp_comm, Attrs, <<"public">>),
     {PingStatus, PingSummary} = check_ping(Ip),
     {SnmpStatus, SnmpSummary} = check_snmp(Ip, Community),
 	AvailStatus = avail_status(PingStatus, SnmpStatus),
@@ -58,7 +55,7 @@ run(_, Args) ->
 						timestamp = Ts,
 						manager = node(),
 						from = monitor,
-						vars = [{avail_status, AvailStatus},
+						vars = [{status, AvailStatus},
 								{ping_status, ping_status(PingStatus)},
 								{ping_summary, PingSummary},
 								{snmp_status, snmp_status(SnmpStatus)},
@@ -67,7 +64,7 @@ run(_, Args) ->
 					 from = Ip, 
 					 dn = Dn, 
 					 timestamp = Ts, 
-					 data = [parse(lostRate, PingSummary)|parse(rtt, PingSummary)]},
+					 data = [parse(loss, PingSummary)|parse(rtt, PingSummary)]},
     {ok, [PingEvent, SnmpEvent, AvailEvent, Metric], Args}.
 
 avail_status("PING OK", _) -> 1;
@@ -118,13 +115,13 @@ parse(rtt, Summary) ->
 		[{rtmin,0.0},{rta,0.0},{rtmax,0.0}]
 	end;
 
-parse(lostRate, Summary) ->
+parse(loss, Summary) ->
 	case re:run(Summary, "\\s(\\d+)% packet loss", [{capture, [1], list}]) of
 	{match, [LostRate]} ->
-		{lostRate,list_to_integer(LostRate)};
+		{loss,list_to_integer(LostRate)};
 	nomatch -> 
-		?WARNING("no lostRate: ~p", [Summary]),
-		{lostRate,100}
+		?WARNING("no loss: ~p", [Summary]),
+		{loss,100}
    end.
 
 num(S) ->

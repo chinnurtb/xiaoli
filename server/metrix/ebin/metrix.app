@@ -1,9 +1,0 @@
-{application,metrix,
-             [{description,"metrix"},
-              {vsn,"7.0"},
-              {modules,[metrix,metrix_app,metrix_ctl,metrix_store,metrix_sup,
-                        mit_dn]},
-              {registered,[metrix]},
-              {applications,[kernel,stdlib]},
-              {env,[]},
-              {mod,{metrix_app,[]}}]}.
