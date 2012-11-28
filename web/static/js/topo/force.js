@@ -4,6 +4,7 @@ function loadForce(sid) {
   height = 595,
   node,
   link,
+  isFirst = true,
   root, vis, force;
 
   function compute_level(root) {
@@ -39,10 +40,18 @@ function loadForce(sid) {
     .linkDistance(function(d) { return d.target._children ? 200 : 60; })
     .size([width, height]);
 
-  vis = d3.select(sid).append("svg")
+  d3.select(sid).append("svg")
+    .attr("width", width)
+    .attr("height", height)
+    .append("rect")
     .attr("width", width)
     .attr("height", height);
   
+  vis = d3.select(sid + " svg")
+    .append("g")
+    .attr("transform", "translate(0, 0)");
+
+    
   update();
   
 
@@ -106,6 +115,10 @@ function loadForce(sid) {
       .attr("x2", function(d) { return d.target.x; })
       .attr("y2", function(d) { return d.target.y; });
 
+    if (isFirst){
+      isFirst = false;
+      d3.selectAll("circle").style("fill", color);
+    }
     node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
   }
 

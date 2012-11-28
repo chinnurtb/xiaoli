@@ -42,6 +42,7 @@ var styles = {
     'fill': '#FFF',
   },
   '.chart .node circle' : {
+    'fill'   : '#FFF',
     'stroke' : '#D5D5D5',
     'stroke-width': '1px',
   },
@@ -88,18 +89,86 @@ function injectStyle(){
 }
 
 
-function svgExport(sid){
-  var svg = $(sid).html();
-  $.ajax({
-    type: 'POST',
-    url:'/svg-export',
-    data: {'svg': svg, 'filename': 'tree', 'type': 'svg'},
-    success: function(data){
-      console.log('success!');
-    },
-    
-  });
+// Copy from highcharts
+function extend(a, b) {
+  var n;
+  if (!a) {
+    a = {};
+  }
+  for (n in b) {
+    a[n] = b[n];
+  }
+  return a;
 }
+
+function css(el, styles) {
+  extend(el.style, styles);
+}
+
+function createElement(tag, attribs, styles, parent, nopad) {
+  var el = document.createElement(tag);
+  if (attribs) {
+    extend(el, attribs);
+  }
+  if (nopad) {
+    css(el, {padding: 0, border: 'none', margin: 0});
+  }
+  if (styles) {
+    css(el, styles);
+  }
+  if (parent) {
+    parent.appendChild(el);
+  }
+  return el;
+}
+
+function discardElement(element) {
+  // create a garbage bin element, not part of the DOM
+  if (!garbageBin) {
+    var garbageBin = createElement('div');
+  }
+
+  // move the node and empty bin
+  if (element) {
+    garbageBin.appendChild(element);
+  }
+  garbageBin.innerHTML = '';
+}
+
+function exportChart(sid) {
+  var form,
+  filename = 'chart',
+  type = $('#export-type').val(),
+  svg = $(sid).html();
+  // create the form
+  form = createElement('form', {
+    method: 'post',
+    action: '/svg-export',
+    enctype: 'multipart/form-data'
+  }, {
+    display: 'none'
+  }, document.body);
+
+  // add the values
+  ['filename', 'type', 'svg'].forEach(function (name) {
+    createElement('input', {
+      type: 'hidden',
+      name: name,
+      value: {
+	filename: filename,
+	type: type,
+	svg: svg,
+      }[name]
+    }, null, form);
+  });
+
+  // submit
+  form.submit();
+
+  // clean up
+  discardElement(form);
+}
+
 
 function nodeImage(d){
   var images = {

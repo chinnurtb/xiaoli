@@ -202,9 +202,10 @@ def svg_export():
     # 2. 图片问题
     
     from tango.ui.cairosvg import svg2png, svg2pdf, svg2svg
-    svg = request.form.get('svg', None)
-    filename = request.form.get('filename', None)
-    content_type = request.form.get('type', None)
+    args = request.values
+    svg = args.get('svg', None)
+    filename = args.get('filename', None)
+    content_type = args.get('type', None)
     if not (svg and filename and content_type):
         abort(404)
         
@@ -221,8 +222,9 @@ def svg_export():
     svg = unicode(svg).encode('utf-8')
     content = type_dict[content_type]['converter'](svg)
     resp = make_response(content)
-    resp.headers['Content-disposition'] = 'attachment; filename=%s.%s' % (filename, ext)
-    resp.headers['Content-Type'] = ';'.join([content_type, 'charset=utf-8'])
+    resp.headers['Content-disposition'] = 'attachment; filename="%s.%s"' % (filename, ext)
+    resp.headers['Content-Type'] = content_type
+    resp.headers['transfer-encoding'] = 'chunked'
     return resp
     
 navbar.add('topo', u'拓扑', 'random', '/topo')
