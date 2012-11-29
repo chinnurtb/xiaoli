@@ -175,8 +175,8 @@ def alarms_console():
 
     alarms = db.session.query('occur_hour', 'severity', 'alarm_count').from_statement(
         "select t2.occur_hour,t2.severity,count(id) alarm_count \
-        from (select id,t1.last_occurrence,severity,extract(hour from t1.last_occurrence) occur_hour from alarms t1 \
-        where (current_timestamp - t1.last_occurrence) <= '12 hours') t2 \
+        from (select id,t1.first_occurrence,severity,extract(hour from t1.first_occurrence) occur_hour from alarms t1 \
+        where (current_timestamp - t1.first_occurrence) <= '12 hours') t2 \
         group by t2.occur_hour,t2.severity \
         order by t2.occur_hour,t2.severity;"
     ).all()
