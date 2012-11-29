@@ -132,7 +132,8 @@ enrich(source, {_From, Source}, Alarm) ->
     end;
 
 enrich(clear, RaisedTime, Alarm) ->
-	Alarm#alarm{cleared = 1,
+	Alarm#alarm{alarm_state=3,
+                cleared = 1,
 				cleared_time = RaisedTime};
 
 enrich(_, _, Alarm) ->

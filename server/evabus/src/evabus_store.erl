@@ -132,8 +132,8 @@ select(Where) ->
     {ok, []} -> false
     end.
 
-try_insert(#alarm{alarm_name = snmp_status, source = Source} = Alarm) ->
-    case select("ping_status", Source) of
+try_insert(#alarm{alarm_name = '/Status/Snmp', source = Source} = Alarm) ->
+    case select("/Status/Ping", Source) of
     {ok, _PingAlarm} -> ignore;
     false -> do_insert(Alarm)
     end;

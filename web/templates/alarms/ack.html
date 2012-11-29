@@ -18,7 +18,7 @@
             {% include 'alarms/_sidebar.html' %}
         </div>
         <div class="span10">
-        <h3>确认 : {{alarm.node_alias}} / {{alarm.alarm_alias}}</h3>
+        <h3>确认 : {{alarm.node.alias}} / {{alarm.alarm_alias}}</h3>
         
 		<form class="form-horizontal" method="POST" action="/alarms/ack/{{alarm.id}}">
 			{{ form.hidden_tag() }}

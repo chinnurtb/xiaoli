@@ -1,6 +1,7 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
 
-STATES = {1: u'新产生',
+STATES = {0: u'未知',
+         1: u'新产生',
          2: u'已确认',
          3: u'已清除'}
 

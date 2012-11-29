@@ -1,5 +1,5 @@
 #!/usr/bin/env python  
-# -*- coding: utf-8 -*-
+# coding: utf-8
 from jinja2 import Markup
 from flask import url_for
 

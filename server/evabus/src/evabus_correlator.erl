@@ -191,14 +191,14 @@ analyze(event, #event{name = fitap_offline, source = Source, timestamp = Ts} = E
 	end,
 	ignore;
 
-analyze(event, #event{name = ping_status, severity = Severity, sender = Dn} = Event) ->
-	Key = event_key(Dn, ping_status),
+analyze(event, #event{name = '/Status/Ping', severity = Severity, sender = Dn} = Event) ->
+	Key = event_key(Dn, '/Status/Ping'),
 	Compress = evabus_setting:lookup('snmp.status.compress'),
 	case {Compress, Severity} of
 	{true, clear} ->
 		ok; %do nothing.
 	{true, _} ->
-		SnmpKey = event_key(Dn, snmp_status),
+		SnmpKey = event_key(Dn, '/Status/Snmp'),
 		case ets:lookup(history_event, SnmpKey) of
 		[] -> ok;
 		[{_, _SnmpEvent, Ref}] -> %drop 
@@ -212,8 +212,8 @@ analyze(event, #event{name = ping_status, severity = Severity, sender = Dn} = Ev
 	end,
 	{ok, Event};
 
-analyze(event, #event{name = snmp_status, severity = Severity, sender = Dn} = Event) ->
-	Key = event_key(Dn, snmp_status),
+analyze(event, #event{name = '/Status/Snmp', severity = Severity, sender = Dn} = Event) ->
+	Key = event_key(Dn, '/Status/Snmp'),
 	Compress = evabus_setting:lookup('snmp.status.compress'),
 	case {Compress, Severity} of
 	{true, clear} ->
@@ -224,7 +224,7 @@ analyze(event, #event{name = snmp_status, severity = Severity, sender = Dn} = Ev
 		end,
 		{ok, Event};
 	{true, _} ->
-		case ets:lookup(history_event, event_key(Dn, ping_status)) of
+		case ets:lookup(history_event, event_key(Dn, '/Status/Ping')) of
 		[] -> %cache for a while
 			TRef = send_after(300*1000, self(), {emit, event, Key}),
 			ets:insert(history_event, {Key, Event, TRef}),
@@ -239,7 +239,7 @@ analyze(event, #event{name = snmp_status, severity = Severity, sender = Dn} = Ev
 	end;
 
 analyze(event, #event{name = avail_status, sender = Dn, timestamp = _Ts, vars = Vars}) ->
-	TimeAt = {datetime, date(), time()},
+	TimeAt = {datetime, {date(), time()}},
     Res = epgsql:update(main, nodes, [{updated_at, TimeAt}|Vars], {rdn, Dn}),
     ?INFO("~p", [Res]),
 	ignore;
