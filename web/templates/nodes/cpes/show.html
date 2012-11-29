@@ -54,7 +54,9 @@
                     </tr>
                     <tr>
                         <td  width="17.5%" scope="col">所属区域</td>
-                        <td colspan="3">{{ node.area.full_name }}</td>
+                        <td>{{ node.area.full_name }}</td>
+                        <td width="17.5%" scope="col">采集服务器</td>
+                        <td>{{ node.manager|ifnull }}</td>
                     </tr>
                 </table>
               </div>

@@ -59,8 +59,12 @@
                     <tr>
                         <td width="17.5%" scope="col">上次同步</td>
                         <td>{{ node.last_check|ifnull }}</td>
+                        <td width="17.5%" scope="col">采集服务器</td>
+                        <td>{{ node.manager|ifnull }}</td>
+                    </tr>
+                    <tr>
                         <td width="17.5%" scope="col">备注信息</td>
-                        <td>{{ node.summary|ifnull }}</td>
+                        <td colspan="3">{{ node.summary|ifnull }}</td>
                     </tr>
                 </table>
               </div>
