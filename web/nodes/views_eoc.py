@@ -46,7 +46,7 @@ def eocs():
 
     status_statistcs = []
     for status in NODE_STATUS_DICT.keys():
-        num = NodeEoc.query.filter(NodeEoc.status == status).count()
+        num = NodeEoc.query.filter(NodeEoc.status == status).filter(NodeEoc.area_id.in_(current_user.domain.area_ids(3))).count()
         status_statistcs.append({"status": status, "number": num, "name": NODE_STATUS_DICT.get(status)})
 
     if request.base_url.endswith(".csv/"):

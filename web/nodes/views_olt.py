@@ -46,7 +46,7 @@ def olts():
 
     status_statistcs = []
     for status in NODE_STATUS_DICT.keys():
-        num = NodeOlt.query.filter(NodeOlt.status == status).count()
+        num = NodeOlt.query.filter(NodeOlt.status == status).filter(NodeOlt.area_id.in_(current_user.domain.area_ids(3))).count()
         status_statistcs.append({"status": status, "number": num, "name": NODE_STATUS_DICT.get(status)})
 
     if request.base_url.endswith(".csv/"):

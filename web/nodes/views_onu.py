@@ -47,7 +47,7 @@ def onus():
 
     status_statistcs = []
     for status in NODE_STATUS_DICT.keys():
-        num = NodeOnu.query.filter(NodeOnu.status == status).count()
+        num = NodeOnu.query.filter(NodeOnu.status == status).filter(NodeOnu.area_id.in_(current_user.domain.area_ids(4))).count()
         status_statistcs.append({"status": status, "number": num, "name": NODE_STATUS_DICT.get(status)})
 
     if request.base_url.endswith(".csv/"):

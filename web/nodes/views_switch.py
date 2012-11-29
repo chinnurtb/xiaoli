@@ -46,7 +46,7 @@ def switches():
 
     status_statistcs = []
     for status in NODE_STATUS_DICT.keys():
-        num = NodeSwitch.query.filter(NodeSwitch.status == status).count()
+        num = NodeSwitch.query.filter(NodeSwitch.status == status).filter(NodeSwitch.area_id.in_(current_user.domain.area_ids(4))).count()
         status_statistcs.append({"status": status, "number": num, "name": NODE_STATUS_DICT.get(status)})
 
     if request.base_url.endswith(".csv/"):

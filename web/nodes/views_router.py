@@ -46,7 +46,7 @@ def routers():
 
     status_statistcs = []
     for status in NODE_STATUS_DICT.keys():
-        num = NodeRouter.query.filter(NodeRouter.status == status).count()
+        num = NodeRouter.query.filter(NodeRouter.status == status).filter(NodeRouter.area_id.in_(current_user.domain.area_ids(4))).count()
         status_statistcs.append({"status": status, "number": num, "name": NODE_STATUS_DICT.get(status)})
 
     if request.base_url.endswith(".csv/"):

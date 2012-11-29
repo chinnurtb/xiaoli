@@ -46,7 +46,7 @@ def cpes():
 
     status_statistcs = []
     for status in NODE_STATUS_DICT.keys():
-        num = NodeCpe.query.filter(NodeCpe.status == status).count()
+        num = NodeCpe.query.filter(NodeCpe.status == status).filter(NodeCpe.area_id.in_(current_user.domain.area_ids(4))).count()
         status_statistcs.append({"status": status, "number": num, "name": NODE_STATUS_DICT.get(status)})
 
     if request.base_url.endswith(".csv/"):
