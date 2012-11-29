@@ -38,8 +38,8 @@ class AlarmTable(t.Table):
     severity    = SeverityColumn()
     alarm_state = t.EnumColumn(u'状态', name='alarm-state', enums=constants.STATES,  orderable=True)
     alarm_alias = t.LinkColumn(u'名称', endpoint='alarms.alarms_show', orderable=True)
-    node_alias  = t.LinkColumn(u'节点', orderable=True) #accessor='node.alias',
-    node_addr   = t.Column(u'节点地址') #, accessor='node.addr'
+    node_alias  = t.LinkColumn(u'节点', accessor='node.alias', orderable=True)
+    node_addr   = t.Column(u'节点地址', accessor='node.addr', orderable=True) 
     summary     = t.Column(u'详细')
     occur_count = t.Column(u'发生次数')
     last_occurrence = t.Column(u'最后发生时间', orderable=True)
@@ -49,7 +49,8 @@ class AlarmTable(t.Table):
         per_page = 30
         order_by = '-last_occurrence'
         url_makers = {
-            'node_alias': lambda record: redirect_node_show(record.node)
+            'node_alias': lambda record: redirect_node_show(record.node),
+            'node_addr': lambda record: redirect_node_show(record.node)
         }
 
 class QueryTable(t.Table):
