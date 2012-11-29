@@ -60,7 +60,9 @@
                     </tr>
                     <tr>
                         <td width="17.5%" scope="col">备注信息</td>
-                        <td colspan="3">{{ node.remark|ifnull }}</td>
+                        <td>{{ node.remark|ifnull }}</td>
+                        <td width="17.5%" scope="col">采集服务器</td>
+                        <td>{{ node.manager|ifnull }}</td>
                     </tr>
                 </table>
               </div>
