@@ -40,12 +40,13 @@ def cpes():
     if query_dict.get("vendor_id"): query=query.filter(NodeCpe.vendor_id == query_dict["vendor_id"]) # ==
     if query_dict.get("model_id"): query=query.filter(NodeCpe.model_id == query_dict["model_id"])    # ==
     if query_dict.get("status"): query=query.filter(NodeCpe.status == query_dict["status"])
+    query = query.filter(Area.id.in_(current_user.domain.area_ids(4)))
     form.process(**query_dict)
     table = make_table(query, CpeTable)
 
     status_statistcs = []
     for status in NODE_STATUS_DICT.keys():
-        num = NodeCpe.query.filter(NodeCpe.status == status).count()
+        num = NodeCpe.query.filter(NodeCpe.status == status).filter(NodeCpe.area_id.in_(current_user.domain.area_ids(4))).count()
         status_statistcs.append({"status": status, "number": num, "name": NODE_STATUS_DICT.get(status)})
 
     if request.base_url.endswith(".csv/"):

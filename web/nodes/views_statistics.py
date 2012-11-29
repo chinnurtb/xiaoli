@@ -35,7 +35,7 @@ def areas():
             getattr(Area,group_type),func.count(Node.id).label(category+"_count")
         ).select_from(Node).outerjoin(
             Area, Node.area_id==Area.id
-        )
+        ).filter(Area.id.in_(current_user.domain.area_ids()))
         if netloc:
             if 'or' in netloc: netloc = '('+netloc+')'
             sub_query = sub_query.filter(netloc)
@@ -53,7 +53,7 @@ def areas():
     query = eval(query)
     for index,sub_query in enumerate(sub_query_list):
         query = query.outerjoin(sub_query, getattr(sub_query.c,group_type)==getattr(Area, group_type))
-    query = query.filter(Area.area_type==query_gran)
+    query = query.filter(Area.area_type==query_gran).filter(Area.id.in_(current_user.domain.area_ids(query_gran)))
     if netloc:
         if 'or' in netloc: netloc = '('+netloc+')'
         query = query.filter(netloc)
@@ -71,7 +71,7 @@ def areas():
 @nodeview.route("/nodes/statistics/vendors/")
 def vendors():
     query = db.session.query(func.count(Node.id), Node.status, Vendor.id, Vendor.alias)
-    query = query.outerjoin(Vendor, Vendor.id==Node.vendor_id)
+    query = query.outerjoin(Vendor, Vendor.id==Node.vendor_id).filter(Node.area_id.in_(current_user.domain.area_ids()))
     query = query.group_by(Node.status, Vendor.id, Vendor.alias).order_by(Vendor.id)
     rows = {(u"总数",u"总数"): {}}
     for count, status, vendor_id, vendor_name in query.all():
@@ -94,7 +94,7 @@ def vendors():
 @nodeview.route("/nodes/statistics/categories/")
 def categories():
     query = db.session.query(func.count(Node.id), Node.status, Category.id, Category.alias)
-    query = query.outerjoin(Category, Category.id==Node.category_id)
+    query = query.outerjoin(Category, Category.id==Node.category_id).filter(Node.area_id.in_(current_user.domain.area_ids()))
     query = query.group_by(Node.status, Category.id, Category.alias).order_by(Category.id)
     rows = {(u"总数",u"总数"): {}}
     for count, status, category_id, category_name in query.all():
@@ -119,7 +119,7 @@ def category_vendors():
     vendors = Vendor.query.filter(Vendor.is_valid==1).order_by(Vendor.id).all()
     query = db.session.query(func.count(Node.id), Vendor.id, Category.id, Category.alias)
     query = query.outerjoin(Category, Category.id==Node.category_id)
-    query = query.outerjoin(Vendor, Vendor.id==Node.vendor_id)
+    query = query.outerjoin(Vendor, Vendor.id==Node.vendor_id).filter(Node.area_id.in_(current_user.domain.area_ids()))
     query = query.group_by(Vendor.id, Category.id, Category.alias).order_by(Category.id)
     rows = {(u"总数",u"总数"): {}}
     for count, vendor, category_id, category_name in query.all():

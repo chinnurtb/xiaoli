@@ -41,12 +41,13 @@ def onus():
     if query_dict.get("model_id"): query=query.filter(NodeOnu.model_id == query_dict["model_id"])    # ==
     if request.args.get("olt_id"): query=query.filter(NodeOnu.controller_id == request.args["olt_id"])
     if query_dict.get("status"): query=query.filter(NodeOnu.status == query_dict["status"])
+    query = query.filter(Area.id.in_(current_user.domain.area_ids(4)))
     form.process(**query_dict)
     table = make_table(query, OnuTable)
 
     status_statistcs = []
     for status in NODE_STATUS_DICT.keys():
-        num = NodeOnu.query.filter(NodeOnu.status == status).count()
+        num = NodeOnu.query.filter(NodeOnu.status == status).filter(NodeOnu.area_id.in_(current_user.domain.area_ids(4))).count()
         status_statistcs.append({"status": status, "number": num, "name": NODE_STATUS_DICT.get(status)})
 
     if request.base_url.endswith(".csv/"):
