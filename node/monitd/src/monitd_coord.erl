@@ -72,6 +72,7 @@ handle_cast(Msg, State) ->
 %%--------------------------------------------------------------------
 handle_info({monitor, #node{dn=Dn}=Node}, State) ->
     ?INFO("sched to monitor ~s", [Dn]),
+    monitd_disco:discover(Node),
 	sched_monitors(Node, State),
     {noreply, State};
 
@@ -103,6 +104,10 @@ handle_info({metrics, Metrics}, State) ->
 
 handle_info({sysoids, Mods}, State) ->
     monitd_disco:setup({sysoids, Mods}),
+    {noreply, State};
+
+handle_info({dict_status, Records}, State) ->
+    monitd_disco:setup({dict_status, Records}),
     {noreply, State};
 
 handle_info({timeperiods, Records}, State) ->

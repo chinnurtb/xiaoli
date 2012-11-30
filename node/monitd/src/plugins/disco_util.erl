@@ -2,15 +2,32 @@
 
 -include_lib("elog/include/elog.hrl").
 
--export([lookup/5,transform_port/1,format/1,split/1,to_string/1,lists_delete_null/1,is_digit/1]).
-
 -import(extbif, [to_binary/1, to_list/1]).
 
+-export([lookup/5,
+        transform_port/1,
+        format/1,
+        split/1,
+        to_string/1,
+        lists_delete_null/1,
+        is_digit/1,
+        map2oid/1]).
+
+map2oid(MibItems) ->
+    lists:map(fun({Name, Oid}) ->
+        DotIdx = string:chr(Oid, $.),
+        if
+        (DotIdx > 0) and (DotIdx < 6) ->
+            {Name, [list_to_integer(O) || O <- string:tokens(Oid, ".")]};
+        true ->
+            {Name, Oid}
+        end
+    end, MibItems).
 
 lookup(Vendor,Kind,Device_type,Status_type,Status_o) ->
-	case ets:lookup(device_status_type,{to_binary(Vendor),to_binary(Kind),to_binary(Device_type),to_binary(Status_type),to_binary(Status_o)}) of
+	case ets:lookup(dict_status,{to_binary(Vendor),to_binary(Kind),to_binary(Device_type),to_binary(Status_type),to_binary(Status_o)}) of
 		[] ->
-			?WARNING("unknow device_kind_devicetype_statustype_o: ~p,~p,~p,~p,~p", [Vendor,Kind,Device_type,Status_type,Status_o]),
+			?ERROR("unknow device_kind_devicetype_statustype_o: ~p,~p,~p,~p,~p", [Vendor,Kind,Device_type,Status_type,Status_o]),
 			0;
 		[{_,Status}] -> Status
 	end.

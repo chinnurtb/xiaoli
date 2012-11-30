@@ -1,3 +1,4 @@
+
 -module(disco_zte_olt_c220).
 
 -include_lib("elog/include/elog.hrl").
@@ -6,26 +7,26 @@
 
 -include("snmp/rfc1213.hrl").
 
--define(PON, 1).
--define(GE, 2).
--define(FE, 3).
+-define(PON, 202).
+-define(GE, 201).
+-define(FE, 200).
 -define(ETH, "ethernet-csmacd").
 -define(EPON, "epon").
 -define(GPON, "gpon").
 -import(extbif, [to_list/1]).
 
--export([disco/3, disco_onus/3, calc_no/1]).
+-export([disco/4, disco_onus/3, calc_no/1]).
 
-disco(Dn, Ip, AgentData) ->
+disco(Dn, Ip, AgentData, _Args) ->
     ?INFO("begin to disco olt: ~p", [Ip]),
     {ok, Boards} = disco_boards(Dn, Ip, AgentData),
     ?DEBUG("Boards: ~p", [Boards]),
     {ok, Ports} = disco_ports(Dn, Ip, AgentData),
     ?DEBUG("Ports: ~p", [Ports]),
     {ok, Onus} = disco_onus(Dn, Ip, AgentData),
-    {ok, Onus0} = snmp_disco_zte_olt_c200:disco_onus(Dn, Ip, AgentData),
+    {ok, Onus0} = disco_zte_olt_c200:disco_onus(Dn, Ip, AgentData),
     ?DEBUG("Onus: ~p", [Onus]),
-    {ok, OntPorts} = snmp_disco_zte_olt_c200:disco_ont_ports(Dn, Ip, AgentData),
+    {ok, OntPorts} = disco_zte_olt_c200:disco_ont_ports(Dn, Ip, AgentData),
     ?INFO("OntPorts: ~p", [OntPorts]),
     {ok, [], Boards ++ Ports ++ Onus++ Onus0 ++ OntPorts}.
 
@@ -33,11 +34,11 @@ disco_boards(Dn, Ip, AgentData) ->
     ?INFO("disco olt boards: ~p", [Ip]),
     case snmp_mapping:get_table(Ip, ?zxAnCard, AgentData) of
     {ok, Rows} ->
-        Entries  = lists:foldl(fun(Row, Data) ->
+        Boards = lists:map(fun(Row) ->
             {value, [ZxAnRackNo, ZxAnShelfNo, ZxAnSlotNo]} = dataset:get_value('$tableIndex', Row),
             Row1 = lists:keydelete('$tableIndex', 1, Row),
             Boardid = lists:concat(["1-1-",ZxAnSlotNo]),
-            BoardDn = "slot=" ++Boardid ++ "," ++ to_list(Dn),
+            BoardDn = "board=" ++Boardid,
             {value, OperStatus0} = dataset:get_value(operstatus, Row1),
             {value, AdminStatus0} = dataset:get_value(adminstatus, Row1),
             %与上面的walk值不一致，少状态不在线数据
@@ -55,9 +56,9 @@ disco_boards(Dn, Ip, AgentData) ->
             Row2 = lists:keyreplace(operstatus, 1, Row1, {operstatus, OperStatus}),
             Row3 = lists:keyreplace(adminstatus, 1, Row2, {adminstatus, AdminStatus}),
             Row4 = Row3 ++ Versions,
-            [{entry, board, list_to_binary(BoardDn), [{slot_no, ZxAnSlotNo},{boardid,Boardid} | Row4]} | Data]
+            [{rdn, list_to_binary(BoardDn)}, {slot_no, ZxAnSlotNo},{boardid,Boardid} | Row4]
         end,[], Rows),
-        {ok, Entries};
+        {ok, {board, Dn, Boards}};
     {error, Reason} ->
         ?WARNING("~p", [Reason]),
         {ok, []}
@@ -66,7 +67,7 @@ disco_boards(Dn, Ip, AgentData) ->
 disco_ports(Dn, Ip, AgentData) ->
     case snmp_mapping:get_table(Ip, ?IfEntry, AgentData) of
     {ok, Rows} ->
-        Entries = lists:map(fun(Row) ->
+        Ports = lists:map(fun(Row) ->
             {value, IfIndex} = dataset:get_value(ifIndex, Row),
             {value, IfDescr} = dataset:get_value(ifDescr, Row),
             {value, IfType} = dataset:get_value(ifType, Row),
@@ -95,13 +96,13 @@ disco_ports(Dn, Ip, AgentData) ->
 	        OperStatus = disco_util:lookup("zte",<<"all">>,<<"olt_pon">>,<<"oper">>,OperStatus0),
 	        AdminStatus = disco_util:lookup("zte",<<"all">>,<<"olt_pon">>,<<"admin">>,AdminStatus0),
             PortName = lists:concat(["1-1-",SlotNo,"-",PortNo]),
-            PortDn = "port=" ++ integer_to_list(IfIndex) ++ "," ++ binary_to_list(Dn),
-			{entry, port, list_to_binary(PortDn), [{port_no, PortNo},{port_index,IfIndex}, {port_category, PortType},
+            PortDn = "port=" ++ integer_to_list(IfIndex),
+			[{rdn, PortDn}, {port_no, PortNo}, {port_index,IfIndex}, {port_category, PortType},
 			{port_type, IfTypeStr}, {slot_no, SlotNo},{port_name,PortName},{ponid,PortName},
- 			{admin_status,AdminStatus},{oper_status,OperStatus},{speed,IfSpeed},{port_desc,IfDescr}]}
+ 			{admin_status,AdminStatus},{oper_status,OperStatus},{speed,IfSpeed},{port_desc,IfDescr}]
        end, Rows),
-        ?INFO("zte port : ~p", [Entries]),
-        {ok, Entries};
+        ?INFO("zte port : ~p", [Ports]),
+        {ok, [{port, Dn, Ports}]};
     {error, Reason} ->
        ?WARNING("~p", [Reason]),
         {ok,[]}
@@ -115,10 +116,10 @@ disco_onus(Dn, Ip, AgentData) ->
         {_,Dicts} = lists:mapfoldl(fun(Row,Dict) ->
             {value, [Idx]} = dataset:get_value('$tableIndex', Row),
             {SlotNo, PortNo, OnuNo} = calc_no_zte(Idx),
-            Rdn = integer_to_list(Idx),
+            Rdn = "port="++integer_to_list(Idx),
             PonId = lists:concat(["1-1-",SlotNo,"-",PortNo]),
             Key = lists:concat(["1-1-",SlotNo,"-",PortNo,"-",OnuNo]),
-            OnuAttr = case sesnmp:get_entry(Ip, monet_util:map2oid(?zxAnOnu), [Idx], AgentData) of
+            OnuAttr = case sesnmp:get_entry(Ip, disco_util:map2oid(?zxAnOnu), [Idx], AgentData) of
                         {ok, Data} ->
                             NewRow = Data ++ Row,
                             [{rdn, Rdn},{discovery_state, 1},{slot_no, SlotNo}, {port_no, PortNo},{onu_no, OnuNo},
@@ -145,9 +146,9 @@ disco_onus(Dn, Ip, AgentData) ->
                                     ?WARNING("~p", [Reason2]),
                                     {[],Dicts}
                                 end,
-        Entries =  [ Onu || {_,Onu}<- dict:to_list(EntryDicts),filter(Onu)],
-        ?INFO("zte onu : ~p", [Entries]),
-	   {ok, [{entry, onus, Dn, Entries}]};
+        Onus =  [ Onu || {_,Onu}<- dict:to_list(EntryDicts),filter(Onu)],
+        ?INFO("zte onu : ~p", [Onus]),
+	   {ok, [{node, onus, Dn, Onus}]};
     {error, Reason} ->
         ?WARNING("~p", [Reason]),
         {ok, []}
@@ -158,7 +159,6 @@ filter(Onu) ->
         false -> false;
         _ -> true
     end.
-
 
 transform(Onu) ->
     transform(Onu, []).
@@ -252,10 +252,6 @@ calc_no(IfIndex) ->  %gong you
              {0,0,0}
     end.
 
-
-
-
-
 calc_no_zte(IfIndex) ->  %si you
     Type = ((IfIndex bsr 28) band 16#00FF) ,
     case Type of
@@ -282,3 +278,4 @@ get_slotno_c220(SlotNo) ->
        true ->
          0
      end.
+

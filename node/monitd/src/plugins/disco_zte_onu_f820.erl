@@ -6,9 +6,9 @@
 
 -include("snmp/rfc1213.hrl").
 
--define(PON, 1).
--define(GE, 2).
--define(FE, 3).
+-define(PON, 202).
+-define(GE, 201).
+-define(FE, 200).
 
 -define(BoardEntry, [
     ?BoardType2,
@@ -20,11 +20,11 @@
     ?BoardMemUsage
 ]).
 
--export([disco/3,disco_ports/3,disco_self/3]).
+-export([disco/4,disco_ports/3,disco_self/3]).
 
 -import(extbif,[to_list/1, to_integer/1]).
 
-disco(Dn, Ip, AgentData) ->
+disco(Dn, Ip, AgentData, _Args) ->
 	{ok,OnuInfo} = disco_self(Dn, Ip, AgentData),
     ?INFO("begin to disco onu: ~p", [Ip]),
     {BoardClass,Boards} = disco_boards(Dn, Ip, AgentData),
@@ -33,11 +33,11 @@ disco(Dn, Ip, AgentData) ->
     {ok, OnuInfo, [{entry,boards,Dn,Boards}] ++ [{entry,ports,Dn,Ports}]}.
 
 disco_self(_Dn, Ip, AgentData) ->
-    case snmp_mapping:get_table(Ip,  monet_util:map2oid([?F820NarrowIp]), AgentData) of
+    case snmp_mapping:get_table(Ip, disco_util:map2oid([?F820NarrowIp]), AgentData) of
         {ok, Rows} ->
             NarrowIp = lists:foldl(fun(Row, AccIp) ->
                 {value, IpB} = dataset:get_value(narrowIp, Row),
-                IpA = monet_util:to_ip_str(IpB),
+                IpA = mib_formatter:ip(IpB),
                 if  AccIp == [] ->
                     IpA;
                   true ->
@@ -50,8 +50,7 @@ disco_self(_Dn, Ip, AgentData) ->
             {ok,[]}
     end.
 
-
-disco_boards(Dn, Ip, AgentData) ->
+disco_boards(_Dn, Ip, AgentData) ->
     ?INFO("disco olt boards: ~p", [Ip]),
     case snmp_mapping:get_table(Ip, ?BoardEntry, AgentData) of
     {ok, Rows} ->

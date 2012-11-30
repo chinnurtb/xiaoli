@@ -10,14 +10,14 @@
 
 -include("snmp/rfc1213.hrl").
 
--export([disco/3, disco_boards/3, disco_ports/4, get_profile/2, get_version/2, get_version/3,disco_self/3]).
+-export([disco/4, disco_boards/3, disco_ports/4, get_profile/2, get_version/2, get_version/3,disco_self/3]).
 
 -define(PortType,[{506, "adslPort"}, {524, "pstnPort"},{573, "geElcPort"},{577, "eponOnuPort"},{576, "gponOnuPort"},{571,"feElcPort"}]).
 -define(StatusType,[{506, "onu_adsl"}, {524, "onu_voip"},{573, "onu_pon"},{577, "onu_pon"},{576, "onu_pon"},{571,"onu_lan"}]).
 
 -import(extbif,[to_list/1]).
 
-disco(Dn, Ip, AgentData) ->
+disco(Dn, Ip, AgentData, _Args) ->
 	{ok,OnuInfo} = disco_self(Dn, Ip, AgentData),
     ?INFO("begin to disco onu: ~p", [Ip]),
     {BoardClass,Boards} = disco_boards(Dn, Ip, AgentData),
@@ -28,10 +28,10 @@ disco(Dn, Ip, AgentData) ->
 
 
 disco_self(_Dn, Ip, AgentData) ->
-    case snmp_mapping:get_entry(Ip, monet_util:map2oid([?hwNarrowIp]), [0], AgentData) of
+    case snmp_mapping:get_entry(Ip, disco_util:map2oid([?hwNarrowIp]), [0], AgentData) of
         {ok, Row} ->
                 {value, NarrowIp} = dataset:get_value(narrowIp, Row),
-                {ok,[{narrow_ip, monet_util:to_ip_str(NarrowIp)}]};
+                {ok,[{narrow_ip, mib_formatter:ip(NarrowIp)}]};
         {error, Reason2} ->
             ?WARNING("~p, ~p", [Ip, Reason2]),
             {ok, []}
@@ -39,7 +39,7 @@ disco_self(_Dn, Ip, AgentData) ->
 
 disco_boards(_Dn, Ip, AgentData) ->
     ?INFO("disco onu boards: ~p", [Ip]),
-    case snmp_mapping:get_table(Ip, monet_util:map2oid(?hwSlotEntry), AgentData) of
+    case snmp_mapping:get_table(Ip, disco_util:map2oid(?hwSlotEntry), AgentData) of
     {ok, Rows} ->
          lists:mapfoldl(fun(Row, Data) ->
             {value, SlotNo} = dataset:get_value(index, Row),
@@ -103,7 +103,7 @@ disco_ports(Dn, Ip, BoardClass, AgentData) ->
             {value, PortType} = dataset:get_value(SlotNo, BoardClass, unknow),
             PortData = case PortType of
                 adslPort -> %adsl 端口取上下行带宽
-                    case snmp_mapping:get_entry(Ip, monet_util:map2oid([?adslLineConfProfile]), [IfIndex], AgentData) of
+                    case snmp_mapping:get_entry(Ip, disco_util:map2oid([?adslLineConfProfile]), [IfIndex], AgentData) of
                         {ok, Entry} ->
                             {value, Profile} = dataset:get_value(adslLineConfProfile, Entry),
                             proplists:get_value(Profile, Profiles, []);
@@ -181,7 +181,7 @@ get_profile(Ip, AgentData) ->
     end.
 
 get_pstn_telno(Ip, Index, AgentData) ->
-    case snmp_mapping:get_entry(Ip, monet_util:map2oid([?hwPstnCTPTelNo]), [Index], AgentData) of
+    case snmp_mapping:get_entry(Ip, disco_util:map2oid([?hwPstnCTPTelNo]), [Index], AgentData) of
         {ok, Entry} ->
             {value, PstnCTPTelNo} = dataset:get_value(hwPstnCTPTelNo, Entry),
             PstnCTPTelNo;

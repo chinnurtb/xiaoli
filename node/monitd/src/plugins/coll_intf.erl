@@ -28,7 +28,7 @@ run(#node{ip=undefined}, _Args) ->
 
 run(#node{attrs=Attrs}=Node, Args) ->
 	Ts = extbif:timestamp(),
-	Ip = Node#node.ip, 
+	Ip = binary_to_list(Node#node.ip), 
 	Dn = Node#node.dn,
     Mib = proplists:get_value(mib, Args),
     Community = get_value(snmp_comm, Attrs, <<"public">>),

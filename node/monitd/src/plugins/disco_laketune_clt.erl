@@ -8,9 +8,9 @@
 
 -import(extbif, [to_list/1]).
 
--export([disco/3,disco_self/2]).
+-export([disco/4,disco_self/2]).
 
-disco(Dn, Ip, AgentData) ->
+disco(Dn, Ip, AgentData, _Args) ->
     ?INFO("begin to disco clt: ~p", [Ip]),
 	    {ok, Clt} = disco_self(Ip, AgentData),
 	    {ok, Mac} = disco_self_mac(Ip, AgentData),

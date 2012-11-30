@@ -68,11 +68,11 @@ open(Conn) ->
 	{ok, Chan} = amqp:open_channel(Conn),
 	{ok,Q} = amqp:queue(Chan, node()),
 	
-	amqp:topic(Chan, <<"oss.event">>),
-	amqp:topic(Chan, <<"oss.alarm">>),
+	amqp:topic(Chan, <<"eva.event">>),
+	amqp:topic(Chan, <<"eva.alarm">>),
 
-	amqp:bind(Chan, <<"oss.event">>, Q, <<"event.#">>),
-	amqp:bind(Chan, <<"oss.alarm">>, Q, <<"alarm.#">>),
+	amqp:bind(Chan, <<"eva.event">>, Q, <<"event.#">>),
+	amqp:bind(Chan, <<"eva.alarm">>, Q, <<"alarm.#">>),
 	amqp:consume(Chan, Q),
 	
 	Chan.

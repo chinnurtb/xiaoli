@@ -8,7 +8,7 @@
 
 -include("snmp/rfc1213.hrl").
 
--export([disco/3, disco_boards/3, disco_ports/4, disco_onus/3,disco_gonus/4]).
+-export([disco/4, disco_boards/3, disco_ports/4, disco_onus/3,disco_gonus/4]).
 
 -import(extbif, [to_list/1]).
 
@@ -53,7 +53,7 @@
 
 -define(GEpon,[{220,"eponOltPort"},{238,"gponOltPort"},{250,"gponOltPort"}]).
 
-disco(Dn, Ip, AgentData) ->
+disco(Dn, Ip, AgentData, _Args) ->
     ?WARNING("begin to disco olt: ~p", [Ip]),
     {ok, OltSelf} = disco_self(Ip, AgentData),
     ?INFO("disco oltself: ~p", [OltSelf]),
@@ -76,7 +76,7 @@ disco(Dn, Ip, AgentData) ->
 
 disco_self(Ip, AgentData) ->
     ?INFO("disco olt self: ~p", [Ip]),
-    case snmp_mapping:get_entry(Ip, monet_util:map2oid([?OltType]),[0],AgentData) of
+    case snmp_mapping:get_entry(Ip, disco_util:map2oid([?OltType]),[0],AgentData) of
         {ok, Row} ->
             {value, OltType} = dataset:get_value(olt_type, Row),
             OltSelf =  case string:str(OltType,"MOD") of
@@ -201,7 +201,7 @@ disco_onus(Dn, Ip, AgentData) ->
         Entries = lists:map(fun(Row) ->
             {value, [Idx]} = dataset:get_value('$tableIndex', Row),
 		    {value, Mac0} = dataset:get_value(mac, Row),
-            Mac = monet_util:macaddr(Mac0),
+            Mac = mib_formatter:mac(Mac0),
 		    {value, HardVer} = dataset:get_value(hardversion, Row),
 		    {value, SoftVer} = dataset:get_value(softversion, Row),
             OnuType = case SoftVer of
