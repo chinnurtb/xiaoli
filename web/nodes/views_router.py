@@ -14,7 +14,7 @@ from tango.login import current_user
 from tango.models import Profile, Category
 from tango.excel.CsvExport import CsvExport
 
-from .models import NodeRouter,NODE_STATUS_DICT, Area
+from .models import NodeRouter,NODE_STATUS_DICT, Area, Node
 from .tables import RouterTable
 from .forms import  RouterSearchForm, RouterNewForm
 from .views import nodeview
@@ -68,8 +68,8 @@ def routers_new():
             flash(u'路由器名称不能重复','error')
         elif NodeRouter.query.filter(NodeRouter.alias==node.alias).count() > 0:
             flash(u'路由器别名不能重复','error')
-        elif NodeRouter.query.filter(NodeRouter.addr==node.addr).count() > 0:
-            flash(u'路由器 IP地址不能重复','error')
+        elif Node.query.filter(Node.addr==node.addr).count() > 0:
+            flash(u'IP地址不能重复','error')
         else:
             node.status = 1
             node.category_id = 1
@@ -90,8 +90,8 @@ def routers_edit(id):
                 flash(u'路由器名称不能重复','error')
             elif node.alias != form.alias.data and NodeRouter.query.filter(NodeRouter.alias==form.alias.data).count() > 0:
                 flash(u'路由器别名不能重复','error')
-            elif node.addr != form.addr.data and NodeRouter.query.filter(NodeRouter.addr==form.addr.data).count() > 0:
-                flash(u'路由器 IP地址不能重复','error')
+            elif node.addr != form.addr.data and Node.query.filter(Node.addr==form.addr.data).count() > 0:
+                flash(u'IP地址不能重复','error')
             else:
                 del form._fields["cityid"]
                 del form._fields["town"]

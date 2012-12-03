@@ -14,7 +14,7 @@ from tango.login import current_user
 from tango.models import Profile, Category
 from tango.excel.CsvExport import CsvExport
 
-from .models import NodeOnu, NODE_STATUS_DICT, Area, NodeOlt
+from .models import NodeOnu, NODE_STATUS_DICT, Area, NodeOlt, Node
 from .tables import OnuTable
 from .forms import  OnuSearchForm, OnuNewForm
 from .views import nodeview
@@ -67,8 +67,8 @@ def onus_new():
             flash(u'ONU名称不能重复','error')
         elif NodeOnu.query.filter(NodeOnu.alias==node.alias).count() > 0:
             flash(u'ONU别名不能重复','error')
-        elif NodeOnu.query.filter(NodeOnu.addr==node.addr).count() > 0:
-            flash(u'ONU IP地址不能重复','error')
+        elif Node.query.filter(Node.addr==node.addr).count() > 0:
+            flash(u'IP地址不能重复','error')
         else:
             node.status = 1
             node.category_id = 21
@@ -89,8 +89,8 @@ def onus_edit(id):
                 flash(u'ONU名称不能重复','error')
             elif node.alias != form.alias.data and NodeOnu.query.filter(NodeOnu.alias==form.alias.data).count() > 0:
                 flash(u'ONU别名不能重复','error')
-            elif node.addr != form.addr.data and NodeOnu.query.filter(NodeOnu.addr==form.addr.data).count() > 0:
-                flash(u'ONU IP地址不能重复','error')
+            elif node.addr != form.addr.data and Node.query.filter(Node.addr==form.addr.data).count() > 0:
+                flash(u'IP地址不能重复','error')
             else:
                 form.populate_obj(node)
                 node.updated_at = datetime.now()

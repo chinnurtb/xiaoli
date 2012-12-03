@@ -14,7 +14,7 @@ from tango.login import current_user
 from tango.models import Profile, Category
 from tango.excel.CsvExport import CsvExport
 
-from .models import NodeOlt,NODE_STATUS_DICT, Area, Vendor, Model
+from .models import NodeOlt,NODE_STATUS_DICT, Area, Vendor, Model, Node
 from .tables import OltTable
 from .forms import  OltSearchForm, OltNewForm
 from .views import nodeview
@@ -68,8 +68,8 @@ def olts_new():
             flash(u'OLT名称不能重复','error')
         elif NodeOlt.query.filter(NodeOlt.alias==node.alias).count() > 0:
             flash(u'OLT别名不能重复','error')
-        elif NodeOlt.query.filter(NodeOlt.addr==node.addr).count() > 0:
-            flash(u'OLT IP地址不能重复','error')
+        elif Node.query.filter(Node.addr==node.addr).count() > 0:
+            flash(u'IP地址不能重复','error')
         else:
             node.status = 1
             node.category_id = 20
@@ -90,8 +90,8 @@ def olts_edit(id):
                 flash(u'OLT名称不能重复','error')
             elif node.alias != form.alias.data and NodeOlt.query.filter(NodeOlt.alias==form.alias.data).count() > 0:
                 flash(u'OLT别名不能重复','error')
-            elif node.addr != form.addr.data and NodeOlt.query.filter(NodeOlt.addr==form.addr.data).count() > 0:
-                flash(u'OLT IP地址不能重复','error')
+            elif node.addr != form.addr.data and Node.query.filter(Node.addr==form.addr.data).count() > 0:
+                flash(u'IP地址不能重复','error')
             else:
                 del form._fields["cityid"]
                 del form._fields["town"]

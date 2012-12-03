@@ -14,7 +14,7 @@ from tango.login import current_user
 from tango.models import Profile, Category
 from tango.excel.CsvExport import CsvExport
 
-from .models import NodeSwitch,NODE_STATUS_DICT, Area
+from .models import NodeSwitch,NODE_STATUS_DICT, Area, Node
 from .tables import SwitchTable
 from .forms import  SwitchSearchForm, SwitchNewForm
 from .views import nodeview
@@ -68,8 +68,8 @@ def switches_new():
             flash(u'交换机名称不能重复','error')
         elif NodeSwitch.query.filter(NodeSwitch.alias==node.alias).count() > 0:
             flash(u'交换机别名不能重复','error')
-        elif NodeSwitch.query.filter(NodeSwitch.addr==node.addr).count() > 0:
-            flash(u'交换机 IP地址不能重复','error')
+        elif Node.query.filter(Node.addr==node.addr).count() > 0:
+            flash(u'IP地址不能重复','error')
         else:
             node.status = 1
             node.category_id = 2
@@ -90,8 +90,8 @@ def switches_edit(id):
                 flash(u'交换机名称不能重复','error')
             elif node.alias != form.alias.data and NodeSwitch.query.filter(NodeSwitch.alias==form.alias.data).count() > 0:
                 flash(u'交换机别名不能重复','error')
-            elif node.addr != form.addr.data and NodeSwitch.query.filter(NodeSwitch.addr==form.addr.data).count() > 0:
-                flash(u'交换机 IP地址不能重复','error')
+            elif node.addr != form.addr.data and Node.query.filter(Node.addr==form.addr.data).count() > 0:
+                flash(u'IP地址不能重复','error')
             else:
                 del form._fields["cityid"]
                 del form._fields["town"]
