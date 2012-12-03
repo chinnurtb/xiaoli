@@ -89,6 +89,28 @@
                 <div class="tab-pane detail" id="snmp_info">
                     <table class="table">
                         <tr>
+                            <td width="17.5%" scope="col">PING状态</td>
+                            <td width="32.5%">{{ node.ping_status_name }}</td>
+                            <td width="17.5%" scope="col">PING状态详细</td>
+                            <td width="32.5%">
+                                {{ node.ping_summary|ifnull|truncate(50) }}
+                                {% if node.ping_summary|ifnull|length > 50 %}
+                                    <a rel="popover" data-content="{{ node.ping_summary }}" data-original-title="PING状态详细" data-placement="left">详细</a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td width="17.5%" scope="col">SNMP状态</td>
+                            <td>{{ node.snmp_status_name }}</td>
+                            <td width="17.5%" scope="col">SNMP状态详细</td>
+                            <td>
+                                {{ node.snmp_summary|ifnull|truncate(50) }}
+                                {% if node.snmp_summary|ifnull|length > 50 %}
+                                    <a rel="popover" data-content="{{ node.ping_summary }}" data-original-title="SNMP状态详细" data-placement="left">详细</a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
                             <td width="17.5%" scope="col">读团体名</td>
                             <td>{{ node.snmp_comm|ifnull }}</td>
                             <td width="17.5%" scope="col">写团体名</td>

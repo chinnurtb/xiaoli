@@ -23,7 +23,7 @@ from .views import nodeview
 @nodeview.route('/nodes/onus/', methods=['GET'])
 def onus():
     form = OnuSearchForm()
-    query = NodeOnu.query
+    query = NodeOnu.query.outerjoin(NodeOlt,NodeOlt.id==NodeOnu.controller_id)
     query = query.outerjoin(Area, NodeOnu.area_id==Area.id)
 
     query_dict = dict([(key, request.args.get(key))for key in form.data.keys()])
@@ -41,13 +41,14 @@ def onus():
     if query_dict.get("model_id"): query=query.filter(NodeOnu.model_id == query_dict["model_id"])    # ==
     if request.args.get("olt_id"): query=query.filter(NodeOnu.controller_id == request.args["olt_id"])
     if query_dict.get("status"): query=query.filter(NodeOnu.status == query_dict["status"])
-    query = query.filter(Area.id.in_(current_user.domain.area_ids(4)))
+    query = query.filter(NodeOlt.area_id.in_(current_user.domain.area_ids(3)))
     form.process(**query_dict)
     table = make_table(query, OnuTable)
 
     status_statistcs = []
     for status in NODE_STATUS_DICT.keys():
-        num = NodeOnu.query.filter(NodeOnu.status == status).filter(NodeOnu.area_id.in_(current_user.domain.area_ids(4))).count()
+        num = NodeOnu.query.outerjoin(NodeOlt,NodeOlt.id==NodeOnu.controller_id)\
+        .filter(NodeOnu.status == status).filter(NodeOlt.area_id.in_(current_user.domain.area_ids(3))).count()
         status_statistcs.append({"status": status, "number": num, "name": NODE_STATUS_DICT.get(status)})
 
     if request.base_url.endswith(".csv/"):

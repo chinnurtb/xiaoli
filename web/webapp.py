@@ -18,6 +18,7 @@ from tango.login import current_user
 from tango.models import Setting
 
 from users.models import User, Permission
+from tango.license.decrypt_license import decrypt_license
 
 app = Flask(__name__)
 app.config.from_pyfile('settings.py')
@@ -26,7 +27,6 @@ db.app = app
 cache.init_app(app)
 
 #加载LICENSE
-from decrypt_license import decrypt_license
 app.config['license_permit'] = decrypt_license(app.config.get("LICENSE_KEY"))
 
 login_mgr.login_view = "/login"
