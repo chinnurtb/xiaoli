@@ -16,7 +16,7 @@
         </div>
         <div class="span10">
         <!-- Title -->
-        <h4 class="detail-title pull-left">{{alarm.node_alias}} / {{alarm.alarm_alias}}</h4>
+        <h4 class="detail-title pull-left">{{alarm.node.alias}} / {{alarm.alarm_alias}}</h4>
         <!-- Actions -->
         <div class="btn-group pull-right">
             <a id="alarm-ack-action" class="btn btn-small" href="{{url_for('alarms.alarms_ack', id=alarm.id)}}">确认</a>
@@ -44,8 +44,8 @@
                 <td width="17.5%" scope="col">代理:</td><td>{{alarm.agent}}</td>
               </tr>
               <tr>
-                <td width="17.5%" scope="col">告警设备:</td><td><a href="/nodes/{{alarm.node_id}}">{{alarm.node_alias}}</a></td>
-                <td width="17.5%" scope="col">设备地址:</td><td>{{alarm.node_addr}}</td>
+                <td width="17.5%" scope="col">告警设备:</td><td><a href="{{alarm.node|node_url}}">{{alarm.node.alias}}</a></td>
+                <td width="17.5%" scope="col">设备地址:</td><td>{{alarm.node.addr}}</td>
               </tr>
               <tr>
                 <td width="17.5%" scope="col">告警源:</td><td>{{alarm.source}}</td>
@@ -56,8 +56,8 @@
                 <td width="17.5%" scope="col">最后发生时间:</td><td>{{alarm.last_occurrence}}</td>
               </tr>
               <tr>
-                <td width="17.5%" scope="col">确认用户:</td><td>{{alarm.ack_user}}</td>
-                <td width="17.5%" scope="col">确认时间:</td><td>{{alarm.ack_time}}</td>
+                <td width="17.5%" scope="col">确认用户:</td><td>{{alarm.acked_user}}</td>
+                <td width="17.5%" scope="col">确认时间:</td><td>{{alarm.acked_time}}</td>
               </tr>
               <tr>
                 <td width="17.5%" scope="col">清除用户:</td><td>{{alarm.cleared_user}}</td>

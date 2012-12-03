@@ -6,17 +6,17 @@
 
 -include("snmp/rfc1213.hrl").
 
--define(PON, 1).
--define(GE, 2).
--define(FE, 3).
+-define(PON, 202).
+-define(GE, 201).
+-define(FE, 200).
 -define(ETH, "ethernet-csmacd").
 -define(EPON, "eponOltPort").
 -define(GPON, "gponOltPort").
 -import(extbif, [to_list/1]).
 
--export([disco/3, disco_onus/3, calc_no/1]).
+-export([disco/4, disco_onus/3, calc_no/1]).
 
-disco(Dn, Ip, AgentData) ->
+disco(Dn, Ip, AgentData, _Args) ->
     ?INFO("begin to disco olt: ~p", [Ip]),
     {ok, Boards} = disco_boards(Dn, Ip, AgentData),
     ?INFO("Boards: ~p", [Boards]),
@@ -134,7 +134,7 @@ disco_onus(Dn, Ip, AgentData) ->
             Rdn = integer_to_list(Idx),
             PonId = lists:concat(["1-1-",SlotNo,"-",PortNo]),
             Key = lists:concat(["1-1-",SlotNo,"-",PortNo,"-",OnuNo]),
-            OnuAttr = case sesnmp:get_entry(Ip, monet_util:map2oid(?zxAnOnu), [Idx], AgentData) of
+            OnuAttr = case sesnmp:get_entry(Ip, disco_util:map2oid(?zxAnOnu), [Idx], AgentData) of
                         {ok, Data} ->
                             NewRow = Data ++ Row,
                             [{rdn, Rdn},{discovery_state, 1},{slot_no, SlotNo}, {port_no, PortNo},{onu_no, OnuNo},

@@ -54,7 +54,9 @@
                     </tr>
                     <tr>
                         <td  width="17.5%" scope="col">所属区域</td>
-                        <td colspan="3">{{ node.area.full_name }}</td>
+                        <td>{{ node.area.full_name }}</td>
+                        <td width="17.5%" scope="col">采集服务器</td>
+                        <td>{{ node.manager|ifnull }}</td>
                     </tr>
                 </table>
               </div>
@@ -114,44 +116,7 @@
                     </table>
                 </div>
                 <div id="port_info" class="tab-pane">
-                    <table class="table table-hover">
-                        <thead>
-                        <tr>
-                            <th>槽位</th>
-                            <th>端口</th>
-                            <th>类型</th>
-                            <th>状态</th>
-                            <th>可达速率</th>
-                            <th>VLAN</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td>Mark</td>
-                            <td>Otto</td>
-                            <td>@mdo</td>
-                            <td>Otto</td>
-                            <td>@mdo</td>
-                        </tr>
-                        <tr>
-                            <td>2</td>
-                            <td>Jacob</td>
-                            <td>Thornton</td>
-                            <td>@fat</td>
-                            <td>Otto</td>
-                            <td>@mdo</td>
-                        </tr>
-                        <tr>
-                            <td>3</td>
-                            <td>Larry the Bird</td>
-                            <td>@twitter</td>
-                            <td>Otto</td>
-                            <td>@mdo</td>
-                            <td>@mdo</td>
-                        </tr>
-                        </tbody>
-                    </table>
+                    {% include "nodes/cpes/_ports.html" %}
                 </div>
             </div>
         </div>

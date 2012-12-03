@@ -25,7 +25,7 @@ from nodes.models import Node, Vendor
 from system.tables import SettingTable
 from system.forms import SettingEditForm
 
-from .models import Alarm, AlarmSeverity, History, AlarmClass, AlarmKnowledge, query_severities
+from .models import Alarm, AlarmSeverity, History, AlarmClass, AlarmJournal, AlarmKnowledge, query_severities
 
 from .forms import QueryNewForm, AlarmAckForm, AlarmClearForm, AlarmClassForm, AlarmKnowledgeForm, AlarmFilterForm, SearchForm
 
@@ -61,7 +61,7 @@ def alarm_filter(cls, query, form):
     if keyword and keyword != '':
         query = query.filter(db.or_(
                     cls.alarm_alias.ilike('%'+keyword+'%'),
-                    cls.node_alias.ilike('%'+keyword+'%')))
+                    cls.node.has(Node.alias.ilike('%'+keyword+'%'))))
     return query
 
 @alarmview.route('/alarms', methods = ['GET'])
@@ -94,6 +94,12 @@ def alarms_ack(id):
         alarm.acked_time = datetime.now()
         alarm.acked_user = current_user.username
         alarm.acked_note = form.acked_note.data
+        journal = AlarmJournal(uid=current_user.id,
+                               alarm_id=alarm.id,
+                               title = u'确认告警',
+                               summary=u'确认说明:%s' % alarm.acked_note,
+                               created_at=alarm.acked_time)
+        db.session.add(journal)
         db.session.commit()
         return redirect(url_for('.index'))
         
@@ -104,7 +110,7 @@ def alarms_ack(id):
     # request.method == 'GET':
     form.process(obj=alarm)
     kwargs = {
-        'title'  : u'确认: %s / %s' % (alarm.node_alias, alarm.alarm_alias),
+        'title'  : u'确认: %s / %s' % (alarm.node.alias, alarm.alarm_alias),
         'action' : url_for('alarms.alarms_ack', id=id),
         'form'   : form,
     }
@@ -122,6 +128,12 @@ def alarms_clear(id=None):
         alarm.cleared_time = datetime.now()
         alarm.cleared_user = current_user.username
         alarm.cleared_note = form.cleared_note.data
+        journal = AlarmJournal(uid=current_user.id,
+                               alarm_id=alarm.id,
+                               title = u'人工清除告警',
+                               summary=u'清除说明:%s' % alarm.cleared_note,
+                               created_at=alarm.cleared_time)
+        db.session.add(journal)
         db.session.commit()
         return redirect(url_for('.index'))
         
@@ -131,7 +143,7 @@ def alarms_clear(id=None):
         
     form.process(obj=alarm)
     kwargs = {
-        'title'  : u'清除: %s / %s' % (alarm.node_alias, alarm.alarm_alias),
+        'title'  : u'清除: %s / %s' % (alarm.node.alias, alarm.alarm_alias),
         'action' : url_for('alarms.alarms_clear', id=id),
         'form'   : form,
     }
@@ -151,31 +163,43 @@ def histories():
 @alarmview.route('/alarms/console/')
 def alarms_console():
 
-    severities = query_severities()
-    
     #TODO: FIX ME later
     from datetime import datetime, timedelta
     today = datetime.today()
     dates = [today - timedelta(hours=i) for i in range(12)]
     hours = [str(d.hour) for d in reversed(dates)]
 
-    from random import random
+    severities = query_severities()
+
+    data = dict([(h, dict([(s.id, 0) for s in severities])) for h in hours])
+
+    alarms = db.session.query('occur_hour', 'severity', 'alarm_count').from_statement(
+        "select t2.occur_hour,t2.severity,count(id) alarm_count \
+        from (select id,t1.first_occurrence,severity,extract(hour from t1.first_occurrence) occur_hour from alarms t1 \
+        where (current_timestamp - t1.first_occurrence) <= '12 hours') t2 \
+        group by t2.occur_hour,t2.severity \
+        order by t2.occur_hour,t2.severity;"
+    ).all()
+
+    for alarm in alarms:
+        data[str(int(alarm.occur_hour))][alarm.severity] = alarm.alarm_count
+
     def series(severity):
         values = [{'series': severity.name, 
-                   'x': str(h)+u'点',
-                   'y': int(random()*(severity.id+1)*100)}
+                   'x': h+u'点',
+                   'y': data[h][severity.id]}
                    for h in hours]
         return {'key': severity.alias,
                 'color': severity.color,
                 'values': values}
 
-    data = [series(severity) for severity in severities]
-    title = u'最近12小时接收告警'
+    chartdata = [series(severity) for severity in severities]
+    #title = u'最近12小时接收告警'
 
     alarmconsole.configure(get_profile('alarmconsole'))
     return render_template('alarms/console/index.html',
                            chartid = "alarm_demo_console",
-                           chartdata = data,
+                           chartdata = chartdata,
                            dashboard = alarmconsole)
 
 @alarmview.route('/alarms/console/all')
@@ -395,7 +419,6 @@ def nvd3_demo():
     data = [{'label': u'严重', 'value': 10},
             {'label': u'清除', 'value': 20}]
     return render_template('alarms/nvd3_demo.html', data=data)
-
     
 navbar.add('alarms', u'故障', 'warning-sign', '/alarms/console/')
 
@@ -416,10 +439,8 @@ activestats.add_widget('alarms_stats_by_node_category', u'设备告警', url='/a
 activestats.add_widget('alarms_stats_by_node_vendor', u'厂商告警', url='/alarms/stats/by_node_vendor', column='side')
 
 alarmconsole = Dashboard('alarmconsole')
-alarmconsole.add_widget('alarms_console_all', u'全部告警', url='all')
-alarmconsole.add_widget('alarms_console_lasthour', u'最近1小时告警', url='lasthour', column='side')
-alarmconsole.add_widget('alarms_console_status', u'状态告警', url='category_status')
-alarmconsole.add_widget('alarms_console_perf', u'性能告警', url='category_perf', column='side')
-alarmconsole.add_widget('alarms_console_system', u'网管自身告警', url='category_system')
-
-
+alarmconsole.add_widget('alarms_console_all', u'全部告警', url='/alarms/console/all')
+alarmconsole.add_widget('alarms_console_lasthour', u'最近1小时告警', url='/alarms/console/lasthour', column='side')
+alarmconsole.add_widget('alarms_console_status', u'状态告警', url='/alarms/console/category_status')
+alarmconsole.add_widget('alarms_console_perf', u'性能告警', url='/alarms/console/category_perf', column='side')
+alarmconsole.add_widget('alarms_console_system', u'网管自身告警', url='/alarms/console/category_system')

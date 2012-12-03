@@ -68,11 +68,11 @@ open(Conn) ->
 	{ok, Chan} = amqp:open_channel(Conn),
 	{ok,Q} = amqp:queue(Chan, node()),
 	
-	amqp:topic(Chan, <<"oss.event">>),
-	amqp:topic(Chan, <<"oss.alarm">>),
+	amqp:topic(Chan, <<"eva.event">>),
+	amqp:topic(Chan, <<"eva.alarm">>),
 
-	amqp:bind(Chan, <<"oss.event">>, Q, <<"event.#">>),
-	amqp:bind(Chan, <<"oss.alarm">>, Q, <<"alarm.#">>),
+	amqp:bind(Chan, <<"eva.event">>, Q, <<"event.#">>),
+	amqp:bind(Chan, <<"eva.alarm">>, Q, <<"alarm.#">>),
 	amqp:consume(Chan, Q),
 	
 	Chan.
@@ -157,11 +157,11 @@ handle_alarm(Alarm) ->
 incre(Key) ->
 	put(Key, get(Key)+1).
 
-logevent(#event{name = avail_status}) ->
+logevent(#event{name = '/Status/Avail'}) ->
 	ignore;
-logevent(#event{name = ping_status}) ->
+logevent(#event{name = '/Status/Ping'}) ->
 	ignore;
-logevent(#event{name = snmp_status}) ->
+logevent(#event{name = '/Status/Snmp'}) ->
 	ignore;
 logevent(#event{name = Name, sender = Sender, source = Source, severity = Severity}) ->
 	?INFO("~p ~p event received", [Severity, Name]),

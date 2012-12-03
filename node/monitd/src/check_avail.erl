@@ -32,17 +32,17 @@ run(#node{attrs=Attrs}=Node, Args) ->
     {PingStatus, PingSummary} = check_ping(Ip),
     {SnmpStatus, SnmpSummary} = check_snmp(Ip, Community),
 	AvailStatus = avail_status(PingStatus, SnmpStatus),
-	PingEvent = #event{name = ping_status,
+	PingEvent = #event{name = '/Status/Ping',
 					   sender = Dn,
-					   evtkey = "ping_status",
+					   evtkey = list_to_binary([Ip, "/Status/Ping"]),
 					   severity = ping_severity(PingStatus),
 					   summary = PingSummary,
 					   timestamp = Ts,
 					   manager = node(),
 					   from = monitor},
-	SnmpEvent = #event{name = snmp_status,
+	SnmpEvent = #event{name = '/Status/Snmp',
 					   sender = Dn,
-					   evtkey = "snmp_status",
+					   evtkey = list_to_binary([Ip, "/Status/Snmp"]),
 					   severity = snmp_severity(SnmpStatus),
 					   summary = SnmpSummary,
 					   timestamp = Ts,
@@ -50,7 +50,7 @@ run(#node{attrs=Attrs}=Node, Args) ->
 					   from = monitor},
 	AvailEvent = #event{name = avail_status,
 						sender = Dn,
-						evtkey = "snmp_status",
+						evtkey = list_to_binary([Ip, "/Status/Avail"]),
 						severity = avail_severity(AvailStatus),
 						timestamp = Ts,
 						manager = node(),
@@ -70,24 +70,24 @@ run(#node{attrs=Attrs}=Node, Args) ->
 avail_status("PING OK", _) -> 1;
 avail_status("PING WARNING", _) -> 1;
 avail_status(_, "SNMP OK") -> 1;
-avail_status(_, _) -> 0.
+avail_status(_, _) -> 2.
 
-avail_severity(1) -> major;
-avail_severity(0) -> clear. 
+avail_severity(1) -> clear;
+avail_severity(_) -> major. 
 
-ping_status("PING OK") -> <<"OK">>;
-ping_status("PING WARNING") -> <<"OK">>;
-ping_status("PING CRITICAL") -> <<"CRITICAL">>;
-ping_status(_) -> <<"CRITICAL">>.
+ping_status("PING OK") -> 1;
+ping_status("PING WARNING") -> 1;
+ping_status("PING CRITICAL") -> 2;
+ping_status(_) -> 2.
 
 ping_severity("PING OK") -> clear;
 ping_severity("PING WARNING") -> clear;
 ping_severity("PING CRITICAL") -> major;
 ping_severity(_) -> major.
 
-snmp_status("SNMP OK") -> <<"OK">>;
-snmp_status("SNMP problem") -> <<"CRITICAL">>;
-snmp_status(_) -> <<"CRITICAL">>.
+snmp_status("SNMP OK") -> 1;
+snmp_status("SNMP problem") -> 2;
+snmp_status(_) -> 2.
 
 snmp_severity("SNMP OK") -> clear;
 snmp_severity("SNMP problem") -> major;

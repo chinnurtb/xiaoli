@@ -31,7 +31,7 @@ def cities():
             Area.cityid,func.count(Node.id).label(category+"_count")
         ).select_from(Node).outerjoin(
             Area, Node.area_id==Area.id
-        )
+        ).filter(Node.area_id.in_(current_user.domain.area_ids()))
         if index == 0: # 统计总节点数的子查询
             sub_query = sub_query.group_by(Area.cityid).subquery()
         else:
@@ -60,7 +60,7 @@ def cities():
     query = eval(query)
     for index,sub_query in enumerate(sub_query_list):
         query = query.outerjoin(sub_query, sub_query.c.cityid==Area.id)
-    query = query.filter(Area.area_type==1)
+    query = query.filter(Area.area_type==1).filter(Area.id.in_(current_user.domain.area_ids(1)))
 
     # 隐藏is_valid = 0 的分类
     hiddens = u','.join([category.name+'_count' for category in Category.query.filter(Category.obj=='node').filter(Category.is_valid!=1)])
@@ -84,7 +84,7 @@ def towns():
             Area.town,func.count(Node.id).label(category+"_count")
         ).select_from(Node).outerjoin(
             Area, Node.area_id==Area.id
-        )
+        ).filter(Node.area_id.in_(current_user.domain.area_ids()))
         if index == 0: # 统计总节点数的子查询
             sub_query = sub_query.group_by(Area.town).subquery()
         else:
@@ -112,7 +112,7 @@ def towns():
     query = eval(query)
     for index,sub_query in enumerate(sub_query_list):
         query = query.outerjoin(sub_query, sub_query.c.town==Area.id)
-    query = query.filter(Area.area_type==2)
+    query = query.filter(Area.area_type==2).filter(Area.id.in_(current_user.domain.area_ids(2)))
     if netloc:
         if 'or' in netloc: netloc = '('+netloc+')'
         query = query.filter(netloc)
@@ -139,7 +139,7 @@ def branches():
             Area.branch,func.count(Node.id).label(category+"_count")
         ).select_from(Node).outerjoin(
             Area, Node.area_id==Area.id
-        )
+        ).filter(Node.area_id.in_(current_user.domain.area_ids()))
         if index == 0: # 统计总节点数的子查询
             sub_query = sub_query.group_by(Area.branch).subquery()
         else:
@@ -166,7 +166,7 @@ def branches():
     query = eval(query)
     for index,sub_query in enumerate(sub_query_list):
         query = query.outerjoin(sub_query, sub_query.c.branch==Area.id)
-    query = query.filter(Area.area_type==3)
+    query = query.filter(Area.area_type==3).filter(Area.id.in_(current_user.domain.area_ids(3)))
     if netloc:
         if 'or' in netloc: netloc = '('+netloc+')'
         query = query.filter(netloc)
@@ -193,7 +193,7 @@ def entrances():
             Area.entrance,func.count(Node.id).label(category+"_count")
         ).select_from(Node).outerjoin(
             Area, Node.area_id==Area.id
-        )
+        ).filter(Node.area_id.in_(current_user.domain.area_ids(4)))
         if index == 0: # 统计总节点数的子查询
             sub_query = sub_query.group_by(Area.entrance).subquery()
         else:
@@ -211,7 +211,7 @@ def entrances():
     query = eval(query)
     for index,sub_query in enumerate(sub_query_list):
         query = query.outerjoin(sub_query, sub_query.c.entrance==Area.id)
-    query = query.filter(Area.area_type==4)
+    query = query.filter(Area.area_type==4).filter(Area.id.in_(current_user.domain.area_ids(4)))
     if netloc:
         if 'or' in netloc: netloc = '('+netloc+')'
         query = query.filter(netloc)

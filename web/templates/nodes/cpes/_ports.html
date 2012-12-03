@@ -1,0 +1,26 @@
+<table class="table table-hover">
+    <thead>
+    <tr>
+        <th>槽位号</th>
+        <th>端口号</th>
+        <th>名称</th>
+        <th>端口类型</th>
+        <th>管理状态</th>
+        <th>运行状态</th>
+        <th>速率</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for port in node.ports %}
+        <tr>
+            <td>{{ port.slot_no|ifnull }}</td>
+            <td>{{ port.port_no|ifnull }}</td>
+            <td>{{ port.name|ifnull }}</td>
+            <td>{{ port.iftype|ifnull }}</td>
+            <td>{{ port.ifadminstatus|ifnull }}</td>
+            <td>{{ port.ifoperstatus|ifnull }}</td>
+            <td>{{ port.ifspeed|ifnull }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>

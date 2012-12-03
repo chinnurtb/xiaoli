@@ -59,7 +59,7 @@
 			<a class="brand" href="/"> {{g.brand}} </a>
             {% if current_user.id and g.navrow == '1' %}
             <ul class="nav pull-left">
-                <li class="divider-vertical" style="margin-right:0px;"></li>
+                <li class="divider-vertical" style="height:38px; margin-right:0px;border-bottom: 1px solid #FEFEFE;"></li>
                 {% for nav in g.navbar %}
                     <li id="menu-{{nav.name}}" {% if nav.name == navid %} class="active" {% endif %}>
                         <a href="{{nav.href}}">{{nav.title}}</a>

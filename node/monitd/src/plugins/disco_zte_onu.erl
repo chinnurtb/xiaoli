@@ -6,9 +6,9 @@
 
 -include("snmp/rfc1213.hrl").
 
--define(PON, 1).
--define(GE, 2).
--define(FE, 3).
+-define(PON, 202).
+-define(GE, 201).
+-define(FE, 200).
 
 -define(zxDslBoardEntry, [
     ?zxDslBoardType,
@@ -20,18 +20,17 @@
     ?zxDslBoardMemUsage
 ]).
 
--export([disco/3,disco_ports/3,disco_self/3]).
+-export([disco/4,disco_ports/3,disco_self/3]).
 
 -import(extbif,[to_list/1, to_integer/1]).
 
-disco(Dn, Ip, AgentData) ->
+disco(Dn, Ip, AgentData, _Args) ->
 	{ok,OnuInfo} = disco_self(Dn, Ip, AgentData),
     ?INFO("begin to disco onu: ~p", [Ip]),
     {BoardClass,Boards} = disco_boards(Dn, Ip, AgentData),
    ?INFO("Boards: ~p", [Boards]),
     Ports = disco_ports(Ip, BoardClass, AgentData),
-    {ok, OnuInfo, [{entry,boards,Dn,Boards}] ++ [{entry,ports,Dn,Ports}]}.
-
+    {ok, OnuInfo, [{board, Dn, Boards}, {port, Dn, Ports}]}.
 
 disco_self(_Dn, Ip, AgentData) ->
     case snmp_mapping:get_table(Ip, [?ZteNarrowIp], AgentData) of
@@ -43,7 +42,7 @@ disco_self(_Dn, Ip, AgentData) ->
 			end,Rows),
             NarrowIp = lists:foldl(fun(Row, AccIp) ->
                 {value, IpB} = dataset:get_value('$tableIndex', Row),
-                IpA = monet_util:to_ip_str(IpB),
+                IpA = mib_formatter:ip(IpB),
                 if  AccIp == [] ->
                     IpA;
                   true ->
@@ -110,7 +109,7 @@ disco_fe_ports( Ip, BoardClass, AgentData) ->
             {value, PortClass} = dataset:get_value(SlotNo, BoardClass, unknow),
             {PortType, PortData} = case PortClass of
                 adslPort -> %adsl 端口取上下行带宽
-                    case snmp_mapping:get_entry(Ip, monet_util:map2oid([?adslLineConfProfile]), [IfIndex], AgentData) of
+                    case snmp_mapping:get_entry(Ip, disco_util:map2oid([?adslLineConfProfile]), [IfIndex], AgentData) of
                          {ok, Entry} ->
                                  {value, Profile} = dataset:get_value(adslLineConfProfile, Entry),
                                  {3, proplists:get_value(Profile, Profiles, []) };
@@ -140,7 +139,7 @@ disco_pstn_ports(Ip, BoardClass, AgentData) ->
     lists:foldl(fun({SlotNo, BoardClassName}, PstnPorts) ->
          case BoardClassName of
             pstnPort ->
-                PstnStatusOid = [{Name, Oid ++ [to_integer(SlotNo)]} || {Name, Oid} <- monet_util:map2oid([?PortStatus])],
+                PstnStatusOid = [{Name, Oid ++ [to_integer(SlotNo)]} || {Name, Oid} <- disco_util:map2oid([?PortStatus])],
                 FisrtPstnport = case snmp_mapping:get_entry(Ip, PstnStatusOid, [0], AgentData) of
                     {ok, Entry} ->
                          [get_pstn_port( SlotNo, 0, Entry)];

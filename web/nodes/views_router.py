@@ -14,7 +14,7 @@ from tango.login import current_user
 from tango.models import Profile, Category
 from tango.excel.CsvExport import CsvExport
 
-from .models import NodeRouter,NODE_STATUS_DICT, Area
+from .models import NodeRouter,NODE_STATUS_DICT, Area, Node
 from .tables import RouterTable
 from .forms import  RouterSearchForm, RouterNewForm
 from .views import nodeview
@@ -40,12 +40,13 @@ def routers():
     if query_dict.get("vendor_id"): query=query.filter(NodeRouter.vendor_id == query_dict["vendor_id"]) # ==
     if query_dict.get("model_id"): query=query.filter(NodeRouter.model_id == query_dict["model_id"])    # ==
     if query_dict.get("status"): query=query.filter(NodeRouter.status == query_dict["status"])
+    query = query.filter(Area.id.in_(current_user.domain.area_ids(4)))
     form.process(**query_dict)
     table = make_table(query, RouterTable)
 
     status_statistcs = []
     for status in NODE_STATUS_DICT.keys():
-        num = NodeRouter.query.filter(NodeRouter.status == status).count()
+        num = NodeRouter.query.filter(NodeRouter.status == status).filter(NodeRouter.area_id.in_(current_user.domain.area_ids(4))).count()
         status_statistcs.append({"status": status, "number": num, "name": NODE_STATUS_DICT.get(status)})
 
     if request.base_url.endswith(".csv/"):
@@ -67,8 +68,8 @@ def routers_new():
             flash(u'路由器名称不能重复','error')
         elif NodeRouter.query.filter(NodeRouter.alias==node.alias).count() > 0:
             flash(u'路由器别名不能重复','error')
-        elif NodeRouter.query.filter(NodeRouter.addr==node.addr).count() > 0:
-            flash(u'路由器 IP地址不能重复','error')
+        elif Node.query.filter(Node.addr==node.addr).count() > 0:
+            flash(u'IP地址不能重复','error')
         else:
             node.status = 1
             node.category_id = 1
@@ -89,8 +90,8 @@ def routers_edit(id):
                 flash(u'路由器名称不能重复','error')
             elif node.alias != form.alias.data and NodeRouter.query.filter(NodeRouter.alias==form.alias.data).count() > 0:
                 flash(u'路由器别名不能重复','error')
-            elif node.addr != form.addr.data and NodeRouter.query.filter(NodeRouter.addr==form.addr.data).count() > 0:
-                flash(u'路由器 IP地址不能重复','error')
+            elif node.addr != form.addr.data and Node.query.filter(Node.addr==form.addr.data).count() > 0:
+                flash(u'IP地址不能重复','error')
             else:
                 del form._fields["cityid"]
                 del form._fields["town"]

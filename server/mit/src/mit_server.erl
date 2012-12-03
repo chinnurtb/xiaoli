@@ -47,8 +47,10 @@ init([]) ->
 
 open(C) ->
 	{ok, Channel} = amqp:open_channel(C),
-	amqp:queue(Channel, <<"entry">>),
-	amqp:consume(Channel, <<"entry">>),
+    {ok, MitQ} = amqp:queue(Channel, atom_to_list(node())),
+    amqp:topic(Channel, "mit.server"),
+    amqp:bind(Channel, "mit.server", MitQ, "#"),
+	amqp:consume(Channel, MitQ),
 	Channel.
 
 handle_call(stop, _From, State) ->
@@ -70,17 +72,16 @@ handle_cast(Msg, State) ->
 %%                                       {stop, Reason, State}
 %% Description: Handling all non call/cast messages
 %%--------------------------------------------------------------------
-handle_info({deliver, <<"entry">>, _Props, Payload}, State) ->
-	Entry = binary_to_term(Payload),
-	%handle_entry(Entry),
-	Fun = fun() ->
-		try handle_entry(Entry) catch
-		_:Err ->
-			?ERROR("badentry error: ~p", [Err]),
-			?ERROR("~p", [Entry])
-		end
-	end,
-	worker_pool:submit_async(Fun),
+handle_info({deliver, <<"node">>, _, Payload}, State) ->
+    store(binary_to_term(Payload)),
+    {noreply, State};
+
+handle_info({deliver, <<"board">>, _, Payload}, State) ->
+    store(binary_to_term(Payload)),
+    {noreply, State};
+
+handle_info({deliver, <<"port">>, _, Payload}, State) ->
+    store(binary_to_term(Payload)),
     {noreply, State};
 
 handle_info({amqp, disconnected}, State) ->
@@ -98,23 +99,7 @@ terminate(_Reason, _State) ->
 code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
 
-handle_entry({entry, omc, OmcDn, Attrs}) ->
-	mit_omc:update(OmcDn, Attrs);
+store(Data) ->
+    ?INFO("~p", [Data]).
 
-handle_entry({entry, aclist, OmcDn, AcInfos}) ->
-	mit_omc:upate(aclist, OmcDn, AcInfos);
 
-handle_entry({entry, ac, AcDn, Attrs}) ->
-	mit_ac:update(AcDn, Attrs);
-
-handle_entry({entry, sw, SwDn, Attrs}) ->
-	mit_sw:update(SwDn, Attrs);
-
-handle_entry({entry, intfs, Dn, []}) ->
-	?WARNING("empty intfs from ~s", [Dn]);
-	
-handle_entry({entry, intfs, Dn, Intfs}) ->
-	mit_intf:update(Dn, Intfs);
-
-handle_entry(Item) ->
-	?ERROR("unexpected item: ~p", [Item]).

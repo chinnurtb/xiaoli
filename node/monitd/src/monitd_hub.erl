@@ -8,6 +8,9 @@
 %%%
 %%% Copyright (C) 2012, www.opengoss.com 
 %%%----------------------------------------------------------------------
+
+%%% Emit node, board, port, event
+
 -module(monitd_hub).
 
 -author('ery.lee@gmail.com').
@@ -26,11 +29,11 @@
 
 -behavior(gen_server).
 
--export([init/1, 
-        handle_call/3, 
-        handle_cast/2, 
-        handle_info/2, 
-        terminate/2, 
+-export([init/1,
+        handle_call/3,
+        handle_cast/2,
+        handle_info/2,
+        terminate/2,
         code_change/3]).
 
 %metric buffer to reduce amqp messages per seconds.
@@ -49,6 +52,22 @@ emit(DataList) when is_list(DataList) ->
 	Chan = channel(),
 	[emit(Chan, element(1, E), E) || E <- DataList].
 
+emit(Chan, node, Data) ->
+	amqp:publish(Chan, <<"mit.server">>,
+        term_to_binary(Data), "node");
+
+emit(Chan, board, Data) ->
+    amqp:publish(Chan, <<"mit.server">>,
+        term_to_binary(Data), "board");
+
+emit(Chan, port, Data) ->
+    amqp:publish(Chan, <<"mit.server">>,
+        term_to_binary(Data), "port");
+
+emit(Chan, event, #event{name = Name} = Event) ->
+	amqp:publish(Chan, <<"eva.event">>,
+        term_to_binary(Event), "event."++atom_to_list(Name));
+
 emit(_Chan, metric, Metric) ->
 	journal(Metric),
 	case catch diff(Metric) of
@@ -66,15 +85,7 @@ emit(_Chan, metric, Metric) ->
 		?ERROR("diff exit: ~p", [Reason]),
         ?ERROR("~p", [erlang:get_stacktrace()]),
 		?ERROR("~p", [Metric])
-	end;
-
-emit(Chan, event, #event{name = Name} = Event) ->
-	Payload = term_to_binary(Event),
-	RoutingKey = "event."++atom_to_list(Name),
-	amqp:publish(Chan, <<"oss.event">>, Payload, RoutingKey);
-
-emit(Chan, Queue, Tup) ->
-	amqp:send(Chan, Queue, term_to_binary(Tup, [compressed])).
+	end.
 
 journal(Metric) when is_record(Metric, metric) ->
 	monitd_journal:write(Metric).

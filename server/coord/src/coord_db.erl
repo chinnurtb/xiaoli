@@ -41,7 +41,8 @@
     metrics,
     {miboids, {is_valid, 1}},
     {monitors, ?MONITOR_SQL},
-    timeperiods
+    timeperiods,
+    dict_status
 ]).
 
 start_link() ->

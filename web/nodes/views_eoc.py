@@ -14,7 +14,7 @@ from tango.login import current_user
 from tango.models import Profile, Category
 from tango.excel.CsvExport import CsvExport
 
-from .models import NodeEoc,NODE_STATUS_DICT, Area
+from .models import NodeEoc,NODE_STATUS_DICT, Area, Node
 from .tables import EocTable
 from .forms import  EocSearchForm, EocNewForm
 from .views import nodeview
@@ -40,12 +40,13 @@ def eocs():
     if query_dict.get("vendor_id"): query=query.filter(NodeEoc.vendor_id == query_dict["vendor_id"]) # ==
     if query_dict.get("model_id"): query=query.filter(NodeEoc.model_id == query_dict["model_id"])    # ==
     if query_dict.get("status"): query=query.filter(NodeEoc.status == query_dict["status"])
+    query = query.filter(Area.id.in_(current_user.domain.area_ids(3)))
     form.process(**query_dict)
     table = make_table(query, EocTable)
 
     status_statistcs = []
     for status in NODE_STATUS_DICT.keys():
-        num = NodeEoc.query.filter(NodeEoc.status == status).count()
+        num = NodeEoc.query.filter(NodeEoc.status == status).filter(NodeEoc.area_id.in_(current_user.domain.area_ids(3))).count()
         status_statistcs.append({"status": status, "number": num, "name": NODE_STATUS_DICT.get(status)})
 
     if request.base_url.endswith(".csv/"):
@@ -67,8 +68,8 @@ def eocs_new():
             flash(u'EOC名称不能重复','error')
         elif NodeEoc.query.filter(NodeEoc.alias==node.alias).count() > 0:
             flash(u'EOC别名不能重复','error')
-        elif NodeEoc.query.filter(NodeEoc.addr==node.addr).count() > 0:
-            flash(u'EOC IP地址不能重复','error')
+        elif Node.query.filter(Node.addr==node.addr).count() > 0:
+            flash(u'IP地址不能重复','error')
         else:
             node.status = 1
             node.category_id = 50
@@ -89,8 +90,8 @@ def eocs_edit(id):
                 flash(u'EOC名称不能重复','error')
             elif node.alias != form.alias.data and NodeEoc.query.filter(NodeEoc.alias==form.alias.data).count() > 0:
                 flash(u'EOC别名不能重复','error')
-            elif node.addr != form.addr.data and NodeEoc.query.filter(NodeEoc.addr==form.addr.data).count() > 0:
-                flash(u'EOC IP地址不能重复','error')
+            elif node.addr != form.addr.data and Node.query.filter(Node.addr==form.addr.data).count() > 0:
+                flash(u'IP地址不能重复','error')
             else:
                 del form._fields["cityid"]
                 del form._fields["town"]

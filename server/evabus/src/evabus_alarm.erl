@@ -79,3 +79,4 @@ atom(B) when is_binary(B) ->
 atom(L) when is_list(L) ->
     list_to_atom(L).
 
+

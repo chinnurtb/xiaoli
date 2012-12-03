@@ -14,7 +14,7 @@ from tango.login import current_user
 from tango.models import Profile, Category
 from tango.excel.CsvExport import CsvExport
 
-from .models import NodeOnu, NODE_STATUS_DICT, Area, NodeOlt
+from .models import NodeOnu, NODE_STATUS_DICT, Area, NodeOlt, Node
 from .tables import OnuTable
 from .forms import  OnuSearchForm, OnuNewForm
 from .views import nodeview
@@ -41,12 +41,13 @@ def onus():
     if query_dict.get("model_id"): query=query.filter(NodeOnu.model_id == query_dict["model_id"])    # ==
     if request.args.get("olt_id"): query=query.filter(NodeOnu.controller_id == request.args["olt_id"])
     if query_dict.get("status"): query=query.filter(NodeOnu.status == query_dict["status"])
+    query = query.filter(Area.id.in_(current_user.domain.area_ids(4)))
     form.process(**query_dict)
     table = make_table(query, OnuTable)
 
     status_statistcs = []
     for status in NODE_STATUS_DICT.keys():
-        num = NodeOnu.query.filter(NodeOnu.status == status).count()
+        num = NodeOnu.query.filter(NodeOnu.status == status).filter(NodeOnu.area_id.in_(current_user.domain.area_ids(4))).count()
         status_statistcs.append({"status": status, "number": num, "name": NODE_STATUS_DICT.get(status)})
 
     if request.base_url.endswith(".csv/"):
@@ -66,8 +67,8 @@ def onus_new():
             flash(u'ONU名称不能重复','error')
         elif NodeOnu.query.filter(NodeOnu.alias==node.alias).count() > 0:
             flash(u'ONU别名不能重复','error')
-        elif NodeOnu.query.filter(NodeOnu.addr==node.addr).count() > 0:
-            flash(u'ONU IP地址不能重复','error')
+        elif Node.query.filter(Node.addr==node.addr).count() > 0:
+            flash(u'IP地址不能重复','error')
         else:
             node.status = 1
             node.category_id = 21
@@ -88,8 +89,8 @@ def onus_edit(id):
                 flash(u'ONU名称不能重复','error')
             elif node.alias != form.alias.data and NodeOnu.query.filter(NodeOnu.alias==form.alias.data).count() > 0:
                 flash(u'ONU别名不能重复','error')
-            elif node.addr != form.addr.data and NodeOnu.query.filter(NodeOnu.addr==form.addr.data).count() > 0:
-                flash(u'ONU IP地址不能重复','error')
+            elif node.addr != form.addr.data and Node.query.filter(Node.addr==form.addr.data).count() > 0:
+                flash(u'IP地址不能重复','error')
             else:
                 form.populate_obj(node)
                 node.updated_at = datetime.now()

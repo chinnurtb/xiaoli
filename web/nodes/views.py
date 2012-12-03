@@ -18,6 +18,7 @@ from tango.excel.CsvExport import CsvExport
 from .models import Node, Area, Vendor, NODE_STATUS_DICT, Model
 from .forms import NodeSearchForm
 from .tables import NodeTable
+from .tables import redirect_node_show
 
 nodeview = Blueprint('nodes', __name__)
 
@@ -195,5 +196,9 @@ def nodes_import():
 @nodeview.route('/managers', methods=['GET'])
 def managers():
     return render_template('/managers/index.html')
+
+@nodeview.app_template_filter("node_url")
+def node_url_filter(n):
+    return redirect_node_show(n)
 
 navbar.add('nodes', u'资源', 'tasks', '/nodes')

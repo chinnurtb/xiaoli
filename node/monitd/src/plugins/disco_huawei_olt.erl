@@ -13,13 +13,13 @@
 
 -import(extbif, [to_list/1]).
 
--export([disco/3,disco_boards/3,disco_ports/3,disco_onus/3,disco_onu_ports/3, calc_no/2]).
+-export([disco/4,disco_boards/3,disco_ports/3,disco_onus/3,disco_onu_ports/3, calc_no/2]).
 
 -define(PortType,[{592, "eponOltPort"}, {573, "geElcPort"}, {574, "geOptPort"}, {591, "geOptPort"},{579, "gponOltPort"}]).
 -define(PortCategory,[{592, 1}, {573, 2}, {574, 2}, {579, 1}, {591, 2}]).
 
 
-disco(Dn, Ip, AgentData) ->
+disco(Dn, Ip, AgentData, _Args) ->
     ?INFO("begin to disco epon olt: ~p", [Ip]),
     {ok, Boards} = disco_boards(Dn, Ip, AgentData),
     {ok, Ports,Dicts} = disco_ports(Dn, Ip, AgentData),
@@ -96,7 +96,7 @@ disco_ports(Dn, Ip, AgentData) ->
      end.
 
 disco_onus(Dn, Ip, AgentData) ->
-    case snmp_mapping:get_table(Ip, monet_util:map2oid(?hwOnuEntry), AgentData, 10000) of
+    case snmp_mapping:get_table(Ip, disco_util:map2oid(?hwOnuEntry), AgentData, 10000) of
     {ok, Rows} ->
         ?INFO("disco onus~p", [Rows]),
         {ok, DbaProfileEntries} = get_dba_profile(Ip, AgentData),
@@ -230,7 +230,7 @@ transform([], Acc) ->
 transform([{ontMacAddr, Mac} | T], Acc) ->
     transform(T, [{macaddr, to_mac_str(Mac)},{authmacaddr, to_mac_str(Mac)}|Acc]);
 transform([{ipAddress, IpB}|T], Acc) ->
-    Ip = monet_util:to_ip_str(IpB),
+    Ip = mib_formatter:ip(IpB),
     case Ip of
     <<"0.0.0.0">> ->
         transform(T, Acc);

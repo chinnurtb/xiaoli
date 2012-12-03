@@ -72,12 +72,10 @@ code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
 
 do_save(#alarm{alarm_key = AlarmKey,
-			   alarm_name = AlarmName,
-			   source = AlarmSource,
 			   severity = Severity} = Alarm) ->
 	%%query events with the same type
     SavedRes = 
-	case select(AlarmKey, AlarmSource) of
+	case select(AlarmKey) of
     {ok, OldAlarm} ->
         OldSeverity = proplists:get_value(severity, OldAlarm),
         case (Severity == 0) and (OldSeverity == 0) of
@@ -122,21 +120,11 @@ do_save(#alarm{alarm_key = AlarmKey,
 %%--------------------------------------------------------------------
 %%% Internal functions
 %%--------------------------------------------------------------------
-select(AlarmKey, AlarmSource) ->
-	Where = {'and', {alarm_key, AlarmKey}, {source, AlarmSource}},
-	select(Where).
-
-select(Where) ->
-    case epgsql:select(main, alarms, Where) of
+select(AlarmKey) ->
+    case epgsql:select(main, alarms, {alarm_key, AlarmKey}) of
     {ok, [Alarm|_]} -> {ok, Alarm};
     {ok, []} -> false
     end.
-
-try_insert(#alarm{alarm_name = snmp_status, source = Source} = Alarm) ->
-    case select("ping_status", Source) of
-    {ok, _PingAlarm} -> ignore;
-    false -> do_insert(Alarm)
-    end;
 
 try_insert(Alarm) ->
     do_insert(Alarm).

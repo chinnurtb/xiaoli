@@ -38,7 +38,7 @@
          terminate/2, 
          code_change/3]).
 
--record(sysmod, {sysoid, model, module, mib}). %category, vendor,
+-record(sysmod, {sysoid, category, model, module, mib}). %category, vendor,
 
 %%--------------------------------------------------------------------
 %% @spec start_link() ->  Result
@@ -47,6 +47,9 @@
 %%--------------------------------------------------------------------
 start_link() ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
+
+setup({dict_status, Records}) ->
+    gen_server:call(?MODULE, {setup, dict_status, Records});
 
 setup({sysoids, Sysoids}) ->
 	gen_server:call(?MODULE, {setup, sysoids, Sysoids}).
@@ -78,6 +81,7 @@ report({success, Dn, DataList}) ->
 %% Description: Initiates the server
 %%--------------------------------------------------------------------
 init([]) ->
+    ets:new(dict_status, [set, named_table, protected]),
     ets:new(sysmod, [set, named_table, protected, {keypos, 2}]),
     ets:new(disco_table, [set, named_table]),
     ets:new(failed_disco_table, [set, named_table]),
@@ -90,11 +94,25 @@ handle_call(status, _From, State) ->
         {failed, ets:info(failed_disco_table, size)}],
     {reply, Reply, State};
 
+handle_call({setup, dict_status, Records}, _From, State) ->
+    lists:foreach(fun(Record) ->
+        Vendor = get_value(vendor, Record),
+        Kind = get_value(kind, Record),
+        Device_type = get_value(device_type, Record),
+        Status_type = get_value(status_type, Record),
+        Status_o = get_value(status_o, Record),
+        Status_c = get_value(status_c, Record),
+        [ets:insert(dict_status, {{Vendor,Kind,Device_type,Status_type,list_to_binary(S)}, Status_c})
+            || S <- string:tokens(binary_to_list(Status_o),",")]
+    end, Records),
+    {reply, ok, State};
+
 handle_call({setup, sysoids, Records}, _Form, State) ->
     ?INFO("setup sysoids: ~p", [length(Records)]),
     [ets:insert(sysmod, 
         #sysmod{
             sysoid = get_value(sysoid, R),
+            category = extbif:binary_to_atom(get_value(category, R)),
             model = get_value(model_id, R),
             module = extbif:binary_to_atom(get_value(disco, R)),
             mib =extbif:binary_to_atom(get_value(mib, R))}) 
@@ -186,6 +204,8 @@ execute({Dn, Node}) ->
     case catch discover(node, Node) of
     {ok, DataList} -> 
       report({success, Dn, DataList});
+    ignore ->
+        ignore;
     {error, Error} ->
       report({failure, Node}),
       ?ERROR("Failed to discover ~p: ~p", [Dn, Error]);
@@ -198,17 +218,16 @@ execute({Dn, Node}) ->
 %%--------------------------------------------------------------------
 %%% Internal functions
 %%--------------------------------------------------------------------
-discover(node, #node{dn=Dn, ip=Ip, attrs=NodeAttrs} = Node) ->
+discover(node, #node{ip=undefined}) ->
+    ignore;
+discover(node, #node{dn=Dn, ip=Ip, attrs=NodeAttrs}) ->
 	?INFO("begin to discover ~s", [Ip]),
-
-	{ok, AvailEvents, _} = check_avail:run(Node),
-	monitd_hub:emit(AvailEvents),
 
 	Community = to_list(get_value(snmp_comm, NodeAttrs, <<"public">>)),
 	{SnmpStatus, _} = check_snmp:run(to_list(Ip), Community),
 
 	Agent = [{community, Community}],
-	discover(SnmpStatus, node, Dn, Ip, Agent).
+	discover(SnmpStatus, node, Dn, binary_to_list(Ip), Agent).
 
 discover("SNMP OK", node, Dn, Ip, Agent) ->
   case snmp_mapping:discovery(Ip, ?System, Agent) of
@@ -219,12 +238,12 @@ discover("SNMP OK", node, Dn, Ip, Agent) ->
       SysOid = mib_oid:to_str(SysObjectID),
       Attrs = [{sysdescr, SysDescr}, {sysname, SysName}, {sysoid, SysOid}],
       case ets:lookup(sysmod, list_to_binary(SysOid)) of 
-        [#sysmod{model=ModelId, module=Mod, mib=Mib}] -> 
+        [#sysmod{category=Category, model=ModelId, module=Mod, mib=Mib}] -> 
           Attrs1 = [{model_id, ModelId} | Attrs],
           {ok, SpecAttrs, DataList} = Mod:disco(Dn, Ip, Agent, [{mib, Mib}]),
           ?INFO("DiscoMod: ~s, model: ~p, Ip: ~s",[Mod, ModelId, Ip]),
 		  Attrs2 = Attrs1 ++ SpecAttrs,
-          {ok, [{entry, node, Dn, Attrs2} | DataList]};
+          {ok, [{node, Category, Dn, Attrs2} | DataList]};
         [] ->
           ?ERROR("No disco mod for: ~s, ip: ~s, sysdescr: ~s", [SysOid, Ip, SysDescr]),
           {error, no_sysmod};

@@ -61,10 +61,10 @@
                         <td>{{ node.location }}</td>
                     </tr>
                     <tr>
-                        <td width="17.5%" scope="col">备注</td>
-                        <td>{{ node.remark|ifnull }}</td>
-                        <td width="17.5%" scope="col">是否验收</td>
-                        <td></td>
+                        <td width="17.5%" scope="col">备注信息</td>
+                        <td>{{ node.summary|ifnull }}</td>
+                        <td width="17.5%" scope="col">采集服务器</td>
+                        <td>{{ node.manager|ifnull }}</td>
                     </tr>
                 </table>
               </div>
@@ -98,40 +98,7 @@
                     </table>
                 </div>
                 <div id="port_info" class="tab-pane">
-                    <table class="table table-hover">
-                        <thead>
-                        <tr>
-                            <th>索引</th>
-                            <th>状态</th>
-                            <th>名称</th>
-                            <th>别名</th>
-                            <th>速率</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr>
-                            <td>1001</td>
-                            <td>DOWN</td>
-                            <td>IF001001</td>
-                            <td>HUAWEI01001</td>
-                            <td>10Mbps</td>
-                        </tr>
-                        <tr>
-                            <td>1002</td>
-                            <td>DOWN</td>
-                            <td>IF001002</td>
-                            <td>HUAWEI01002</td>
-                            <td>10Mbps</td>
-                        </tr>
-                        <tr>
-                            <td>1003</td>
-                            <td>DOWN</td>
-                            <td>IF001002</td>
-                            <td>HUAWEI01002</td>
-                            <td>10Mbps</td>
-                        </tr>
-                        </tbody>
-                    </table>
+                    {% include "nodes/switches/_ports.html" %}
                 </div>
             </div>
         </div>

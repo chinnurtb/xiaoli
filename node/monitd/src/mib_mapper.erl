@@ -31,7 +31,6 @@
 	fatap_mapping/1,
         intf_mapping_fun/1, 
         intf_mapping/1, 
-        eth_perf_mapping/1,
         pool_perf_mapping/1,
         portal_mapping/1,
         portal_reduce/1,
@@ -46,7 +45,6 @@
 	user_mapping/1,
         mapping/2,
 	omc_ac_perf_mapping/1,
-	omc_eth_perf_mapping/1,
 	online/2,
 	ifdn/2
 	]).
@@ -814,40 +812,6 @@ ac_perf_mapping(Record) ->
 	{value, _Usage} -> Record2;
 	{false, _} -> [{dHCPIpPoolUsage, 0} | Record2]
 	end.
-
-omc_eth_perf_mapping(Record) ->
-	eth_perf_mapping([{N, i(V)} || {N, V} <- Record], 0, 0, []).
-
-eth_perf_mapping(Record) ->
-	IfIndex = 
-	case dataset:get_value('$tableIndex', Record) of
-    {value, [IfIdx]} -> IfIdx;
-	{value, [BoardIdx, IfIdx]} -> BoardIdx * 256 + IfIdx;
-	{false, _} -> 0
-	end,
-    Traffic = eth_perf_mapping([{N, i(V)} || {N, V} <- Record], 0, 0, []),
-    {IfIndex, Traffic}.
-
-eth_perf_mapping([], IfInPkts, IfOutPkts, Acc) ->
-    [{ifInPkts, IfInPkts}, {ifOutPkts, IfOutPkts}|Acc];
-eth_perf_mapping([{'$tableIndex', _}|Record], IfInPkts, IfOutPkts, Acc) ->
-    eth_perf_mapping(Record, IfInPkts, IfOutPkts, Acc);
-eth_perf_mapping([{ifDescr, _}|Record], IfInPkts, IfOutPkts, Acc) ->
-    eth_perf_mapping(Record, IfInPkts, IfOutPkts, Acc);
-eth_perf_mapping([{ifInOctets, V}|Record], IfInPkts, IfOutPkts, Acc) ->
-    eth_perf_mapping(Record, IfInPkts, IfOutPkts, [{ifInOctets, V*8}|Acc]);
-eth_perf_mapping([{ifOutOctets, V}|Record], IfInPkts, IfOutPkts, Acc) ->
-    eth_perf_mapping(Record, IfInPkts, IfOutPkts, [{ifOutOctets, V*8}|Acc]);
-eth_perf_mapping([{ifInUcastPkts, V}|Record], IfInPkts, IfOutPkts, Acc) ->
-    eth_perf_mapping(Record, V+IfInPkts, IfOutPkts, [{ifInUcastPkts, V}|Acc]);
-eth_perf_mapping([{ifInNUcastPkts, V}|Record], IfInPkts, IfOutPkts, Acc) ->
-    eth_perf_mapping(Record, V+IfInPkts, IfOutPkts, [{ifInNUcastPkts, V}|Acc]);
-eth_perf_mapping([{ifOutUcastPkts, V}|Record], IfInPkts, IfOutPkts, Acc) ->
-    eth_perf_mapping(Record, IfInPkts, V+IfOutPkts, [{ifOutUcastPkts, V}|Acc]);
-eth_perf_mapping([{ifOutNUcastPkts, V}|Record], IfInPkts, IfOutPkts, Acc) ->
-    eth_perf_mapping(Record, IfInPkts, V+IfOutPkts, [{ifOutNUcastPkts, V}|Acc]);
-eth_perf_mapping([{Name, Value}|Record], IfInPkts, IfOutPkts, Acc) ->
-    eth_perf_mapping(Record, IfInPkts, IfOutPkts, [{Name, Value}|Acc]).
 
 pool_perf_mapping(Record) ->
     {value, IdxOid} = dataset:get_value('$tableIndex', Record),
