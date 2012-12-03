@@ -27,7 +27,7 @@ class Area(db.Model):
     __tablename__ = 'areas'
     id             = db.Column(db.Integer, primary_key=True)
     parent_id      = db.Column(db.Integer, db.ForeignKey('areas.id'))
-    rdn            = db.Column(db.String(100))
+    dn            = db.Column(db.String(100))
     name           = db.Column(db.String(50))
     alias          = db.Column(db.String(100))
     area_type      = db.Column(db.Integer)
