@@ -85,15 +85,15 @@
                     <table class="table">
                         <tr>
                             <td width="17.5%" scope="col">PING状态</td>
-                            <td></td>
+                            <td width="32.5%">{{ node.ping_status_name }}</td>
                             <td width="17.5%" scope="col">PING状态详细</td>
-                            <td></td>
+                            <td width="32.5%">{{ node.ping_summary|truncate(50) }}</td>
                         </tr>
                         <tr>
                             <td width="17.5%" scope="col">SNMP状态</td>
-                            <td></td>
+                            <td>{{ node.snmp_status_name }}</td>
                             <td width="17.5%" scope="col">SNMP状态详细</td>
-                            <td></td>
+                            <td>{{ node.snmp_summary|truncate(50) }}</td>
                         </tr>
                     </table>
                 </div>

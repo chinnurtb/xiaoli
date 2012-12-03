@@ -155,6 +155,9 @@ NODE_STATUS_DICT = {0: u'未知',1: u'正常', 2: u'宕机', 3: u'不可达'}
 NODE_STATUS_COLOR = {0: '#808080',1: 'lime', 2: 'red', 3: '#F6983E'}
 SNMP_VER_DICT = {"v1":'v1',"v2c":'v2c'}
 
+ping_status_dict = {0: u'未知', 1: u'正常', 2: u'故障'}
+snmp_status_dict = {0: u'未知', 1: u'正常', 2: u'故障'}
+
 class NodeMixin(object):
     id            = db.Column(db.Integer, primary_key=True)
     name          = db.Column(db.String(40))
@@ -183,7 +186,7 @@ class NodeMixin(object):
     sysname       = db.Column(db.String(40))
     sysdescr      = db.Column(db.String(200))
     sysuptime     = db.Column(db.DateTime)
-    oid_idx       = db.Column(db.String(100))
+    #oid_idx       = db.Column(db.String(100))  # 节点的oid索引
     sysmodel      = db.Column(db.String(100))
     os_version    = db.Column(db.String(40))
     agent         = db.Column(db.String(100))
@@ -194,6 +197,10 @@ class NodeMixin(object):
     duration      = db.Column(db.Integer)
     created_at    = db.Column(db.DateTime, default=datetime.now)
     updated_at    = db.Column(db.DateTime, default=datetime.now)
+    snmp_status   = db.Column(db.Integer)       # snmp状态
+    snmp_summary  = db.Column(db.String(400))   # snmp状态详细
+    ping_status   = db.Column(db.Integer)       # ping状态
+    ping_summary  = db.Column(db.String(400))   # ping状态详细
 
     #-- 20:olt 21:onu 30:dslam 50:eoc 2:switch 90:host
     @declared_attr
@@ -263,6 +270,14 @@ class NodeMixin(object):
     @hybrid_property
     def status_name(self):
         return NODE_STATUS_DICT.get(self.status,"")
+
+    @hybrid_property
+    def ping_status_name(self):
+        return ping_status_dict.get(self.ping_status,"")
+
+    @hybrid_property
+    def snmp_status_name(self):
+        return snmp_status_dict.get(self.snmp_status,"")
 
     @property
     def boards(self):
