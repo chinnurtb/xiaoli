@@ -102,7 +102,7 @@
         var chartdata = {{ chartdata|tojson|safe }}
         chart.xAxis.tickFormat(function(d) {
             var dx = chartdata[0].values[d] && chartdata[0].values[d].x || 0;
-            return d3.time.format('%m-%d %H:%M:%S')(new Date(dx))
+            return d3.time.format('%m-%d %H:%M:%S')(new Date(dx*1000)) //后台传过来的单位为妙，前台的单位的毫秒
         });
         chart.yAxis.tickFormat(function(d) {
             return d3.format(',.2f')(d)+'M'

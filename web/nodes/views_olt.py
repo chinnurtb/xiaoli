@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 # coding: utf-8
-from datetime import datetime
+from datetime import datetime, timedelta
+import time
 
 from flask import Blueprint, request, session, url_for,\
-    redirect, render_template, g, flash
+    redirect, render_template, g, flash, current_app
 from flask import json,send_file
 
 from sqlalchemy import or_
@@ -18,6 +19,8 @@ from .models import NodeOlt,NODE_STATUS_DICT, Area, Vendor, Model, Node
 from .tables import OltTable
 from .forms import  OltSearchForm, OltNewForm
 from .views import nodeview
+
+import errdb
 
 @nodeview.route('/nodes/olts.csv/', methods=['POST', 'GET'])
 @nodeview.route('/nodes/olts/', methods=['POST', 'GET'])
@@ -121,35 +124,14 @@ def olts_show(id):
     node = NodeOlt.query.get(id)
     if node is None:
         return render_template('/nodes/not_exist.html', menuid='olts', message=u'OLT不存在，可能已经被删除',title=u'OLT')
+    client = errdb.Client(host=current_app.config.get("ERRDB_HOST"), port=current_app.config.get("ERRDB_PORT"))
+    start_time = time.mktime((datetime.now()-timedelta(days=2)).timetuple())
+    data = client.fetch(node.dn+":ping", ['rtmax','rtmax'], start_time, time.time())
+    data_ifInOctets = [{'x':data_dict.keys()[0], 'y': data_dict.values()[0][0]} for data_dict in data ]
+    data_ifOutOctets = [{'x':data_dict.keys()[0], 'y': data_dict.values()[0][1]} for data_dict in data ]
     chartdata = [
-        {
-            "area": True,
-            "key" : u"接收流量" ,
-            "color": 'lime',
-            "values" : [ {'x':1352937600000 , 'y':27.38478809681} ,
-                { 'x':1352947600000 , 'y':27.371377218208} ,
-                { 'x':1352957600000 , 'y':26.309915460827} ,
-                {  'x':1352967600000 , 'y':26.425199957521} ,
-                {  'x':1352977600000 ,'y': 26.823411519395} ,
-                {  'x':1352987600000 ,'y': 23.850443591584} ,
-                {  'x':1352997600000 ,'y': 23.158355444054} ,
-                {  'x':1353007600000 , 'y':22.998689393694} ,
-                {  'x':1353017600000 ,'y': 27.977128511299} ,]
-        } ,
-        {
-            "area": True,
-            "color": '#773EF7',
-            "key" : u"发送流量" ,
-            "values" :[{'x':1352937600000 , 'y':12} ,
-                    { 'x':1352947600000 , 'y':110} ,
-                    { 'x':1352957600000 , 'y':110} ,
-                    {  'x':1352967600000 , 'y':30} ,
-                    {  'x':1352977600000 ,'y': 60} ,
-                    {  'x':1352987600000 ,'y': 6} ,
-                    {  'x':1352997600000 ,'y': 12} ,
-                    {  'x':1353007600000 , 'y':10} ,
-                    {  'x':1353017600000 ,'y': 0} ,]
-        } ,
+        {"area": True, "key" : u"接收流量" , "color": 'lime', "values" : data_ifInOctets} ,
+        {"area": True, "key" : u"发送流量" , "color": '#773EF7',"values" :data_ifOutOctets} ,
     ];
     data = [{'label': u'完全故障', 'color': 'red', 'value': 1},
             {'label': u'部分故障', 'color': 'yellow', 'value': 2},

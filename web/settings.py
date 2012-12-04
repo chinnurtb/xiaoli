@@ -13,6 +13,10 @@ SQLALCHEMY_DATABASE_URI = 'postgresql://ipon:public@localhost/ipon'
 
 LICENSE_KEY = 'cn=hunan,c=cn'
 
+ERRDB_HOST = '192.168.100.71'
+
+ERRDB_PORT = 7676
+
 #SQLALCHEMY_BINDS = {
 #    'report': 'sqlite://'
 #}
