@@ -26,7 +26,7 @@ redirct_dict = {
 }
 
 def redirect_node_show(record):
-    return u'/nodes/%s/%s/' % (redirct_dict.get(record.category_id), record.id)
+    return u'/nodes/%s/%s/' % (redirct_dict.get(record.category_id), record.id) if record else '#'
 
 def redirect_node_edit(record):
     return u'/nodes/%s/edit/%s/' % (redirct_dict.get(record.category_id), record.id)
