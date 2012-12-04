@@ -118,7 +118,9 @@ def switches_delete():
 
 @nodeview.route('/nodes/switches/<int:id>/', methods=['GET'])
 def switches_show(id):
-    node = NodeSwitch.query.get_or_404(id)
+    node = NodeSwitch.query.get(id)
+    if node is None:
+        return render_template('/nodes/not_exist.html', menuid='switches', message=u'交换机不存在，可能已经被删除',title=u'交换机')
     data = [{'label': u'完全故障', 'color': 'red', 'value': 1},
             {'label': u'部分故障', 'color': 'yellow', 'value': 2},
             {'label': u'完全正常', 'color': 'green', 'value': 19},

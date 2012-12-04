@@ -116,7 +116,9 @@ def onus_delete():
 
 @nodeview.route('/nodes/onus/<int:id>/', methods=['GET'])
 def onus_show(id):
-    node = NodeOnu.query.get_or_404(id)
+    node = NodeOnu.query.get(id)
+    if node is None:
+        return render_template('/nodes/not_exist.html', menuid='onus', message=u'ONU不存在，可能已经被删除',title=u'ONU')
     chartdata = [
             {
             "area": True,

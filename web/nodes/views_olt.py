@@ -118,7 +118,9 @@ def olts_delete():
 
 @nodeview.route('/nodes/olts/<int:id>/', methods=['GET'])
 def olts_show(id):
-    node = NodeOlt.query.get_or_404(id)
+    node = NodeOlt.query.get(id)
+    if node is None:
+        return render_template('/nodes/not_exist.html', menuid='olts', message=u'OLT不存在，可能已经被删除',title=u'OLT')
     chartdata = [
         {
             "area": True,

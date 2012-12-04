@@ -118,7 +118,9 @@ def routers_delete():
 
 @nodeview.route('/nodes/routers/<int:id>/', methods=['GET'])
 def routers_show(id):
-    node = NodeRouter.query.get_or_404(id)
+    node = NodeRouter.query.get(id)
+    if node is None:
+        return render_template('/nodes/not_exist.html', menuid='routers', message=u'路由器不存在，可能已经被删除',title=u'路由器')
     data = [{'label': u'完全故障', 'color': 'red', 'value': 1},
             {'label': u'部分故障', 'color': 'yellow', 'value': 2},
             {'label': u'完全正常', 'color': 'green', 'value': 19},

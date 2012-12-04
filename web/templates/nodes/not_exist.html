@@ -1,0 +1,23 @@
+{% extends 'layout.html' %}
+
+{% block head %}
+    <link rel="stylesheet" href="/static/css/node.css" type="text/css" media="screen" />
+    <script type="text/javascript" src="/static/js/node.js"></script>
+{% endblock %}
+
+{% block content %}
+
+    <div class="row-fluid content">
+        <div class="span2">
+            {% include 'nodes/_sidebar.html' %}
+        </div>
+        <div class="span10">
+            <h5 class="detail-title pull-left"><i class="icon-chevron-down"></i>{{ title }}</h5>
+            <hr class="clear"/>
+            <div class="alert alert-block alert-error" style="text-align:center;">
+                {{ message }}
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

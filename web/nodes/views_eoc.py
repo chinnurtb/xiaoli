@@ -118,7 +118,9 @@ def eocs_delete():
 
 @nodeview.route('/nodes/eocs/<int:id>/', methods=['GET'])
 def eocs_show(id):
-    node = NodeEoc.query.get_or_404(id)
+    node = NodeEoc.query.get(id)
+    if node is None:
+        return render_template('/nodes/not_exist.html', menuid='eocs', message=u'EOC不存在，可能已经被删除',title=u'EOC')
     chartdata = [
             {
             "area": True,

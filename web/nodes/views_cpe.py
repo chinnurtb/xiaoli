@@ -115,7 +115,9 @@ def cpes_delete():
 
 @nodeview.route('/nodes/cpes/<int:id>/', methods=['GET'])
 def cpes_show(id):
-    node = NodeCpe.query.get_or_404(id)
+    node = NodeCpe.query.get(id)
+    if node is None:
+        return render_template('/nodes/not_exist.html', menuid='cpes', message=u'CPE不存在，可能已经被删除',title=u'CPE')
     chartdata = [
             {
             "area": True,
