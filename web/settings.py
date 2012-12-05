@@ -3,7 +3,7 @@
 DEBUG = True
 
 SAFE_ENDPOINTS = ('static', 'users.login', 'users.logout')
-SUPER_USERS = ('root', 'admin')
+SUPER_USERS = ('root', )
 
 SECRET_KEY = 'public'
 
