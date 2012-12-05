@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
 
 DEBUG = True
 
@@ -31,7 +31,7 @@ SQLALCHEMY_POOL_TIMEOUT = 10
 #redis: RedisCache (Werkzeug 0.7 required)
 #filesystem: FileSystemCacheche config
 
-CACHE_TYPE = "redis"
+CACHE_TYPE = "simple"
 
 
 #Optional list to unpack and pass during the cache class instantiation.
