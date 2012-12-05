@@ -8,13 +8,14 @@
 %%% Copyright (C) 2012, www.opengoss.com 
 %%%----------------------------------------------------------------------
 
-%key : {category, ID}
-%key : {vendor, ID}
-%key : {model, ID}
+%key: {category, ID} | {vendor, ID} | {model, ID}
+
+%key: {category, Name} | {vendor, Name} | {model, Name}
+
+%key: {module, Name}
+
 -record(meta, {key,
-               id,
-               name,
-               alias}).
+               val}).
 
 -record(area, {dn,
                id,
@@ -29,12 +30,22 @@
                id,
                ip,
                category, %category
-               parent, 
+               categoryid, %category id
+               vendor, %vendor
+               vendorid, %vendor id
+               model,
+               modelid,
+               parent,
                city,
                cityid,
                name,
                alias,
                area, %area dn
+               areaid,
                tpid, %timeperiod_id
-               attrs}).
+               sysoid,
+               community,
+               write_community,
+               oididx
+               }).
 

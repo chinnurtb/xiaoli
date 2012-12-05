@@ -220,10 +220,9 @@ execute({Dn, Node}) ->
 %%--------------------------------------------------------------------
 discover(node, #node{ip=undefined}) ->
     ignore;
-discover(node, #node{dn=Dn, ip=Ip, attrs=NodeAttrs}) ->
+discover(node, #node{dn=Dn, ip=Ip, community=Community}) ->
 	?INFO("begin to discover ~s", [Ip]),
 
-	Community = to_list(get_value(snmp_comm, NodeAttrs, <<"public">>)),
 	{SnmpStatus, _} = check_snmp:run(to_list(Ip), Community),
 
 	Agent = [{community, Community}],

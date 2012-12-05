@@ -51,14 +51,14 @@ handle_call(Req, _From, State) ->
 
 handle_cast({notify, Oper, Node}, #state{channel = Ch} = State) ->
 	RouteKey = iolist_to_binary(["mit.", atom_to_list(Oper)]),
-	amqp:publish(Ch, "mit.event", {Oper, term_to_binary(Node)}, RouteKey),
+	amqp:publish(Ch, "mit.event", term_to_binary({Oper, Node}), RouteKey),
 	{noreply, State};
 
 handle_cast(Msg, State) ->
-    {stop, {error, {badmsg, Msg}}, State}.
+    {stop, {badmsg, Msg}, State}.
 
 handle_info(Info, State) ->
-    {stop, {error, {badinfo, Info}}, State}.
+    {stop, {badinfo, Info}, State}.
 
 terminate(_Reason, _State) ->
     ok.

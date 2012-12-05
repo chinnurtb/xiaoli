@@ -240,7 +240,7 @@ analyze(event, #event{name = '/Status/Snmp', severity = Severity, sender = Dn} =
 
 analyze(event, #event{name = avail_status, sender = Dn, timestamp = _Ts, vars = Vars}) ->
 	TimeAt = {datetime, {date(), time()}},
-    Res = epgsql:update(main, nodes, [{updated_at, TimeAt}|Vars], {rdn, Dn}),
+    Res = epgsql:update(main, nodes, [{updated_at, TimeAt}|Vars], {dn, Dn}),
     ?INFO("~p", [Res]),
 	ignore;
 
