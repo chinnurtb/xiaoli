@@ -160,6 +160,7 @@ snmp_status_dict = {0: u'未知', 1: u'正常', 2: u'故障'}
 
 class NodeMixin(object):
     id            = db.Column(db.Integer, primary_key=True)
+    dn            = db.Column(db.String(100))
     name          = db.Column(db.String(40))
     alias         = db.Column(db.String(200))
     addr          = db.Column(db.String(20))

@@ -174,11 +174,15 @@ def before_request():
     if current_user:
         if not request.is_xhr:
             g.navbar = navbar
-            g.severities = query_severities() 
+            g.severities = query_severities()
 
-        if current_user.username in current_app.config['SUPER_USERS'] \
+        cur_name = current_user.username
+        if cur_name in current_app.config['SUPER_USERS'] \
            or request.endpoint in current_app.config['SAFE_ENDPOINTS']:
-            return
+            return None
+        if request.endpoint.split('.')[0] == 'admin' \
+           and cur_name not in current_app.config['SUPER_USERS']:
+            abort(404)
         check_permissions()
 
     else:

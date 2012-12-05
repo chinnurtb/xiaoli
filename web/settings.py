@@ -2,8 +2,8 @@
 
 DEBUG = True
 
-SAFE_ENDPOINTS = ('static', 'users.login', 'users.logout')
-SUPER_USERS = ('root', 'admin')
+SAFE_ENDPOINTS = (None, 'static', 'users.login', 'users.logout')
+SUPER_USERS = ('root', )
 
 SECRET_KEY = 'public'
 
@@ -12,6 +12,10 @@ SESSION_COOKIE_NAME = 'xiaoli'
 SQLALCHEMY_DATABASE_URI = 'postgresql://ipon:public@localhost/ipon'
 
 LICENSE_KEY = 'cn=hunan,c=cn'
+
+ERRDB_HOST = '192.168.100.71'
+
+ERRDB_PORT = 7676
 
 #SQLALCHEMY_BINDS = {
 #    'report': 'sqlite://'
