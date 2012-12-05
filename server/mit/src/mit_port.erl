@@ -113,5 +113,5 @@ insert(Tab, #node{dn=Dn, id=NodeId, categoryid=CatId, vendorid=VendorId}, Ports)
     end.
 
 ifdn(Dn, IfIndex) ->
-    iolist_to_binary([Dn, "ifindex=", integer_to_list(IfIndex)]).
+    iolist_to_binary([Dn, ",ifindex=", integer_to_list(IfIndex)]).
 
