@@ -22,7 +22,8 @@ add({boards, Dn, Boards}) ->
     {ok, Node} = mit:lookup(Dn),
     mit_board:insert(Node, Boards);
 
-add({ports, Dn, Ports}) ->
+add({ports, Dn, [Port|_]=Ports}) ->
+    ?INFO("~p", [Port]),
     {ok, Node} = mit:lookup(Dn),
     mit_port:insert(?PORT_TAB, Node, Ports).
 

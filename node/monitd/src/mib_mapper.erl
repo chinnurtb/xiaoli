@@ -753,7 +753,7 @@ intf_mapping(Record) ->
 
 intf_mapping([], Intf) ->
     IfIndex = get_value(ifindex, Intf, 1),
-    {IfIndex, Intf};
+    {IfIndex, lists:keydelete(ifindex, 1, Intf)};
     
 intf_mapping([{'$tableIndex', TabIdx} | Record], Intf) ->
    IfIndex1 =

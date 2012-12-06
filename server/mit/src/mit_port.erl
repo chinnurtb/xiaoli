@@ -2,25 +2,9 @@
 
 -include("mit.hrl").
 
--include_lib("elog/include/elog.hrl").
-
 -import(proplists, [get_value/2]).
 
 -export([insert/3]).
-
--define(FIELDS, [
-    name,
-    alias,
-    ifindex,
-    biztype,
-    iftype,
-    ifspeed,
-    ifphysaddr,
-    ifoperstatus,
-    ifmtu,
-    ifdescr,
-    ifadminstatus
-]).
 
 %ports table
 % dn character varying(100) NOT NULL,
@@ -56,61 +40,19 @@
 % duplex integer,
 
 insert(Tab, #node{dn=Dn, id=NodeId, categoryid=CatId, vendorid=VendorId}, Ports) ->
-    NewIdxList = [IfIndex || {IfIndex, _} <- Ports],
-    %load old ports
-    {ok, Records} = epgsql:select(main, Tab, ?FIELDS, {node_id, NodeId}),
+    {ok, Records} = epgsql:select(main, Tab, {node_id, NodeId}),
     OldPorts = [{get_value(ifindex, R), R} || R <- Records],
-    OldIdxList = [IfIdx || {IfIdx, _} <- OldPorts],
-
-    Now = {datetime, {date(), time()}},
-	{Added, Updated, Deleted} = extlib:list_compare(NewIdxList, OldIdxList),
-    %Added
-    lists:foreach(fun(Idx) -> 
-        Record = [{ifindex, Idx},
-                 {dn, ifdn(Dn, Idx)},
-                 {node_id, NodeId},
-                 {vendor_id, VendorId},
-                 {category_id, CatId}, 
-                 {created_at, Now}
-                 | get_value(Idx, Ports)],
-        case epgsql:insert(main, Tab, Record) of
-        {error, Err} -> 
-            ?ERROR("~p", [Err]),
-            ?ERROR("~p", [Record]);
-        _ -> ok
-        end
-    end, Added),
-
-    %Updated
-    lists:foreach(fun(Idx) -> 
-        NewPort = get_value(Idx, Ports),
-        OldPort = get_value(Idx, OldPorts),
-        Id = get_value(id, OldPort),
-        Changed = NewPort -- OldPort,
-        case Changed of
-        [] -> 
-            ignore;
-        _ ->
-            ?INFO("Port Changed: ~p", [Changed]),
-            case epgsql:update(main, Tab, Changed, {id, Id}) of
-            {error, Err} -> ?ERROR("~p", [Err]);
-            _ -> ok
-            end
-        end
-    end, Updated),
-
-    %Deleted
-    DeletedIds = [get_value(id, get_value(Idx, OldPorts)) || Idx <- Deleted], 
-    case DeletedIds of
-    [] -> 
-        ignore;
-    _ ->
-        ?INFO("deleted ports ~p from ~s", [DeletedIds, Dn]),
-        case epgsql:delete(main, Tab, {'in', id, DeletedIds}) of
-        {error, Err} -> ?ERROR("~p", [Err]);
-        _ -> ok
-        end
-    end.
+    DateTime = {date(), time()},
+    NewFun = fun(Idx, NewPort) ->
+        [{ifindex, Idx},
+         {dn, ifdn(Dn, Idx)},
+         {node_id, NodeId},
+         {vendor_id, VendorId},
+         {category_id, CatId}, 
+         {created_at, {datetime, DateTime}}
+         | NewPort]
+    end,
+    mit_db:merge(Tab, Ports, OldPorts, NewFun).
 
 ifdn(Dn, IfIndex) ->
     iolist_to_binary([Dn, ",ifindex=", integer_to_list(IfIndex)]).

@@ -69,6 +69,7 @@ disco_ports(Dn, Ip, Agent) ->
             {value, IfDescr} = dataset:get_value(ifDescr, Row),
             {value, IfType} = dataset:get_value(ifType, Row),
             {value, IfSpeed} = dataset:get_value(ifSpeed, Row),
+            {value, IfPhysAddress} = dataset:get_value(ifPhysAddress, Row),
             PortType = case string:sub_string(IfDescr, 1, 4) of
                 "gei" ++ _ ->
                     ?GE;
@@ -96,6 +97,7 @@ disco_ports(Dn, Ip, Agent) ->
                 {ifadminstatus, AdminStatus},
                 {ifoperstatus, OperStatus},
                 {ifspeed, IfSpeed},
+                {ifphysaddr, IfPhysAddress},
                 {ifdescr, list_to_binary(IfDescr)}]}
         end, Rows),
         ?INFO("zte port : ~p", [Ports]),
@@ -108,38 +110,10 @@ disco_ports(Dn, Ip, Agent) ->
 disco_onus(Dn, Ip, Agent) ->
     ?INFO("disco olt onus: ~p", [Ip]),
     MibOids = ?zxAnOnu ++ ?slaUp ++ ?slaDown ++ ?onuVerTable ++ ?onuIpTable,
-    case snmp_mapping:get_table(Ip, disco_util:map2oid(MibOids), Agent) of
-    {ok, Rows} ->
-        Onus = lists:map(fun(Row) ->
-            {value, [OnuIdx]} = dataset:get_value('$tableIndex', Row),
-            OidIdx = integer_to_list(OnuIdx),
-		    {value, UserInfo} = dataset:get_value(userinfo, Row),
-            {SlotNo, PortNo, OnuNo} = calc_no(OnuIdx),
-            OnuName = lists:concat([SlotNo, "-", PortNo, "-", OnuNo]),
-            Row1 = transform(lists:keydelete('$tableIndex', 1, Row)),
-			{value, Alias} = dataset:get_value(device_name, Row1),
-            {value, AdminState0} = dataset:get_value(adminstate, Row1),
-            AdminState = disco_util:lookup("zte",<<"all">>,<<"onu">>,<<"admin">>,AdminState0),
-            Row3 = lists:keyreplace(adminstate, 1, Row1, {adminstate, AdminState}),
-		    Row4 = case Name0 of
-                "no description" -> lists:keyreplace(name, 1, Row3, {name, UserInfo});
-     			_ ->
-                    Row3
-			end,
-            {value, OnuType} = dataset:get_value(type, Row4),
-             Row5 = lists:keydelete(type, 1, Row4),
-             Row6 = lists:keydelete(onuModel, 1, Row5),
-			PonId = lists:concat(["1-1-",SlotNo,"-",PortNo]),
-             [{name, OnuName}, {alias, Alias}, {onuidx, OnuIdx}, {oididx, OidIdx},
-             {slot_no, SlotNo}, {port_no, PortNo}, {onu_no, OnuNo},
-             {type, OnuType},{ponid,PonId}| Row6]
-        end, Rows),
-		?INFO("zte onu : ~p", [Onus]),
-        {ok, [{nodes, onu, Dn, Onus}]};
-    {error, Reason} ->
-        ?WARNING("~p", [Reason]),
-        {ok, []}
-    end.
+    OnuTab = mib_record:table(disco_util:map2oid(MibOids), fun onumapping/1),
+    Onus = OnuTab(Ip, Agent),
+    ?INFO("zte onu : ~p", [Onus]),
+    {ok, [{nodes, onu, Dn, Onus}]}.
 
 disco_ont_ports(Dn, Ip, Agent) ->
     case snmp_mapping:get_table(Ip, [?zxAnEponOnuPhyAdminState, ?zxAnEponOnuEthPortLinkState], Agent) of
@@ -187,8 +161,6 @@ get_pstn_port(Dn, Ip, Agent,FeDicts)->
        ?WARNING("~p, ~p", [Ip, Reason]),
         FeDicts
     end.
-
-
 
 transform(Onu) ->
     transform(Onu, []).
@@ -310,3 +282,33 @@ get_slotno_c200(SlotNo) ->
        true ->
          5
      end.
+
+onumapping(Row) ->
+    {value, [OnuIdx]} = dataset:get_value('$tableIndex', Row),
+    OidIdx = integer_to_list(OnuIdx),
+    {value, UserInfo} = dataset:get_value(userinfo, Row),
+    {SlotNo, PortNo, OnuNo} = calc_no(OnuIdx),
+    OnuName = lists:concat([SlotNo, "-", PortNo, "-", OnuNo]),
+    Row1 = transform(lists:keydelete('$tableIndex', 1, Row)),
+    {value, Alias} = dataset:get_value(device_name, Row1),
+    {value, AdminState0} = dataset:get_value(adminstate, Row1),
+    AdminState = disco_util:lookup("zte",<<"all">>,<<"onu">>,<<"admin">>,AdminState0),
+    Row3 = lists:keyreplace(adminstate, 1, Row1, {adminstate, AdminState}),
+    Alias1 =
+    case Alias of
+    "no description" -> UserInfo;
+    _ ->
+        Alias
+    end,
+    {value, OnuType} = dataset:get_value(type, Row3),
+    Row4 = lists:keydelete(type, 1, Row3),
+    Row5 = lists:keydelete(onuModel, 1, Row4),
+    PonId = lists:concat(["1-1-",SlotNo,"-",PortNo]),
+    {OnuIdx, 
+        [{name, binary(OnuName)}, {alias, binary(Alias1)}, 
+        {onuidx, OnuIdx}, {oididx, binary(OidIdx)},
+        {slot_no, SlotNo}, {port_no, PortNo}, {onu_no, OnuNo},
+        {model, binary(OnuType)}, {ponid,PonId} | Row5]}.
+
+binary(L) when is_list(L) -> list_to_binary(L);
+binary(B) when is_binary(B) -> B.

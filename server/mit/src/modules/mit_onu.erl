@@ -18,9 +18,6 @@ load() ->
 load(Dn) ->
     mit_node:load(Dn).
 
-update(Dn, Attrs) ->
-    mit_node:update(?TAB, Dn, Attrs).
-
 add({_, _Dn, []}) ->
     ignore;
 
@@ -28,52 +25,68 @@ add({nodes, Dn, Onus}) ->
     {ok, Node} = mit:lookup(Dn),
     insert(Node, Onus);
 
-add({ports, Dn, Ports}) ->
+add({ports, Dn, [Port|_] = Ports}) ->
+    ?INFO("~p", [Port]),
     {ok, Node} = mit:lookup(Dn),
     mit_port:insert(?PORT_TAB, Node, Ports).
+    
+update(Dn, Attrs) ->
+    mit_node:update(?TAB, Dn, Attrs).
 
-insert(#node{id=OltId, areaid=AreaId, vendorid=VdId}, Onus) ->
-    NewIdxList = [get_value(onuidx, Onu) || Onu <- Onus],
+insert(#node{id=OltId}=Node, Onus) ->
     {ok, Records} = epgsql:select(main, node_onus, {oltid, OltId}),
-    OldOnus = [{get_value(onuidx, R), R} || R <- Records],
-    OldIdxList = [Idx || {Idx, _} <- OldOnus],
+    OldOnus = [{get_value(onuidx, Record), Record} || Record <- Records],
 
-    Now = {datetime, {date(), time()}},
-	{Added, Updated, _Deleted} = extlib:list_compare(NewIdxList, OldIdxList),
+    NewFun = fun(_Idx, Onu) ->
+        enrich(modelid, 
+            enrich(Node, 
+                enrich(time, Onu)))
+    end,
 
-    %Added
-    lists:foreach(fun(Idx) -> 
-        Record = [{oltid, OltId},
-                {controller_id, OltId}, 
-                {category_id, 21},
-                {vendor_id, VdId},
-                {area_id, AreaId},
-                {created_at, Now} | get_value(Idx, Onus)],
-            Res = epgsql:insert(main, node_onus, Record),
-            case Res of
-            {error, Err} -> 
-                ?ERROR("~p", [Err]),
-                ?ERROR("~p", [Record]);
-            _ ->
-                ok
-            end
-    end, Added),
+    mit_db:merge(node_onus, Onus, OldOnus, NewFun, false).
 
-    %Updated
-    lists:foreach(fun(Idx) -> 
-        NewOnu = get_value(Idx, Onus),
-        OldOnu = get_value(Idx, OldOnus),
-        Id = get_value(id, OldOnu),
-        Changed = NewOnu -- OldOnu,
-        case Changed of
-        [] ->
-            ignore;
-        _ ->
-            ?INFO("Port Changed: ~p", [Changed]),
-            case epgsql:update(main, node_onus, Changed, {id, Id}) of
-            {error, Err} -> ?ERROR("~p", [Err]);
-            _ -> ok
-            end
-        end
-    end, Updated).
+
+enrich(#node{dn=OltDn, id=OltId, areaid=AreaId, vendorid=VdId}=Node, Onu) 
+    when is_record(Node, node) -> 
+    VendorId = 
+    case get_value(vendor, Onu) of
+    undefined -> 
+        VdId;
+    Vendor ->
+        mit_meta:vendor(b2a(Vendor))
+    end,
+    [{dn, onudn(OltDn, Onu)},
+    {oltid, OltId},
+    {controller_id, OltId},
+    {category_id, mit_meta:category(onu)},
+    {vendor_id, VendorId},
+    {area_id, AreaId} 
+    | lists:keydelete(vendor, 1, Onu)];
+
+enrich(modelid, Onu) ->
+    Model = get_value(model, Onu),
+    ModelId = modelid(Model, Onu),
+    [{model_id, ModelId} | lists:keydelete(model, 1, Onu)];
+
+enrich(time, Onu) ->
+    [{created_at, {datetime, {date(), time()}}}|Onu].
+
+modelid(undefined, Onu) ->
+    Onu;
+modelid(Model, Onu) ->
+    case mit_meta:model(b2a(Model)) of
+    undefined ->
+        mit_meta:store([{category_id, get_value(categor_id, Onu)},
+                        {vendor_id, get_value(vendor_id, Onu)},
+                        {name, Model}, {alias, Model}]);
+    Id when is_integer(Id) -> 
+        Id
+    end.
+
+b2a(B) when is_binary(B) ->
+    list_to_atom(binary_to_list(B)).
+
+onudn(OltDn, Onu) ->
+    iolist_to_binary([OltDn, ",onu=", 
+        integer_to_list(get_value(onuidx, Onu))]).
 
