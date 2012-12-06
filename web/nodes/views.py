@@ -52,7 +52,7 @@ def area_select():
 
     def make_node(area):
         node = {}
-        node['title'] = area.name
+        node['title'] = area.alias
         node['key'] = str(area.id)
         node['area_type'] = area_type[area.area_type]
         if area.id in area_selected:

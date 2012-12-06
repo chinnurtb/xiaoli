@@ -5,7 +5,9 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy import select, func, and_
 from tango import db
-from datetime import datetime
+from datetime import datetime, timedelta
+import time
+import errdb
 
 #0: 省
 AREA_PROVINCE=0
@@ -363,6 +365,31 @@ class NodeOlt(NodeMixin,db.Model):
     def export_columns():
         return ['status','category.alias','name','alias','addr','area.full_name','vendor.alias','model.alias','mask','snmp_comm','snmp_wcomm','snmp_ver','last_check','location','remark']
 
+    def get_traffic(self):
+        data_ifInOctets,data_ifOutOctets = [] ,[]
+        try:
+            client = errdb.Client(host=db.app.config.get("ERRDB_HOST"), port=db.app.config.get("ERRDB_PORT"))
+            start_time = time.mktime((datetime.now()-timedelta(days=2)).timetuple())
+            data = client.fetch(self.dn+":ping", ['rtmax','rtmax'], start_time, time.time())
+            data_ifInOctets = [{'x':data_dict.keys()[0], 'y': data_dict.values()[0][0]} for data_dict in data ]
+            data_ifOutOctets = [{'x':data_dict.keys()[0], 'y': data_dict.values()[0][1]} for data_dict in data ]
+        except :
+            pass
+        return data_ifInOctets, data_ifOutOctets
+
+    def get_errdb_data(self, key, dn=None):
+        if not dn: dn = self.dn + ":ping"
+        try:
+            client = errdb.Client(host=db.app.config.get("ERRDB_HOST"), port=db.app.config.get("ERRDB_PORT"))
+            start_time = time.mktime((datetime.now()-timedelta(days=2)).timetuple())
+            data = client.fetch(dn, key, start_time, time.time())
+            result = data[-1].values()
+            if len(result) == 0: return None
+            if len(result) == 1:return result[0]
+            return result
+        except :
+            pass
+
 class NodeOnu(NodeMixin,db.Model):
     """ ONU """
     __tablename__ = 'node_onus'
@@ -506,16 +533,16 @@ class Board(db.Model):
     board_type  = db.Column(db.Integer) # 板卡类型
     board_status= db.Column(db.Integer) # 板卡状态
     software_vsn= db.Column(db.String(200)) #软件版本
-    hardware_vsn= db.Column(db.String(200)) #硬件版本
+    hardversion= db.Column(db.String(200)) #硬件版本
     fpga_vsn    = db.Column(db.String(100)) #FPGA版本
     cpld_vsn    = db.Column(db.String(100)) #CPLD版本
     max_ports   = db.Column(db.Integer) # 端口数量
-    admin_status= db.Column(db.Integer) # 管理状态
-    oper_status = db.Column(db.Integer) # 运行状态
-    standby_status  = db.Column(db.Integer) #主备状态
-    lock_status = db.Column(db.Integer) # 锁状态
-    cpu_load    = db.Column(db.Integer) # CPU负载
-    mem_usage   = db.Column(db.Integer) # 内存占用
+    adminstatus= db.Column(db.Integer) # 管理状态
+    operstatus = db.Column(db.Integer) # 运行状态
+    standbystatus  = db.Column(db.Integer) #主备状态
+    lockstatus = db.Column(db.Integer) # 锁状态
+    cpuload    = db.Column(db.Integer) # CPU负载
+    memusage   = db.Column(db.Integer) # 内存占用
     temperature = db.Column(db.Integer) # 温度
     serial_no   = db.Column(db.String(100)) # 序列号
     uptime      = db.Column(db.Integer) # 运行时间
@@ -541,7 +568,7 @@ class PortMixin(object):
     alias       = db.Column(db.String(40))
     board_id    = db.Column(db.Integer)
     # 业务端口类型，   1.FE  2.GE  3.PON  4.POTS  5.DSL  6.E1  7.SDH  8.RF  9.VI  10.AGGREGATION
-    biz_type    = db.Column(db.Integer)
+    biztype    = db.Column(db.Integer)
     ifindex     = db.Column(db.Integer) # 端口索引
     ifdescr     = db.Column(db.String(100)) # 端口名称
     iftype      = db.Column(db.Integer) # 端口物理类型

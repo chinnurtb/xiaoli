@@ -391,7 +391,7 @@ def domains_load_nodes():
 
     def make_node(area):
         node = {}
-        node['title'] = area.name
+        node['title'] = area.alias
         node['key'] = str(area.id)
         if area.id in domain_areas:
             node['select'] = True
