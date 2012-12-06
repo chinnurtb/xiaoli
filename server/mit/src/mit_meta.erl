@@ -16,71 +16,79 @@
 -import(proplists, [get_value/2]).
 
 -export([start_link/0,
-         lookup/1]).
+         category/1,
+         vendor/1,
+         model/1,
+         module/1]).
 
 -behavior(gen_server).
 
 %%callback
--export([init/1, 
-        handle_call/3, 
-        handle_cast/2, 
-        handle_info/2, 
-        terminate/2, 
-        code_change/3 ]).
+-export([init/1,
+        handle_call/3,
+        handle_cast/2,
+        handle_info/2,
+        terminate/2,
+        code_change/3]).
 
-%%--------------------------------------------------------------------
-%% Function: start_link() -> {ok,Pid} | ignore | {error,Error}
-%% Description: Starts the server
-%%--------------------------------------------------------------------
 start_link() ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
 
-lookup(Key) when is_tuple(Key) ->
-    [Meta] = mnesia:dirty_read(mit_meta, Key),
-    Meta.
+category(Id) when is_integer(Id) -> 
+    lookup({category, Id});
+category(Name) when is_atom(Name) ->
+    lookup({category, Name}).
 
-%%--------------------------------------------------------------------
-%% Function: init(Args) -> {ok, State} |
-%%                         {ok, State, Timeout} |
-%%                         ignore               |
-%%                         {stop, Reason}
-%% Description: Initiates the server
-%%--------------------------------------------------------------------
+vendor(Id) when is_integer(Id) ->
+    lookup({vendor, Id});
+vendor(Name) when is_atom(Name) ->
+    lookup({vendor, Name}).
+
+model(Id) when is_integer(Id) ->
+    lookup({model, Id});
+model(Name) when is_atom(Name) ->
+    lookup({model, Name}).
+
+module(Name) when is_atom(Name) ->
+    lookup({module, Name}).
+
+lookup(Key) ->
+    case mnesia:dirty_read(meta, Key) of
+    [Meta] -> Meta#meta.val;
+    [] -> undefined
+    end.
+
 init([]) ->
     case mit:mode() of
     master -> %master node
         mnesia:create_table(meta, [{ram_copies, [node()]}, 
             {attributes, record_info(fields, meta)}]),
+        {ok, Modules} = application:get_env(modules),
+        [mnesia:dirty_write(#meta{key={module, Cat}, val=Mod})
+            || {Cat, Mod} <- Modules],
         handle_info(reload, state);
     slave -> %slave node
         ok
     end,
     mnesia:add_table_copy(meta, node(), ram_copies),
-    ?INFO_MSG("mit_meta is started."),
+    ?INFO_MSG("mit_meta is started...[ok]"),
     {ok, state}.
 
 handle_call(Req, _From, State) ->
-    {stop, {error, {badreq, Req}}, State}.
+    {stop, {badreq, Req}, State}.
 
 handle_cast(Msg, State) ->
-    {stop, {error, {badmsg, Msg}}, State}.
+    {stop, {badmsg, Msg}, State}.
 
 handle_info(reload, State) ->
-    {ok, Categories} = epgsql:select(main, categories, 
-        [id, name, alias], {'and', {obj, "node"}, {is_valid, 1}}), 
-    {ok, Vendors} = epgsql:select(main, vendors,
-        [id, name, alias], {is_valid, 1}),
-    {ok, Models} = epgsql:select(main, models,
-        [id, name, alias], {is_valid, 1}),
-    MetaList = [meta(category, Cat) || Cat <- Categories] ++
-               [meta(vendor, Vendor) || Vendor <- Vendors] ++
-               [meta(model, Model) || Model <- Models],
-	[mnesia:dirty_write(Meta) || Meta <- MetaList],
+    [cache(category, Cat) || Cat <- load(category)],
+    [cache(vendor, Vendor) || Vendor <- load(vendor)],
+    [cache(model, Model) || Model <- load(model)],
     erlang:send_after(600*1000, self(), reload),
     {noreply, State};
 
 handle_info(Info, State) ->
-    {stop, {error, {badinfo, Info}}, State}.
+    {stop, {badinfo, Info}, State}.
 
 terminate(_Reason, _State) ->
     ok.
@@ -88,10 +96,25 @@ terminate(_Reason, _State) ->
 code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
 
-meta(Type, Record) ->
-    Id = get_value(id, Record),
-    Name = get_value(name, Record),
-    Alias = get_value(alias, Record),
-    #meta{key={Type, Id}, name = Name, alias = Alias}.
+load(category) ->
+    {ok, Categories} = epgsql:select(main, categories, [id, name],
+        {'and', {obj, "node"}, {is_valid, 1}}), 
+    Categories;
 
+load(vendor) ->
+    {ok, Vendors} = epgsql:select(main, vendors, [id, name], {is_valid, 1}),
+    Vendors;
+
+load(model) ->
+    {ok, Models} = epgsql:select(main, models, [id, name], {is_valid, 1}),
+    Models.
+
+cache(Type, Record) ->
+    Id = get_value(id, Record),
+    Name = b2a(get_value(name, Record)),
+    mnesia:dirty_write(#meta{key={Type, Id}, val=Name}),
+    mnesia:dirty_write(#meta{key={Type, Name}, val=Id}).
+
+b2a(B) when is_binary(B) ->
+    list_to_atom(binary_to_list(B)).
 

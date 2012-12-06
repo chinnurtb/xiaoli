@@ -1,7 +1,7 @@
 # coding: utf-8
 
-from sqlalchemy import func
-from flask import Blueprint, request, url_for, redirect, render_template, flash, current_app
+from flask import Blueprint, request, url_for, redirect, render_template, \
+    flash, current_app, abort
 
 from tango import db
 from tango.ui.tables import make_table
@@ -851,9 +851,12 @@ def monitors_delete_all():
 # ==============================================================================    
 @adminview.route('/miboids/')
 @adminview.route('/miboids/<mib>')
-def miboids(mib='mib1'):
+def miboids(mib=None):
     form = SearchForm(formdata=request.args)
     cls, table_cls = Miboid, MiboidTable
+    mib = cls.query.first().mib if not mib else mib
+    if not mib:
+        abort(404)
     query = cls.query.filter_by(mib=mib)
     
     if form.keyword.data:

@@ -24,11 +24,10 @@
 run(#node{ip=undefined}, _Args) ->
     ignore;
 
-run(#node{attrs=Attrs}=Node, Args) ->
+run(#node{community=Community}=Node, Args) ->
 	Ts = extbif:timestamp(),
 	Ip = Node#node.ip, 
 	Dn = Node#node.dn,
-    Community = get_value(snmp_comm, Attrs, <<"public">>),
     {PingStatus, PingSummary} = check_ping(Ip),
     {SnmpStatus, SnmpSummary} = check_snmp(Ip, Community),
 	AvailStatus = avail_status(PingStatus, SnmpStatus),

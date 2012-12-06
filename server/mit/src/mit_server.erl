@@ -9,13 +9,13 @@
 %%%----------------------------------------------------------------------
 -module(mit_server).
 
--author('ery.lee@gmail.com').
-
 -include("mit.hrl").
 
 -include_lib("elog/include/elog.hrl").
 
--export([start_link/0, emit/1, stop/0]).
+-import(proplists, [get_value/2]).
+
+-export([start_link/0, emit/1]).
 
 -behavior(gen_server).
 
@@ -29,59 +29,49 @@
 
 -record(state, {channel}).
 
+%Rdn or Dn? whats' the fuck?
+
+
 start_link() ->
     gen_server2:start_link({local, ?MODULE}, ?MODULE, [], []).
 
 emit(Event) ->
 	gen_server2:cast(?MODULE, {emit, Event}).
 
-stop() ->
-    gen_server2:call(?MODULE, stop).
-
 init([]) ->
-    process_flag(trap_exit, true),
 	{ok, Conn} = amqp:connect(),
     Channel = open(Conn),
-    ?INFO_MSG("mit_server is started."),
+    ?INFO_MSG("mit_server is started...[ok]"),
     {ok, #state{channel = Channel}}.
 
 open(C) ->
 	{ok, Channel} = amqp:open_channel(C),
-    {ok, MitQ} = amqp:queue(Channel, atom_to_list(node())),
+    {ok, Queue} = amqp:queue(Channel, atom_to_list(node())),
     amqp:topic(Channel, "mit.server"),
-    amqp:bind(Channel, "mit.server", MitQ, "#"),
-	amqp:consume(Channel, MitQ),
+    amqp:bind(Channel, "mit.server", Queue, "#"),
+	amqp:consume(Channel, Queue),
 	Channel.
 
-handle_call(stop, _From, State) ->
-    {stop, normal, ok, State};
-
 handle_call(Req, _From, State) ->
-    {stop, {error, {badreq, Req}}, State}.
+    {stop, {badreq, Req}, State}.
 
 handle_cast({emit, Event}, #state{channel = Channel} = State) ->
-    amqp:send(Channel, <<"event">>, term_to_binary(Event)),
+	amqp:publish(Channel, <<"eva.event">>, term_to_binary(Event), "event"),
     {noreply, State};
 
 handle_cast(Msg, State) ->
-    {stop, {error, {badmsg, Msg}}, State}.
+    {stop, {badmsg, Msg}, State}.
 
-%%--------------------------------------------------------------------
-%% Function: handle_info(Info, State) -> {noreply, State} |
-%%                                       {noreply, State, Timeout} |
-%%                                       {stop, Reason, State}
-%% Description: Handling all non call/cast messages
-%%--------------------------------------------------------------------
-handle_info({deliver, <<"node">>, _, Payload}, State) ->
-    store(binary_to_term(Payload)),
-    {noreply, State};
-
-handle_info({deliver, <<"board">>, _, Payload}, State) ->
-    store(binary_to_term(Payload)),
-    {noreply, State};
-
-handle_info({deliver, <<"port">>, _, Payload}, State) ->
-    store(binary_to_term(Payload)),
+handle_info({deliver, _RoutingKey, _, Payload}, State) ->
+    Fun = fun() ->
+        try store(binary_to_term(Payload))
+        catch
+        _:Err -> 
+            ?ERROR("~p", [Err]),
+            ?ERROR("~p", [erlang:get_stacktrace()])
+        end 
+    end,
+    worker_pool:submit(Fun),
     {noreply, State};
 
 handle_info({amqp, disconnected}, State) ->
@@ -91,7 +81,7 @@ handle_info({amqp, reconnected, Conn}, State) ->
 	{noreply, State#state{channel = open(Conn)}};
 
 handle_info(Info, State) ->
-    {stop, {error, {badinfo, Info}}, State}.
+    {stop, {badinfo, Info}, State}.
 
 terminate(_Reason, _State) ->
 	ok.
@@ -99,7 +89,26 @@ terminate(_Reason, _State) ->
 code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
 
-store(Data) ->
-    ?INFO("~p", [Data]).
+%olt, router, switch
+store({node, Cat, Dn, Attrs}) ->
+    Mod = mit_meta:module(Cat),
+    Mod:update(Dn, Attrs);
+
+store({nodes, Cat, Dn, List}) ->
+    Mod = mit_meta:module(Cat),
+    Mod:add({nodes, Dn, List});
+
+%boards
+store({boards, Cat, Dn, Boards}) ->
+    Mod = mit_meta:module(Cat),
+    Mod:add({boards, Dn, Boards});
+
+%ports
+store({ports, Cat, Dn, Ports}) ->
+    Mod = mit_meta:module(Cat),
+    Mod:add({ports, Dn, Ports});
+
+store(BadTerm) ->
+    ?ERROR("badterm: ~n~p", [BadTerm]).
 
 

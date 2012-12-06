@@ -11,7 +11,12 @@
         to_string/1,
         lists_delete_null/1,
         is_digit/1,
-        map2oid/1]).
+        map2oid/1,
+        ifdn/2]).
+
+ifdn(Dn, IfIndex) ->
+    iolist_to_binary([Dn, ",ifindex=", integer_to_list(IfIndex)]).
+    
 
 map2oid(MibItems) ->
     lists:map(fun({Name, Oid}) ->

@@ -56,13 +56,17 @@ emit(Chan, node, Data) ->
 	amqp:publish(Chan, <<"mit.server">>,
         term_to_binary(Data), "node");
 
-emit(Chan, board, Data) ->
-    amqp:publish(Chan, <<"mit.server">>,
-        term_to_binary(Data), "board");
+emit(Chan, nodes, Data) ->
+	amqp:publish(Chan, <<"mit.server">>,
+        term_to_binary(Data), "nodes");
 
-emit(Chan, port, Data) ->
+emit(Chan, boards, Data) ->
     amqp:publish(Chan, <<"mit.server">>,
-        term_to_binary(Data), "port");
+        term_to_binary(Data), "boards");
+
+emit(Chan, ports, Data) ->
+    amqp:publish(Chan, <<"mit.server">>,
+        term_to_binary(Data), "ports");
 
 emit(Chan, event, #event{name = Name} = Event) ->
 	amqp:publish(Chan, <<"eva.event">>,

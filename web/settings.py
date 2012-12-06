@@ -1,9 +1,9 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
 
 DEBUG = True
 
-SAFE_ENDPOINTS = ('static', 'users.login', 'users.logout')
-SUPER_USERS = ('root', 'admin')
+SAFE_ENDPOINTS = (None, 'static', 'users.login', 'users.logout')
+SUPER_USERS = ('root', )
 
 SECRET_KEY = 'public'
 
@@ -35,7 +35,7 @@ SQLALCHEMY_POOL_TIMEOUT = 10
 #redis: RedisCache (Werkzeug 0.7 required)
 #filesystem: FileSystemCacheche config
 
-CACHE_TYPE = "redis"
+CACHE_TYPE = "simple"
 
 
 #Optional list to unpack and pass during the cache class instantiation.
