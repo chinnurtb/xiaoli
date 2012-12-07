@@ -21,6 +21,8 @@
          model/1,
          module/1]).
 
+-export([store/1]).
+
 -behavior(gen_server).
 
 %%callback
@@ -58,6 +60,10 @@ lookup(Key) ->
     [] -> undefined
     end.
 
+%ONLY Model?
+store(Model) ->
+    gen_server:call(?MODULE, {store, Model}).
+
 init([]) ->
     case mit:mode() of
     master -> %master node
@@ -73,6 +79,21 @@ init([]) ->
     mnesia:add_table_copy(meta, node(), ram_copies),
     ?INFO_MSG("mit_meta is started...[ok]"),
     {ok, state}.
+
+handle_call({store, Model}, _From, State) ->
+    Reply =
+    case model(b2a(get_value(name, Model))) of
+    ModId when is_integer(ModId) -> 
+        ModId;
+    undefined ->
+        Id = next_modid(),
+        Record = [{id, Id}, {is_valid, 1} | Model],
+        case epgsql:insert(main, models, Record) of
+        {error, _} -> undefined;
+        _ -> cache(model, Record), Id
+        end
+    end,
+    {reply, Reply, State};
 
 handle_call(Req, _From, State) ->
     {stop, {badreq, Req}, State}.
@@ -114,6 +135,11 @@ cache(Type, Record) ->
     Name = b2a(get_value(name, Record)),
     mnesia:dirty_write(#meta{key={Type, Id}, val=Name}),
     mnesia:dirty_write(#meta{key={Type, Name}, val=Id}).
+
+next_modid() ->
+    {ok,[Next]} = epgsql:squery(main, "select nextval('models_id_seq');"),
+    get_value(nextval, Next).
+
 
 b2a(B) when is_binary(B) ->
     list_to_atom(binary_to_list(B)).

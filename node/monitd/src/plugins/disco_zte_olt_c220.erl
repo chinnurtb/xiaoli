@@ -15,6 +15,7 @@
 -define(GPON, "gpon").
 
 -import(extbif, [to_list/1]).
+-import(proplists, [get_value/2]).
 
 -export([disco/4, disco_onus/3, calc_no/1]).
 
@@ -118,7 +119,7 @@ disco_onus(Dn, Ip, AgentData) ->
             {SlotNo, PortNo, OnuNo} = calc_no_zte(OnuIdx),
             PonId = lists:concat(["1-1-",SlotNo,"-",PortNo]),
             Key = lists:concat(["1-1-",SlotNo,"-",PortNo,"-",OnuNo]),
-            OnuAttr = case sesnmp:get_entry(Ip, disco_util:map2oid(?zxAnOnu), [Idx], AgentData) of
+            OnuAttr = case sesnmp:get_entry(Ip, disco_util:map2oid(?zxAnOnu), [OnuIdx], AgentData) of
                         {ok, Data} ->
                             NewRow = Data ++ Row,
                             [{slot_no, SlotNo}, {port_no, PortNo},{onu_no, OnuNo},
@@ -145,7 +146,7 @@ disco_onus(Dn, Ip, AgentData) ->
                                     ?WARNING("~p", [Reason2]),
                                     {[],Dicts}
                                 end,
-        Onus =  [ Onu || {_,Onu}<- dict:to_list(EntryDicts),filter(Onu)],
+        Onus =  [{get_value(onuidx, Onu), Onu} || {_,Onu}<- dict:to_list(EntryDicts),filter(Onu)],
         ?INFO("zte onu : ~p", [Onus]),
 	   {ok, [{nodes, onu, Dn, Onus}]};
     {error, Reason} ->
@@ -181,13 +182,13 @@ transform([{adminstate, Status}| T], Acc) ->
 transform([{authmacsn, AuthMacSN}|T], Acc) ->
         transform(T, [{vendor, <<"zte">>},{authmacsn, AuthMacSN} | Acc]);
 transform([{macaddr, MacAddr}|T], Acc) ->
-    transform(T, [{mac, to_mac_str(MacAddr)} | Acc]);
+    transform(T, [{mac, mib_formatter:mac(MacAddr)} | Acc]);
 transform([{authmacaddr, AuthMac}|T], Acc) ->
-    transform(T, [{authmacaddr, to_mac_str(AuthMac)}|Acc]);
+    transform(T, [{authmacaddr, mib_formatter:mac(AuthMac)}|Acc]);
 transform([{registermacaddress, RegMac}|T], Acc) ->
     transform(T, [{registermacaddress, to_mac_str(RegMac)}|Acc]);
 transform([{type, Value}|T], Acc) ->
-    transform(T, [{type, Value}|Acc]);
+    transform(T, [{model, binary(Value)}|Acc]);
 transform([{loid, Value}|T], Acc) ->
     transform(T, [{loid, Value}|Acc]);
 transform([{userinfo, Value}|T], Acc) ->
@@ -278,3 +279,5 @@ get_slotno_c220(SlotNo) ->
          0
      end.
 
+binary(L) when is_list(L) -> list_to_binary(L);
+binary(B) when is_binary(B) -> B.
