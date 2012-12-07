@@ -57,11 +57,11 @@
               </tr>
               <tr>
                 <td width="17.5%" scope="col">确认用户:</td><td>{{alarm.acked_user}}</td>
-                <td width="17.5%" scope="col">确认时间:</td><td>{{alarm.acked_time}}</td>
+                <td width="17.5%" scope="col">确认时间:</td><td>{{alarm.acked_time|datetimeformat}}</td>
               </tr>
               <tr>
                 <td width="17.5%" scope="col">清除用户:</td><td>{{alarm.cleared_user}}</td>
-                <td width="17.5%" scope="col">清除时间:</td><td>{{alarm.cleared_time}}</td>
+                <td width="17.5%" scope="col">清除时间:</td><td>{{alarm.cleared_time|datetimeformat}}</td>
               </tr>
               <tr>
                 <td width="17.5%" scope="col">可能原因:</td><td>{{alarm.probable_cause}}</td>
