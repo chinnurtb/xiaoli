@@ -87,7 +87,7 @@ class IntfUsageTable(t.Table, NodeMixin):
 class IntfTrafficTable(t.Table, NodeMixin):
     helpdoc = u'端口流量'
 
-    node_alias      = t.Column(u'节点', accessor='node.alias')
+    node_alias      = t.Column(u'节点别名', accessor='node.alias')
     intf_alias      = t.Column(u'端口', accessor='intf.alias')
     sampletime      = t.Column(u'时间')
 
@@ -139,7 +139,7 @@ class PonUsageTable(t.Table):
 class PonPowerTable(t.Table):
     helpdoc         = u'PON口光功率'
 
-    node_alias      = t.Column(u'节点', accessor='node.alias')
+    node_alias      = t.Column(u'节点别名', accessor='node.alias')
     intf_alias      = t.Column(u'PON口', accessor='intf.alias')
     sampletime      = t.Column(u'时间')
 
