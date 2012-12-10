@@ -343,6 +343,7 @@ def branches_new():
     form = BranchNewForm()
     if request.method == 'POST' and form.validate_on_submit():
         area = Area()
+        del form._fields["cityid"]
         form.populate_obj(area)
         if Area.query.filter(Area.area_type==3).filter(Area.name==area.name).count() > 0:
             flash(u'分局名称不能重复','error')
@@ -399,6 +400,8 @@ def entrances_new():
     form = EntranceNewForm()
     if request.method == 'POST' and form.validate_on_submit():
         area = Area()
+        del form._fields["cityid"]
+        del form._fields["town"]
         form.populate_obj(area)
         if Area.query.filter(Area.area_type==4).filter(Area.name==area.name).count() > 0:
             flash(u'接入点名称不能重复','error')

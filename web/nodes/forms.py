@@ -37,9 +37,9 @@ class NodeSearchForm(FormPro):
         list_display = ('area','category_id','vendor_id','model_id')
 
 class OltNewForm(FormPro):
-    cityid          = SelectFieldPro(u'所属地市', validators=[required(message=u'必填')],
+    cityid          = SelectFieldPro(u'所属地市',
         choices=lambda: [('', u'请选择地市')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==1).filter(Area.id.in_(current_user.domain.area_ids(1)))])
-    town         = SelectFieldPro(u'', validators=[required(message=u'必填')],
+    town         = SelectFieldPro(u'',
         choices=lambda: [('', u'请选择区县')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==2).filter(Area.id.in_(current_user.domain.area_ids(2)))])
     area_id         = SelectFieldPro(u'所属区域', validators=[required(message=u'必填')],
         choices=lambda: [('', u'请选择分局')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==3).filter(Area.id.in_(current_user.domain.area_ids(3)))])
@@ -59,9 +59,9 @@ class OltNewForm(FormPro):
     remark          = TextAreaField(u'备注信息')
 
 class EocNewForm(FormPro):
-    cityid          = SelectFieldPro(u'所属地市', validators=[required(message=u'必填')],
+    cityid          = SelectFieldPro(u'所属地市',
         choices=lambda: [('', u'请选择地市')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==1).filter(Area.id.in_(current_user.domain.area_ids(1)))])
-    town         = SelectFieldPro(u'', validators=[required(message=u'必填')],
+    town         = SelectFieldPro(u'',
         choices=lambda: [('', u'请选择区县')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==2).filter(Area.id.in_(current_user.domain.area_ids(2)))])
     area_id         = SelectFieldPro(u'所属区域', validators=[required(message=u'必填')],
         choices=lambda: [('', u'请选择分局')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==3).filter(Area.id.in_(current_user.domain.area_ids(3)))])
@@ -105,9 +105,9 @@ class CpeNewForm(FormPro):
     remark          = TextAreaField(u'备注信息')
 
 class SwitchNewForm(FormPro):
-    cityid          = SelectFieldPro(u'所属地市', validators=[required(message=u'必填')],
+    cityid          = SelectFieldPro(u'所属地市',
         choices=lambda: [('', u'请选择地市')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==1).filter(Area.id.in_(current_user.domain.area_ids(1)))])
-    town         = SelectFieldPro(u'', validators=[required(message=u'必填')],
+    town         = SelectFieldPro(u'',
         choices=lambda: [('', u'请选择区县')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==2).filter(Area.id.in_(current_user.domain.area_ids(2)))])
     area_id         = SelectFieldPro(u'所属区域', validators=[required(message=u'必填')],
         choices=lambda: [('', u'请选择接入点')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==4).filter(Area.id.in_(current_user.domain.area_ids(4)))])
@@ -123,9 +123,9 @@ class SwitchNewForm(FormPro):
     remark          = TextAreaField(u'备注信息')
 
 class RouterNewForm(FormPro):
-    cityid          = SelectFieldPro(u'所属地市', validators=[required(message=u'必填')],
+    cityid          = SelectFieldPro(u'所属地市',
         choices=lambda: [('', u'请选择地市')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==1).filter(Area.id.in_(current_user.domain.area_ids(1)))])
-    town         = SelectFieldPro(u'', validators=[required(message=u'必填')],
+    town         = SelectFieldPro(u'',
         choices=lambda: [('', u'请选择区县')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==2).filter(Area.id.in_(current_user.domain.area_ids(2)))])
     area_id         = SelectFieldPro(u'所属区域', validators=[required(message=u'必填')],
         choices=lambda: [('', u'请选择接入点')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==4).filter(Area.id.in_(current_user.domain.area_ids(4)))])
@@ -241,7 +241,7 @@ class TownNewForm(FormPro):
     remark          = TextAreaField(u'备注')
 
 class BranchNewForm(FormPro):
-    cityid          = SelectFieldPro(u'所属地市', validators=[required(message=u'必填')],
+    cityid          = SelectFieldPro(u'所属地市',
         choices=lambda: [('', u'请选择地市')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==1).filter(Area.id.in_(current_user.domain.area_ids(1)))])
     parent_id       = SelectFieldPro(u'所属区县', validators=[required(message=u'必填')],
         choices=lambda: [('', u'请选择区县')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==2).filter(Area.id.in_(current_user.domain.area_ids(2)))])
@@ -252,9 +252,9 @@ class BranchNewForm(FormPro):
     remark          = TextAreaField(u'备注')
 
 class EntranceNewForm(FormPro):
-    cityid          = SelectFieldPro(u'所属地市', validators=[required(message=u'必填')],
+    cityid          = SelectFieldPro(u'所属地市',
         choices=lambda: [('', u'请选择地市')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==1).filter(Area.id.in_(current_user.domain.area_ids(1)))])
-    town            = SelectFieldPro(u'所属区县', validators=[required(message=u'必填')],
+    town            = SelectFieldPro(u'所属区县',
         choices=lambda: [('', u'请选择区县')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==2).filter(Area.id.in_(current_user.domain.area_ids(2)))])
     parent_id       = SelectFieldPro(u'所属分局', validators=[required(message=u'必填')],
         choices=lambda: [('', u'请选择分局')] + [(unicode(r.id), r.alias) for r in Area.query.filter(Area.area_type==3).filter(Area.id.in_(current_user.domain.area_ids(3)))])
