@@ -90,7 +90,7 @@
                         <tbody>
                         {% for journal in alarm.journals %}
                         <tr>
-                            <td width="20%">{{journal.created_at}}</td>
+                            <td width="20%">{{journal.created_at|datetimeformat}}</td>
                             <td>{{journal.user.name}}</td>
                             <td>{{journal.title}} </td>
                             <td>{{journal.summary}} </td>
