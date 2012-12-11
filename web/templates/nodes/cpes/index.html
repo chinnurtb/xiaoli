@@ -1,6 +1,10 @@
 {% extends 'layout.html' %}
 
 {% block head %}
+    {% from "tango/_table_h.html" import render_table_profile %}
+    <script type="text/javascript">
+        {{ render_table_profile(table) }}
+    </script>
     {{ form.media.render() }}
     <link rel="stylesheet" href="/static/css/node.css" type="text/css" media="screen" />
     <script type="text/javascript" src="/static/js/node.js"></script>
