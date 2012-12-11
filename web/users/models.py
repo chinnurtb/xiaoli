@@ -123,28 +123,22 @@ class Domain(db.Model):
     def dump_areas(self, domain_areas):
         domain_areas = [int(area_id) for area_id in domain_areas.split(',') if area_id]
         areas = [Area.query.get(id) for id in domain_areas]
-        province_list = []
-        city_list = []
-        town_list = []
-        branch_list = []
-        entrance_list = []
-        area_list = { AREA_PROVINCE : province_list,
-                      AREA_CITY     : city_list,
-                      AREA_TOWN     : town_list,
-                      AREA_BRANCH   : branch_list,
-                      AREA_ENTRANCE : entrance_list}
+        province_list, city_list, town_list, branch_list, entrance_list = [], [], [], [], []
+        
+        area_types = (AREA_PROVINCE, AREA_CITY, AREA_TOWN, AREA_BRANCH, AREA_ENTRANCE)
+        lists      = (province_list, city_list, town_list, branch_list, entrance_list)
+        area_list = dict(zip(area_types, lists))
         
         for area in areas:
-            if area.area_type in (AREA_PROVINCE, AREA_CITY, AREA_TOWN,
-                                  AREA_BRANCH, AREA_ENTRANCE):
+            if area.area_type in area_types:
                 area_list[area.area_type].append(str(area.id))
-            
-        self.province_list = (',').join(province_list)
-        self.city_list = (',').join(city_list)
-        self.town_list = (',').join(town_list)
-        self.branch_list = (',').join(branch_list)
-        self.entrance_list = (',').join(entrance_list)
 
+        attr_names = ('province_list', 'city_list', 'town_list',
+                      'branch_list', 'entrance_list')
+        for attr_name, lst in zip(attr_names, lists):
+            setattr(self, attr_name, ','.join(lst))
+
+            
     def load_areas(self):
         domain_areas = []
         for lst in (self.province_list, self.city_list, self.town_list,
