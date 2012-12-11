@@ -141,13 +141,15 @@ class AlarmSeverity(db.Model):
     
     @staticmethod
     def name2id(name):
-        if name == 'clear': return 0
-        if name == 'indeterminate': return 1
-        if name == 'warning': return 2
-        if name == 'minor': return 3
-        if name == 'major': return 4
-        if name == 'critical': return 5
-        return -1
+        name_dict = {
+            'clear'         : 0,
+            'indeterminate' : 1,
+            'warning'       : 2,
+            'minor'         : 3,
+            'major'         : 4,
+            'critical'      : 5
+        }
+        return name_dict[name] if name in name_dict else -1
 
     def __repr__(self):
         return '<Severity%r>' % self.name

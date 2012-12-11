@@ -7,7 +7,7 @@ from hashlib import md5
 from tango import db
 from tango.login import UserMixin
 from tango.base import AutoIncrSortedDict
-from nodes.models import Area, AREA_CITY, AREA_TOWN, AREA_BRANCH, AREA_ENTRANCE
+from nodes.models import Area, AREA_PROVINCE, AREA_CITY, AREA_TOWN, AREA_BRANCH, AREA_ENTRANCE
 
 from datetime import datetime
 
@@ -108,6 +108,7 @@ class Domain(db.Model):
     
     id            = db.Column(db.Integer, primary_key=True)
     name          = db.Column(db.String(50), nullable=False, unique=True)  
+    province_list = db.Column(db.String(100))
     city_list     = db.Column(db.String(100))
     town_list	  = db.Column(db.String(200))
     branch_list	  = db.Column(db.String(300))
@@ -122,32 +123,39 @@ class Domain(db.Model):
     def dump_areas(self, domain_areas):
         domain_areas = [int(area_id) for area_id in domain_areas.split(',') if area_id]
         areas = [Area.query.get(id) for id in domain_areas]
+        province_list = []
         city_list = []
         town_list = []
         branch_list = []
         entrance_list = []
-        area_list = { AREA_CITY: city_list,
-                      AREA_TOWN: town_list,
-                      AREA_BRANCH: branch_list,
-                      AREA_ENTRANCE: entrance_list}
+        area_list = { AREA_PROVINCE : province_list,
+                      AREA_CITY     : city_list,
+                      AREA_TOWN     : town_list,
+                      AREA_BRANCH   : branch_list,
+                      AREA_ENTRANCE : entrance_list}
+        
         for area in areas:
-            if area.area_type in (AREA_CITY, AREA_TOWN, AREA_BRANCH, AREA_ENTRANCE):
+            if area.area_type in (AREA_PROVINCE, AREA_CITY, AREA_TOWN,
+                                  AREA_BRANCH, AREA_ENTRANCE):
                 area_list[area.area_type].append(str(area.id))
-        if city_list: self.city_list = (',').join(city_list)
-        if town_list: self.town_list = (',').join(town_list)
-        if branch_list: self.branch_list = (',').join(branch_list)
-        if entrance_list: self.entrance_list = (',').join(entrance_list)
+            
+        self.province_list = (',').join(province_list)
+        self.city_list = (',').join(city_list)
+        self.town_list = (',').join(town_list)
+        self.branch_list = (',').join(branch_list)
+        self.entrance_list = (',').join(entrance_list)
 
     def load_areas(self):
         domain_areas = []
-        if self.city_list: domain_areas.extend(self.city_list.split(','))
-        if self.town_list: domain_areas.extend(self.town_list.split(','))
-        if self.branch_list: domain_areas.extend(self.branch_list.split(','))
-        if self.entrance_list: domain_areas.extend(self.entrance_list.split(','))
+        for lst in (self.province_list, self.city_list, self.town_list,
+                    self.branch_list, self.entrance_list):
+            if lst: domain_areas.extend(lst.split(','))
         return domain_areas
 
     def area_ids(self, area_type=0):
         ids = []
+        if self.province_list:
+            ids.extend([int(i) for i in self.province_list.split(',')])
         if self.city_list:
             areas = Area.query.filter(Area.cityid.in_(self.city_list.split(',')))
             if area_type: areas = areas.filter(Area.area_type==area_type)

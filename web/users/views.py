@@ -5,12 +5,10 @@ from flask import json
 from flask import (Blueprint, request, url_for, redirect, render_template, flash)
 
 from tango import db, cache, update_profile
-
 from tango.ui import navbar
 from tango.base import NestedDict
 from tango.ui.tables import make_table
 from tango.login import logout_user, login_user, current_user
-from tango.models import Profile
 from tango.forms import SearchForm
 
 from nodes.models import Area
@@ -68,7 +66,6 @@ def settings():
 
 @userview.route('/settings/profile', methods=['POST', 'GET'])
 def profile():
-    uid = current_user.id
     args = request.values
     update_profile(args['grp'], args['key'], args['value'])
     db.session.commit()
@@ -445,7 +442,8 @@ def domains_edit(id):
         db.session.commit()
         flash(u'管理域(%s)修改成功' % domain.name, 'success')
         return redirect(url_for('users.domains'))
-    domain_areas = [domain.city_list, domain.town_list,domain.branch_list, domain.entrance_list]
+    domain_areas = [domain.province_list, domain.city_list, domain.town_list,
+                    domain.branch_list, domain.entrance_list]
     domain_areas = ','.join([d for d in domain_areas if d])
     form.process(obj=domain)
     return render_template('users/domains/new_edit.html',
