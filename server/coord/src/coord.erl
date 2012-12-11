@@ -304,7 +304,7 @@ handle_info({deliver, Queue, _, Payload}, #state{queue=Queue} = State) ->
             end,
             cancel_timer(Dispatch#dispatch.tref),
             mnesia:dirty_write(Dispatch#dispatch{shard = FromShard, tref = undefined}),
-            epgsql:update(main, nodes, [{manager, FromShard}], {rdn, Dn});
+            epgsql:update(main, nodes, [{manager, FromShard}], {dn, Dn});
         [] -> 
             ?ERROR("bad_shard_reply for ~s", [Dn])
         end;

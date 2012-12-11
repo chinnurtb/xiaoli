@@ -42,7 +42,7 @@
 		terminate/2, 
 		code_change/3]).
 
--record(state, {}).
+-record(state, {modules}).
 
 start_link() ->
     gen_server2:start_link({local, ?MODULE}, ?MODULE, [], []).
@@ -73,7 +73,7 @@ lookup({ip, Ip}) when is_binary(Ip) or is_list(Ip) ->
 
 index_lookup(Idx, Pos) ->
     case mnesia:dirty_index_read(node, Idx, Pos) of
-    [Node] -> 
+    [Node] ->
         {ok, Node};
 	[Node|_] = Nodes ->
 		?ERROR("more than one nodes: ~p", [Nodes]),
@@ -105,42 +105,25 @@ init([]) ->
     case mode() of
     master -> %master node
         %clear mit queue
-		epgqueue:clear(mit),
-        create_areas(),
-        create_nodes(),
-        load_areas(),
-        load_nodes(),
-        epgqueue:subscribe(mit, self());
+		epgqueue:clear('mit.node'),
+        mnesia:create_table(node, [
+            {ram_copies, [node()]},
+            {index, [id, ip]},
+            {attributes, record_info(fields, node)}]),
+        {ok, Modules} = application:get_env(modules),
+        lists:foreach(fun({Cat, Mod}) ->
+            {ok, Nodes} = Mod:load(),
+            ?INFO("load ~p ~p...", [length(Nodes), Cat]),
+            [mnesia:dirty_write(N) || N <- Nodes]
+        end, Modules),
+        epgqueue:subscribe('mit.node', self()),
+        ?INFO_MSG("mit(master) is started...[ok]"),
+        {ok, #state{}};
     slave -> %slave node
-        ok
-    end,
-    copy_table(area),
-    copy_table(node),
-    ?INFO_MSG("mit is started."),
-    {ok, #state{}}.
-
-copy_table(Table) ->
-    mnesia:add_table_copy(Table, node(), ram_copies).
-
-create_areas() ->
-    mnesia:create_table(area, [
-        {ram_copies, [node()]}, 
-        {index, [id, parent]}, 
-        {attributes, record_info(fields, area)}]).
-
-load_areas() ->
-    {ok, Areas} = mit_dao:all_areas(),
-    [mnesia:dirty_write(A) || A <- Areas].
-
-create_nodes() ->
-    mnesia:create_table(node, [
-        {ram_copies, [node()]}, 
-        {index, [id, ip]},
-        {attributes, record_info(fields, node)}]).
-
-load_nodes() ->
-    {ok, Nodes} = mit_dao:all_nodes(),
-    [mnesia:dirty_write(N) || N <- Nodes].
+        mnesia:add_table_copy(node, node(), ram_copies),
+        ?INFO_MSG("mit(slave) is started...[ok]"),
+        {ok, #state{}}
+    end.
 
 %%--------------------------------------------------------------------
 %% Function: %% handle_call(Request, From, State) -> {reply, Reply, State} |
@@ -152,12 +135,10 @@ load_nodes() ->
 %% Description: Handling call messages
 %%--------------------------------------------------------------------
 handle_call(info, _From, State) ->
-    Reply = [{nodes, mnesia:table_info(node, size)},
-             {areas, mnesia:table_info(area, size)}],
-	{reply, Reply, State};
+	{reply, mnesia:table_info(node, all), State};
 
 handle_call(Req, _From, State) ->
-    {stop, {error, {badreq, Req}}, State}.
+    {stop, {badreq, Req}, State}.
 
 %%--------------------------------------------------------------------
 %% Function: handle_cast(Msg, State) -> {noreply, State} |
@@ -188,8 +169,9 @@ handle_cast(Msg, State) ->
 %%--------------------------------------------------------------------
 handle_info(#pgqevent{name = <<"node.inserted">>, data=Dn}, State) ->
     ?INFO("node inserted: ~s", [Dn]),
-    case mit_dao:one_node(Dn) of
-    {ok, Node} ->
+    Mod = mit_meta:module(mit_node:cat(Dn)),
+    case Mod:load(Dn) of
+    {ok, [Node]} ->
         insert_node(Node);
     {error, Err} ->
         ?ERROR("~p", [Err])
@@ -198,8 +180,9 @@ handle_info(#pgqevent{name = <<"node.inserted">>, data=Dn}, State) ->
 
 handle_info(#pgqevent{name = <<"node.updated">>, data=Dn}, State) ->
     ?INFO("node updated: ~s", [Dn]),
-    case mit_dao:one_node(Dn) of
-    {ok, Node} ->
+    Mod = mit_meta:module(mit_node:cat(Dn)),
+    case Mod:load(Dn) of
+    {ok, [Node]} ->
         update_node(Node);
     {error, Err} ->
         ?ERROR("~p", [Err])
@@ -211,7 +194,7 @@ handle_info(#pgqevent{name = <<"node.deleted">>, data=Dn}, State) ->
     {noreply, State};
 
 handle_info(Info, State) ->
-    {stop, {error, {badinfo, Info}}, State}.
+    {stop, {badinfo, Info}, State}.
 
 terminate(_Reason, _State) ->
     ok.
@@ -235,3 +218,5 @@ delete_node(Dn) ->
     _ ->
         ignore
     end.
+
+

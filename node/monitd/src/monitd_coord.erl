@@ -147,7 +147,7 @@ code_change(_OldVsn, State, _Extra) ->
 update_monitors(Node, State) ->
     sched_monitors(Node, State).
 
-sched_monitors(#node{dn=Dn, attrs=Attrs}=Node, #state{monitors=Monitors}) ->
+sched_monitors(#node{dn=Dn}=Node, #state{monitors=Monitors}) ->
     MonitorsOfNode = find_match(Node, Monitors),
     lists:foreach(fun(#monitor{mib = Mib, module=Mod, period=Period, retries=Retries, timeout=Timeout}) ->
         Args = [{mib, Mib},{period, Period},{retries, Retries},{timeout, Timeout}],

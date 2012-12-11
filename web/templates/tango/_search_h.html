@@ -37,7 +37,9 @@
     {% endif %}
     $(".filter-form :reset").click(function(){
         $("#area_chosen_chzn .chzn-default span").text("请选择区域");
-        $("#area_chosen_chzn .dynatree-node").removeClass("dynatree-selected");
+        $("#tree").dynatree("getRoot").visit(function(node){
+            node.select(false);
+        });
         $(".filter-form input:not(#_advshow)").attr("value","");
         $(".filter-form select option").removeAttr("selected");
         $(".filter-form select option[value='']").attr("selected","selected");

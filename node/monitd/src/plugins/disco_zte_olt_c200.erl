@@ -6,9 +6,9 @@
 
 -include("snmp/rfc1213.hrl").
 
--define(PON, 202).
--define(GE, 201).
--define(FE, 200).
+-define(PON, 3).
+-define(GE, 2).
+-define(FE, 1).
 
 -define(ETH, "ethernet-csmacd").
 -define(EPON, "epon").
@@ -24,9 +24,7 @@ disco(Dn, Ip, Agent, _Args) ->
     ?DEBUG("Ports: ~p", [Ports]),
     {ok, Onus} = disco_onus(Dn, Ip, Agent),
     ?DEBUG("Onus: ~p", [Onus]),
-    {ok, OntPorts} = disco_ont_ports(Dn, Ip, Agent),
-    ?INFO("OntPorts: ~p", [OntPorts]),
-    {ok, [], Boards ++ Ports ++ Onus ++ OntPorts}.
+    {ok, [], Boards ++ Ports ++ Onus}.
 
 disco_boards(Dn, Ip, Agent) ->
     ?INFO("disco olt boards: ~p", [Ip]),
@@ -35,8 +33,9 @@ disco_boards(Dn, Ip, Agent) ->
         Boards = lists:map(fun(Row) ->
             {value, [ZxAnRackNo, ZxAnShelfNo, ZxAnSlotNo]} = dataset:get_value('$tableIndex', Row),
             Row1 = lists:keydelete('$tableIndex', 1, Row),
-			Boardid = lists:concat(["1-1-",ZxAnSlotNo]),
-            BoardDn = lists:concat([to_list(Dn), ",board=", Boardid]),
+			BoardName = lists:concat(["1-1-",ZxAnSlotNo]),
+            BoardIdx = (ZxAnRackNo bsl 16) + (ZxAnShelfNo bsl 8) + ZxAnSlotNo,
+        
             {value, OperStatus0} = dataset:get_value(operstatus, Row1),
             {value, AdminStatus0} = dataset:get_value(adminstatus, Row1),
             %与上面的walk值不一致，少状态不在线数据
@@ -54,9 +53,9 @@ disco_boards(Dn, Ip, Agent) ->
             Row2 = lists:keyreplace(operstatus, 1, Row1, {operstatus, OperStatus}),
             Row3 = lists:keyreplace(adminstatus, 1, Row2, {adminstatus, AdminStatus}),
             Row4 = Row3 ++ Versions,
-            [{board_dn, list_to_binary(BoardDn)}, {slot_no, ZxAnSlotNo}, {boardid,Boardid} | Row4]
+            {BoardIdx, [{name, BoardName}, {slot_no, ZxAnSlotNo} | Row4]}
         end, Rows),
-        {ok, [{board, Dn, Boards}]};
+        {ok, [{boards, olt, Dn, Boards}]};
     {error, Reason} ->
         ?WARNING("~p", [Reason]),
         {ok, []}
@@ -70,6 +69,7 @@ disco_ports(Dn, Ip, Agent) ->
             {value, IfDescr} = dataset:get_value(ifDescr, Row),
             {value, IfType} = dataset:get_value(ifType, Row),
             {value, IfSpeed} = dataset:get_value(ifSpeed, Row),
+            {value, IfPhysAddress} = dataset:get_value(ifPhysAddress, Row),
             PortType = case string:sub_string(IfDescr, 1, 4) of
                 "gei" ++ _ ->
                     ?GE;
@@ -79,69 +79,41 @@ disco_ports(Dn, Ip, Agent) ->
                      ?PON;
                  _ ->
                     0
-             end,
-            IfTypeStr = case IfType of
-                6 -> ?ETH;
-                300 -> ?EPON;
-     			_ ->
-                    IfType
-			end,
+            end,
             {SlotNo, PortNo,_OnuNo} = calc_no(IfIndex),
-             %?INFO("after_port,SlotNo: ~p, PortNo:~p ,~p",[SlotNo, PortNo,Row]),
-			 {value, OperStatus0} = dataset:get_value(ifOperStatus, Row),
-	         {value, AdminStatus0} = dataset:get_value(ifAdminStatus, Row),
-	         OperStatus = disco_util:lookup("zte",<<"all">>,<<"olt_pon">>,<<"oper">>,OperStatus0),
-	         AdminStatus = disco_util:lookup("zte",<<"all">>,<<"olt_pon">>,<<"admin">>,AdminStatus0),
+			{value, OperStatus0} = dataset:get_value(ifOperStatus, Row),
+	        {value, AdminStatus0} = dataset:get_value(ifAdminStatus, Row),
+	        OperStatus = disco_util:lookup("zte",<<"all">>,<<"olt_pon">>,<<"oper">>,OperStatus0),
+	        AdminStatus = disco_util:lookup("zte",<<"all">>,<<"olt_pon">>,<<"admin">>,AdminStatus0),
             PortName = lists:concat(["1-1-",SlotNo,"-",PortNo]),
-            Rdn = "port=" ++ integer_to_list(IfIndex),
-            [{rdn, Rdn}, {port_no, PortNo},{port_index,IfIndex}, {port_category, PortType},
-			 {port_type, IfTypeStr}, {slot_no, SlotNo},{port_name,PortName},{ponid,PortName},
- 			 {admin_status,AdminStatus},{oper_status,OperStatus},{speed,IfSpeed},{port_desc,IfDescr}]
+            {IfIndex, 
+                [{name, list_to_binary(PortName)},
+                {alias, list_to_binary(IfDescr)},
+                {biztype, PortType},
+                {port_no, PortNo},
+                {slot_no, SlotNo},
+                {ponid, PortName},
+                {iftype, IfType},
+                {ifadminstatus, AdminStatus},
+                {ifoperstatus, OperStatus},
+                {ifspeed, IfSpeed},
+                {ifphysaddr, IfPhysAddress},
+                {ifdescr, list_to_binary(IfDescr)}]}
         end, Rows),
         ?INFO("zte port : ~p", [Ports]),
-        {ok, [{port, Dn, Ports}]};
+        {ok, [{ports, olt, Dn, Ports}]};
     {error, Reason} ->
        ?WARNING("~p", [Reason]),
-        {ok,[]}
+        {ok, []}
     end.
 
 disco_onus(Dn, Ip, Agent) ->
     ?INFO("disco olt onus: ~p", [Ip]),
     MibOids = ?zxAnOnu ++ ?slaUp ++ ?slaDown ++ ?onuVerTable ++ ?onuIpTable,
-    case snmp_mapping:get_table(Ip, disco_util:map2oid(MibOids), Agent) of
-    {ok, Rows} ->
-        Onus = lists:map(fun(Row) ->
-            {value, [Idx]} = dataset:get_value('$tableIndex', Row),
-            OidIdx = integer_to_list(Idx),
-		    {value, UserInfo} = dataset:get_value(userinfo, Row),
-            {SlotNo, PortNo, OnuNo} = calc_no(Idx),
-            %?INFO("after_onu,SlotNo: ~p, PortNo :~p",[SlotNo, PortNo]),
-            Row1 = transform(lists:keydelete('$tableIndex', 1, Row)),
-            %{value, AuthSn} = dataset:get_value(authmacsn, Row2),
-            Rdn = integer_to_list(Idx),
-			{value, Name0} = dataset:get_value(device_name, Row1),
-            {value, AdminState0} = dataset:get_value(adminstate, Row1),
-            AdminState = disco_util:lookup("zte",<<"all">>,<<"onu">>,<<"admin">>,AdminState0),
-            Row3 = lists:keyreplace(adminstate, 1, Row1, {adminstate, AdminState}),
-		    Row4 = case Name0 of
-                "no description" -> lists:keyreplace(name, 1, Row3, {name, UserInfo});
-     			_ ->
-                    Row3
-			end,
-            {value, OnuType} = dataset:get_value(type, Row4),
-             Row5 = lists:keydelete(type, 1, Row4),
-             Row6 = lists:keydelete(onuModel, 1, Row5),
-			PonId = lists:concat(["1-1-",SlotNo,"-",PortNo]),
-             [{rdn, Rdn}, {oididx, OidIdx}, {discovery_state, 1},
-             {slot_no, SlotNo}, {port_no, PortNo}, {onu_no, OnuNo},
-             {type, OnuType},{ponid,PonId}| Row6]
-        end, Rows),
-		?INFO("zte onu : ~p", [Onus]),
-        {ok, [{node, onus, Dn, Onus}]};
-    {error, Reason} ->
-        ?WARNING("~p", [Reason]),
-        {ok, []}
-    end.
+    OnuTab = mib_record:table(disco_util:map2oid(MibOids), fun onumapping/1),
+    Onus = OnuTab(Ip, Agent),
+    ?INFO("zte onu : ~p", [Onus]),
+    {ok, [{nodes, onu, Dn, Onus}]}.
 
 disco_ont_ports(Dn, Ip, Agent) ->
     case snmp_mapping:get_table(Ip, [?zxAnEponOnuPhyAdminState, ?zxAnEponOnuEthPortLinkState], Agent) of
@@ -190,8 +162,6 @@ get_pstn_port(Dn, Ip, Agent,FeDicts)->
         FeDicts
     end.
 
-
-
 transform(Onu) ->
     transform(Onu, []).
 
@@ -222,7 +192,7 @@ transform([{authmacsn, AuthMacSN}|T], Acc) ->
     end;
 
 transform([{macaddr, MacAddr}|T], Acc) ->
-    transform(T, [{macaddr, to_mac_str(MacAddr)} | Acc]);
+    transform(T, [{mac, to_mac_str(MacAddr)} | Acc]);
 transform([{authmacaddr, AuthMac}|T], Acc) ->
     transform(T, [{authmacaddr, to_mac_str(AuthMac)}|Acc]);
 transform([{registermacaddress, RegMac}|T], Acc) ->
@@ -233,7 +203,7 @@ transform([{ip, IpB}|T], Acc) ->
     <<"0.0.0.0">> -> %TODO: ftth onu, cannot be managed by snmp?
         transform(T, Acc);
     _ ->
-        transform(T, [{ip, Ip}|Acc])
+        transform(T, [{addr, Ip}|Acc])
     end;
 transform([{mask, Mask}|T], Acc) ->
     transform(T, [{mask, to_ip_str(Mask)}|Acc]);
@@ -312,3 +282,33 @@ get_slotno_c200(SlotNo) ->
        true ->
          5
      end.
+
+onumapping(Row) ->
+    {value, [OnuIdx]} = dataset:get_value('$tableIndex', Row),
+    OidIdx = integer_to_list(OnuIdx),
+    {value, UserInfo} = dataset:get_value(userinfo, Row),
+    {SlotNo, PortNo, OnuNo} = calc_no(OnuIdx),
+    OnuName = lists:concat([SlotNo, "-", PortNo, "-", OnuNo]),
+    Row1 = transform(lists:keydelete('$tableIndex', 1, Row)),
+    {value, Alias} = dataset:get_value(device_name, Row1),
+    {value, AdminState0} = dataset:get_value(adminstate, Row1),
+    AdminState = disco_util:lookup("zte",<<"all">>,<<"onu">>,<<"admin">>,AdminState0),
+    Row3 = lists:keyreplace(adminstate, 1, Row1, {adminstate, AdminState}),
+    Alias1 =
+    case Alias of
+    "no description" -> UserInfo;
+    _ ->
+        Alias
+    end,
+    {value, OnuType} = dataset:get_value(type, Row3),
+    Row4 = lists:keydelete(type, 1, Row3),
+    Row5 = lists:keydelete(onuModel, 1, Row4),
+    PonId = lists:concat(["1-1-",SlotNo,"-",PortNo]),
+    {OnuIdx, 
+        [{name, binary(OnuName)}, {alias, binary(Alias1)}, 
+        {onuidx, OnuIdx}, {oididx, binary(OidIdx)},
+        {slot_no, SlotNo}, {port_no, PortNo}, {onu_no, OnuNo},
+        {model, binary(OnuType)}, {ponid,PonId} | Row5]}.
+
+binary(L) when is_list(L) -> list_to_binary(L);
+binary(B) when is_binary(B) -> B.

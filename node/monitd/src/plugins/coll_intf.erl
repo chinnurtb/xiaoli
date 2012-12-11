@@ -26,12 +26,12 @@
 run(#node{ip=undefined}, _Args) ->
     ignore;
 
-run(#node{attrs=Attrs}=Node, Args) ->
+run(Node, Args) ->
 	Ts = extbif:timestamp(),
 	Ip = binary_to_list(Node#node.ip), 
 	Dn = Node#node.dn,
     Mib = proplists:get_value(mib, Args),
-    Community = get_value(snmp_comm, Attrs, <<"public">>),
+    Community = Node#node.community,
     
     IfTab = mib_record:table(?MIB(Mib, ifTraffic), fun intftraffic/1),
 

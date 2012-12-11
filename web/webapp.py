@@ -202,8 +202,16 @@ def internal_error(e):
 
 @app.template_filter('ifnull')
 def ifnull(value, default=""):
-    if value == None:
+    if value is None:
         return default
+    else:
+        return value
+
+@app.template_filter('datetimeformat')
+def datetimeformat(value, format="%Y-%m-%d %H:%M:%S"):
+    from datetime import datetime
+    if value and isinstance(value,datetime):
+        return value.strftime(format)
     else:
         return value
 

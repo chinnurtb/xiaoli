@@ -734,8 +734,8 @@ noindex_mapping([H|Record], Acc) ->
 intf_mapping_fun(Mib) -> 
 	fun(Record) -> 
 		{IfIndex, Intf} = intf_mapping(Record),
-		IfSpeed = ifspeed(Mib, get_value(ifSpeed, Intf)),
-		Intf1 = keyreplace(ifSpeed, 1, Intf, {ifSpeed, IfSpeed}),
+		IfSpeed = ifspeed(Mib, get_value(ifspeed, Intf)),
+		Intf1 = keyreplace(ifspeed, 1, Intf, {ifspeed, IfSpeed}),
 		{IfIndex, Intf1}
 	end.
 
@@ -752,8 +752,8 @@ intf_mapping(Record) ->
     intf_mapping(Record, []).
 
 intf_mapping([], Intf) ->
-    IfIndex = get_value(ifIndex, Intf, 1),
-    {IfIndex, Intf};
+    IfIndex = get_value(ifindex, Intf, 1),
+    {IfIndex, lists:keydelete(ifindex, 1, Intf)};
     
 intf_mapping([{'$tableIndex', TabIdx} | Record], Intf) ->
    IfIndex1 =
@@ -761,13 +761,13 @@ intf_mapping([{'$tableIndex', TabIdx} | Record], Intf) ->
     [BroadIdx, IfIndex] -> (BroadIdx bsl 8) + IfIndex;
     [IfIndex] -> IfIndex
     end,
-    intf_mapping(Record, [{ifIndex, IfIndex1}|Intf]);
+    intf_mapping(Record, [{ifindex, IfIndex1}|Intf]);
 
-intf_mapping([{ifIndex, _} | Record], Intf) ->
+intf_mapping([{ifindex, _} | Record], Intf) ->
     intf_mapping(Record, Intf);
 
-intf_mapping([{ifPhysAddress, PhysAddr} | Record], Intf) ->
-    intf_mapping(Record, [{ifPhysAddress, mac(PhysAddr)}|Intf]);
+intf_mapping([{ifphysaddr, PhysAddr} | Record], Intf) ->
+    intf_mapping(Record, [{ifphysaddr, mac(PhysAddr)}|Intf]);
 
 intf_mapping([Attr | Record], Intf) ->
     intf_mapping(Record, [Attr|Intf]).

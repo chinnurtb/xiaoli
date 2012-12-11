@@ -25,6 +25,7 @@ start_link(Mode) ->
 init([master]) ->
     {ok, {{one_for_one, 10, 100}, [
         ?CHILD(mit_meta), 
+        ?CHILD(mit_area),
         ?CHILD(mit),
         ?CHILD(mit_event),
         ?CHILD(mit_server)]}};
@@ -32,5 +33,6 @@ init([master]) ->
 init([slave]) ->
     {ok, {{one_for_one, 10, 100}, [
         ?CHILD(mit_meta),
+        ?CHILD(mit_area),
         ?CHILD(mit)]}}.
 

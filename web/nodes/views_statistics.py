@@ -46,7 +46,7 @@ def areas():
         sub_query_list.append(sub_query)
 
     # 连接各个子查询
-    query = 'db.session.query(Area.id,Area.name,Area.area_type,'
+    query = 'db.session.query(Area.id,Area.alias,Area.area_type,'
     for index,category in enumerate(['total']+[category.name for category in categories]):
         query += 'func.coalesce(sub_query_list[%(index)s].c.%(category)s_count,0).label("%(category)s_count"),' % {'index':index,'category': category}
     query += ')'
@@ -136,7 +136,7 @@ def category_vendors():
             values = [{'series': vendor.alias,'x': category[1],'y': row_dict.get(vendor.id,0)} for category, row_dict in sorted(rows.items(), key=lambda d:d[0])]
             return {'key': vendor.alias,'values': values}
         data = [series(vendor) for vendor in vendors]
-        data.append({'key': u'未知', 'values': [{'series': u'未知','x': category[1],'y': row_dict.get(None,0)} for category, row_dict in rows.items()]})
+        data.append({'key': u'未知', 'values': [{'series': u'未知','x': category[1],'y': row_dict.get(None,0)} for category, row_dict in sorted(rows.items(), key=lambda d:d[0])]})
         return render_template('nodes/statistics/category_vendors.html', vendors = vendors, rows = rows,
             chartid = "category_vendors_chart",chartdata = data,)
 

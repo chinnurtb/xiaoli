@@ -132,6 +132,7 @@ class SwitchTable(tables.Table):
     check = tables.CheckBoxColumn()
     status = StatusColumn()
     name = tables.LinkColumn(u'名称', endpoint='nodes.switches_show', orderable=True)
+    alias = tables.Column(u'别名',orderable=True)
     addr = tables.Column(u'IP', orderable=True)
     area_name = tables.Column(u'所属区域', accessor='area.full_name')
     vendor_name = tables.Column(u'厂商', orderable=True, accessor='vendor.alias')
@@ -149,6 +150,7 @@ class RouterTable(tables.Table):
     check = tables.CheckBoxColumn()
     status = StatusColumn()
     name = tables.LinkColumn(u'名称', endpoint='nodes.routers_show', orderable=True)
+    alias = tables.Column(u'别名',orderable=True)
     addr = tables.Column(u'IP', orderable=True)
     area_name = tables.Column(u'所属区域', accessor='area.full_name')
     vendor_name = tables.Column(u'厂商', orderable=True, accessor='vendor.alias')
@@ -166,6 +168,7 @@ class OnuTable(tables.Table):
     check = tables.CheckBoxColumn()
     status = StatusColumn()
     name = tables.LinkColumn(u'名称', endpoint='nodes.onus_show', orderable=True)
+    alias = tables.Column(u'别名',orderable=True)
     addr = tables.Column(u'IP', orderable=True)
     area_name = tables.Column(u'所属区域', accessor='area.full_name')
     vendor_name = tables.Column(u'厂商', orderable=True, accessor='vendor.alias')
@@ -205,7 +208,7 @@ class CityTable(tables.Table):
     delete = tables.Action(name=u'删除', endpoint='nodes.cities_delete',attrs=Attrs(a={"class": "delete"}))
     check   = tables.CheckBoxColumn()
 
-    name        = tables.Column(u'地市名称', orderable=True)
+    alias        = tables.Column(u'地市名称', orderable=True)
     town_count      = tables.LinkColumn(u'区县')
     branch_count     = tables.LinkColumn(u'分局')
     entrance_count     = tables.LinkColumn(u'接入点')
@@ -249,7 +252,7 @@ class TownTable(tables.Table):
     delete = tables.Action(name=u'删除', endpoint='nodes.towns_delete',attrs=Attrs(a={"class": "delete"}))
     check   = tables.CheckBoxColumn()
 
-    name        = tables.Column(u'区县名称', orderable=True)
+    alias        = tables.Column(u'区县名称', orderable=True)
     branch_count     = tables.LinkColumn(u'分局')
     entrance_count     = tables.LinkColumn(u'接入点')
     total_count     = tables.LinkColumn(u'节点')
@@ -291,7 +294,7 @@ class BranchTable(tables.Table):
     delete = tables.Action(name=u'删除', endpoint='nodes.branches_delete',attrs=Attrs(a={"class": "delete"}))
     check   = tables.CheckBoxColumn()
 
-    name        = tables.Column(u'分局名称', orderable=True)
+    alias        = tables.Column(u'分局名称', orderable=True)
     entrance_count     = tables.LinkColumn(u'接入点')
     total_count     = tables.LinkColumn(u'节点')
     router_count     = tables.LinkColumn(u'路由器')
@@ -331,7 +334,7 @@ class EntranceTable(tables.Table):
     delete = tables.Action(name=u'删除', endpoint='nodes.entrances_delete',attrs=Attrs(a={"class": "delete"}))
     check   = tables.CheckBoxColumn()
 
-    name        = tables.Column(u'接入点名称', orderable=True)
+    alias        = tables.Column(u'接入点名称', orderable=True)
     total_count     = tables.LinkColumn(u'节点')
     router_count     = tables.LinkColumn(u'路由器')
     switch_count     = tables.LinkColumn(u'交换机')
@@ -361,7 +364,7 @@ class EntranceTable(tables.Table):
             }
 
 class AreaStatisticsTable(tables.Table):
-    name        = tables.Column(u'区域')
+    alias        = tables.Column(u'区域')
     total_count     = tables.Column(u'节点')
     router_count     = tables.Column(u'路由器')
     switch_count     = tables.Column(u'交换机')

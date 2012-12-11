@@ -124,11 +124,9 @@ def olts_show(id):
     node = NodeOlt.query.get(id)
     if node is None:
         return render_template('/nodes/not_exist.html', menuid='olts', message=u'OLT不存在，可能已经被删除',title=u'OLT')
-    client = errdb.Client(host=current_app.config.get("ERRDB_HOST"), port=current_app.config.get("ERRDB_PORT"))
-    start_time = time.mktime((datetime.now()-timedelta(days=2)).timetuple())
-    data = client.fetch(node.dn+":ping", ['rtmax','rtmax'], start_time, time.time())
-    data_ifInOctets = [{'x':data_dict.keys()[0], 'y': data_dict.values()[0][0]} for data_dict in data ]
-    data_ifOutOctets = [{'x':data_dict.keys()[0], 'y': data_dict.values()[0][1]} for data_dict in data ]
+    data_ifInOctets, data_ifOutOctets = node.get_traffic()
+    edata = node.get_errdb_data("rtmax")
+    print edata
     chartdata = [
         {"area": True, "key" : u"接收流量" , "color": 'lime', "values" : data_ifInOctets} ,
         {"area": True, "key" : u"发送流量" , "color": '#773EF7',"values" :data_ifOutOctets} ,
