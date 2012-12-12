@@ -127,8 +127,6 @@ def olts_show(id):
     if node is None:
         return render_template('/nodes/not_exist.html', menuid='olts', message=u'OLT不存在，可能已经被删除',title=u'OLT')
     data_ifInOctets, data_ifOutOctets = node.get_traffic()
-    edata = node.get_errdb_data("rtmax")
-    print edata
     chartdata = [
         {"area": True, "key" : u"接收流量" , "color": 'lime', "values" : data_ifInOctets} ,
         {"area": True, "key" : u"发送流量" , "color": '#773EF7',"values" :data_ifOutOctets} ,
@@ -139,6 +137,13 @@ def olts_show(id):
             {'label': u'数据缺失', 'color': 'blue', 'value': 2}]
     chartdata2 = [{'values': data}]
     return render_template('nodes/olts/show.html', node = node, chartdata = chartdata, chartdata2 = chartdata2)
+
+@nodeview.route('/nodes/olts/ping_delay/<int:id>/', methods=['GET'])
+def ping_delay(id):
+    node = NodeOlt.query.get(id)
+    data = node.get_ping_delay()
+    chartdata = [{"area": True, "key" : u"接收流量" , "color": 'lime', "values" : data}];
+    return render_template('nodes/olts/ping_delay.html', chartdata = chartdata)
 
 import os
 import operator

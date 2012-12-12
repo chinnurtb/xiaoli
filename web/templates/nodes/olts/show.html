@@ -18,6 +18,7 @@
     <div class="span10">
             <h5 class="detail-title pull-left"><i class="icon-chevron-down"></i>OLT：{{ node.name }} </h5>
             <div class="btn-group pull-right">
+                <a class="btn btn-small modal-btn" href="/nodes/olts/ping_delay/{{ node.id }}">Ping时延</a>
                 <a class="btn btn-small" href="/nodes/onus/?olt_id={{ node.id }}">查看ONU</a>
                 <a class="btn btn-small" href="/nodes/olts/edit/{{ node.id }}"><i class="icon-pencil"></i>编辑</a>
             </div>
@@ -163,7 +164,7 @@
                 </div>
             </div>
         </div>
-
+        <div class="modal hide fade" id="myModal"></div>
     </div>
 </div>
 {% endblock %}
