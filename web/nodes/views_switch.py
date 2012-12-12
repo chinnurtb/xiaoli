@@ -40,13 +40,15 @@ def switches():
     if query_dict.get("vendor_id"): query=query.filter(NodeSwitch.vendor_id == query_dict["vendor_id"]) # ==
     if query_dict.get("model_id"): query=query.filter(NodeSwitch.model_id == query_dict["model_id"])    # ==
     if query_dict.get("status"): query=query.filter(NodeSwitch.status == query_dict["status"])
-    query = query.filter(Area.id.in_(current_user.domain.area_ids(4)))
+    if not current_user.is_province_user: query = query.filter(Area.id.in_(current_user.domain.area_ids(4)))
     form.process(**query_dict)
     table = make_table(query, SwitchTable)
 
     status_statistcs = []
     for status in NODE_STATUS_DICT.keys():
-        num = NodeSwitch.query.filter(NodeSwitch.status == status).filter(NodeSwitch.area_id.in_(current_user.domain.area_ids(4))).count()
+        num = NodeSwitch.query.filter(NodeSwitch.status == status)
+        if not current_user.is_province_user: num = num.filter(NodeSwitch.area_id.in_(current_user.domain.area_ids(4)))
+        num = num.count()
         status_statistcs.append({"status": status, "number": num, "name": NODE_STATUS_DICT.get(status)})
 
     if request.base_url.endswith(".csv/"):

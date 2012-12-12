@@ -53,6 +53,13 @@ class User(db.Model, UserMixin):
     @password.setter
     def password(self, value):
         self._password = User.create_passwd(value)
+
+    @property
+    def is_province_user(self):
+        if self.domain.province_list:
+            return True
+        else:
+            return False
         
     def gravatar_url(self, size=80):
         """Return the gravatar image for the given email address."""

@@ -60,7 +60,8 @@ def cities():
     query = eval(query)
     for index,sub_query in enumerate(sub_query_list):
         query = query.outerjoin(sub_query, sub_query.c.cityid==Area.id)
-    query = query.filter(Area.area_type==1).filter(Area.id.in_(current_user.domain.area_ids(1)))
+    query = query.filter(Area.area_type==1)
+    if not current_user.is_province_user: query = query.filter(Area.id.in_(current_user.domain.area_ids(1)))
 
     # 隐藏is_valid = 0 的分类
     hiddens = u','.join([category.name+'_count' for category in Category.query.filter(Category.obj=='node').filter(Category.is_valid!=1)])
@@ -112,7 +113,8 @@ def towns():
     query = eval(query)
     for index,sub_query in enumerate(sub_query_list):
         query = query.outerjoin(sub_query, sub_query.c.town==Area.id)
-    query = query.filter(Area.area_type==2).filter(Area.id.in_(current_user.domain.area_ids(2)))
+    query = query.filter(Area.area_type==2)
+    if not current_user.is_province_user: query = query.filter(Area.id.in_(current_user.domain.area_ids(2)))
     if netloc:
         if 'or' in netloc: netloc = '('+netloc+')'
         query = query.filter(netloc)
@@ -166,7 +168,8 @@ def branches():
     query = eval(query)
     for index,sub_query in enumerate(sub_query_list):
         query = query.outerjoin(sub_query, sub_query.c.branch==Area.id)
-    query = query.filter(Area.area_type==3).filter(Area.id.in_(current_user.domain.area_ids(3)))
+    query = query.filter(Area.area_type==3)
+    if not current_user.is_province_user: query = query.filter(Area.id.in_(current_user.domain.area_ids(3)))
     if netloc:
         if 'or' in netloc: netloc = '('+netloc+')'
         query = query.filter(netloc)
@@ -211,7 +214,8 @@ def entrances():
     query = eval(query)
     for index,sub_query in enumerate(sub_query_list):
         query = query.outerjoin(sub_query, sub_query.c.entrance==Area.id)
-    query = query.filter(Area.area_type==4).filter(Area.id.in_(current_user.domain.area_ids(4)))
+    query = query.filter(Area.area_type==4)
+    if not current_user.is_province_user: query = query.filter(Area.id.in_(current_user.domain.area_ids(4)))
     if netloc:
         if 'or' in netloc: netloc = '('+netloc+')'
         query = query.filter(netloc)

@@ -40,14 +40,15 @@ def cpes():
     if query_dict.get("vendor_id"): query=query.filter(NodeCpe.vendor_id == query_dict["vendor_id"]) # ==
     if query_dict.get("model_id"): query=query.filter(NodeCpe.model_id == query_dict["model_id"])    # ==
     if query_dict.get("status"): query=query.filter(NodeCpe.status == query_dict["status"])
-    query = query.filter(NodeEoc.area_id.in_(current_user.domain.area_ids(3)))
+    if not current_user.is_province_user: query = query.filter(NodeEoc.area_id.in_(current_user.domain.area_ids(3)))
     form.process(**query_dict)
     table = make_table(query, CpeTable)
 
     status_statistcs = []
     for status in NODE_STATUS_DICT.keys():
-        num = NodeCpe.query.outerjoin(NodeEoc,NodeEoc.id==NodeCpe.controller_id)\
-        .filter(NodeCpe.status == status).filter(NodeEoc.area_id.in_(current_user.domain.area_ids(3))).count()
+        num = NodeCpe.query.outerjoin(NodeEoc,NodeEoc.id==NodeCpe.controller_id).filter(NodeCpe.status == status)
+        if not current_user.is_province_user: num = num.filter(NodeEoc.area_id.in_(current_user.domain.area_ids(3)))
+        num = num.count()
         status_statistcs.append({"status": status, "number": num, "name": NODE_STATUS_DICT.get(status)})
 
     if request.base_url.endswith(".csv/"):
