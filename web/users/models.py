@@ -130,6 +130,7 @@ class Domain(db.Model):
         area_list = dict(zip(area_types, lists))
         
         for area in areas:
+            if not area: continue # If the area has been deleted!
             if area.area_type in area_types:
                 area_list[area.area_type].append(str(area.id))
 
