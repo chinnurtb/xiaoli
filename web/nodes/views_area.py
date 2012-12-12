@@ -14,6 +14,7 @@ from tango.ui.tables import make_table
 from tango.login import current_user
 from tango.models import Profile, Category
 from tango.excel.CsvExport import CsvExport
+from tango.pinyin import pinyin
 
 from .models import Node, Area, Vendor, NODE_STATUS_DICT, Model
 from .tables import CityTable, TownTable, BranchTable, EntranceTable
@@ -52,7 +53,7 @@ def cities():
     for index,category in enumerate(['total']+[category.name for category in categories]):
         if category == "host": continue
         query += 'func.coalesce(sub_query_list[%(index)s].c.%(category)s_count,0).label("%(category)s_count"),' % {'index':index,'category': category}
-        export_columns.append(category+"_count")
+        #export_columns.append(category+"_count")
     query += 'func.coalesce(sub_query_list[-3].c.town_count,0).label("town_count"),'
     query += 'func.coalesce(sub_query_list[-2].c.branch_count,0).label("branch_count"),'
     query += 'func.coalesce(sub_query_list[-1].c.entrance_count,0).label("entrance_count"),'
@@ -106,7 +107,7 @@ def towns():
     for index,category in enumerate(['total']+[category.name for category in categories]):
         if category == "host": continue
         query += 'func.coalesce(sub_query_list[%(index)s].c.%(category)s_count,0).label("%(category)s_count"),' % {'index':index,'category': category}
-        export_columns.append(category+"_count")
+        #export_columns.append(category+"_count")
     query += 'func.coalesce(sub_query_list[-2].c.branch_count,0).label("branch_count"),'
     query += 'func.coalesce(sub_query_list[-1].c.entrance_count,0).label("entrance_count"),'
     query += ')'
@@ -162,7 +163,7 @@ def branches():
     for index,category in enumerate(['total']+[category.name for category in categories]):
         if category == "host": continue
         query += 'func.coalesce(sub_query_list[%(index)s].c.%(category)s_count,0).label("%(category)s_count"),' % {'index':index,'category': category}
-        export_columns.append(category+"_count")
+        #export_columns.append(category+"_count")
     query += 'func.coalesce(sub_query_list[-1].c.entrance_count,0).label("entrance_count"),'
     query += ')'
     query = eval(query)
@@ -209,7 +210,7 @@ def entrances():
     for index,category in enumerate(['total']+[category.name for category in categories]):
         if category in ["host","olt","eoc"]: continue
         query += 'func.coalesce(sub_query_list[%(index)s].c.%(category)s_count,0).label("%(category)s_count"),' % {'index':index,'category': category}
-        export_columns.append(category+"_count")
+        #export_columns.append(category+"_count")
     query += ')'
     query = eval(query)
     for index,sub_query in enumerate(sub_query_list):
@@ -237,7 +238,9 @@ def cities_new():
     if request.method == 'POST' and form.validate_on_submit():
         area = Area()
         form.populate_obj(area)
-        if Area.query.filter(Area.area_type==1).filter(Area.name==area.name).count() > 0:
+        if area.name != ''.join(pinyin(area.alias)):
+            flash(u'拼写错误，名称为别名的拼音，如北京：beijing', 'error')
+        elif Area.query.filter(Area.area_type==1).filter(Area.name==area.name).count() > 0:
             flash(u'地市名称不能重复','error')
         elif Area.query.filter(Area.area_type==1).filter(Area.alias==area.alias).count() > 0:
             flash(u'地市别名不能重复','error')
