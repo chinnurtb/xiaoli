@@ -51,10 +51,7 @@ def area_select():
                 area = Area.query.get(area.parent_id)
 
     def make_node(area):
-        node = {}
-        node['title'] = area.alias
-        node['key'] = str(area.id)
-        node['area_type'] = area_type[area.area_type]
+        node = {'title': area.alias, 'key': str(area.id), 'area_type': area_type[area.area_type]}
         if area.id in area_selected:
             node['select'] = True
         if len(area.children) > 0:
@@ -79,7 +76,10 @@ def area_select():
         trees = [make_node(area) for area in Area.query.filter(Area.parent_id==key)]
     else:
         # 依次找到当前用户的所有管理域，判断从属关系后合并，最后生成树
-        city_ids = current_user.domain.city_list.split(',') if current_user.domain.city_list else []
+        if current_user.is_province_user:
+            city_ids = [str(area.id) for area in Area.query.filter(Area.area_type==1)]
+        else:
+            city_ids = current_user.domain.city_list.split(',') if current_user.domain.city_list else []
         town_ids = current_user.domain.town_list.split(',') if current_user.domain.town_list else []
         branch_ids = current_user.domain.branch_list.split(',') if current_user.domain.branch_list else []
         entrance_ids = current_user.domain.entrance_list.split(',') if current_user.domain.entrance_list else []
@@ -126,14 +126,16 @@ def nodes():
     if query_dict.get("model_id"): query=query.filter(Node.model_id == query_dict["model_id"])    # ==
     if query_dict.get("category_id"): query=query.filter(Node.category_id == query_dict["category_id"])
     if query_dict.get("status"): query=query.filter(Node.status == query_dict["status"])
-    query = query.filter(Area.id.in_(current_user.domain.area_ids())) # 过滤不在当前用户管理域的节点
+    if not current_user.is_province_user: query = query.filter(Area.id.in_(current_user.domain.area_ids())) # 过滤不在当前用户管理域的节点
     form.process(**query_dict)
     table = make_table(query, NodeTable)
 
     # 节点状态统计
     status_statistcs = []
     for status in NODE_STATUS_DICT.keys():
-        num = Node.query.filter(Node.status == status).filter(Node.area_id.in_(current_user.domain.area_ids())).count()
+        num = Node.query.filter(Node.status == status)
+        if not current_user.is_province_user: num = num.filter(Node.area_id.in_(current_user.domain.area_ids()))
+        num = num.count()
         status_statistcs.append({"status": status, "number": num, "name": NODE_STATUS_DICT.get(status)})
 
     if request.base_url.endswith(".csv/"):
