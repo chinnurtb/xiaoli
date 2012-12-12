@@ -380,8 +380,10 @@ def domains_load_nodes():
         areas = [Area.query.get(area_id) for area_id in domain_areas]
         
     path_nodes = set([root.id])
+    # Init
     if not key:
         for area in areas:
+            if not area: continue # If the area has been deleted!
             while area.parent_id != -1:
                 path_nodes.add(area.parent_id)
                 area = Area.query.get(area.parent_id)
