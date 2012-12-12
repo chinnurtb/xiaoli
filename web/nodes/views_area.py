@@ -239,7 +239,7 @@ def cities_new():
         area = Area()
         form.populate_obj(area)
         if area.name != ''.join(pinyin(area.alias)):
-            flash(u'拼写错误，名称为别名的拼音，如北京：beijing', 'error')
+            flash(u'拼写错误，名称必须为别名的拼音，如北京：beijing', 'error')
         elif Area.query.filter(Area.area_type==1).filter(Area.name==area.name).count() > 0:
             flash(u'地市名称不能重复','error')
         elif Area.query.filter(Area.area_type==1).filter(Area.alias==area.alias).count() > 0:
@@ -260,8 +260,8 @@ def cities_edit(id):
     area = Area.query.get_or_404(id)
     if request.method == 'POST':
         if form.validate_on_submit():
-            if area.name != ''.join(pinyin(area.alias)):
-                flash(u'拼写错误，名称为别名的拼音，如北京：beijing', 'error')
+            if form.name.data != ''.join(pinyin(form.alias.data)):
+                flash(u'拼写错误，名称必须为别名的拼音，如北京：beijing', 'error')
             elif area.name != form.name.data and Area.query.filter(Area.area_type==1).filter(Area.name==form.name.data).count() > 0:
                 flash(u'地市名称不能重复','error')
             elif area.alias != form.alias.data and Area.query.filter(Area.area_type==1).filter(Area.alias==form.alias.data).count() > 0:
