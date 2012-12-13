@@ -60,6 +60,7 @@ def alarm_filter(cls, query, form):
     if keyword and keyword != '':
         query = query.filter(db.or_(
                     cls.alarm_alias.ilike('%'+keyword+'%'),
+                    cls.node.has(Node.addr.ilike('%'+keyword+'%')),
                     cls.node.has(Node.alias.ilike('%'+keyword+'%'))))
     return query
 
