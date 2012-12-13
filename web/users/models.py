@@ -176,6 +176,21 @@ class Domain(db.Model):
             ids.extend([area.id for area in areas])
         return set(ids)
 
+    @property
+    def clause_permit(self):
+        from sqlalchemy import or_
+        clause = []
+        if self.city_list: clause.append(Area.cityid.in_(self.city_list.split(',')))
+        if self.town_list: clause.append(Area.town.in_(self.town_list.split(',')))
+        if self.branch_list: clause.append(Area.branch.in_(self.branch_list.split(',')))
+        if self.entrance_list: clause.append(Area.entrance.in_(self.entrance_list.split(',')))
+        if len(clause) == 0:
+            return None
+        elif len(clause) == 1:
+            return clause[0]
+        else:
+            return or_(*clause)
+
 roles_permissions = db.Table('roles_permissions', db.Model.metadata,
                              db.Column('role_id', db.Integer,
                                        db.ForeignKey('roles.id', ondelete='CASCADE')),

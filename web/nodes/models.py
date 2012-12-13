@@ -377,6 +377,17 @@ class NodeOlt(NodeMixin,db.Model):
             pass
         return data_ifInOctets, data_ifOutOctets
 
+    def get_ping_delay(self):
+        data_ping = []
+        try:
+            client = errdb.Client(host=db.app.config.get("ERRDB_HOST"), port=db.app.config.get("ERRDB_PORT"))
+            start_time = time.mktime((datetime.now()-timedelta(days=2)).timetuple())
+            data = client.fetch(self.dn+":ping", ['rtmax'], start_time, time.time())
+            data_ping = [{'x':data_dict.keys()[0], 'y': data_dict.values()[0][0]} for data_dict in data ]
+        except :
+            pass
+        return data_ping
+
     def get_errdb_data(self, key, dn=None):
         if not dn: dn = self.dn + ":ping"
         try:

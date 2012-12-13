@@ -255,15 +255,15 @@ class EntranceNewForm(FormPro):
 
 def area_choices(area_type, blank_option=''):
     areas = Area.query.filter(Area.area_type==area_type)
-    if not current_user.is_province_user: areas = areas.filter(Area.id.in_(current_user.domain.area_ids(area_type)))
+    if not current_user.is_province_user: areas = areas.filter(current_user.domain.clause_permit)
     return [('', blank_option)] + [(unicode(r.id), r.alias) for r in areas]
 
 def olt_choices(area_type, blank_option=''):
     olts = NodeOlt.query
-    if not current_user.is_province_user: olts = olts.filter(NodeOlt.area_id.in_(current_user.domain.area_ids(area_type)))
+    if not current_user.is_province_user: olts = olts.outerjoin(Area, NodeOlt.area_id==Area.id).filter(current_user.domain.clause_permit)
     return [('', blank_option)] + [(unicode(r.id), r.alias+' <'+r.addr+'>') for r in olts]
 
 def eoc_choices(area_type, blank_option=''):
     eocs = NodeEoc.query
-    if not current_user.is_province_user: eocs = eocs.filter(NodeEoc.area_id.in_(current_user.domain.area_ids(area_type)))
+    if not current_user.is_province_user: eocs = eocs.outerjoin(Area, NodeEoc.area_id==Area.id).filter(current_user.domain.clause_permit)
     return [('', blank_option)] + [(unicode(r.id), r.alias+' <'+r.addr+'>') for r in eocs]

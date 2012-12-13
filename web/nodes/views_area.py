@@ -14,6 +14,7 @@ from tango.ui.tables import make_table
 from tango.login import current_user
 from tango.models import Profile, Category
 from tango.excel.CsvExport import CsvExport
+from tango.pinyin import pinyin
 
 from .models import Node, Area, Vendor, NODE_STATUS_DICT, Model
 from .tables import CityTable, TownTable, BranchTable, EntranceTable
@@ -31,7 +32,7 @@ def cities():
             Area.cityid,func.count(Node.id).label(category+"_count")
         ).select_from(Node).outerjoin(
             Area, Node.area_id==Area.id
-        ).filter(Node.area_id.in_(current_user.domain.area_ids()))
+        ).filter(current_user.domain.clause_permit)
         if index == 0: # 统计总节点数的子查询
             sub_query = sub_query.group_by(Area.cityid).subquery()
         else:
@@ -52,7 +53,7 @@ def cities():
     for index,category in enumerate(['total']+[category.name for category in categories]):
         if category == "host": continue
         query += 'func.coalesce(sub_query_list[%(index)s].c.%(category)s_count,0).label("%(category)s_count"),' % {'index':index,'category': category}
-        export_columns.append(category+"_count")
+        #export_columns.append(category+"_count")
     query += 'func.coalesce(sub_query_list[-3].c.town_count,0).label("town_count"),'
     query += 'func.coalesce(sub_query_list[-2].c.branch_count,0).label("branch_count"),'
     query += 'func.coalesce(sub_query_list[-1].c.entrance_count,0).label("entrance_count"),'
@@ -61,7 +62,7 @@ def cities():
     for index,sub_query in enumerate(sub_query_list):
         query = query.outerjoin(sub_query, sub_query.c.cityid==Area.id)
     query = query.filter(Area.area_type==1)
-    if not current_user.is_province_user: query = query.filter(Area.id.in_(current_user.domain.area_ids(1)))
+    if not current_user.is_province_user: query = query.filter(current_user.domain.clause_permit)
 
     # 隐藏is_valid = 0 的分类
     hiddens = u','.join([category.name+'_count' for category in Category.query.filter(Category.obj=='node').filter(Category.is_valid!=1)])
@@ -85,7 +86,7 @@ def towns():
             Area.town,func.count(Node.id).label(category+"_count")
         ).select_from(Node).outerjoin(
             Area, Node.area_id==Area.id
-        ).filter(Node.area_id.in_(current_user.domain.area_ids()))
+        ).filter(current_user.domain.clause_permit)
         if index == 0: # 统计总节点数的子查询
             sub_query = sub_query.group_by(Area.town).subquery()
         else:
@@ -106,7 +107,7 @@ def towns():
     for index,category in enumerate(['total']+[category.name for category in categories]):
         if category == "host": continue
         query += 'func.coalesce(sub_query_list[%(index)s].c.%(category)s_count,0).label("%(category)s_count"),' % {'index':index,'category': category}
-        export_columns.append(category+"_count")
+        #export_columns.append(category+"_count")
     query += 'func.coalesce(sub_query_list[-2].c.branch_count,0).label("branch_count"),'
     query += 'func.coalesce(sub_query_list[-1].c.entrance_count,0).label("entrance_count"),'
     query += ')'
@@ -114,7 +115,7 @@ def towns():
     for index,sub_query in enumerate(sub_query_list):
         query = query.outerjoin(sub_query, sub_query.c.town==Area.id)
     query = query.filter(Area.area_type==2)
-    if not current_user.is_province_user: query = query.filter(Area.id.in_(current_user.domain.area_ids(2)))
+    if not current_user.is_province_user: query = query.filter(current_user.domain.clause_permit)
     if netloc:
         if 'or' in netloc: netloc = '('+netloc+')'
         query = query.filter(netloc)
@@ -141,7 +142,7 @@ def branches():
             Area.branch,func.count(Node.id).label(category+"_count")
         ).select_from(Node).outerjoin(
             Area, Node.area_id==Area.id
-        ).filter(Node.area_id.in_(current_user.domain.area_ids()))
+        ).filter(current_user.domain.clause_permit)
         if index == 0: # 统计总节点数的子查询
             sub_query = sub_query.group_by(Area.branch).subquery()
         else:
@@ -162,14 +163,14 @@ def branches():
     for index,category in enumerate(['total']+[category.name for category in categories]):
         if category == "host": continue
         query += 'func.coalesce(sub_query_list[%(index)s].c.%(category)s_count,0).label("%(category)s_count"),' % {'index':index,'category': category}
-        export_columns.append(category+"_count")
+        #export_columns.append(category+"_count")
     query += 'func.coalesce(sub_query_list[-1].c.entrance_count,0).label("entrance_count"),'
     query += ')'
     query = eval(query)
     for index,sub_query in enumerate(sub_query_list):
         query = query.outerjoin(sub_query, sub_query.c.branch==Area.id)
     query = query.filter(Area.area_type==3)
-    if not current_user.is_province_user: query = query.filter(Area.id.in_(current_user.domain.area_ids(3)))
+    if not current_user.is_province_user: query = query.filter(current_user.domain.clause_permit)
     if netloc:
         if 'or' in netloc: netloc = '('+netloc+')'
         query = query.filter(netloc)
@@ -196,7 +197,7 @@ def entrances():
             Area.entrance,func.count(Node.id).label(category+"_count")
         ).select_from(Node).outerjoin(
             Area, Node.area_id==Area.id
-        ).filter(Node.area_id.in_(current_user.domain.area_ids(4)))
+        ).filter(current_user.domain.clause_permit)
         if index == 0: # 统计总节点数的子查询
             sub_query = sub_query.group_by(Area.entrance).subquery()
         else:
@@ -209,13 +210,13 @@ def entrances():
     for index,category in enumerate(['total']+[category.name for category in categories]):
         if category in ["host","olt","eoc"]: continue
         query += 'func.coalesce(sub_query_list[%(index)s].c.%(category)s_count,0).label("%(category)s_count"),' % {'index':index,'category': category}
-        export_columns.append(category+"_count")
+        #export_columns.append(category+"_count")
     query += ')'
     query = eval(query)
     for index,sub_query in enumerate(sub_query_list):
         query = query.outerjoin(sub_query, sub_query.c.entrance==Area.id)
     query = query.filter(Area.area_type==4)
-    if not current_user.is_province_user: query = query.filter(Area.id.in_(current_user.domain.area_ids(4)))
+    if not current_user.is_province_user: query = query.filter(current_user.domain.clause_permit)
     if netloc:
         if 'or' in netloc: netloc = '('+netloc+')'
         query = query.filter(netloc)
@@ -237,7 +238,9 @@ def cities_new():
     if request.method == 'POST' and form.validate_on_submit():
         area = Area()
         form.populate_obj(area)
-        if Area.query.filter(Area.area_type==1).filter(Area.name==area.name).count() > 0:
+        if area.name != ''.join(pinyin(area.alias)):
+            flash(u'拼写错误，名称必须为别名的拼音，如北京：beijing', 'error')
+        elif Area.query.filter(Area.area_type==1).filter(Area.name==area.name).count() > 0:
             flash(u'地市名称不能重复','error')
         elif Area.query.filter(Area.area_type==1).filter(Area.alias==area.alias).count() > 0:
             flash(u'地市别名不能重复','error')
@@ -257,7 +260,9 @@ def cities_edit(id):
     area = Area.query.get_or_404(id)
     if request.method == 'POST':
         if form.validate_on_submit():
-            if area.name != form.name.data and Area.query.filter(Area.area_type==1).filter(Area.name==form.name.data).count() > 0:
+            if form.name.data != ''.join(pinyin(form.alias.data)):
+                flash(u'拼写错误，名称必须为别名的拼音，如北京：beijing', 'error')
+            elif area.name != form.name.data and Area.query.filter(Area.area_type==1).filter(Area.name==form.name.data).count() > 0:
                 flash(u'地市名称不能重复','error')
             elif area.alias != form.alias.data and Area.query.filter(Area.area_type==1).filter(Area.alias==form.alias.data).count() > 0:
                 flash(u'地市别名不能重复','error')

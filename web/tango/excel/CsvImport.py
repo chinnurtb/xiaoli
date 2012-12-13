@@ -83,7 +83,7 @@ class CsvImport(object):
         self._update(result.get("update",{}).values())  # 执行批量更新
         error_file = self._error(result.get("error",{}).values())   # 错误数据回写
         if error_file:
-            error_file = u'<a href="/static/file/download/%s">下载错误数据</a>' % error_file
+            error_file = u'<a href="/download?file=/static/file/download/%s">下载错误数据</a>' % error_file
         return u"成功导入%s表%s条，更新%s条记录。%s" % (self.table, len(result.get("insert",{}).values()), len(result.get("update",{}).values()), error_file)
 
     def _validate_update(self, row_dict_process, row_dict, existed_data_dict):   # 验证更新限制条件
