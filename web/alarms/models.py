@@ -6,7 +6,7 @@ from tango.models import Category
 
 from sqlalchemy import select, func
 
-from sqlalchemy.orm import column_property
+from sqlalchemy.orm import column_property, object_session
 
 class Alarm(db.Model):
     
@@ -133,12 +133,18 @@ class AlarmSeverity(db.Model):
     color       = db.Column(db.String(60)) 
     sound       = db.Column(db.String(60))
     remark      = db.Column(db.String(60))
-    
-    count       = column_property(
-                    select([func.count(Alarm.id)]).\
-                        where(Alarm.severity == id))
-    
-    
+
+    @property
+    def count(self):
+        from tango.login import current_user
+        from nodes.models import Node, Area
+        query = object_session(self).query(func.count(Alarm.id)).filter(Alarm.severity == self.id)
+        if not current_user.is_province_user:
+            query = query.outerjoin(Node, Node.id == Alarm.node_id)
+            query = query.outerjoin(Area, Area.id == Node.area_id)
+            query = query.filter(current_user.domain.clause_permit)
+        return query.scalar()
+
     @staticmethod
     def name2id(name):
         name_dict = {
