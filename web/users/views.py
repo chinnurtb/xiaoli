@@ -70,7 +70,10 @@ def profile():
     update_profile(args['grp'], args['key'], args['value'])
     db.session.commit()
     if request.method == 'GET':
-        return redirect(request.referrer)
+        # url过滤掉page参数
+        import re
+        referrer = re.split('[?|&]', request.referrer)
+        return redirect(referrer[0]+'?'+'&'.join([ref for ref in referrer[1:] if not ref.startswith('page')]))
     else:
         return 'Updated!'
         
