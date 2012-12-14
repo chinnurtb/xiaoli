@@ -141,7 +141,7 @@ def alarms_clear(id=None):
         return redirect(url_for('.index'))
         
     elif form.errors:
-        flash(u'清除表单有误', 'error')
+        flash(u'%s %s' % (form.cleared_note.label.text, form.errors['cleared_note'][0]), 'error')
         return redirect(url_for('.index'))
         
     form.process(obj=alarm)
