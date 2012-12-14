@@ -25,7 +25,7 @@ class AlarmAckForm(Form):
     acked_note        = TextAreaField(u'确认说明', validators=[required(message=u'必填')])
 
 class AlarmClearForm(Form):
-    cleared_note    = TextAreaField(u'清除说明')
+    cleared_note    = TextAreaField(u'清除说明', validators=[required(message=u'必填')])
  
 class AlarmClassForm(Form):
     id              = HiddenField(u'Id')
