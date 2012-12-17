@@ -351,14 +351,14 @@ class NodeOlt(NodeMixin,db.Model):
         return object_session(self).\
         scalar(
             select([func.count(NodeOnu.id)]).\
-            where(and_(NodeOnu.controller_id==self.id, NodeOnu.area_id != None))
+            where(and_(NodeOnu.ctrl_id==self.id, NodeOnu.area_id != None))
         )
     @property
     def onu_count_unplan(self):
         return object_session(self).\
         scalar(
             select([func.count(NodeOnu.id)]).\
-            where(and_(NodeOnu.controller_id==self.id, NodeOnu.area_id == None))
+            where(and_(NodeOnu.ctrl_id==self.id, NodeOnu.area_id == None))
         )
 
     @staticmethod
@@ -405,7 +405,7 @@ class NodeOnu(NodeMixin,db.Model):
     """ ONU """
     __tablename__ = 'node_onus'
 
-    controller_id = db.Column(db.Integer, db.ForeignKey('node_olts.id'))
+    ctrl_id = db.Column(db.Integer, db.ForeignKey('node_olts.id'))
     eocs    = db.relationship("NodeEoc", backref="onu")
     ports   = db.relationship("PortOnu", backref="onu")
 
@@ -424,7 +424,7 @@ class NodeEoc(NodeMixin, db.Model):
     contact_tel     = db.Column(db.String(50))  # 联系电话
     install_time    = db.Column(db.DateTime)    # 安装时间
 
-    controller_id = db.Column(db.Integer, db.ForeignKey('node_onus.id'))
+    ctrl_id = db.Column(db.Integer, db.ForeignKey('node_onus.id'))
     cpes = db.relationship("NodeCpe", backref="eoc")
     ports   = db.relationship("PortEoc", backref="eoc")
 
@@ -433,14 +433,14 @@ class NodeEoc(NodeMixin, db.Model):
         return object_session(self).\
         scalar(
             select([func.count(NodeCpe.id)]).\
-            where(and_(NodeCpe.controller_id==self.id, NodeCpe.area_id != None))
+            where(and_(NodeCpe.ctrl_id==self.id, NodeCpe.area_id != None))
         )
     @property
     def cpe_count_unplan(self):
         return object_session(self).\
         scalar(
             select([func.count(NodeCpe.id)]).\
-            where(and_(NodeCpe.controller_id==self.id, NodeCpe.area_id == None))
+            where(and_(NodeCpe.ctrl_id==self.id, NodeCpe.area_id == None))
         )
 
     def __unicode__(self):
@@ -459,7 +459,7 @@ class NodeCpe(NodeMixin, db.Model):
     install_time    = db.Column(db.DateTime)    # 安装时间
     card_id         = db.Column(db.String(50))  # 身份证号
 
-    controller_id = db.Column(db.Integer, db.ForeignKey('node_eocs.id'))
+    ctrl_id = db.Column(db.Integer, db.ForeignKey('node_eocs.id'))
 
     def __unicode__(self):
         return u'<CPE %s>' % self.alias

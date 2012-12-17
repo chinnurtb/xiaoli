@@ -23,7 +23,7 @@ from .views import nodeview
 @nodeview.route('/nodes/routers/', methods=['POST', 'GET'])
 def routers():
     form = RouterSearchForm()
-    query = NodeRouter.query
+    query = NodeRouter.query.outerjoin(Area, NodeRouter.area_id==Area.id)
 
     query_dict = dict([(key, request.args.get(key))for key in form.data.keys()])
     if query_dict.get("keyword"):
@@ -39,7 +39,7 @@ def routers():
     if query_dict.get("vendor_id"): query=query.filter(NodeRouter.vendor_id == query_dict["vendor_id"]) # ==
     if query_dict.get("model_id"): query=query.filter(NodeRouter.model_id == query_dict["model_id"])    # ==
     if query_dict.get("status"): query=query.filter(NodeRouter.status == query_dict["status"])
-    if not current_user.is_province_user: query = query.outerjoin(Area, NodeRouter.area_id==Area.id).filter(current_user.domain.clause_permit)
+    if not current_user.is_province_user: query = query.filter(current_user.domain.clause_permit)
     form.process(**query_dict)
     table = make_table(query, RouterTable)
 

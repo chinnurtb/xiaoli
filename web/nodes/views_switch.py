@@ -23,7 +23,7 @@ from .views import nodeview
 @nodeview.route('/nodes/switches/', methods=['POST', 'GET'])
 def switches():
     form = SwitchSearchForm()
-    query = NodeSwitch.query
+    query = NodeSwitch.query.outerjoin(Area, NodeSwitch.area_id==Area.id)
 
     query_dict = dict([(key, request.args.get(key))for key in form.data.keys()])
     if query_dict.get("keyword"):
@@ -39,7 +39,7 @@ def switches():
     if query_dict.get("vendor_id"): query=query.filter(NodeSwitch.vendor_id == query_dict["vendor_id"]) # ==
     if query_dict.get("model_id"): query=query.filter(NodeSwitch.model_id == query_dict["model_id"])    # ==
     if query_dict.get("status"): query=query.filter(NodeSwitch.status == query_dict["status"])
-    if not current_user.is_province_user: query = query.outerjoin(Area, NodeSwitch.area_id==Area.id).filter(current_user.domain.clause_permit)
+    if not current_user.is_province_user: query = query.filter(current_user.domain.clause_permit)
     form.process(**query_dict)
     table = make_table(query, SwitchTable)
 

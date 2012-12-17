@@ -81,7 +81,7 @@ class EocNewForm(FormPro):
     remark          = TextAreaField(u'备注信息')
 
 class CpeNewForm(FormPro):
-    controller_id      = SelectFieldPro(u'所属EOC', validators=[required(message=u'必填')],
+    ctrl_id      = SelectFieldPro(u'所属EOC', validators=[required(message=u'必填')],
         choices=lambda: eoc_choices(3, u'请选择EOC'))
     area_id         = SelectFieldPro(u'接入点', validators=[required(message=u'必填')],
         choices=lambda: area_choices(4, u'请选择接入点'))
@@ -133,7 +133,7 @@ class RouterNewForm(FormPro):
     remark          = TextAreaField(u'备注信息')
 
 class OnuNewForm(FormPro):
-    controller_id      = SelectFieldPro(u'所属OLT', validators=[required(message=u'必填')],
+    ctrl_id      = SelectFieldPro(u'所属OLT', validators=[required(message=u'必填')],
         choices=lambda : olt_choices(3, u'请选择OLT'))
     area_id         = SelectFieldPro(u'接入点', validators=[required(message=u'必填')],
         choices=lambda : area_choices(4, u'请选择接入点'))

@@ -54,7 +54,7 @@ def area_select():
         node = {'title': area.alias, 'key': str(area.id), 'area_type': area_type[area.area_type]}
         if area.id in area_selected:
             node['select'] = True
-        if len(area.children) > 0:
+        if area.area_type<3 and len(area.children) > 0:
             node['isLazy'] = True
         return node
 
@@ -82,18 +82,18 @@ def area_select():
             city_ids = current_user.domain.city_list.split(',') if current_user.domain.city_list else []
         town_ids = current_user.domain.town_list.split(',') if current_user.domain.town_list else []
         branch_ids = current_user.domain.branch_list.split(',') if current_user.domain.branch_list else []
-        entrance_ids = current_user.domain.entrance_list.split(',') if current_user.domain.entrance_list else []
         city_nodes = [Area.query.get(city) for city in city_ids]
         town_nodes = [Area.query.get(town) for town in town_ids]
         branch_nodes = [Area.query.get(branch) for branch in branch_ids]
-        entrance_nodes = [Area.query.get(entrance) for entrance in entrance_ids]
         area_nodes = city_nodes
         area_nodes.extend([area for area in town_nodes if str(area.cityid) not in city_ids])
         area_nodes.extend([area for area in branch_nodes if str(area.cityid) not in city_ids
             and str(area.town) not in town_ids])
-        area_nodes.extend([make_node(area) for area in entrance_nodes if str(area.cityid) not in city_ids
-            and str(area.town) not in town_ids
-            and str(area.branch) not in branch_ids])
+        #entrance_ids = current_user.domain.entrance_list.split(',') if current_user.domain.entrance_list else []
+        #entrance_nodes = [Area.query.get(entrance) for entrance in entrance_ids]
+        #area_nodes.extend([make_node(area) for area in entrance_nodes if str(area.cityid) not in city_ids
+        #    and str(area.town) not in town_ids
+        #    and str(area.branch) not in branch_ids])
 
         trees = [make_nodes(area) for area in area_nodes]
 
@@ -107,7 +107,7 @@ def nodes():
     form = NodeSearchForm()
 
     # 节点检索
-    query = Node.query
+    query = Node.query.outerjoin(Area, Node.area_id==Area.id)
     query_dict = dict([(key, request.args.get(key))for key in form.data.keys()])
     if query_dict.get("keyword"):
         query=query.filter(or_(
@@ -125,7 +125,7 @@ def nodes():
     if query_dict.get("model_id"): query=query.filter(Node.model_id == query_dict["model_id"])    # ==
     if query_dict.get("category_id"): query=query.filter(Node.category_id == query_dict["category_id"])
     if query_dict.get("status"): query=query.filter(Node.status == query_dict["status"])
-    if not current_user.is_province_user: query = query.outerjoin(Area, Node.area_id==Area.id).filter(current_user.domain.clause_permit) # 过滤不在当前用户管理域的节点
+    if not current_user.is_province_user: query = query.filter(current_user.domain.clause_permit) # 过滤不在当前用户管理域的节点
     form.process(**query_dict)
     table = make_table(query, NodeTable)
 

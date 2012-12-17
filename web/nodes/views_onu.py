@@ -23,7 +23,7 @@ from .views import nodeview
 @nodeview.route('/nodes/onus/', methods=['GET'])
 def onus():
     form = OnuSearchForm()
-    query = NodeOnu.query
+    query = NodeOnu.query.outerjoin(NodeOlt,NodeOlt.id==NodeOnu.ctrl_id).outerjoin(Area, NodeOlt.area_id==Area.id)
 
     query_dict = dict([(key, request.args.get(key))for key in form.data.keys()])
     if query_dict.get("keyword"):
@@ -38,11 +38,9 @@ def onus():
         query = query.filter(netloc)
     if query_dict.get("vendor_id"): query=query.filter(NodeOnu.vendor_id == query_dict["vendor_id"]) # ==
     if query_dict.get("model_id"): query=query.filter(NodeOnu.model_id == query_dict["model_id"])    # ==
-    if request.args.get("olt_id"): query=query.filter(NodeOnu.controller_id == request.args["olt_id"])
+    if request.args.get("olt_id"): query=query.filter(NodeOnu.ctrl_id == request.args["olt_id"])
     if query_dict.get("status"): query=query.filter(NodeOnu.status == query_dict["status"])
-    if not current_user.is_province_user:
-        query = query.outerjoin(NodeOlt,NodeOlt.id==NodeOnu.controller_id)
-        query = query.outerjoin(Area, NodeOlt.area_id==Area.id).filter(current_user.domain.clause_permit)
+    if not current_user.is_province_user: query = query.filter(current_user.domain.clause_permit)
     form.process(**query_dict)
     table = make_table(query, OnuTable)
 
@@ -50,7 +48,7 @@ def onus():
     for status in NODE_STATUS_DICT.keys():
         num = NodeOnu.query.filter(NodeOnu.status == status)
         if not current_user.is_province_user:
-            num = num.outerjoin(NodeOlt,NodeOlt.id==NodeOnu.controller_id)
+            num = num.outerjoin(NodeOlt,NodeOlt.id==NodeOnu.ctrl_id)
             num = num.outerjoin(Area, NodeOlt.area_id==Area.id).filter(current_user.domain.clause_permit)
         num = num.count()
         status_statistcs.append({"status": status, "number": num, "name": NODE_STATUS_DICT.get(status)})

@@ -8,7 +8,7 @@
 
     <script type="text/javascript">
         $(function() {
-            $("#controller_id").select_change_ajax({
+            $("#ctrl_id").select_change_ajax({
                 id: "area_id",
                 url: "{{ url_for('nodes.ajax_entrances_for_eoc') }}",
                 option: "请选择接入点"
@@ -39,7 +39,7 @@
             {% from "tango/_form_h.html" import render_field,render_areas,render_radio %}
             {{ form.hidden_tag() }}
             <fieldset>
-                {{ render_field(form.controller_id, class="input-large") }}
+                {{ render_field(form.ctrl_id, class="input-large") }}
                 {{ render_field(form.area_id, class="input-large") }}
                 {{ render_field(form.name) }}
                 {{ render_field(form.alias) }}
