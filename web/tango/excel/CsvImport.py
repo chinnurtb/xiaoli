@@ -83,7 +83,7 @@ class CsvImport(object):
         self._update(result.get("update",{}).values())  # 执行批量更新
         error_file = self._error(result.get("error",{}).values())   # 错误数据回写
         if error_file:
-            error_file = u'<a href="/static/file/download/%s">下载错误数据</a>' % error_file
+            error_file = u'<a href="/download?file=/static/file/download/%s">下载错误数据</a>' % error_file
         return u"成功导入%s表%s条，更新%s条记录。%s" % (self.table, len(result.get("insert",{}).values()), len(result.get("update",{}).values()), error_file)
 
     def _validate_update(self, row_dict_process, row_dict, existed_data_dict):   # 验证更新限制条件
@@ -188,6 +188,74 @@ class CsvImport(object):
         for data in data_list:
             writer.writerow(data)
         return os.path.basename(file)
+
+def validate_float(value):
+    try:
+        float(value)
+        return True
+    except ValueError:
+        return False
+
+class CityImport(object):
+    def __init__(self, session):
+        self.session = session
+        self.columns = [
+            (u'地市名称', 'name'),
+            (u'地市别名', 'alias'),
+            (u'经度', 'longitude'),
+            (u'纬度', 'latitude'),
+            (u'备注', 'remark')
+        ]
+        self.columns_cn_dict = dict(self.columns)
+        self.columns_en_dict = dict([(name_en, name_cn) for name_cn, name_en in self.columns])
+        self.error_records = []
+
+    def read(self, file):
+        file = os.path.join(os.path.dirname(os.path.abspath(__file__)),file)
+        reader = csv.reader(open(file,'rb'))
+        key_col = {}
+        for col_index, col_name in enumerate(reader[0]):
+            name_en = self.columns_cn_dict.get(col_name.decode('gbk','ignore'))
+            if name_en:
+                key_col[col_index] = name_en
+            else:
+                return u"导入文件表头错误"
+        records = []
+        for row_data in reader[1:]:
+            row_dict = {}
+            for col_index, value in enumerate(row_data):
+                row_dict[key_col[col_index]] = value.decode('gbk','ignore')
+            records.append(row_dict)
+
+        # 验证数据格式
+        right_records = []
+        for record_dict in records:
+            #验证不能为空
+            for name_en in ['name','alias']:
+                if not record_dict.get(name_en):
+                    record_dict['error'] = self.columns_en_dict.get(name_en)+u'不能为空'
+                    self.error_records.append(record_dict)
+            #验证数字
+            for name_en in ['longitude','latitude']:
+                if record_dict.get(name_en) and not validate_float(record_dict[name_en]):
+                    record_dict['error'] = self.columns_en_dict.get(name_en)+u'数据格式不正确'
+                    self.error_records.append(record_dict)
+            right_records.append(record_dict)
+
+        self.session.execute("drop table if exists temp_cities;")
+        create_temp_table = '''
+        create temporary table temp_cities (id int, name character varying(40), alias character varying(200),
+            longitude double precision, latitude double precision, remark character varying(200));
+        '''
+        self.session.execute(create_temp_table)
+        self.session.execute("CREATE INDEX index_id ON temp_cities(id)")
+        insert_temp = 'insert into temp_cities (name, alias, longitude, latitude, remark) values (%s,%s,%s,%s,%s);'
+        self.session.execute(insert_temp, [[record_dict.get(column[1]) for column in self.columns] for record_dict in right_records])
+        self.session.execute('update temp_cities set id=t2.id from areas t2 where temp_cities.alias=t2.alias;')
+        self.session.execute('update areas set name=t2.name,longitude=t2.longitude,latitude=t2.latitude,remark=t2.remark from temp_cities t2 where areas.id=t2.id')
+        insert_data = self.session.execute('select name, alias, longitude, latitude, remark from temp_cities where id is null;')
+        insert_sql = 'insert into areas(name,alias,longitude,latitude,remark,parent_id,area_type) values (%s,%s,%s,%s,%s,%s,%s);'
+        self.session.execute(insert_sql, [data+(100,1) for data in insert_data])
 
 if __name__ == "__main__":
     from sqlalchemy import create_engine

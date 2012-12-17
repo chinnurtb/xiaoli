@@ -21,7 +21,7 @@ from tango.ui import tables, navbar, dashboard, Dashboard
 
 from tango.models import Query, Profile, Category, Setting
 
-from nodes.models import Node, Vendor
+from nodes.models import Node, Vendor, Area
 from system.tables import SettingTable
 from system.forms import SettingEditForm
 
@@ -45,7 +45,6 @@ def inject_navid():
 def alarm_filter(cls, query, form):
     """告警过滤"""
     severity = form.alarm_severity.data
-    print severity
     if severity is not None:
         query = query.filter(cls.severity == severity.id)
     alarm_class = form.alarm_class.data
@@ -61,15 +60,19 @@ def alarm_filter(cls, query, form):
     if keyword and keyword != '':
         query = query.filter(db.or_(
                     cls.alarm_alias.ilike('%'+keyword+'%'),
+                    cls.node.has(Node.addr.ilike('%'+keyword+'%')),
                     cls.node.has(Node.alias.ilike('%'+keyword+'%'))))
     return query
 
 @alarmview.route('/alarms', methods = ['GET'])
 def index():
     filterForm = AlarmFilterForm(formdata=request.args)
-    query = alarm_filter(Alarm, Alarm.query, filterForm)
+    alarm_query = Alarm.query
+    if not current_user.is_province_user:
+        alarm_query = alarm_query.outerjoin(Node, Node.id == Alarm.node_id)
+        alarm_query = alarm_query.outerjoin(Area, Node.area_id==Area.id).filter(current_user.domain.clause_permit)
+    query = alarm_filter(Alarm, alarm_query, filterForm)
     severity = request.args.get('severity')
-    print severity
     if severity:
         query = query.filter(Alarm.severity == AlarmSeverity.name2id(severity))
     severities = query_severities()
@@ -138,7 +141,7 @@ def alarms_clear(id=None):
         return redirect(url_for('.index'))
         
     elif form.errors:
-        flash(u'清除表单有误', 'error')
+        flash(u'%s %s' % (form.cleared_note.label.text, form.errors['cleared_note'][0]), 'error')
         return redirect(url_for('.index'))
         
     form.process(obj=alarm)
@@ -152,7 +155,11 @@ def alarms_clear(id=None):
 @alarmview.route('/histories')
 def histories():
     filterForm = AlarmFilterForm(formdata=request.args)
-    query = alarm_filter(History, History.query, filterForm)
+    history_query = History.query
+    if not current_user.is_province_user:
+        history_query = history_query.outerjoin(Node, Node.id == History.node_id)
+        history_query = history_query.outerjoin(Area, Node.area_id==Area.id).filter(current_user.domain.clause_permit)
+    query = alarm_filter(History, history_query, filterForm)
     table = make_table(query, HistoryTable)
     return render_template("/alarms/histories.html",
         table=table, filterForm=filterForm)
@@ -217,6 +224,9 @@ def _console_query(filter=None):
     q = db.session.query(Alarm.severity, func.count(Alarm.id).label('count'))
     if filter is not None:
         q = q.filter(filter)
+    if not current_user.is_province_user:
+        q = q.outerjoin(Node, Node.id == Alarm.node_id)
+        q = q.outerjoin(Area, Node.area_id==Area.id).filter(current_user.domain.clause_permit)
     return q.group_by(Alarm.severity).order_by(Alarm.severity)
 
 @alarmview.route('/alarms/console/category_status')
@@ -238,6 +248,9 @@ def _console_category_query(cid):
     q = db.session.query(Alarm.severity, func.count(Alarm.id).label('count'))
     q = q.outerjoin(AlarmClass, Alarm.class_id == AlarmClass.id)
     q = q.outerjoin(Category, AlarmClass.category_id == Category.id)
+    if not current_user.is_province_user:
+        q = q.outerjoin(Node, Node.id == Alarm.node_id)
+        q = q.outerjoin(Area, Node.area_id==Area.id).filter(current_user.domain.clause_permit)
     return q.filter(Category.id == cid).group_by(Alarm.severity)
 
 def render_console_chart(id, query):
@@ -358,8 +371,11 @@ def alarm_severity_alias(s):
 #==============================================
 @alarmview.route('/alarms/stats/by_last10')
 def stats_by_last10():
-    alarms = Alarm.query.filter(Alarm.severity > 0).order_by(Alarm.last_occurrence.desc()).limit(10)
-    return render_template('alarms/stats/by_last10.html', alarms=alarms)
+    alarms = Alarm.query.filter(Alarm.severity > 0).order_by(Alarm.last_occurrence.desc())
+    if not current_user.is_province_user:
+        alarms = alarms.outerjoin(Node, Node.id == Alarm.node_id)
+        alarms = alarms.outerjoin(Area, Node.area_id==Area.id).filter(current_user.domain.clause_permit)
+    return render_template('alarms/stats/by_last10.html', alarms=alarms.limit(10))
 
 @alarmview.route('/alarms/stats/by_severity')
 def stats_by_severity():
@@ -378,6 +394,10 @@ def stats_by_category():
     q = q.outerjoin(AlarmClass, Alarm.class_id == AlarmClass.id)
     q = q.outerjoin(Category, AlarmClass.category_id == Category.id)
     q = q.group_by(Alarm.severity, Category.id, Category.alias).order_by(Category.id)
+    if not current_user.is_province_user:
+        q = q.outerjoin(Node, Node.id == Alarm.node_id)
+        q = q.outerjoin(Area, Node.area_id==Area.id).filter(current_user.domain.clause_permit)
+
     #(id, alias): (clear, indeterminate, warning, minor, major, critical)
     rows = {}
     for count, severity, cat_id, cat_alias in q.all():
@@ -394,6 +414,9 @@ def stats_by_class():
     q = db.session.query(func.count(Alarm.id), AlarmClass.id, AlarmClass.alias)
     q = q.outerjoin(AlarmClass, Alarm.class_id == AlarmClass.id)
     q = q.group_by(AlarmClass.id, AlarmClass.alias)
+    if not current_user.is_province_user:
+        q = q.outerjoin(Node, Node.id == Alarm.node_id)
+        q = q.outerjoin(Area, Node.area_id==Area.id).filter(current_user.domain.clause_permit)
     return render_template('alarms/stats/by_class.html', data=q.all())
 
 @alarmview.route('/alarms/stats/by_node_category')
@@ -402,7 +425,8 @@ def stats_by_node_category():
     q = q.outerjoin(Node, Alarm.node_id == Node.id)
     q = q.outerjoin(Category, Node.category_id == Category.id)
     q = q.group_by(Category.id, Category.alias).order_by(Category.id)
-    print q.all()
+    if not current_user.is_province_user:
+        q = q.outerjoin(Area, Node.area_id==Area.id).filter(current_user.domain.clause_permit)
     return render_template('alarms/stats/by_node_category.html', data=q.all())
 
 @alarmview.route('/alarms/stats/by_node_vendor')
@@ -411,6 +435,8 @@ def stats_by_node_vendor():
     q = q.outerjoin(Node, Alarm.node_id == Node.id)
     q = q.outerjoin(Vendor, Node.vendor_id == Vendor.id)
     q = q.group_by(Vendor.id, Vendor.alias).order_by(Vendor.id)
+    if not current_user.is_province_user:
+        q = q.outerjoin(Area, Node.area_id==Area.id).filter(current_user.domain.clause_permit)
     return render_template('alarms/stats/by_node_vendor.html', data=q.all())
 
 

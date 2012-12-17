@@ -24,7 +24,6 @@ from .views import nodeview
 def eocs():
     form = EocSearchForm()
     query = NodeEoc.query
-    query = query.outerjoin(Area, NodeEoc.area_id==Area.id)
 
     query_dict = dict([(key, request.args.get(key))for key in form.data.keys()])
     if query_dict.get("keyword"):
@@ -40,14 +39,14 @@ def eocs():
     if query_dict.get("vendor_id"): query=query.filter(NodeEoc.vendor_id == query_dict["vendor_id"]) # ==
     if query_dict.get("model_id"): query=query.filter(NodeEoc.model_id == query_dict["model_id"])    # ==
     if query_dict.get("status"): query=query.filter(NodeEoc.status == query_dict["status"])
-    if not current_user.is_province_user: query = query.filter(Area.id.in_(current_user.domain.area_ids(3)))
+    if not current_user.is_province_user: query = query.outerjoin(Area, NodeEoc.area_id==Area.id).filter(current_user.domain.clause_permit)
     form.process(**query_dict)
     table = make_table(query, EocTable)
 
     status_statistcs = []
     for status in NODE_STATUS_DICT.keys():
         num = NodeEoc.query.filter(NodeEoc.status == status)
-        if not current_user.is_province_user: num = num.filter(NodeEoc.area_id.in_(current_user.domain.area_ids(3)))
+        if not current_user.is_province_user: num = num.outerjoin(Area, NodeEoc.area_id==Area.id).filter(current_user.domain.clause_permit)
         num = num.count()
         status_statistcs.append({"status": status, "number": num, "name": NODE_STATUS_DICT.get(status)})
 

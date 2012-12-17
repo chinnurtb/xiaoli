@@ -23,8 +23,7 @@ from .views import nodeview
 @nodeview.route('/nodes/onus/', methods=['GET'])
 def onus():
     form = OnuSearchForm()
-    query = NodeOnu.query.outerjoin(NodeOlt,NodeOlt.id==NodeOnu.controller_id)
-    query = query.outerjoin(Area, NodeOnu.area_id==Area.id)
+    query = NodeOnu.query
 
     query_dict = dict([(key, request.args.get(key))for key in form.data.keys()])
     if query_dict.get("keyword"):
@@ -41,14 +40,18 @@ def onus():
     if query_dict.get("model_id"): query=query.filter(NodeOnu.model_id == query_dict["model_id"])    # ==
     if request.args.get("olt_id"): query=query.filter(NodeOnu.controller_id == request.args["olt_id"])
     if query_dict.get("status"): query=query.filter(NodeOnu.status == query_dict["status"])
-    if not current_user.is_province_user: query = query.filter(NodeOlt.area_id.in_(current_user.domain.area_ids(3)))
+    if not current_user.is_province_user:
+        query = query.outerjoin(NodeOlt,NodeOlt.id==NodeOnu.controller_id)
+        query = query.outerjoin(Area, NodeOlt.area_id==Area.id).filter(current_user.domain.clause_permit)
     form.process(**query_dict)
     table = make_table(query, OnuTable)
 
     status_statistcs = []
     for status in NODE_STATUS_DICT.keys():
-        num = NodeOnu.query.outerjoin(NodeOlt,NodeOlt.id==NodeOnu.controller_id).filter(NodeOnu.status == status)
-        if not current_user.is_province_user: num = num.filter(NodeOlt.area_id.in_(current_user.domain.area_ids(3)))
+        num = NodeOnu.query.filter(NodeOnu.status == status)
+        if not current_user.is_province_user:
+            num = num.outerjoin(NodeOlt,NodeOlt.id==NodeOnu.controller_id)
+            num = num.outerjoin(Area, NodeOlt.area_id==Area.id).filter(current_user.domain.clause_permit)
         num = num.count()
         status_statistcs.append({"status": status, "number": num, "name": NODE_STATUS_DICT.get(status)})
 

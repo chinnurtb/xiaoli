@@ -1,0 +1,8 @@
+<div class="modal-header">
+<a class="close" data-dismiss="modal">×</a>
+<h5>Ping时延</h5>
+</div>
+<div class="modal-body">
+    {% from "_nvd3_chart.html" import traffic_chart %}
+    {{ traffic_chart("ping_delay", chartdata) }}
+</div>

@@ -108,7 +108,6 @@ def nodes():
 
     # 节点检索
     query = Node.query
-    query = query.outerjoin(Area, Node.area_id==Area.id)
     query_dict = dict([(key, request.args.get(key))for key in form.data.keys()])
     if query_dict.get("keyword"):
         query=query.filter(or_(
@@ -126,7 +125,7 @@ def nodes():
     if query_dict.get("model_id"): query=query.filter(Node.model_id == query_dict["model_id"])    # ==
     if query_dict.get("category_id"): query=query.filter(Node.category_id == query_dict["category_id"])
     if query_dict.get("status"): query=query.filter(Node.status == query_dict["status"])
-    if not current_user.is_province_user: query = query.filter(Area.id.in_(current_user.domain.area_ids())) # 过滤不在当前用户管理域的节点
+    if not current_user.is_province_user: query = query.outerjoin(Area, Node.area_id==Area.id).filter(current_user.domain.clause_permit) # 过滤不在当前用户管理域的节点
     form.process(**query_dict)
     table = make_table(query, NodeTable)
 
@@ -134,7 +133,7 @@ def nodes():
     status_statistcs = []
     for status in NODE_STATUS_DICT.keys():
         num = Node.query.filter(Node.status == status)
-        if not current_user.is_province_user: num = num.filter(Node.area_id.in_(current_user.domain.area_ids()))
+        if not current_user.is_province_user: num = num.outerjoin(Area, Node.area_id==Area.id).filter(current_user.domain.clause_permit)
         num = num.count()
         status_statistcs.append({"status": status, "number": num, "name": NODE_STATUS_DICT.get(status)})
 
@@ -169,25 +168,29 @@ def ajax_models_for_vendor():
 @nodeview.route('/nodes/ajax_towns_for_city', methods=['GET'])
 def ajax_towns_for_city():
     cityid = request.args.get('key')
-    towns = Area.query.filter(Area.cityid==cityid).filter(Area.area_type==2).filter(Area.id.in_(current_user.domain.area_ids(2)))
+    towns = Area.query.filter(Area.cityid==cityid).filter(Area.area_type==2)
+    if not current_user.is_province_user: towns = towns.filter(current_user.domain.clause_permit)
     return json.dumps([{'value':town.id, 'name':town.alias} for town in towns])
 
 @nodeview.route('/nodes/ajax_branches_for_town', methods=['GET'])
 def ajax_branches_for_town():
     town = request.args.get('key')
-    branches = Area.query.filter(Area.town==town).filter(Area.area_type==3).filter(Area.id.in_(current_user.domain.area_ids(3)))
+    branches = Area.query.filter(Area.town==town).filter(Area.area_type==3)
+    if not current_user.is_province_user: branches = branches.filter(current_user.domain.clause_permit)
     return json.dumps([{'value':branch.id, 'name':branch.alias} for branch in branches])
 
 @nodeview.route('/nodes/ajax_entrances_for_branch', methods=['GET'])
 def ajax_entrances_for_branch():
     branch = request.args.get('key')
-    entrances = Area.query.filter(Area.branch==branch).filter(Area.area_type==4).filter(Area.id.in_(current_user.domain.area_ids(4)))
+    entrances = Area.query.filter(Area.branch==branch).filter(Area.area_type==4)
+    if not current_user.is_province_user: entrances = entrances.filter(current_user.domain.clause_permit)
     return json.dumps([{'value':entrance.id, 'name':entrance.alias} for entrance in entrances])
 
 @nodeview.route('/nodes/ajax_entrances_for_town', methods=['GET'])
 def ajax_entrances_for_town():
     town = request.args.get('key')
-    entrances = Area.query.filter(Area.town==town).filter(Area.area_type==4).filter(Area.id.in_(current_user.domain.area_ids(4)))
+    entrances = Area.query.filter(Area.town==town).filter(Area.area_type==4)
+    if not current_user.is_province_user: entrances = entrances.filter(current_user.domain.clause_permit)
     return json.dumps([{'value':entrance.id, 'name':entrance.alias} for entrance in entrances])
 
 

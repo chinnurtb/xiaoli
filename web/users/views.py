@@ -70,7 +70,10 @@ def profile():
     update_profile(args['grp'], args['key'], args['value'])
     db.session.commit()
     if request.method == 'GET':
-        return redirect(request.referrer)
+        # url过滤掉page参数
+        import re
+        referrer = re.split('[?|&]', request.referrer)
+        return redirect(referrer[0]+'?'+'&'.join([ref for ref in referrer[1:] if not ref.startswith('page')]))
     else:
         return 'Updated!'
         
@@ -346,7 +349,7 @@ def roles_delete_all():
     kwargs = {
         'title': u'批量删除角色',
         'action': url_for('users.roles_delete_all'),
-        'fields': [(r.id, u'角色名', r.nameb) for r in roles],
+        'fields': [(r.id, u'角色名', r.name) for r in roles],
         'type' : 'delete'
     }
     return render_template('tango/_modal_del_all.html', **kwargs)
