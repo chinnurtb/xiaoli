@@ -146,13 +146,13 @@ prioritise_call(shards, _From, _State) ->
 prioritise_call(_, _From, _State) ->
     5.
 
-handle_cast({dispatch, {monitor, #node{dn = Dn} = Node}}, 
+handle_cast({dispatch, {monitor, #mit_node{dn = Dn} = Node}}, 
     #state{channel = Ch} = State) ->
     Payload = term_to_binary({node, node(), {monitor, Node}}),
     Timer = send_after(?TIMEOUT, self(), {timeout, {node, monitor, Dn}}),
     case mnesia:dirty_read(dispatch, Dn) of
     [] -> %still not be dispatched
-        ShardQueue = list_to_binary(["shard.", Node#node.city]),
+        ShardQueue = list_to_binary(["shard.", Node#mit_node.city]),
         ?INFO("dispatch node ~s to ~s ", [Dn, ShardQueue]),
         amqp:publish(Ch, <<"sys.shard">>, Payload, ShardQueue), 
         mnesia:dirty_write(#dispatch{dn = Dn, tref=Timer});
@@ -166,7 +166,7 @@ handle_cast({dispatch, {monitor, #node{dn = Dn} = Node}},
     {noreply, State};
 
 handle_cast({dispatch, {update, Node}}, #state{channel = Ch} = State) ->
-    #node{dn=Dn, city=City} = Node,
+    #mit_node{dn=Dn, city=City} = Node,
     case mnesia:dirty_read(dispatch, Dn) of
     [] -> %still not be dispatched
         Timer = send_after(?TIMEOUT, self(), {timeout, {node, monitor, Dn}}),

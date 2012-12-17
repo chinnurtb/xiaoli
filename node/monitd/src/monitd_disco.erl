@@ -9,9 +9,9 @@
 %%%----------------------------------------------------------------------
 -module(monitd_disco).
 
--include("mit.hrl").
-
 -include("mib/rfc1213.hrl").
+
+-include_lib("mit/include/mit.hrl").
 
 -include_lib("elog/include/elog.hrl").
 
@@ -31,14 +31,16 @@
         report/1]).
 
 %%callback
--export([init/1, 
-         handle_call/3, 
-         handle_cast/2, 
-         handle_info/2, 
-         terminate/2, 
+-export([init/1,
+         handle_call/3,
+         handle_cast/2,
+         handle_info/2,
+         terminate/2,
          code_change/3]).
 
--record(sysmod, {sysoid, category, model, module, mib}). %category, vendor,
+-record(sysmod, {sysoid, category, vendor, model, mib}). %category, vendor,
+
+-record(sysmapper, {sysoid, name, module, mib}).
 
 %%--------------------------------------------------------------------
 %% @spec start_link() ->  Result
@@ -54,16 +56,19 @@ setup({dict_status, Records}) ->
 setup({sysoids, Sysoids}) ->
 	gen_server:call(?MODULE, {setup, sysoids, Sysoids}).
 
+setup({sysmappers, Mappers}) ->
+	gen_server:call(?MODULE, {setup, sysmappers, Mappers}).
+
 status() ->
     gen_server:call(?MODULE, status).
 
-discover(Node) when is_record(Node, node) ->
+discover(Node) when is_record(Node, mit_node) ->
     gen_server:cast(?MODULE, {discover, Node}).
 
 undiscover(Dn) ->
     gen_server:cast(?MODULE, {undiscover, Dn}).
 
-update(Node) when is_record(Node, node) ->
+update(Node) when is_record(Node, mit_node) ->
     gen_server:cast(?MODULE, {update, Node}).
 
 report({failure, Node}) -> 
@@ -83,6 +88,7 @@ report({success, Dn, DataList}) ->
 init([]) ->
     ets:new(dict_status, [set, named_table, protected]),
     ets:new(sysmod, [set, named_table, protected, {keypos, 2}]),
+    ets:new(sysmapper, [bag, named_table, protected, {keypos, 2}]),
     ets:new(disco_table, [set, named_table]),
     ets:new(failed_disco_table, [set, named_table]),
     erlang:send_after(1000, self(), execute),
@@ -113,21 +119,32 @@ handle_call({setup, sysoids, Records}, _Form, State) ->
         #sysmod{
             sysoid = get_value(sysoid, R),
             category = extbif:binary_to_atom(get_value(category, R)),
-            model = get_value(model_id, R),
-            module = extbif:binary_to_atom(get_value(disco, R)),
-            mib =extbif:binary_to_atom(get_value(mib, R))}) 
+            vendor = extbif:binary_to_atom(get_value(vendor, R)),
+            model = extbif:binary_to_atom(get_value(model, R)),
+            module = extbif:binary_to_atom(get_value(disco, R))}) 
     || R <- Records],
+    {reply, ok, State};
+
+handle_call({setup, sysmappers, Mappers}, _From, State) ->
+    [ets:insert(sysmapper, 
+        #sysmapper{
+            sysoid = get_value(sysoid, R),
+            name = extbif:binary_to_atom(get_value(name, R)),
+            module = extbif:binary_to_atom(get_value(module, R)),
+            mib =extbif:binary_to_atom(get_value(mib, R))
+        }
+    || R <- Mappers],
     {reply, ok, State};
     
 handle_call(Req, _From, State) ->
     ?ERROR("badreq: ~p", [Req]),
     {stop, {badreq, Req}, State}.
 
-handle_cast({discover, #node{dn=Dn}=Node}, State) ->
+handle_cast({discover, #mit_node{dn=Dn}=Node}, State) ->
     ets:insert(disco_table, {Dn, Node}),
     {noreply, State};
 
-handle_cast({update, #node{dn=Dn}=Node}, State) ->
+handle_cast({update, #mit_node{dn=Dn}=Node}, State) ->
     case ets:lookup(disco_table, Dn) of
     [_] -> 
         ets:insert(disco_table, {Dn, Node});
@@ -147,7 +164,7 @@ handle_cast({undiscover, Dn}, State) ->
     ets:delete(failed_disco_table, Dn),
     {noreply, State};
 
-handle_cast({failure, #node{dn=Dn}=Node}, State) ->
+handle_cast({failure, #mit_node{dn=Dn}=Node}, State) ->
     ets:insert(failed_disco_table, {Dn, Node}),
     {noreply, State};
 
@@ -218,9 +235,9 @@ execute({Dn, Node}) ->
 %%--------------------------------------------------------------------
 %%% Internal functions
 %%--------------------------------------------------------------------
-discover(node, #node{ip=undefined}) ->
+discover(node, #mit_node{ip=undefined}) ->
     ignore;
-discover(node, #node{dn=Dn, ip=Ip, community=Community}) ->
+discover(node, #mit_node{dn=Dn, ip=Ip, community=Community}) ->
 	?INFO("begin to discover ~s", [Ip]),
 
 	{SnmpStatus, _} = check_snmp:run(to_list(Ip), Community),

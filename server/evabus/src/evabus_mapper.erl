@@ -117,7 +117,7 @@ enrich(class, #alarm{alarm_name = Name, severity = Severity} = Alarm) ->
 
 enrich(sender, {_, Sender}, Alarm) ->
     {ok, Node} = mit:lookup(Sender),
-    Alarm#alarm{node_id = Node#node.id};
+    Alarm#alarm{node_id = Node#mit_node.id};
 
 enrich(source, {_, undefined}, Alarm) -> 
 	Alarm;
@@ -125,8 +125,8 @@ enrich(source, {_, undefined}, Alarm) ->
 enrich(source, {_From, Source}, Alarm) ->
 	case mit:lookup(Source) of
     {ok, Node} -> 
-        Alarm#alarm{source = Node#node.dn,
-                    source_class = Node#node.category};
+        Alarm#alarm{source = Node#mit_node.dn,
+                    source_class = Node#mit_node.category};
     _ ->
         Alarm
     end;

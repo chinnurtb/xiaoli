@@ -20,7 +20,8 @@
 -define(NODE_SQL,
     "select t.id, t.dn, t.name, t.alias, t.addr as ip, t.area_id as areaid, "
     "t.sysoid, t.snmp_comm as community, t.snmp_wcomm as write_community, "
-    "t.oididx, t.timeperiod_id, "
+    "t.oididx, t.timeperiod_id, t.ctrl_type, "
+    "t0.dn as ctrldn, "
     "t1.name as category, t1.id as categoryid, "
     "t2.name as vendor, t2.id as vendorid, "
     "t3.name as model, t3.id as modelid, "
@@ -28,6 +29,7 @@
     "t4.cityid, "
     "t5.name as city "
     "from nodes t "
+    "left join nodes t0 on t0.id = t.ctrl_id "
     "left join categories t1 on t1.id = t.category_id "
     "left join vendors t2 on t2.id = t.vendor_id "
     "left join models t3 on t3.id = t.model_id "
@@ -58,7 +60,7 @@ result({error, Error}) ->
     {error, Error}.
     
 record(N) ->
-    #node{dn = get_value(dn, N),
+    #mit_node{dn = get_value(dn, N),
         id = get_value(id, N),
         ip = get_value(ip, N),
         category = atom(get_value(category, N)),
@@ -78,7 +80,9 @@ record(N) ->
         sysoid = get_value(sysoid, N),
         community = get_value(community, N),
         write_community = get_value(write_community, N),
-        oididx = get_value(oididx, N)}.
+        oididx = get_value(oididx, N),
+        ctrldn = get_value(ctrldn, N),
+        ctrltype = get_value(ctrltype, N)}.
 
 update(Tab, Dn, Attrs) ->
     ?INFO("update: ~s, attrs: ~n~p", [Dn, Attrs]),

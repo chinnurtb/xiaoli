@@ -33,7 +33,7 @@ add({ports, Dn, [Port|_] = Ports}) ->
 update(Dn, Attrs) ->
     mit_node:update(?TAB, Dn, Attrs).
 
-insert(#node{id=OltId}=Node, Onus) ->
+insert(#mit_node{id=OltId}=Node, Onus) ->
     {ok, Records} = epgsql:select(main, node_onus, {oltid, OltId}),
     OldOnus = [{get_value(onuidx, Record), Record} || Record <- Records],
 
@@ -46,8 +46,8 @@ insert(#node{id=OltId}=Node, Onus) ->
     mit_db:merge(node_onus, Onus, OldOnus, NewFun, false).
 
 
-enrich(#node{dn=OltDn, id=OltId, areaid=AreaId, vendorid=VdId}=Node, Onu) 
-    when is_record(Node, node) -> 
+enrich(#mit_node{dn=OltDn, id=OltId, areaid=AreaId, vendorid=VdId}=Node, Onu) 
+    when is_record(Node, mit_node) -> 
     VendorId = 
     case get_value(vendor, Onu) of
     undefined -> 

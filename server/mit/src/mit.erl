@@ -66,13 +66,13 @@ lookup(Dn) when is_binary(Dn) or is_list(Dn) ->
     end;
 
 lookup({id, Id}) when is_integer(Id) ->
-	index_lookup(Id, #node.id);
+	index_lookup(Id, #mit_node.id);
 
 lookup({ip, Ip}) when is_binary(Ip) or is_list(Ip) ->
-    index_lookup(iolist_to_binary(Ip), #node.ip).
+    index_lookup(iolist_to_binary(Ip), #mit_node.ip).
 
 index_lookup(Idx, Pos) ->
-    case mnesia:dirty_index_read(node, Idx, Pos) of
+    case mnesia:dirty_index_read(mit_node, Idx, Pos) of
     [Node] ->
         {ok, Node};
 	[Node|_] = Nodes ->
@@ -83,15 +83,15 @@ index_lookup(Idx, Pos) ->
     end.
 
 children(ParentDn) when is_list(ParentDn) or is_binary(ParentDn) ->
-	mnesia:dirty_index_read(node, iolist_to_binary(ParentDn), #node.parent).
+	mnesia:dirty_index_read(mit_node, iolist_to_binary(ParentDn), #mit_node.parent).
 
 delete(Dn) ->
 	gen_server2:cast(?MODULE, {delete, Dn}).
 
-update(Node) when is_record(Node, node) ->
+update(Node) when is_record(Node, mit_node) ->
     gen_server2:cast(?MODULE, {update, Node}).
 
-insert(Node) when is_record(Node, node) ->
+insert(Node) when is_record(Node, mit_node) ->
     gen_server2:cast(?MODULE, {insert, Node}).
 
 %%--------------------------------------------------------------------
@@ -106,10 +106,9 @@ init([]) ->
     master -> %master node
         %clear mit queue
 		epgqueue:clear('mit.node'),
-        mnesia:create_table(node, [
-            {ram_copies, [node()]},
-            {index, [id, ip]},
-            {attributes, record_info(fields, node)}]),
+        mnesia:create_table(mit_node, [
+            {ram_copies, [node()]}, {index, [id, ip]},
+            {attributes, record_info(fields, mit_node)}]),
         {ok, Modules} = application:get_env(modules),
         lists:foreach(fun({Cat, Mod}) ->
             {ok, Nodes} = Mod:load(),
@@ -120,7 +119,7 @@ init([]) ->
         ?INFO_MSG("mit(master) is started...[ok]"),
         {ok, #state{}};
     slave -> %slave node
-        mnesia:add_table_copy(node, node(), ram_copies),
+        mnesia:add_table_copy(mit_node, node(), ram_copies),
         ?INFO_MSG("mit(slave) is started...[ok]"),
         {ok, #state{}}
     end.
@@ -135,7 +134,7 @@ init([]) ->
 %% Description: Handling call messages
 %%--------------------------------------------------------------------
 handle_call(info, _From, State) ->
-	{reply, mnesia:table_info(node, all), State};
+	{reply, mnesia:table_info(mit_node, all), State};
 
 handle_call(Req, _From, State) ->
     {stop, {badreq, Req}, State}.
@@ -211,9 +210,9 @@ update_node(Node) ->
 	mit_event:notify(updated, Node).
 
 delete_node(Dn) ->
-    case mnesia:dirty_read(node, Dn) of
+    case mnesia:dirty_read(mit_node, Dn) of
     [Node] -> 
-        mnesia:dirty_delete(node, Dn),
+        mnesia:dirty_delete(mit_node, Dn),
         mit_event:notify(deleted, Node);
     _ ->
         ignore
