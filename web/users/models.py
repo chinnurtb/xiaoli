@@ -191,6 +191,26 @@ class Domain(db.Model):
         else:
             return or_(*clause)
 
+    def import_permit(self, area_type):
+        area_list = []
+        if self.city_list:
+            areas = Area.query.filter(Area.cityid.in_(self.city_list.split(',')))
+            if area_type: areas = areas.filter(Area.area_type==area_type)
+            area_list.extend([(area.alias,area.id) for area in areas])
+        if self.town_list:
+            areas = Area.query.filter(Area.town.in_(self.town_list.split(',')))
+            if area_type: areas = areas.filter(Area.area_type==area_type)
+            area_list.extend([(area.alias,area.id) for area in areas])
+        if self.branch_list:
+            areas = Area.query.filter(Area.branch.in_(self.branch_list.split(',')))
+            if area_type: areas = areas.filter(Area.area_type==area_type)
+            area_list.extend([(area.alias,area.id) for area in areas])
+        if self.entrance_list:
+            areas = Area.query.filter(Area.entrance.in_(self.entrance_list.split(',')))
+            if area_type: areas = areas.filter(Area.area_type==area_type)
+            area_list.extend([(area.alias,area.id) for area in areas])
+        return dict(area_list)
+
 roles_permissions = db.Table('roles_permissions', db.Model.metadata,
                              db.Column('role_id', db.Integer,
                                        db.ForeignKey('roles.id', ondelete='CASCADE')),

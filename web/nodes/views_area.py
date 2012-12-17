@@ -468,10 +468,8 @@ def validate_float(value):
         return False
 
 import os
-import operator
 from flask import Markup
 from werkzeug import secure_filename
-from tango.excel.CsvImport import CsvImport,ImportColumn
 @nodeview.route('/nodes/cities/import/', methods=['POST'])
 def cities_import():
     if request.method == 'POST':
@@ -482,31 +480,8 @@ def cities_import():
             if not os.path.isdir(root_path): os.mkdir(root_path)
             file_path = os.path.join(root_path, filename.split('.')[0]+datetime.now().strftime('(%Y-%m-%d %H-%M-%S %f)')+'.csv')
             file.save(file_path)
-            reader = CsvImport(session=db.session.bind, table='areas')
-            reader.addColumn(
-                ImportColumn(u'所属区域', 'parent_id', 'integer',allow_null=False, existed_data=dict([(area.name, area.id) for area in Area.query.filter(Area.area_type==0)]),)
-            ).addColumn(
-                ImportColumn(u'地市名称', 'name', 'character varying(40)', is_key=True, allow_null=False)
-            ).addColumn(
-                ImportColumn(u'地市别名', 'alias', 'character varying(200)', allow_null=False)
-            ).addColumn(
-                ImportColumn(u'区域类型', 'area_type', 'integer', default=1)
-            ).addColumn(
-                ImportColumn(u'经度', 'longitude', 'double precision', format=validate_float)
-            ).addColumn(
-                ImportColumn(u'纬度', 'latitude', 'double precision', format=validate_float)
-            ).addColumn(
-                ImportColumn(u'备注', 'remark', 'character varying(200)')
-            )
-            update_dict = {}
-            key_list = [column.name_en for column in reader.columns if column.is_key]
-            attr_list = ['id',]+[column.name_en for column in reader.columns]
-            for node in Area.query.filter(Area.area_type==1).all():
-                f = operator.attrgetter(*key_list)
-                key = (f(node),) if len(key_list) == 1 else f(node)
-                f2 = operator.attrgetter(*attr_list)
-                update_dict[key] = dict(zip(attr_list, f2(node)))
-            reader.load_update(permit_update_dict=update_dict, update_dict=update_dict)
+            from tango.excel import CityImport
+            reader = CityImport(engine=db.session.bind)
             info = reader.read(file=file_path)
             flash(Markup(info), 'success')
         else:
@@ -523,32 +498,9 @@ def towns_import():
             if not os.path.isdir(root_path): os.mkdir(root_path)
             file_path = os.path.join(root_path, filename.split('.')[0]+datetime.now().strftime('(%Y-%m-%d %H-%M-%S %f)')+'.csv')
             file.save(file_path)
-            reader = CsvImport(session=db.session.bind, table='areas')
-            reader.addColumn(
-                ImportColumn(u'所属区域', 'parent_id', 'integer',allow_null=False, existed_data=dict([(area.full_name, area.id) for area in Area.query.filter(Area.area_type==1)]),)
-            ).addColumn(
-                ImportColumn(u'区县名称', 'name', 'character varying(40)', is_key=True, allow_null=False)
-            ).addColumn(
-                ImportColumn(u'区县别名', 'alias', 'character varying(200)', allow_null=False)
-            ).addColumn(
-                ImportColumn(u'区域类型', 'area_type', 'integer', default=2)
-            ).addColumn(
-                ImportColumn(u'经度', 'longitude', 'double precision', format=validate_float)
-            ).addColumn(
-                ImportColumn(u'纬度', 'latitude', 'double precision', format=validate_float)
-            ).addColumn(
-                ImportColumn(u'备注', 'remark', 'character varying(200)')
-            )
-            update_dict = {}
-            key_list = [column.name_en for column in reader.columns if column.is_key]
-            attr_list = ['id',]+[column.name_en for column in reader.columns]
-            for node in Area.query.filter(Area.area_type==2).all():
-                f = operator.attrgetter(*key_list)
-                key = (f(node),) if len(key_list) == 1 else f(node)
-                f2 = operator.attrgetter(*attr_list)
-                update_dict[key] = dict(zip(attr_list, f2(node)))
-            reader.load_update(permit_update_dict=update_dict, update_dict=update_dict)
-            info = reader.read(file=file_path)
+            from tango.excel import TownImport
+            reader = TownImport(engine=db.session.bind)
+            info = reader.read(file=file_path, data_dict={'city_name':current_user.domain.import_permit(1)})
             flash(Markup(info), 'success')
         else:
             flash(u"上传文件格式错误", 'error')
@@ -564,32 +516,9 @@ def branches_import():
             if not os.path.isdir(root_path): os.mkdir(root_path)
             file_path = os.path.join(root_path, filename.split('.')[0]+datetime.now().strftime('(%Y-%m-%d %H-%M-%S %f)')+'.csv')
             file.save(file_path)
-            reader = CsvImport(session=db.session.bind, table='areas')
-            reader.addColumn(
-                ImportColumn(u'所属区域', 'parent_id', 'integer',allow_null=False, existed_data=dict([(area.full_name, area.id) for area in Area.query.filter(Area.area_type==2)]),)
-            ).addColumn(
-                ImportColumn(u'分局名称', 'name', 'character varying(40)', is_key=True, allow_null=False)
-            ).addColumn(
-                ImportColumn(u'分局别名', 'alias', 'character varying(200)', allow_null=False)
-            ).addColumn(
-                ImportColumn(u'区域类型', 'area_type', 'integer', default=3)
-            ).addColumn(
-                ImportColumn(u'经度', 'longitude', 'double precision', format=validate_float)
-            ).addColumn(
-                ImportColumn(u'纬度', 'latitude', 'double precision', format=validate_float)
-            ).addColumn(
-                ImportColumn(u'备注', 'remark', 'character varying(200)')
-            )
-            update_dict = {}
-            key_list = [column.name_en for column in reader.columns if column.is_key]
-            attr_list = ['id',]+[column.name_en for column in reader.columns]
-            for node in Area.query.filter(Area.area_type==3).all():
-                f = operator.attrgetter(*key_list)
-                key = (f(node),) if len(key_list) == 1 else f(node)
-                f2 = operator.attrgetter(*attr_list)
-                update_dict[key] = dict(zip(attr_list, f2(node)))
-            reader.load_update(permit_update_dict=update_dict, update_dict=update_dict)
-            info = reader.read(file=file_path)
+            from tango.excel import BranchImport
+            reader = BranchImport(engine=db.session.bind)
+            info = reader.read(file=file_path, data_dict={'town_name':current_user.domain.import_permit(2)})
             flash(Markup(info), 'success')
         else:
             flash(u"上传文件格式错误", 'error')
@@ -605,32 +534,9 @@ def entrances_import():
             if not os.path.isdir(root_path): os.mkdir(root_path)
             file_path = os.path.join(root_path, filename.split('.')[0]+datetime.now().strftime('(%Y-%m-%d %H-%M-%S %f)')+'.csv')
             file.save(file_path)
-            reader = CsvImport(session=db.session.bind, table='areas')
-            reader.addColumn(
-                ImportColumn(u'所属区域', 'parent_id', 'integer',allow_null=False, existed_data=dict([(area.full_name, area.id) for area in Area.query.filter(Area.area_type==3)]),)
-            ).addColumn(
-                ImportColumn(u'接入点名称', 'name', 'character varying(40)', is_key=True, allow_null=False)
-            ).addColumn(
-                ImportColumn(u'接入点别名', 'alias', 'character varying(200)', allow_null=False)
-            ).addColumn(
-                ImportColumn(u'区域类型', 'area_type', 'integer', default=4)
-            ).addColumn(
-                ImportColumn(u'经度', 'longitude', 'double precision', format=validate_float)
-            ).addColumn(
-                ImportColumn(u'纬度', 'latitude', 'double precision', format=validate_float)
-            ).addColumn(
-                ImportColumn(u'备注', 'remark', 'character varying(200)')
-            )
-            update_dict = {}
-            key_list = [column.name_en for column in reader.columns if column.is_key]
-            attr_list = ['id',]+[column.name_en for column in reader.columns]
-            for node in Area.query.filter(Area.area_type==4).all():
-                f = operator.attrgetter(*key_list)
-                key = (f(node),) if len(key_list) == 1 else f(node)
-                f2 = operator.attrgetter(*attr_list)
-                update_dict[key] = dict(zip(attr_list, f2(node)))
-            reader.load_update(permit_update_dict=update_dict, update_dict=update_dict)
-            info = reader.read(file=file_path)
+            from tango.excel import EntranceImport
+            reader = EntranceImport(engine=db.session.bind)
+            info = reader.read(file=file_path, data_dict={'branch_name':current_user.domain.import_permit(3)})
             flash(Markup(info), 'success')
         else:
             flash(u"上传文件格式错误", 'error')

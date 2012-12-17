@@ -133,7 +133,6 @@ import os
 import operator
 from flask import Markup
 from werkzeug import secure_filename
-from tango.excel.CsvImport import CsvImport,ImportColumn
 @nodeview.route('/nodes/switches/import/', methods=['POST'])
 def switches_import():
     if request.method == 'POST':

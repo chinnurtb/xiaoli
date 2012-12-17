@@ -148,7 +148,6 @@ import os
 import operator
 from flask import Markup
 from werkzeug import secure_filename
-from tango.excel.CsvImport import CsvImport,ImportColumn
 @nodeview.route('/nodes/olts/import/', methods=['POST'])
 def olts_import():
     if request.method == 'POST':
