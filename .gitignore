@@ -38,3 +38,4 @@ amqp/sbin/
 server/statd/ebin/*
 server/metrix/ebin/*
 errdb
+node/monitd/ebin/
