@@ -48,7 +48,7 @@ def cities():
         sub_query_list.append(sub_query)
 
     # 连接各个子查询
-    export_columns = ['parent_id','name','alias','longitude','latitude','remark']
+    export_columns = ['name','alias','longitude','latitude','remark']
     query = 'db.session.query(Area.id,Area.name,Area.area_type,Area.alias,Area.longitude,Area.latitude,Area.parent_id,'
     for index,category in enumerate(['total']+[category.name for category in categories]):
         if category == "host": continue
@@ -102,7 +102,7 @@ def towns():
         sub_query_list.append(sub_query)
 
     # 连接各个子查询
-    export_columns = ['parent_id','name','alias','longitude','latitude','remark']
+    export_columns = ['name','alias','parent_id','longitude','latitude','remark']
     query = 'db.session.query(Area.id,Area.name,Area.area_type,Area.alias,Area.longitude,Area.latitude,Area.city_name.label("parent_id"),'
     for index,category in enumerate(['total']+[category.name for category in categories]):
         if category == "host": continue
@@ -158,8 +158,8 @@ def branches():
         sub_query_list.append(sub_query)
 
     # 连接各个子查询
-    export_columns = ['parent_id','name','alias','longitude','latitude','remark']
-    query = 'db.session.query(Area.id,Area.name,Area.area_type,Area.alias,Area.longitude,Area.latitude,(Area.city_name+Area.town_name).label("parent_id"),'
+    export_columns = ['name','alias','parent_id','longitude','latitude','remark']
+    query = 'db.session.query(Area.id,Area.name,Area.area_type,Area.alias,Area.longitude,Area.latitude,Area.town_name.label("parent_id"),'
     for index,category in enumerate(['total']+[category.name for category in categories]):
         if category == "host": continue
         query += 'func.coalesce(sub_query_list[%(index)s].c.%(category)s_count,0).label("%(category)s_count"),' % {'index':index,'category': category}
@@ -206,7 +206,7 @@ def entrances():
 
     # 连接各个子查询
     export_columns = ['parent_id','name','alias','longitude','latitude','remark']
-    query = 'db.session.query(Area.id,Area.name,Area.area_type,Area.alias,Area.longitude,Area.latitude,(Area.city_name+Area.town_name+Area.branch_name).label("parent_id"),'
+    query = 'db.session.query(Area.id,Area.name,Area.area_type,Area.alias,Area.longitude,Area.latitude,Area.branch_name.label("parent_id"),'
     for index,category in enumerate(['total']+[category.name for category in categories]):
         if category in ["host","olt","eoc"]: continue
         query += 'func.coalesce(sub_query_list[%(index)s].c.%(category)s_count,0).label("%(category)s_count"),' % {'index':index,'category': category}

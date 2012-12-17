@@ -3,7 +3,6 @@
 
 cn = {
     'cities': {
-        'parent_id': u'所属区域',
         'name': u'地市名称',
         'alias': u'地市别名',
         'longitude': u'经度',
@@ -21,7 +20,7 @@ cn = {
         'cpe_count': u'CPE',
         },
     'towns': {
-        'parent_id': u'所属区域',
+        'parent_id': u'所属地市',
         'name': u'区县名称',
         'alias': u'区县别名',
         'longitude': u'经度',
@@ -38,7 +37,7 @@ cn = {
         'cpe_count': u'CPE',
         },
     'branches': {
-        'parent_id': u'所属区域',
+        'parent_id': u'所属区县',
         'name': u'分局名称',
         'alias': u'分局别名',
         'longitude': u'经度',
@@ -54,7 +53,7 @@ cn = {
         'cpe_count': u'CPE',
         },
     'entrances': {
-        'parent_id': u'所属区域',
+        'parent_id': u'所属分局',
         'name': u'接入点名称',
         'alias': u'接入点别名',
         'longitude': u'经度',
