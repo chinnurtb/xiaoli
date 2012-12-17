@@ -9,7 +9,6 @@
 %%%----------------------------------------------------------------------
 -module(monitd_coord).
 
-
 -include("mit.hrl").
 
 -include("monitor.hrl").
@@ -104,6 +103,10 @@ handle_info({metrics, Metrics}, State) ->
 
 handle_info({sysoids, Mods}, State) ->
     monitd_disco:setup({sysoids, Mods}),
+    {noreply, State};
+
+handle_info({sysmappers, Mappers}, State) ->
+    monitd_disco:setup({sysmappers, Mappers}),
     {noreply, State};
 
 handle_info({dict_status, Records}, State) ->

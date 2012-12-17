@@ -55,8 +55,8 @@ module(Name) when is_atom(Name) ->
     lookup({module, Name}).
 
 lookup(Key) ->
-    case mnesia:dirty_read(meta, Key) of
-    [Meta] -> Meta#meta.val;
+    case mnesia:dirty_read(mit_meta, Key) of
+    [Meta] -> Meta#mit_meta.val;
     [] -> undefined
     end.
 
@@ -67,16 +67,16 @@ store(Model) ->
 init([]) ->
     case mit:mode() of
     master -> %master node
-        mnesia:create_table(meta, [{ram_copies, [node()]}, 
-            {attributes, record_info(fields, meta)}]),
+        mnesia:create_table(mit_meta, [{ram_copies, [node()]}, 
+            {attributes, record_info(fields, mit_meta)}]),
         {ok, Modules} = application:get_env(modules),
-        [mnesia:dirty_write(#meta{key={module, Cat}, val=Mod})
+        [mnesia:dirty_write(#mit_meta{key={module, Cat}, val=Mod})
             || {Cat, Mod} <- Modules],
         handle_info(reload, state);
     slave -> %slave node
         ok
     end,
-    mnesia:add_table_copy(meta, node(), ram_copies),
+    mnesia:add_table_copy(mit_meta, node(), ram_copies),
     ?INFO_MSG("mit_meta is started...[ok]"),
     {ok, state}.
 
@@ -133,13 +133,12 @@ load(model) ->
 cache(Type, Record) ->
     Id = get_value(id, Record),
     Name = b2a(get_value(name, Record)),
-    mnesia:dirty_write(#meta{key={Type, Id}, val=Name}),
-    mnesia:dirty_write(#meta{key={Type, Name}, val=Id}).
+    mnesia:dirty_write(#mit_meta{key={Type, Id}, val=Name}),
+    mnesia:dirty_write(#mit_meta{key={Type, Name}, val=Id}).
 
 next_modid() ->
     {ok,[Next]} = epgsql:squery(main, "select nextval('models_id_seq');"),
     get_value(nextval, Next).
-
 
 b2a(B) when is_binary(B) ->
     list_to_atom(binary_to_list(B)).

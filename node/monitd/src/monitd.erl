@@ -158,6 +158,8 @@ handle_info({deliver, <<"table.", Tab/binary>>, _, Payload}, State) ->
 	   monitd_hub:setup({metrics, Records});
 	sysoids ->
 	   monitd_disco:setup({sysoids, Records});
+	sysmappers ->
+	   monitd_disco:setup({sysmappers, Records});
     _ ->
         ignore
     end,

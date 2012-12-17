@@ -38,11 +38,12 @@
 
 -define(TABLES, [
     sysoids,
+    sysmappers,
     metrics,
     {miboids, {is_valid, 1}},
     {monitors, ?MONITOR_SQL},
     timeperiods,
-    dict_status
+    status_mappers
 ]).
 
 start_link() ->
@@ -86,7 +87,7 @@ open(Conn) ->
 %% Description: Handling call messages
 %%--------------------------------------------------------------------
 handle_call(syncdb, _From, #state{tables = Tables, channel = Channel} = State) ->
-	Publish = fun(Tab, Records) -> 
+	Publish = fun(Tab, Records) ->
 		Key = list_to_binary(["table.", atom_to_list(Tab)]),
 		Payload = term_to_binary({Tab, Records}, [compressed]),
 		?INFO("~p publish ~p to sys.db", [Channel, Key]),
@@ -98,7 +99,7 @@ handle_call(syncdb, _From, #state{tables = Tables, channel = Channel} = State) -
 handle_call(reload, _From, State) ->
     Tables = load_from_db(),
     {reply, ok, State#state{tables = Tables}};
-    
+
 handle_call({dbquery, Tab}, _From, #state{tables = Tables} = State) ->
     Records = proplists:get_value(Tab, Tables),
     {reply, {ok, Records}, State};
@@ -146,4 +147,5 @@ load_table({Tab, Where}) when is_tuple(Where) ->
 load_table({Tab, SQL}) when is_list(SQL) ->
     {ok, Records} = epgsql:squery(main, SQL),
     {Tab, Records}.
+
 

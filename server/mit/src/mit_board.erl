@@ -9,7 +9,7 @@
 insert(_, []) ->
     ingore;
 
-insert(#node{dn=Dn, id=NodeId, categoryid=CatId, vendorid=VendorId}, Boards) ->
+insert(#mit_node{dn=Dn, id=NodeId, categoryid=CatId, vendorid=VendorId}, Boards) ->
     {ok, Records} = epgsql:select(main, boards, {node_id, NodeId}),
     OldBoards = [{get_value(boardidx, R), R} || R <- Records],
     DateTime = {date(), time()},

@@ -58,16 +58,15 @@ init([]) ->
     master ->
         %clear mit change queue
         epgqueue:clear('mit.area'),
-        mnesia:create_table(area, [
-            {ram_copies, [node()]}, 
-            {index, [id, parent]}, 
-            {attributes, record_info(fields, area)}]),
+        mnesia:create_table(mit_area, [
+            {ram_copies, [node()]}, {index, [id, parent]}, 
+            {attributes, record_info(fields, mit_area)}]),
         {ok, Areas} = epgsql:squery(main, ?AREA_SQL++";"),
         ?INFO("load ~p areas.", [length(Areas)]),
         [mnesia:dirty_write(record(A)) || A <- Areas],
         epgqueue:subscribe('mit.area', self());
     slave ->
-        mnesia:add_table_copy(area, node(), ram_copies)
+        mnesia:add_table_copy(mit_area, node(), ram_copies)
     end,
     ?INFO_MSG("mit_area is started...[ok]"),
     {ok, #state{}}.
@@ -144,7 +143,7 @@ load(Dn) ->
     end.
 
 record(A) ->
-    #area{dn = get_value(dn, A),
+    #mit_area{dn = get_value(dn, A),
         id = get_value(id, A),
         cityid = get_value(cityid, A),
         parent = get_value(parent, A),

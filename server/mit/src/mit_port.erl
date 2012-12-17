@@ -39,7 +39,7 @@
 % telno character varying(50), -- 电压
 % duplex integer,
 
-insert(Tab, #node{dn=Dn, id=NodeId, categoryid=CatId, vendorid=VendorId}, Ports) ->
+insert(Tab, #mit_node{dn=Dn, id=NodeId, categoryid=CatId, vendorid=VendorId}, Ports) ->
     {ok, Records} = epgsql:select(main, Tab, {node_id, NodeId}),
     OldPorts = [{get_value(ifindex, R), R} || R <- Records],
     DateTime = {date(), time()},

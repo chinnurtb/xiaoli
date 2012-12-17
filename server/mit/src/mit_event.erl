@@ -32,7 +32,7 @@
 start_link() ->
     gen_server2:start_link({local, ?MODULE}, ?MODULE, [], []).
 
-notify(Oper, Node) when is_record(Node, node) ->
+notify(Oper, Node) when is_record(Node, mit_node) ->
 	gen_server2:cast(?MODULE, {notify, Oper, Node}).
 
 init([]) ->

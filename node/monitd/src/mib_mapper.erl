@@ -747,30 +747,6 @@ ifspeed(zte_w901, V) ->
 	V * 1000000;
 ifspeed(_, V) ->
 	V.
-
-intf_mapping(Record) ->
-    intf_mapping(Record, []).
-
-intf_mapping([], Intf) ->
-    IfIndex = get_value(ifindex, Intf, 1),
-    {IfIndex, lists:keydelete(ifindex, 1, Intf)};
-    
-intf_mapping([{'$tableIndex', TabIdx} | Record], Intf) ->
-   IfIndex1 =
-    case TabIdx of
-    [BroadIdx, IfIndex] -> (BroadIdx bsl 8) + IfIndex;
-    [IfIndex] -> IfIndex
-    end,
-    intf_mapping(Record, [{ifindex, IfIndex1}|Intf]);
-
-intf_mapping([{ifindex, _} | Record], Intf) ->
-    intf_mapping(Record, Intf);
-
-intf_mapping([{ifphysaddr, PhysAddr} | Record], Intf) ->
-    intf_mapping(Record, [{ifphysaddr, mac(PhysAddr)}|Intf]);
-
-intf_mapping([Attr | Record], Intf) ->
-    intf_mapping(Record, [Attr|Intf]).
 	
 omc_ac_perf_mapping(Record) ->
     Record1 = lists:keydelete('$tableIndex', 1, Record),	
