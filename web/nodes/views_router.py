@@ -130,7 +130,6 @@ def routers_show(id):
     return render_template('nodes/routers/show.html', node = node, chartdata2 = chartdata2)
 
 import os
-import operator
 from flask import Markup
 from werkzeug import secure_filename
 
@@ -144,40 +143,9 @@ def routers_import():
             if not os.path.isdir(root_path): os.mkdir(root_path)
             file_path = os.path.join(root_path, filename.split('.')[0]+datetime.now().strftime('(%Y-%m-%d %H-%M-%S %f)')+'.csv')
             file.save(file_path)
-            reader = CsvImport(session=db.session.bind, table='node_routers')
-            reader.addColumn(
-                ImportColumn(u'名称', 'name', 'character varying(40)')
-            ).addColumn(
-                ImportColumn(u'别名', 'alias', 'character varying(200)')
-            ).addColumn(
-                ImportColumn(u'节点类型', 'category_id', 'integer', default=1)
-            ).addColumn(
-                ImportColumn(u'IP地址', 'addr', 'character varying(200)', is_key=True)
-            ).addColumn(
-                ImportColumn(u'所属区域', 'area_id', 'integer',allow_null=False, existed_data=dict([(area.full_name, area.id) for area in Area.query.filter(Area.area_type==4)]), )
-            ).addColumn(
-                ImportColumn(u'子网掩码', 'mask', 'character varying(200)')
-            ).addColumn(
-                ImportColumn(u'读团体名', 'snmp_comm', 'character varying(50)')
-            ).addColumn(
-                ImportColumn(u'写团体名', 'snmp_wcomm', 'character varying(50)')
-            ).addColumn(
-                ImportColumn(u'SNMP版本', 'snmp_ver', 'character varying(50)')
-            ).addColumn(
-                ImportColumn(u'位置', 'location', 'character varying(200)')
-            ).addColumn(
-                ImportColumn(u'备注', 'remark', 'character varying(200)')
-            )
-            update_dict = {}
-            key_list = [column.name_en for column in reader.columns if column.is_key]
-            attr_list = ['id',]+[column.name_en for column in reader.columns]
-            for node in NodeRouter.query.all():
-                f = operator.attrgetter(*key_list)
-                key = (f(node),) if len(key_list) == 1 else f(node)
-                f2 = operator.attrgetter(*attr_list)
-                update_dict[key] = dict(zip(attr_list, f2(node)))
-            reader.load_update(permit_update_dict=update_dict, update_dict=update_dict)
-            info = reader.read(file=file_path)
+            from tango.excel import RouterImport
+            reader = RouterImport(engine=db.session.bind)
+            info = reader.read(file=file_path, data_dict={'entrance_name':current_user.domain.import_permit(4)})
             flash(Markup(info), 'success')
         else:
             flash(u"上传文件格式错误", 'error')

@@ -78,6 +78,7 @@ class CityImport(CsvImport):
     def read(self, file):
         # 1.读取文件
         records = self._read(file)
+        if isinstance(records,unicode): return records
 
         # 2.验证数据
         right_records = []
@@ -139,6 +140,7 @@ class TownImport(CsvImport):
     def read(self, file, data_dict):
         # 1.读取文件
         records = self._read(file)
+        if isinstance(records,unicode): return records
 
         # 2.验证数据
         right_records = []
@@ -185,7 +187,7 @@ class TownImport(CsvImport):
         error_file = self._error('towns') # 错误数据回写
         if error_file:
             error_file = u'<a href="/download?file=/static/file/download/%s">下载错误数据</a>' % error_file
-        return u"成功导入地市%s条，更新%s条记录。%s" % (len(insert_data), len(right_records)-len(insert_data), error_file)
+        return u"成功导入区县%s条，更新%s条记录。%s" % (len(insert_data), len(right_records)-len(insert_data), error_file)
 
 class BranchImport(CsvImport):
     def __init__(self, engine):
@@ -202,6 +204,7 @@ class BranchImport(CsvImport):
     def read(self, file, data_dict):
         # 1.读取文件
         records = self._read(file)
+        if isinstance(records,unicode): return records
 
         # 2.验证数据
         right_records = []
@@ -247,7 +250,7 @@ class BranchImport(CsvImport):
         error_file = self._error('branches') # 错误数据回写
         if error_file:
             error_file = u'<a href="/download?file=/static/file/download/%s">下载错误数据</a>' % error_file
-        return u"成功导入地市%s条，更新%s条记录。%s" % (len(insert_data), len(right_records)-len(insert_data), error_file)
+        return u"成功导入分局%s条，更新%s条记录。%s" % (len(insert_data), len(right_records)-len(insert_data), error_file)
 
 class EntranceImport(CsvImport):
     def __init__(self, engine):
@@ -264,6 +267,7 @@ class EntranceImport(CsvImport):
     def read(self, file, data_dict):
         # 1.读取文件
         records = self._read(file)
+        if isinstance(records,unicode): return records
 
         # 2.验证数据
         right_records = []
@@ -309,4 +313,339 @@ class EntranceImport(CsvImport):
         error_file = self._error('entrances') # 错误数据回写
         if error_file:
             error_file = u'<a href="/download?file=/static/file/download/%s">下载错误数据</a>' % error_file
-        return u"成功导入地市%s条，更新%s条记录。%s" % (len(insert_data), len(right_records)-len(insert_data), error_file)
+        return u"成功导入接入点%s条，更新%s条记录。%s" % (len(insert_data), len(right_records)-len(insert_data), error_file)
+
+class RouterImport(CsvImport):
+    def __init__(self, engine):
+        columns = [
+            (u'名称', 'name'),
+            (u'别名', 'alias'),
+            (u'IP地址', 'addr'),
+            (u'所属接入点', 'entrance_name'),
+            (u'子网掩码', 'mask'),
+            (u'读团体名', 'snmp_comm'),
+            (u'写团体名', 'snmp_wcomm'),
+            (u'位置', 'location'),
+            (u'备注', 'remark'),
+        ]
+        super(RouterImport, self).__init__(engine, columns)
+
+    def read(self, file, data_dict):
+        # 1.读取文件
+        records = self._read(file)
+        if isinstance(records,unicode): return records
+
+        # 2.验证数据
+        right_records = []
+        for record_dict in records:
+            error = ''
+            for name_en in ['name','alias','addr','entrance_name','snmp_comm','snmp_wcomm']:    #验证不能为空
+                if not record_dict.get(name_en):
+                    error += self.columns_en_dict.get(name_en)+u'不能为空; '
+            if record_dict.get('entrance_name') and record_dict.get('entrance_name') not in data_dict.get('entrance_name',{}):
+                error += self.columns_en_dict.get('entrance_name')+u'不存在或没有权限; '
+            if error:
+                record_dict['error'] = error
+                self.error_records.append(record_dict)
+            else:
+                for key,value in record_dict.items():
+                    if value == '': record_dict[key] = None
+                for name_en in ['entrance_name']:
+                    if record_dict[name_en]: record_dict[name_en] = data_dict[name_en][record_dict[name_en]]
+                right_records.append(record_dict)
+
+        # 3.插入更新数据
+        self.cursor.execute("drop table if exists temp_routers;")
+        create_temp_table = '''
+        create temporary table temp_routers (id int, name character varying(40), alias character varying(200),addr character varying(20),
+            area_id int, mask character varying(60), snmp_comm character varying(40),
+            snmp_wcomm character varying(40),location character varying(200),remark character varying(200));
+        '''
+        self.cursor.execute(create_temp_table)
+        self.cursor.execute("CREATE INDEX index_id ON temp_routers(id)")
+        insert_temp = 'insert into temp_routers (name, alias, addr, area_id, mask, snmp_comm, snmp_wcomm, location, remark) values (%s,%s,%s,%s,%s,%s,%s,%s,%s);'
+        self.cursor.executemany(insert_temp, [[record_dict.get(column[1]) for column in self.columns] for record_dict in right_records])
+        self.cursor.execute('update temp_routers set id=t2.id from node_routers t2 where temp_routers.addr=t2.addr;')
+        self.cursor.execute('update node_routers set name=t2.name,alias=t2.alias,area_id=t2.area_id,mask=t2.mask,snmp_comm=t2.snmp_comm,snmp_wcomm=t2.snmp_wcomm,location=t2.location,remark=t2.remark from temp_routers t2 where node_routers.id=t2.id;')
+        self.cursor.execute('select name, alias, addr, area_id, mask, snmp_comm, snmp_wcomm, location, remark from temp_routers where id is null;')
+        insert_data = self.cursor.fetchall()
+        insert_sql = 'insert into node_routers(name, alias, addr, area_id, mask, snmp_comm, snmp_wcomm, location, remark,category_id) values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);'
+        self.cursor.executemany(insert_sql, [data+(1,) for data in insert_data])
+        self.conn.commit()
+
+        # 4.错误数据回写
+        error_file = self._error('routers') # 错误数据回写
+        if error_file:
+            error_file = u'<a href="/download?file=/static/file/download/%s">下载错误数据</a>' % error_file
+        return u"成功导入路由器%s条，更新%s条记录。%s" % (len(insert_data), len(right_records)-len(insert_data), error_file)
+
+class SwitchImport(CsvImport):
+    def __init__(self, engine):
+        columns = [
+            (u'名称', 'name'),
+            (u'别名', 'alias'),
+            (u'IP地址', 'addr'),
+            (u'所属接入点', 'entrance_name'),
+            (u'子网掩码', 'mask'),
+            (u'读团体名', 'snmp_comm'),
+            (u'写团体名', 'snmp_wcomm'),
+            (u'位置', 'location'),
+            (u'备注', 'remark'),
+        ]
+        super(SwitchImport, self).__init__(engine, columns)
+
+    def read(self, file, data_dict):
+        # 1.读取文件
+        records = self._read(file)
+        if isinstance(records,unicode): return records
+
+        # 2.验证数据
+        right_records = []
+        for record_dict in records:
+            error = ''
+            for name_en in ['name','alias','addr','entrance_name','snmp_comm','snmp_wcomm']:    #验证不能为空
+                if not record_dict.get(name_en):
+                    error += self.columns_en_dict.get(name_en)+u'不能为空; '
+            if record_dict.get('entrance_name') and record_dict.get('entrance_name') not in data_dict.get('entrance_name',{}):
+                error += self.columns_en_dict.get('entrance_name')+u'不存在或没有权限; '
+            if error:
+                record_dict['error'] = error
+                self.error_records.append(record_dict)
+            else:
+                for key,value in record_dict.items():
+                    if value == '': record_dict[key] = None
+                for name_en in ['entrance_name']:
+                    if record_dict[name_en]: record_dict[name_en] = data_dict[name_en][record_dict[name_en]]
+                right_records.append(record_dict)
+
+        # 3.插入更新数据
+        self.cursor.execute("drop table if exists temp_switches;")
+        create_temp_table = '''
+        create temporary table temp_switches (id int, name character varying(40), alias character varying(200),addr character varying(20),
+            area_id int, mask character varying(60), snmp_comm character varying(40),
+            snmp_wcomm character varying(40),location character varying(200),remark character varying(200));
+        '''
+        self.cursor.execute(create_temp_table)
+        self.cursor.execute("CREATE INDEX index_id ON temp_switches(id)")
+        insert_temp = 'insert into temp_switches (name, alias, addr, area_id, mask, snmp_comm, snmp_wcomm, location, remark) values (%s,%s,%s,%s,%s,%s,%s,%s,%s);'
+        self.cursor.executemany(insert_temp, [[record_dict.get(column[1]) for column in self.columns] for record_dict in right_records])
+        self.cursor.execute('update temp_switches set id=t2.id from node_switchs t2 where temp_switches.addr=t2.addr;')
+        self.cursor.execute('update node_switchs set name=t2.name,alias=t2.alias,area_id=t2.area_id,mask=t2.mask,snmp_comm=t2.snmp_comm,snmp_wcomm=t2.snmp_wcomm,location=t2.location,remark=t2.remark from temp_switches t2 where node_switchs.id=t2.id;')
+        self.cursor.execute('select name, alias, addr, area_id, mask, snmp_comm, snmp_wcomm, location, remark from temp_switches where id is null;')
+        insert_data = self.cursor.fetchall()
+        insert_sql = 'insert into node_switchs(name, alias, addr, area_id, mask, snmp_comm, snmp_wcomm, location, remark,category_id) values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);'
+        self.cursor.executemany(insert_sql, [data+(2,) for data in insert_data])
+        self.conn.commit()
+
+        # 4.错误数据回写
+        error_file = self._error('switches') # 错误数据回写
+        if error_file:
+            error_file = u'<a href="/download?file=/static/file/download/%s">下载错误数据</a>' % error_file
+        return u"成功导入交换机%s条，更新%s条记录。%s" % (len(insert_data), len(right_records)-len(insert_data), error_file)
+
+class OltImport(CsvImport):
+    def __init__(self, engine):
+        columns = [
+            (u'名称', 'name'),
+            (u'别名', 'alias'),
+            (u'IP地址', 'addr'),
+            (u'所属分局', 'branch_name'),
+            (u'厂商', 'vendor_id'),
+            (u'子网掩码', 'mask'),
+            (u'读团体名', 'snmp_comm'),
+            (u'写团体名', 'snmp_wcomm'),
+            (u'SNMP版本', 'snmp_ver'),
+            (u'备注', 'remark'),
+        ]
+        super(OltImport, self).__init__(engine, columns)
+
+    def read(self, file, data_dict):
+        # 1.读取文件
+        records = self._read(file)
+        if isinstance(records,unicode): return records
+
+        # 2.验证数据
+        right_records = []
+        for record_dict in records:
+            error = ''
+            for name_en in ['name','alias','addr','branch_name','vendor_id','snmp_comm','snmp_wcomm','snmp_ver']:    #验证不能为空
+                if not record_dict.get(name_en):
+                    error += self.columns_en_dict.get(name_en)+u'不能为空; '
+            for name_en in ['vendor_id','snmp_ver']:
+                if record_dict.get(name_en) and record_dict.get(name_en) not in data_dict.get(name_en,{}):
+                    error += self.columns_en_dict.get(name_en)+u'不存在; '
+            if record_dict.get('branch_name') and record_dict.get('branch_name') not in data_dict.get('branch_name',{}):
+                error += self.columns_en_dict.get('branch_name')+u'不存在或没有权限; '
+            if error:
+                record_dict['error'] = error
+                self.error_records.append(record_dict)
+            else:
+                for key,value in record_dict.items():
+                    if value == '': record_dict[key] = None
+                for name_en in ['branch_name','vendor_id']:
+                    if record_dict[name_en]: record_dict[name_en] = data_dict[name_en][record_dict[name_en]]
+                right_records.append(record_dict)
+
+        # 3.插入更新数据
+        self.cursor.execute("drop table if exists temp_olts;")
+        create_temp_table = '''
+        create temporary table temp_olts (id int, name character varying(40), alias character varying(200),addr character varying(20),
+            area_id int, vendor_id int, mask character varying(60), snmp_comm character varying(40),
+            snmp_wcomm character varying(40),snmp_ver character varying(40),remark character varying(200));
+        '''
+        self.cursor.execute(create_temp_table)
+        self.cursor.execute("CREATE INDEX index_id ON temp_olts(id)")
+        insert_temp = 'insert into temp_olts (name, alias, addr, area_id, vendor_id, mask, snmp_comm, snmp_wcomm, snmp_ver, remark) values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);'
+        self.cursor.executemany(insert_temp, [[record_dict.get(column[1]) for column in self.columns] for record_dict in right_records])
+        self.cursor.execute('update temp_olts set id=t2.id from node_olts t2 where temp_olts.addr=t2.addr;')
+        self.cursor.execute('update node_olts set name=t2.name,alias=t2.alias,area_id=t2.area_id,vendor_id=t2.vendor_id,mask=t2.mask,snmp_comm=t2.snmp_comm,snmp_wcomm=t2.snmp_wcomm,snmp_ver=t2.snmp_ver,remark=t2.remark from temp_olts t2 where node_olts.id=t2.id;')
+        self.cursor.execute('select name, alias, addr, area_id, vendor_id, mask, snmp_comm, snmp_wcomm, snmp_ver, remark from temp_olts where id is null;')
+        insert_data = self.cursor.fetchall()
+        insert_sql = 'insert into node_olts(name, alias, addr, area_id, vendor_id, mask, snmp_comm, snmp_wcomm, snmp_ver, remark,category_id) values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);'
+        self.cursor.executemany(insert_sql, [data+(20,) for data in insert_data])
+        self.conn.commit()
+
+        # 4.错误数据回写
+        error_file = self._error('olts') # 错误数据回写
+        if error_file:
+            error_file = u'<a href="/download?file=/static/file/download/%s">下载错误数据</a>' % error_file
+        return u"成功导入OLT %s条，更新%s条记录。%s" % (len(insert_data), len(right_records)-len(insert_data), error_file)
+
+class EocImport(CsvImport):
+        def __init__(self, engine):
+            columns = [
+                (u'名称', 'name'),
+                (u'别名', 'alias'),
+                (u'IP地址', 'addr'),
+                (u'所属分局', 'branch_name'),
+                (u'厂商', 'vendor_id'),
+                (u'子网掩码', 'mask'),
+                (u'读团体名', 'snmp_comm'),
+                (u'写团体名', 'snmp_wcomm'),
+                (u'SNMP版本', 'snmp_ver'),
+                (u'备注', 'remark'),
+            ]
+            super(EocImport, self).__init__(engine, columns)
+
+        def read(self, file, data_dict):
+            # 1.读取文件
+            records = self._read(file)
+            if isinstance(records,unicode): return records
+
+            # 2.验证数据
+            right_records = []
+            for record_dict in records:
+                error = ''
+                for name_en in ['name','alias','addr','branch_name','vendor_id','snmp_comm','snmp_wcomm','snmp_ver']:    #验证不能为空
+                    if not record_dict.get(name_en):
+                        error += self.columns_en_dict.get(name_en)+u'不能为空; '
+                for name_en in ['vendor_id','snmp_ver']:
+                    if record_dict.get(name_en) and record_dict.get(name_en) not in data_dict.get(name_en,{}):
+                        error += self.columns_en_dict.get(name_en)+u'不存在; '
+                if record_dict.get('branch_name') and record_dict.get('branch_name') not in data_dict.get('branch_name',{}):
+                    error += self.columns_en_dict.get('branch_name')+u'不存在或没有权限; '
+                if error:
+                    record_dict['error'] = error
+                    self.error_records.append(record_dict)
+                else:
+                    for key,value in record_dict.items():
+                        if value == '': record_dict[key] = None
+                    for name_en in ['branch_name','vendor_id']:
+                        if record_dict[name_en]: record_dict[name_en] = data_dict[name_en][record_dict[name_en]]
+                    right_records.append(record_dict)
+
+            # 3.插入更新数据
+            self.cursor.execute("drop table if exists temp_eocs;")
+            create_temp_table = '''
+        create temporary table temp_eocs (id int, name character varying(40), alias character varying(200),addr character varying(20),
+            area_id int, vendor_id int, mask character varying(60), snmp_comm character varying(40),
+            snmp_wcomm character varying(40),snmp_ver character varying(40),remark character varying(200));
+        '''
+            self.cursor.execute(create_temp_table)
+            self.cursor.execute("CREATE INDEX index_id ON temp_eocs(id)")
+            insert_temp = 'insert into temp_eocs (name, alias, addr, area_id, vendor_id, mask, snmp_comm, snmp_wcomm, snmp_ver, remark) values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);'
+            self.cursor.executemany(insert_temp, [[record_dict.get(column[1]) for column in self.columns] for record_dict in right_records])
+            self.cursor.execute('update temp_eocs set id=t2.id from node_eocs t2 where temp_eocs.addr=t2.addr;')
+            self.cursor.execute('update node_eocs set name=t2.name,alias=t2.alias,area_id=t2.area_id,vendor_id=t2.vendor_id,mask=t2.mask,snmp_comm=t2.snmp_comm,snmp_wcomm=t2.snmp_wcomm,snmp_ver=t2.snmp_ver,remark=t2.remark from temp_eocs t2 where node_eocs.id=t2.id;')
+            self.cursor.execute('select name, alias, addr, area_id, vendor_id, mask, snmp_comm, snmp_wcomm, snmp_ver, remark from temp_eocs where id is null;')
+            insert_data = self.cursor.fetchall()
+            insert_sql = 'insert into node_eocs(name, alias, addr, area_id, vendor_id, mask, snmp_comm, snmp_wcomm, snmp_ver, remark,category_id) values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);'
+            self.cursor.executemany(insert_sql, [data+(50,) for data in insert_data])
+            self.conn.commit()
+
+            # 4.错误数据回写
+            error_file = self._error('eocs') # 错误数据回写
+            if error_file:
+                error_file = u'<a href="/download?file=/static/file/download/%s">下载错误数据</a>' % error_file
+            return u"成功导入EOC %s条，更新%s条记录。%s" % (len(insert_data), len(right_records)-len(insert_data), error_file)
+
+class OnuImport(CsvImport):
+    def __init__(self, engine):
+        columns = [
+            (u'名称', 'name'),
+            (u'别名', 'alias'),
+            (u'IP地址', 'addr'),
+            (u'认证标识', 'mac'),
+            (u'所属接入点', 'entrance_name'),
+            (u'读团体名', 'snmp_comm'),
+            (u'写团体名', 'snmp_wcomm'),
+            (u'SNMP版本', 'snmp_ver'),
+            (u'备注', 'remark'),
+        ]
+        super(OnuImport, self).__init__(engine, columns)
+
+    def read(self, file, data_dict):
+        # 1.读取文件
+        records = self._read(file)
+        if isinstance(records,unicode): return records
+
+        # 2.验证数据
+        right_records = []
+        for record_dict in records:
+            error = ''
+            if not record_dict.get('addr') and not record_dict.get('mac'):
+                error += u'IP地址和认证标识不能同时为空;'
+            if record_dict.get('entrance_name') and record_dict.get('entrance_name') not in data_dict.get('entrance_name',{}):
+                error += self.columns_en_dict.get('entrance_name')+u'不存在或没有权限; '
+            if error:
+                record_dict['error'] = error
+                self.error_records.append(record_dict)
+            else:
+                for key,value in record_dict.items():
+                    if value == '': record_dict[key] = None
+                for name_en in ['entrance_name']:
+                    if record_dict[name_en]: record_dict[name_en] = data_dict[name_en][record_dict[name_en]]
+                right_records.append(record_dict)
+
+        # 3.插入更新数据
+        self.cursor.execute("drop table if exists temp_onus;")
+        create_temp_table = '''
+        create temporary table temp_onus (id int, name character varying(40), alias character varying(200),addr character varying(20),
+            mac character varying(20),area_id int, snmp_comm character varying(40),
+            snmp_wcomm character varying(40),snmp_ver character varying(40),remark character varying(200));
+        '''
+        self.cursor.execute(create_temp_table)
+        self.cursor.execute("CREATE INDEX index_id ON temp_onus(id)")
+        insert_temp = 'insert into temp_onus (name, alias, addr, mac, area_id, snmp_comm, snmp_wcomm, snmp_ver, remark) values (%s,%s,%s,%s,%s,%s,%s,%s,%s);'
+        self.cursor.executemany(insert_temp, [[record_dict.get(column[1]) for column in self.columns] for record_dict in right_records])
+        self.cursor.execute('update temp_onus set id=t2.id from node_onus t2 left join node_olts t3 on t3.id=t2.ctrl_id left join areas on areas.id=t3.area_id where temp_onus.addr is not null and temp_onus.addr=t2.addr and %s;'% data_dict.get("import_clause_permit"))
+        self.cursor.execute('update temp_onus set id=t2.id from node_onus t2 left join node_olts t3 on t3.id=t2.ctrl_id left join areas on areas.id=t3.area_id where temp_onus.mac is not null and temp_onus.mac=t2.mac and %s;'% data_dict.get("import_clause_permit"))
+
+        self.cursor.execute('update node_onus set name=t2.name from temp_onus t2 where node_onus.id=t2.id and t2.name is not null;')
+        self.cursor.execute('update node_onus set alias=t2.alias from temp_onus t2 where node_onus.id=t2.id and t2.alias is not null;')
+        self.cursor.execute('update node_onus set area_id=t2.area_id from temp_onus t2 where node_onus.id=t2.id and t2.area_id is not null;')
+        self.cursor.execute('update node_onus set snmp_comm=t2.snmp_comm from temp_onus t2 where node_onus.id=t2.id and t2.snmp_comm is not null;')
+        self.cursor.execute('update node_onus set snmp_wcomm=t2.snmp_wcomm from temp_onus t2 where node_onus.id=t2.id and t2.snmp_wcomm is not null;')
+        self.cursor.execute('update node_onus set snmp_ver=t2.snmp_ver from temp_onus t2 where node_onus.id=t2.id and t2.snmp_ver is not null;')
+        self.cursor.execute('update node_onus set remark=t2.remark from temp_onus t2 where node_onus.id=t2.id and t2.remark is not null;')
+
+        self.cursor.execute('select name, alias, addr, mac, area_id, snmp_comm, snmp_wcomm, snmp_ver, remark from temp_onus where id is null;')
+        error_data = self.cursor.fetchall()
+        error_data = [data for data in error_data]  # 替换area_id,None变为'',id变为name
+        self.error_records.extend(error_data)
+
+        # 4.错误数据回写
+        error_file = self._error('eocs') # 错误数据回写
+        if error_file:
+            error_file = u'<a href="/download?file=/static/file/download/%s">下载错误数据</a>' % error_file
+        return u"成功更新ONU %s条记录。%s" % (len(right_records)-len(error_data), error_file)

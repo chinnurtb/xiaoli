@@ -164,3 +164,25 @@ def ajax_entrances_for_olt():
     olt = NodeOlt.query.get(olt_id)
     entrances = Area.query.filter(Area.parent_id==olt.area_id)
     return json.dumps([{'value':entrance.id, 'name':entrance.alias} for entrance in entrances])
+
+import os
+from flask import Markup
+from werkzeug import secure_filename
+@nodeview.route('/nodes/onus/import/', methods=['POST'])
+def onus_import():
+    if request.method == 'POST':
+        file = request.files['file']
+        if file and file.filename.endswith('csv'):
+            filename = secure_filename(file.filename)
+            root_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','static','file','upload')
+            if not os.path.isdir(root_path): os.mkdir(root_path)
+            file_path = os.path.join(root_path, filename.split('.')[0]+datetime.now().strftime('(%Y-%m-%d %H-%M-%S %f)')+'.csv')
+            file.save(file_path)
+            from tango.excel import OltImport
+            reader = OltImport(engine=db.session.bind)
+            vendor_dict = dict([(vendor.alias, vendor.id) for vendor in Vendor.query.filter(Vendor.is_valid==1).all()])
+            info = reader.read(file=file_path, data_dict={'branch_name':current_user.domain.import_permit(3),'vendor_id':vendor_dict,'snmp_ver':['v1','v2c']})
+            flash(Markup(info), 'success')
+        else:
+            flash(u"上传文件格式错误", 'error')
+    return redirect(url_for('nodes.olts'))

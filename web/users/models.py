@@ -211,6 +211,20 @@ class Domain(db.Model):
             area_list.extend([(area.alias,area.id) for area in areas])
         return dict(area_list)
 
+    @property
+    def import_clause_permit(self):
+        clause = []
+        if self.city_list: clause.append('areas.cityid in ('+self.city_list+')')
+        if self.town_list: clause.append('areas.town in ('+self.town_list+')')
+        if self.branch_list: clause.append('areas.branch in ('+self.branch_list+')')
+        if self.entrance_list: clause.append('areas.entrance in ('+self.entrance_list+')')
+        if len(clause) == 0:
+            return ''
+        elif len(clause) == 1:
+            return clause[0]
+        else:
+            return '('+' or '.join(clause)+')'
+
 roles_permissions = db.Table('roles_permissions', db.Model.metadata,
                              db.Column('role_id', db.Integer,
                                        db.ForeignKey('roles.id', ondelete='CASCADE')),

@@ -309,7 +309,7 @@ class NodeSwitch(NodeMixin, db.Model):
 
     @staticmethod
     def export_columns():
-        return ['status','name','alias','addr','area.full_name','vendor.alias','model.alias','mask','snmp_comm','snmp_wcomm','last_check','location','remark']
+        return ['name','alias','addr','area.entrance_name','mask','snmp_comm','snmp_wcomm','location','remark']
 
 class NodeRouter(NodeMixin, db.Model):
     """ Routers """
@@ -320,7 +320,7 @@ class NodeRouter(NodeMixin, db.Model):
 
     @staticmethod
     def export_columns():
-        return ['status','name','alias','addr','area.full_name','vendor.alias','model.alias','mask','snmp_comm','snmp_wcomm','last_check','location','remark']
+        return ['name','alias','addr','area.entrance_name','mask','snmp_comm','snmp_wcomm','location','remark']
 
 class NodeHost(NodeMixin, db.Model):
     """ Hosts """
@@ -363,7 +363,7 @@ class NodeOlt(NodeMixin,db.Model):
 
     @staticmethod
     def export_columns():
-        return ['status','category.alias','name','alias','addr','area.full_name','vendor.alias','model.alias','mask','snmp_comm','snmp_wcomm','snmp_ver','last_check','location','remark']
+        return ['name','alias','addr','area.branch_name','vendor.alias','mask','snmp_comm','snmp_wcomm','snmp_ver','remark']
 
     def get_traffic(self):
         data_ifInOctets,data_ifOutOctets = [] ,[]
@@ -448,7 +448,7 @@ class NodeEoc(NodeMixin, db.Model):
 
     @staticmethod
     def export_columns():
-        return ['status','category.alias','name','alias','addr','area.full_name','vendor.alias','model.alias','mask','snmp_comm','snmp_wcomm','snmp_ver','last_check','location','remark']
+        return ['name','alias','addr','area.branch_name','vendor.alias','mask','snmp_comm','snmp_wcomm','snmp_ver','remark']
 
 class NodeCpe(NodeMixin, db.Model):
     """ Cpes """

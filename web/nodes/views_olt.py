@@ -145,7 +145,6 @@ def ping_delay(id):
     return render_template('nodes/olts/ping_delay.html', chartdata = chartdata)
 
 import os
-import operator
 from flask import Markup
 from werkzeug import secure_filename
 @nodeview.route('/nodes/olts/import/', methods=['POST'])
@@ -158,44 +157,10 @@ def olts_import():
             if not os.path.isdir(root_path): os.mkdir(root_path)
             file_path = os.path.join(root_path, filename.split('.')[0]+datetime.now().strftime('(%Y-%m-%d %H-%M-%S %f)')+'.csv')
             file.save(file_path)
-            reader = CsvImport(session=db.session.bind, table='node_olts')
-            reader.addColumn(
-                ImportColumn(u'名称', 'name', 'character varying(40)')
-            ).addColumn(
-                ImportColumn(u'别名', 'alias', 'character varying(200)')
-            ).addColumn(
-                ImportColumn(u'节点类型', 'category_id', 'integer', default=20)
-            ).addColumn(
-                ImportColumn(u'IP地址', 'addr', 'character varying(200)', is_key=True)
-            ).addColumn(
-                ImportColumn(u'所属区域', 'area_id', 'integer',allow_null=False, existed_data=dict([(area.full_name, area.id) for area in Area.query.filter(Area.area_type==3)]), )
-            ).addColumn(
-                ImportColumn(u'厂商', 'vendor_id', 'integer',allow_null=False, existed_data=dict([(vendor.alias, vendor.id) for vendor in Vendor.query.filter(Vendor.is_valid==1)]),)
-            ).addColumn(
-                ImportColumn(u'型号', 'model_id', 'integer',allow_null=False, existed_data=dict([(model.alias, model.id) for model in Model.query.filter(Model.is_valid==1)]),)
-            ).addColumn(
-                ImportColumn(u'子网掩码', 'mask', 'character varying(200)')
-            ).addColumn(
-                ImportColumn(u'读团体名', 'snmp_comm', 'character varying(50)')
-            ).addColumn(
-                ImportColumn(u'写团体名', 'snmp_wcomm', 'character varying(50)')
-            ).addColumn(
-                ImportColumn(u'SNMP版本', 'snmp_ver', 'character varying(50)')
-            ).addColumn(
-                ImportColumn(u'位置', 'location', 'character varying(200)')
-            ).addColumn(
-                ImportColumn(u'备注', 'remark', 'character varying(200)')
-            )
-            update_dict = {}
-            key_list = [column.name_en for column in reader.columns if column.is_key]
-            attr_list = ['id',]+[column.name_en for column in reader.columns]
-            for node in NodeOlt.query.all():
-                f = operator.attrgetter(*key_list)
-                key = (f(node),) if len(key_list) == 1 else f(node)
-                f2 = operator.attrgetter(*attr_list)
-                update_dict[key] = dict(zip(attr_list, f2(node)))
-            reader.load_update(permit_update_dict=update_dict, update_dict=update_dict)
-            info = reader.read(file=file_path)
+            from tango.excel import OltImport
+            reader = OltImport(engine=db.session.bind)
+            vendor_dict = dict([(vendor.alias, vendor.id) for vendor in Vendor.query.filter(Vendor.is_valid==1).all()])
+            info = reader.read(file=file_path, data_dict={'branch_name':current_user.domain.import_permit(3),'vendor_id':vendor_dict,'snmp_ver':['v1','v2c']})
             flash(Markup(info), 'success')
         else:
             flash(u"上传文件格式错误", 'error')
