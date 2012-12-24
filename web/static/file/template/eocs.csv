@@ -1,5 +1,2 @@
-名称,别名,IP地址,所属区域,厂商,型号,子网掩码,读团体名,写团体名,SNMP版本,上次同步,位置,备注
-test,test,127.0.0.1,银川市兴庆区西城分局,,,,public,private,v2c,,,
-test,test,127.0.0.1,银川市兴庆区西城分局,中兴,ZTE-9806,,public,private,v2c,,,
-admin,admin,127.0.0.1,银川市兴庆区西城分局,中兴,ZTE-9806,,public,private,v2c,,二楼,
-admin,admin,127.0.0.1,银川市兴庆区西城分局,,,255,public,private,v2c,,,
+名称,别名,IP地址,所属分局,厂商,子网掩码,读团体名,写团体名,SNMP版本,备注
+test,test111,127.0.0.14,兴隆分局,中兴,,public,private,v2c,

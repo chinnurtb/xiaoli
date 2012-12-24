@@ -365,6 +365,17 @@ class NodeOlt(NodeMixin,db.Model):
     def export_columns():
         return ['name','alias','addr','area.branch_name','vendor.alias','mask','snmp_comm','snmp_wcomm','snmp_ver','remark']
 
+    @staticmethod
+    def olt_entrance():
+        olt_entrance = db.session.query(NodeOlt.addr, Area.alias).outerjoin(Area, Area.branch==NodeOlt.area_id).filter(Area.area_type==4).all()
+        olt_entrance_dict = {}
+        for ip, entrance_name in olt_entrance:
+            if olt_entrance_dict.get(ip):
+                olt_entrance_dict[ip] = olt_entrance_dict[ip] + [entrance_name]
+            else:
+                olt_entrance_dict[ip] = [entrance_name]
+        return olt_entrance_dict
+
     def get_traffic(self):
         data_ifInOctets,data_ifOutOctets = [] ,[]
         try:
@@ -414,7 +425,7 @@ class NodeOnu(NodeMixin,db.Model):
 
     @staticmethod
     def export_columns():
-        return ['status','name','alias','addr','area.full_name','olt.name','olt.addr','vendor.alias','model.alias','mask','snmp_comm','snmp_wcomm','last_check','location','remark']
+        return ['name','alias','addr','mac','olt.addr','area.entrance_name','snmp_comm','snmp_wcomm','snmp_ver','remark']
 
 class NodeEoc(NodeMixin, db.Model):
     """ Eocs """
@@ -450,6 +461,17 @@ class NodeEoc(NodeMixin, db.Model):
     def export_columns():
         return ['name','alias','addr','area.branch_name','vendor.alias','mask','snmp_comm','snmp_wcomm','snmp_ver','remark']
 
+    @staticmethod
+    def eoc_entrance():
+        eoc_entrance = db.session.query(NodeEoc.addr, Area.alias).outerjoin(Area, Area.branch==NodeEoc.area_id).filter(Area.area_type==4).all()
+        eoc_entrance_dict = {}
+        for ip, entrance_name in eoc_entrance:
+            if eoc_entrance_dict.get(ip):
+                eoc_entrance_dict[ip] = eoc_entrance_dict[ip] + [entrance_name]
+            else:
+                eoc_entrance_dict[ip] = [entrance_name]
+        return eoc_entrance_dict
+
 class NodeCpe(NodeMixin, db.Model):
     """ Cpes """
     __tablename__ = 'node_cpes'
@@ -466,7 +488,7 @@ class NodeCpe(NodeMixin, db.Model):
 
     @staticmethod
     def export_columns():
-        return ['status','name','alias','addr','area.full_name','eoc.name','eoc.addr','vendor.alias','model.alias','mask','snmp_comm','snmp_wcomm','last_check','location','remark']
+        return ['name','alias','mac','eoc.addr','area.entrance_name','snmp_comm','snmp_wcomm','snmp_ver','remark']
 
 
 class Server(db.Model):

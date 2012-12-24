@@ -178,11 +178,15 @@ def onus_import():
             if not os.path.isdir(root_path): os.mkdir(root_path)
             file_path = os.path.join(root_path, filename.split('.')[0]+datetime.now().strftime('(%Y-%m-%d %H-%M-%S %f)')+'.csv')
             file.save(file_path)
-            from tango.excel import OltImport
-            reader = OltImport(engine=db.session.bind)
-            vendor_dict = dict([(vendor.alias, vendor.id) for vendor in Vendor.query.filter(Vendor.is_valid==1).all()])
-            info = reader.read(file=file_path, data_dict={'branch_name':current_user.domain.import_permit(3),'vendor_id':vendor_dict,'snmp_ver':['v1','v2c']})
+            from tango.excel import OnuImport
+            reader = OnuImport(engine=db.session.bind)
+            info = reader.read(file=file_path, data_dict={
+                'entrance_name':current_user.domain.import_permit(4),
+                'import_clause_permit':current_user.domain.import_clause_permit,
+                'olt_entrance': NodeOlt.olt_entrance(),
+                'snmp_ver':['v1','v2c']
+            })
             flash(Markup(info), 'success')
         else:
             flash(u"上传文件格式错误", 'error')
-    return redirect(url_for('nodes.olts'))
+    return redirect(url_for('nodes.onus'))

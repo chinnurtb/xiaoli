@@ -366,7 +366,10 @@ class RouterImport(CsvImport):
         insert_temp = 'insert into temp_routers (name, alias, addr, area_id, mask, snmp_comm, snmp_wcomm, location, remark) values (%s,%s,%s,%s,%s,%s,%s,%s,%s);'
         self.cursor.executemany(insert_temp, [[record_dict.get(column[1]) for column in self.columns] for record_dict in right_records])
         self.cursor.execute('update temp_routers set id=t2.id from node_routers t2 where temp_routers.addr=t2.addr;')
-        self.cursor.execute('update node_routers set name=t2.name,alias=t2.alias,area_id=t2.area_id,mask=t2.mask,snmp_comm=t2.snmp_comm,snmp_wcomm=t2.snmp_wcomm,location=t2.location,remark=t2.remark from temp_routers t2 where node_routers.id=t2.id;')
+        self.cursor.execute('update node_routers set name=t2.name,alias=t2.alias,area_id=t2.area_id,snmp_comm=t2.snmp_comm,snmp_wcomm=t2.snmp_wcomm from temp_routers t2 where node_routers.id=t2.id;')
+        self.cursor.execute('update node_routers set mask=t2.mask from temp_routers t2 where node_routers.id=t2.id and t2.mask is not null;')
+        self.cursor.execute('update node_routers set location=t2.location from temp_routers t2 where node_routers.id=t2.id and t2.location is not null;')
+        self.cursor.execute('update node_routers set remark=t2.remark from temp_routers t2 where node_routers.id=t2.id and t2.remark is not null;')
         self.cursor.execute('select name, alias, addr, area_id, mask, snmp_comm, snmp_wcomm, location, remark from temp_routers where id is null;')
         insert_data = self.cursor.fetchall()
         insert_sql = 'insert into node_routers(name, alias, addr, area_id, mask, snmp_comm, snmp_wcomm, location, remark,category_id) values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);'
@@ -586,6 +589,7 @@ class OnuImport(CsvImport):
             (u'别名', 'alias'),
             (u'IP地址', 'addr'),
             (u'认证标识', 'mac'),
+            (u'所属OLT IP', 'olt_ip'),
             (u'所属接入点', 'entrance_name'),
             (u'读团体名', 'snmp_comm'),
             (u'写团体名', 'snmp_wcomm'),
@@ -603,10 +607,18 @@ class OnuImport(CsvImport):
         right_records = []
         for record_dict in records:
             error = ''
+            for name_en in ['olt_ip']:    #验证不能为空
+                if not record_dict.get(name_en):
+                    error += self.columns_en_dict.get(name_en)+u'不能为空; '
+            for name_en in ['snmp_ver']:
+                if record_dict.get(name_en) and record_dict.get(name_en) not in data_dict.get(name_en,{}):
+                    error += self.columns_en_dict.get(name_en)+u'不存在; '
             if not record_dict.get('addr') and not record_dict.get('mac'):
                 error += u'IP地址和认证标识不能同时为空;'
             if record_dict.get('entrance_name') and record_dict.get('entrance_name') not in data_dict.get('entrance_name',{}):
                 error += self.columns_en_dict.get('entrance_name')+u'不存在或没有权限; '
+            elif record_dict.get('entrance_name') and record_dict.get('olt_ip') and record_dict['entrance_name'] not in data_dict['olt_entrance'].get(record_dict['olt_ip']):
+                error += u'此接入点不在OLT所属分局中; '
             if error:
                 record_dict['error'] = error
                 self.error_records.append(record_dict)
@@ -620,16 +632,18 @@ class OnuImport(CsvImport):
         # 3.插入更新数据
         self.cursor.execute("drop table if exists temp_onus;")
         create_temp_table = '''
-        create temporary table temp_onus (id int, name character varying(40), alias character varying(200),addr character varying(20),
-            mac character varying(20),area_id int, snmp_comm character varying(40),
-            snmp_wcomm character varying(40),snmp_ver character varying(40),remark character varying(200));
+        create temporary table temp_onus (
+            id int, name character varying(40), alias character varying(200),addr character varying(20),
+            mac character varying(20),olt_ip character varying(20), area_id int,snmp_comm character varying(40),
+            snmp_wcomm character varying(40),snmp_ver character varying(40),remark character varying(200)
+        );
         '''
         self.cursor.execute(create_temp_table)
         self.cursor.execute("CREATE INDEX index_id ON temp_onus(id)")
-        insert_temp = 'insert into temp_onus (name, alias, addr, mac, area_id, snmp_comm, snmp_wcomm, snmp_ver, remark) values (%s,%s,%s,%s,%s,%s,%s,%s,%s);'
+        insert_temp = 'insert into temp_onus (name, alias, addr, mac, olt_ip, area_id, snmp_comm, snmp_wcomm, snmp_ver, remark) values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);'
         self.cursor.executemany(insert_temp, [[record_dict.get(column[1]) for column in self.columns] for record_dict in right_records])
-        self.cursor.execute('update temp_onus set id=t2.id from node_onus t2 left join node_olts t3 on t3.id=t2.ctrl_id left join areas on areas.id=t3.area_id where temp_onus.addr is not null and temp_onus.addr=t2.addr and %s;'% data_dict.get("import_clause_permit"))
-        self.cursor.execute('update temp_onus set id=t2.id from node_onus t2 left join node_olts t3 on t3.id=t2.ctrl_id left join areas on areas.id=t3.area_id where temp_onus.mac is not null and temp_onus.mac=t2.mac and %s;'% data_dict.get("import_clause_permit"))
+        self.cursor.execute('update temp_onus set id=t2.id from node_onus t2 left join node_olts t3 on t3.id=t2.ctrl_id left join areas on areas.id=t3.area_id where temp_onus.addr is not null and temp_onus.addr=t2.addr and t3.addr=temp_onus.olt_ip and %s;'% data_dict.get("import_clause_permit"))
+        self.cursor.execute('update temp_onus set id=t2.id from node_onus t2 left join node_olts t3 on t3.id=t2.ctrl_id left join areas on areas.id=t3.area_id where temp_onus.mac is not null and temp_onus.mac=t2.mac and t3.addr=temp_onus.olt_ip and %s;'% data_dict.get("import_clause_permit"))
 
         self.cursor.execute('update node_onus set name=t2.name from temp_onus t2 where node_onus.id=t2.id and t2.name is not null;')
         self.cursor.execute('update node_onus set alias=t2.alias from temp_onus t2 where node_onus.id=t2.id and t2.alias is not null;')
@@ -638,14 +652,106 @@ class OnuImport(CsvImport):
         self.cursor.execute('update node_onus set snmp_wcomm=t2.snmp_wcomm from temp_onus t2 where node_onus.id=t2.id and t2.snmp_wcomm is not null;')
         self.cursor.execute('update node_onus set snmp_ver=t2.snmp_ver from temp_onus t2 where node_onus.id=t2.id and t2.snmp_ver is not null;')
         self.cursor.execute('update node_onus set remark=t2.remark from temp_onus t2 where node_onus.id=t2.id and t2.remark is not null;')
+        self.conn.commit()
 
-        self.cursor.execute('select name, alias, addr, mac, area_id, snmp_comm, snmp_wcomm, snmp_ver, remark from temp_onus where id is null;')
+        self.cursor.execute('select name, alias, addr, mac, olt_ip, area_id, snmp_comm, snmp_wcomm, snmp_ver, remark from temp_onus where id is null;')
         error_data = self.cursor.fetchall()
-        error_data = [data for data in error_data]  # 替换area_id,None变为'',id变为name
+        entrance_dict = dict([(value,key) for key, value in data_dict.get("entrance_name",{}).items()])
+        def replace(data):
+            data_dict = dict(zip([column[1] for column in self.columns], [da if da is not None else '' for da in data]))
+            data_dict['entrance_name'] = entrance_dict.get(data_dict.get('entrance_name'), '')
+            data_dict['error'] = u'ONU不存在或没有权限; '
+            return data_dict
+        error_data = [replace(data) for data in error_data]
         self.error_records.extend(error_data)
 
         # 4.错误数据回写
-        error_file = self._error('eocs') # 错误数据回写
+        error_file = self._error('onus') # 错误数据回写
         if error_file:
             error_file = u'<a href="/download?file=/static/file/download/%s">下载错误数据</a>' % error_file
         return u"成功更新ONU %s条记录。%s" % (len(right_records)-len(error_data), error_file)
+
+class CpeImport(CsvImport):
+    def __init__(self, engine):
+        columns = [
+            (u'名称', 'name'),
+            (u'别名', 'alias'),
+            (u'MAC地址', 'mac'),
+            (u'所属EOC IP', 'eoc_ip'),
+            (u'所属接入点', 'entrance_name'),
+            (u'读团体名', 'snmp_comm'),
+            (u'写团体名', 'snmp_wcomm'),
+            (u'SNMP版本', 'snmp_ver'),
+            (u'备注', 'remark'),
+        ]
+        super(CpeImport, self).__init__(engine, columns)
+
+    def read(self, file, data_dict):
+        # 1.读取文件
+        records = self._read(file)
+        if isinstance(records,unicode): return records
+
+        # 2.验证数据
+        right_records = []
+        for record_dict in records:
+            error = ''
+            for name_en in ['mac','eoc_ip']:    #验证不能为空
+                if not record_dict.get(name_en):
+                    error += self.columns_en_dict.get(name_en)+u'不能为空; '
+            for name_en in ['snmp_ver']:
+                if record_dict.get(name_en) and record_dict.get(name_en) not in data_dict.get(name_en,{}):
+                    error += self.columns_en_dict.get(name_en)+u'不存在; '
+            if record_dict.get('entrance_name') and record_dict.get('entrance_name') not in data_dict.get('entrance_name',{}):
+                error += self.columns_en_dict.get('entrance_name')+u'不存在或没有权限; '
+            elif record_dict.get('entrance_name') and record_dict.get('eoc_ip') and record_dict['entrance_name'] not in data_dict['eoc_entrance'].get(record_dict['eoc_ip']):
+                error += u'此接入点不在EOC所属分局中; '
+            if error:
+                record_dict['error'] = error
+                self.error_records.append(record_dict)
+            else:
+                for key,value in record_dict.items():
+                    if value == '': record_dict[key] = None
+                for name_en in ['entrance_name']:
+                    if record_dict[name_en]: record_dict[name_en] = data_dict[name_en][record_dict[name_en]]
+                right_records.append(record_dict)
+
+        # 3.插入更新数据
+        self.cursor.execute("drop table if exists temp_cpes;")
+        create_temp_table = '''
+        create temporary table temp_cpes (
+            id int, name character varying(40), alias character varying(200),mac character varying(20),
+            eoc_ip character varying(20), area_id int,snmp_comm character varying(40),
+            snmp_wcomm character varying(40),snmp_ver character varying(40),remark character varying(200)
+        );
+        '''
+        self.cursor.execute(create_temp_table)
+        self.cursor.execute("CREATE INDEX index_id ON temp_cpes(id)")
+        insert_temp = 'insert into temp_cpes (name, alias, mac, eoc_ip, area_id, snmp_comm, snmp_wcomm, snmp_ver, remark) values (%s,%s,%s,%s,%s,%s,%s,%s,%s);'
+        self.cursor.executemany(insert_temp, [[record_dict.get(column[1]) for column in self.columns] for record_dict in right_records])
+        self.cursor.execute('update temp_cpes set id=t2.id from node_cpes t2 left join node_eocs t3 on t3.id=t2.ctrl_id left join areas on areas.id=t3.area_id where temp_cpes.mac is not null and temp_cpes.mac=t2.mac and t3.addr=temp_cpes.eoc_ip and %s;'% data_dict.get("import_clause_permit"))
+
+        self.cursor.execute('update node_cpes set name=t2.name from temp_cpes t2 where node_cpes.id=t2.id and t2.name is not null;')
+        self.cursor.execute('update node_cpes set alias=t2.alias from temp_cpes t2 where node_cpes.id=t2.id and t2.alias is not null;')
+        self.cursor.execute('update node_cpes set area_id=t2.area_id from temp_cpes t2 where node_cpes.id=t2.id and t2.area_id is not null;')
+        self.cursor.execute('update node_cpes set snmp_comm=t2.snmp_comm from temp_cpes t2 where node_cpes.id=t2.id and t2.snmp_comm is not null;')
+        self.cursor.execute('update node_cpes set snmp_wcomm=t2.snmp_wcomm from temp_cpes t2 where node_cpes.id=t2.id and t2.snmp_wcomm is not null;')
+        self.cursor.execute('update node_cpes set snmp_ver=t2.snmp_ver from temp_cpes t2 where node_cpes.id=t2.id and t2.snmp_ver is not null;')
+        self.cursor.execute('update node_cpes set remark=t2.remark from temp_cpes t2 where node_cpes.id=t2.id and t2.remark is not null;')
+        self.conn.commit()
+
+        self.cursor.execute('select name, alias, mac, eoc_ip, area_id, snmp_comm, snmp_wcomm, snmp_ver, remark from temp_cpes where id is null;')
+        error_data = self.cursor.fetchall()
+        entrance_dict = dict([(value,key) for key, value in data_dict.get("entrance_name",{}).items()])
+        def replace(data):
+            data_dict = dict(zip([column[1] for column in self.columns], [da if da is not None else '' for da in data]))
+            data_dict['entrance_name'] = entrance_dict.get(data_dict.get('entrance_name'), '')
+            data_dict['error'] = u'CPE不存在或没有权限; '
+            return data_dict
+        error_data = [replace(data) for data in error_data]
+        self.error_records.extend(error_data)
+
+        # 4.错误数据回写
+        error_file = self._error('cpes') # 错误数据回写
+        if error_file:
+            error_file = u'<a href="/download?file=/static/file/download/%s">下载错误数据</a>' % error_file
+        return u"成功更新CPE %s条记录。%s" % (len(right_records)-len(error_data), error_file)
