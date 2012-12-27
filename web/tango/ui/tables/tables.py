@@ -193,6 +193,7 @@ class Table(object):
 
     @hiddens.setter
     def hiddens(self, value):
+        if not value: return []
         self.hidden_columns = value.split(',')
         for name in self.hidden_columns:
             if name: self.columns[name].hidden = True
