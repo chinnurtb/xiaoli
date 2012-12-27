@@ -117,7 +117,7 @@
 	</tr>
     {% else %}
     <tr>
-        <td colspan="{{ table.columns|length }}" class="colspanchange">
+        <td colspan="{{ table.columns|length - table.hiddens|length }}" class="colspanchange">
           <div class="alert alert-block" style="text-align:center;">
             <button type="button" class="close" data-dismiss="alert">×</button>
             当前没有数据
