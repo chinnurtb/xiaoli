@@ -12,14 +12,14 @@ from tango import db,get_profile
 from tango.ui.tables import make_table
 from tango.login import current_user
 from tango.models import Profile, Category
-from tango.excel.CsvExport import CsvExport
+from tango.excel import XlsExport
 
 from .models import NodeOnu, NODE_STATUS_DICT, Area, NodeOlt, Node
 from .tables import OnuTable
 from .forms import  OnuSearchForm, OnuNewForm
 from .views import nodeview
 
-@nodeview.route('/nodes/onus.csv/', methods=['GET'])
+@nodeview.route('/nodes/onus.xls/', methods=['GET'])
 @nodeview.route('/nodes/onus/', methods=['GET'])
 def onus():
     form = OnuSearchForm()
@@ -53,9 +53,9 @@ def onus():
         num = num.count()
         status_statistcs.append({"status": status, "number": num, "name": NODE_STATUS_DICT.get(status)})
 
-    if request.base_url.endswith(".csv/"):
-        csv = CsvExport('onus',columns=NodeOnu.export_columns())
-        return send_file(csv.export(query,format={'status': lambda value: NODE_STATUS_DICT.get(value)}),as_attachment=True,attachment_filename='onus.csv')
+    if request.base_url.endswith(".xls/"):
+        csv = XlsExport('onus',columns=NodeOnu.export_columns())
+        return send_file(csv.export(query,format={'status': lambda value: NODE_STATUS_DICT.get(value)}),as_attachment=True,attachment_filename='onus.xls')
     else:
         return render_template('/nodes/onus/index.html', table = table, form=form, status_statistcs=status_statistcs)
 
@@ -172,11 +172,11 @@ from werkzeug import secure_filename
 def onus_import():
     if request.method == 'POST':
         file = request.files['file']
-        if file and file.filename.endswith('csv'):
+        if file and file.filename.endswith('xls'):
             filename = secure_filename(file.filename)
             root_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','static','file','upload')
             if not os.path.isdir(root_path): os.mkdir(root_path)
-            file_path = os.path.join(root_path, filename.split('.')[0]+datetime.now().strftime('(%Y-%m-%d %H-%M-%S %f)')+'.csv')
+            file_path = os.path.join(root_path, filename.split('.')[0]+datetime.now().strftime('(%Y-%m-%d %H-%M-%S %f)')+'.xls')
             file.save(file_path)
             from tango.excel import OnuImport
             reader = OnuImport(engine=db.session.bind)

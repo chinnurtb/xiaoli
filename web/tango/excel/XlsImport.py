@@ -8,11 +8,11 @@
        5. 验证数据在网管中是否存在，如 导入数据的厂家，区域是否存在
        6. 是否有权限操作,如 是否有更新此OLT的权限
        7. 导入列可以无序
-   暂不支持功能：
-       1. 多sheet导入
+       8. 多sheet导入
 '''
 import os
-import csv
+import xlwt, xlrd
+from xlutils.copy import copy
 import psycopg2
 from datetime import datetime
 
@@ -23,7 +23,20 @@ def validate_float(value):
     except ValueError:
         return False
 
-class CsvImport(object):
+# 去除字符串前后的空格
+def strip(data):
+    if isinstance(data, basestring):
+        return data.strip().replace("\n","").replace("\r","")
+    else:
+        return data
+
+def encode(value):
+    if isinstance(value, basestring):
+        return unicode(value)
+    else:
+        return value
+
+class XlsImport(object):
     def __init__(self, engine, columns):
         self.columns = columns
         self.columns_cn_dict = dict(self.columns)
@@ -33,37 +46,59 @@ class CsvImport(object):
         self.cursor = self.conn.cursor()
 
     def _read(self, file):
-        reader = [record for record in csv.reader(open(file,'rb'))]
-        key_col = {}
-        for col_index, col_name in enumerate(reader[0]):
-            name_en = self.columns_cn_dict.get(col_name.decode('gbk','ignore'))
-            if name_en:
-                key_col[col_index] = name_en
+        # 验证excel表头，符合的保存在sheet的list中
+        sheet_list = []
+        try:
+            book = xlrd.open_workbook(file)
+        except xlrd.XLRDError:
+            return u'导入文件格式不正确'
+        for sheet_index in range(book.nsheets):
+            sheet = book.sheet_by_index(sheet_index)
+            if sheet.nrows < 2: continue
+            for column_cn in self.columns_cn_dict.keys():
+                if column_cn not in sheet.row_values(0): break
             else:
-                return u"导入文件表头错误"
+                sheet_list.append(sheet)
+
+        # 读取每个sheet的数据
         records = []
-        for row_data in reader[1:]:
-            row_dict = {}
-            for col_index, value in enumerate(row_data):
-                row_dict[key_col[col_index]] = value.decode('gbk','ignore')
-            records.append(row_dict)
+        for sheet in sheet_list:
+            key_col = {}
+            for column_cn in self.columns_cn_dict.keys():
+                key_col[sheet.row_values(0).index(column_cn)] = self.columns_cn_dict[column_cn]
+            for row in range(1, sheet.nrows):
+                row_dict = {}
+                texts = sheet.row_values(row)
+                for col_index, column_en in key_col.items():
+                    row_dict[column_en] = strip(texts[col_index])
+                records.append(row_dict)
+        if not records: records = u'请检查导入文件'
         return records
 
-    def _error(self, table):
+    def _error(self, file_name, sheet_name, error_file=None):
         if not self.error_records: return ""
+        if error_file and os.path.exists(error_file):
+            book = xlrd.open_workbook(error_file,formatting_info=True)
+            wb = copy(book)
+            ws = wb.add_sheet(sheet_name)
+        else:
+            wb = xlwt.Workbook()
+            ws = wb.add_sheet(sheet_name)
         root_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','..','static','file','download')
         if not os.path.isdir(root_path): os.mkdir(root_path)
-        file = os.path.join(root_path,table+datetime.now().strftime('(%Y-%m-%d %H-%M-%S %f)')+'.csv')
-        f = open(file,'wb')
-        fieldnames = [column[0].encode('gbk') for column in self.columns]+[u'错误提示'.encode('gbk'),]
-        writer = csv.writer(f)
-        writer.writerow(fieldnames)
-        for record_dict in self.error_records:
-            writer.writerow([record_dict.get(column[1],'').encode('gbk') for column in self.columns] +[record_dict.get('error','').encode('gbk'),])
+        file = os.path.join(root_path,file_name+datetime.now().strftime('(%Y-%m-%d %H-%M-%S %f)')+'.xls')
+
+        fieldnames = [column[0] for column in self.columns]+[u'错误提示',]
+        for col_index,fieldname in enumerate(fieldnames):
+            ws.write(0,col_index,fieldname)
+        for row, record_dict in enumerate(self.error_records):
+            for col_index, value in enumerate([record_dict.get(column[1],'') for column in self.columns] +[record_dict.get('error','')]):
+                ws.write(row+1, col_index, encode(value))
+        wb.save(file)
         return os.path.basename(file)
 
 
-class CityImport(CsvImport):
+class CityImport(XlsImport):
     def __init__(self, engine):
         columns = [
             (u'地市名称', 'name'),
@@ -77,7 +112,7 @@ class CityImport(CsvImport):
     def read(self, file):
         # 1.读取文件
         records = self._read(file)
-        if isinstance(records,unicode): return records
+        if isinstance(records,basestring): return records
 
         # 2.验证数据
         right_records = []
@@ -119,12 +154,12 @@ class CityImport(CsvImport):
         self.conn.commit()
 
         # 4.错误数据回写
-        error_file = self._error('cities') # 错误数据回写
+        error_file = self._error('cities',u'地市') # 错误数据回写
         if error_file:
             error_file = u'<a href="/download?file=/static/file/download/%s">下载错误数据</a>' % error_file
         return u"成功导入地市%s条，更新%s条记录。%s" % (len(insert_data), len(right_records)-len(insert_data), error_file)
 
-class TownImport(CsvImport):
+class TownImport(XlsImport):
     def __init__(self, engine):
         columns = [
             (u'区县名称', 'name'),
@@ -139,7 +174,7 @@ class TownImport(CsvImport):
     def read(self, file, data_dict):
         # 1.读取文件
         records = self._read(file)
-        if isinstance(records,unicode): return records
+        if isinstance(records,basestring): return records
 
         # 2.验证数据
         right_records = []
@@ -183,12 +218,12 @@ class TownImport(CsvImport):
         self.conn.commit()
 
         # 4.错误数据回写
-        error_file = self._error('towns') # 错误数据回写
+        error_file = self._error('towns', u'区县') # 错误数据回写
         if error_file:
             error_file = u'<a href="/download?file=/static/file/download/%s">下载错误数据</a>' % error_file
         return u"成功导入区县%s条，更新%s条记录。%s" % (len(insert_data), len(right_records)-len(insert_data), error_file)
 
-class BranchImport(CsvImport):
+class BranchImport(XlsImport):
     def __init__(self, engine):
         columns = [
             (u'分局名称', 'name'),
@@ -203,7 +238,7 @@ class BranchImport(CsvImport):
     def read(self, file, data_dict):
         # 1.读取文件
         records = self._read(file)
-        if isinstance(records,unicode): return records
+        if isinstance(records,basestring): return records
 
         # 2.验证数据
         right_records = []
@@ -246,12 +281,12 @@ class BranchImport(CsvImport):
         self.conn.commit()
 
         # 4.错误数据回写
-        error_file = self._error('branches') # 错误数据回写
+        error_file = self._error('branches', u'分局') # 错误数据回写
         if error_file:
             error_file = u'<a href="/download?file=/static/file/download/%s">下载错误数据</a>' % error_file
         return u"成功导入分局%s条，更新%s条记录。%s" % (len(insert_data), len(right_records)-len(insert_data), error_file)
 
-class EntranceImport(CsvImport):
+class EntranceImport(XlsImport):
     def __init__(self, engine):
         columns = [
             (u'接入点名称', 'name'),
@@ -266,7 +301,7 @@ class EntranceImport(CsvImport):
     def read(self, file, data_dict):
         # 1.读取文件
         records = self._read(file)
-        if isinstance(records,unicode): return records
+        if isinstance(records,basestring): return records
 
         # 2.验证数据
         right_records = []
@@ -309,12 +344,12 @@ class EntranceImport(CsvImport):
         self.conn.commit()
 
         # 4.错误数据回写
-        error_file = self._error('entrances') # 错误数据回写
+        error_file = self._error('entrances', u'接入点') # 错误数据回写
         if error_file:
             error_file = u'<a href="/download?file=/static/file/download/%s">下载错误数据</a>' % error_file
         return u"成功导入接入点%s条，更新%s条记录。%s" % (len(insert_data), len(right_records)-len(insert_data), error_file)
 
-class RouterImport(CsvImport):
+class RouterImport(XlsImport):
     def __init__(self, engine):
         columns = [
             (u'名称', 'name'),
@@ -332,7 +367,7 @@ class RouterImport(CsvImport):
     def read(self, file, data_dict):
         # 1.读取文件
         records = self._read(file)
-        if isinstance(records,unicode): return records
+        if isinstance(records,basestring): return records
 
         # 2.验证数据
         right_records = []
@@ -376,12 +411,12 @@ class RouterImport(CsvImport):
         self.conn.commit()
 
         # 4.错误数据回写
-        error_file = self._error('routers') # 错误数据回写
+        error_file = self._error('routers', u'路由器') # 错误数据回写
         if error_file:
             error_file = u'<a href="/download?file=/static/file/download/%s">下载错误数据</a>' % error_file
         return u"成功导入路由器%s条，更新%s条记录。%s" % (len(insert_data), len(right_records)-len(insert_data), error_file)
 
-class SwitchImport(CsvImport):
+class SwitchImport(XlsImport):
     def __init__(self, engine):
         columns = [
             (u'名称', 'name'),
@@ -399,7 +434,7 @@ class SwitchImport(CsvImport):
     def read(self, file, data_dict):
         # 1.读取文件
         records = self._read(file)
-        if isinstance(records,unicode): return records
+        if isinstance(records,basestring): return records
 
         # 2.验证数据
         right_records = []
@@ -440,12 +475,12 @@ class SwitchImport(CsvImport):
         self.conn.commit()
 
         # 4.错误数据回写
-        error_file = self._error('switches') # 错误数据回写
+        error_file = self._error('switches', u'交换机') # 错误数据回写
         if error_file:
             error_file = u'<a href="/download?file=/static/file/download/%s">下载错误数据</a>' % error_file
         return u"成功导入交换机%s条，更新%s条记录。%s" % (len(insert_data), len(right_records)-len(insert_data), error_file)
 
-class OltImport(CsvImport):
+class OltImport(XlsImport):
     def __init__(self, engine):
         columns = [
             (u'名称', 'name'),
@@ -464,7 +499,7 @@ class OltImport(CsvImport):
     def read(self, file, data_dict):
         # 1.读取文件
         records = self._read(file)
-        if isinstance(records,unicode): return records
+        if isinstance(records,basestring): return records
 
         # 2.验证数据
         right_records = []
@@ -508,12 +543,12 @@ class OltImport(CsvImport):
         self.conn.commit()
 
         # 4.错误数据回写
-        error_file = self._error('olts') # 错误数据回写
+        error_file = self._error('olts', 'OLT') # 错误数据回写
         if error_file:
             error_file = u'<a href="/download?file=/static/file/download/%s">下载错误数据</a>' % error_file
         return u"成功导入OLT %s条，更新%s条记录。%s" % (len(insert_data), len(right_records)-len(insert_data), error_file)
 
-class EocImport(CsvImport):
+class EocImport(XlsImport):
         def __init__(self, engine):
             columns = [
                 (u'名称', 'name'),
@@ -532,7 +567,7 @@ class EocImport(CsvImport):
         def read(self, file, data_dict):
             # 1.读取文件
             records = self._read(file)
-            if isinstance(records,unicode): return records
+            if isinstance(records,basestring): return records
 
             # 2.验证数据
             right_records = []
@@ -576,12 +611,12 @@ class EocImport(CsvImport):
             self.conn.commit()
 
             # 4.错误数据回写
-            error_file = self._error('eocs') # 错误数据回写
+            error_file = self._error('eocs', 'EOC') # 错误数据回写
             if error_file:
                 error_file = u'<a href="/download?file=/static/file/download/%s">下载错误数据</a>' % error_file
             return u"成功导入EOC %s条，更新%s条记录。%s" % (len(insert_data), len(right_records)-len(insert_data), error_file)
 
-class OnuImport(CsvImport):
+class OnuImport(XlsImport):
     def __init__(self, engine):
         columns = [
             (u'名称', 'name'),
@@ -600,7 +635,7 @@ class OnuImport(CsvImport):
     def read(self, file, data_dict):
         # 1.读取文件
         records = self._read(file)
-        if isinstance(records,unicode): return records
+        if isinstance(records,basestring): return records
 
         # 2.验证数据
         right_records = []
@@ -665,12 +700,12 @@ class OnuImport(CsvImport):
         self.error_records.extend(error_data)
 
         # 4.错误数据回写
-        error_file = self._error('onus') # 错误数据回写
+        error_file = self._error('onus', 'ONU') # 错误数据回写
         if error_file:
             error_file = u'<a href="/download?file=/static/file/download/%s">下载错误数据</a>' % error_file
         return u"成功更新ONU %s条记录。%s" % (len(right_records)-len(error_data), error_file)
 
-class CpeImport(CsvImport):
+class CpeImport(XlsImport):
     def __init__(self, engine):
         columns = [
             (u'名称', 'name'),
@@ -688,7 +723,7 @@ class CpeImport(CsvImport):
     def read(self, file, data_dict):
         # 1.读取文件
         records = self._read(file)
-        if isinstance(records,unicode): return records
+        if isinstance(records,basestring): return records
 
         # 2.验证数据
         right_records = []
@@ -750,7 +785,7 @@ class CpeImport(CsvImport):
         self.error_records.extend(error_data)
 
         # 4.错误数据回写
-        error_file = self._error('cpes') # 错误数据回写
+        error_file = self._error('cpes', 'CPE') # 错误数据回写
         if error_file:
             error_file = u'<a href="/download?file=/static/file/download/%s">下载错误数据</a>' % error_file
         return u"成功更新CPE %s条记录。%s" % (len(right_records)-len(error_data), error_file)

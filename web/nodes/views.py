@@ -13,7 +13,7 @@ from tango.ui import navbar, dashboard
 from tango.ui.tables import make_table
 from tango.login import current_user
 from tango.models import Profile, Category
-from tango.excel.CsvExport import CsvExport
+from tango.excel import XlsExport
 
 from .models import Node, Area, Vendor, NODE_STATUS_DICT, Model
 from .forms import NodeSearchForm
@@ -101,7 +101,7 @@ def area_select():
 
 
 from tango.ui.queries import NodeForm
-@nodeview.route('/nodes.csv/', methods=['POST', 'GET'])
+@nodeview.route('/nodes.xls/', methods=['POST', 'GET'])
 @nodeview.route('/nodes/', methods=['POST', 'GET'])
 def nodes():
     form = NodeSearchForm()
@@ -137,9 +137,9 @@ def nodes():
         num = num.count()
         status_statistcs.append({"status": status, "number": num, "name": NODE_STATUS_DICT.get(status)})
 
-    if request.base_url.endswith(".csv/"):
-        csv = CsvExport('nodes',columns=Node.export_columns())
-        return send_file(csv.export(query,format={'status': lambda value: NODE_STATUS_DICT.get(value)}),as_attachment=True,attachment_filename='nodes.csv')
+    if request.base_url.endswith(".xls/"):
+        csv = XlsExport('nodes',columns=Node.export_columns())
+        return send_file(csv.export(query,format={'status': lambda value: NODE_STATUS_DICT.get(value)}),as_attachment=True,attachment_filename='nodes.xls')
     else:
         return render_template('nodes/index.html', table = table, form=form, status_statistcs=status_statistcs)
 

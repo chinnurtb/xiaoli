@@ -57,7 +57,7 @@
                     <div class="alignleft btn-group">
                         <a class="btn btn-small" href="{{ url_for('nodes.eocs_new') }}"><i class="icon-plus"></i>添加</a>
                         <a class="btn btn-small" href="#" id="delete_btn"><i class="icon-remove"></i>删除</a>
-                        <a class="btn btn-small" href="{{ url_for('tango.download', file='/static/file/template/eocs.csv') }}"><i class="icon-file"></i>模版</a>
+                        <a class="btn btn-small" href="{{ url_for('tango.download', file='/static/file/template/eocs.xls') }}"><i class="icon-file"></i>模版</a>
                         <a class="btn btn-small" href="#import_form" data-toggle="modal"><i class="icon-upload"></i>导入</a>
                     </div>
                 </div>
@@ -65,7 +65,7 @@
                     {{ render_keyword(form, "名称/别名/IP", advanced=True) }}
                 </div>
                 <div class="pull-right actions">
-                    <a class="btn btn-small" href="{{ request.url|replace('eocs','eocs.csv') }}" data-placement="bottom" rel="tooltip" data-original-title="Excel导出"><i class="icon-download-alt"></i></a>
+                    <a class="btn btn-small" href="{{ request.url|replace('eocs','eocs.xls') }}" data-placement="bottom" rel="tooltip" data-original-title="Excel导出"><i class="icon-download-alt"></i></a>
                 </div>
                 <br class="clear">
 

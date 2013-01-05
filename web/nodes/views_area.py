@@ -13,7 +13,7 @@ from tango.ui import navbar, dashboard
 from tango.ui.tables import make_table
 from tango.login import current_user
 from tango.models import Profile, Category
-from tango.excel.CsvExport import CsvExport
+from tango.excel import XlsExport
 from tango.pinyin import pinyin
 
 from .models import Node, Area, Vendor, NODE_STATUS_DICT, Model
@@ -21,7 +21,7 @@ from .tables import CityTable, TownTable, BranchTable, EntranceTable
 from .forms import CityNewForm, TownNewForm, BranchNewForm, EntranceNewForm
 from .views import nodeview
 
-@nodeview.route('/nodes/cities.csv/', methods=['POST', 'GET'])
+@nodeview.route('/nodes/cities.xls/', methods=['POST', 'GET'])
 @nodeview.route("/nodes/cities/", methods=['POST', 'GET'])
 def cities():
     # 构造各个统计的子查询
@@ -68,13 +68,13 @@ def cities():
     hiddens = u','.join([category.name+'_count' for category in Category.query.filter(Category.obj=='node').filter(Category.is_valid!=1)])
     profile = {"table.areas.hiddens":hiddens}
     table = make_table(query, CityTable,profile)
-    if request.base_url.endswith(".csv/"):
-        csv = CsvExport('cities',columns=export_columns)
-        return send_file(csv.export(query,format={'parent_id': lambda value: Area.query.filter(Area.area_type==0).first().name}),as_attachment=True,attachment_filename='cities.csv')
+    if request.base_url.endswith(".xls/"):
+        csv = XlsExport('cities',columns=export_columns)
+        return send_file(csv.export(query,format={'parent_id': lambda value: Area.query.filter(Area.area_type==0).first().name}),as_attachment=True,attachment_filename='cities')
     else:
         return render_template('nodes/areas/cities.html', table = table)
 
-@nodeview.route('/nodes/towns.csv/', methods=['POST', 'GET'])
+@nodeview.route('/nodes/towns.xls/', methods=['POST', 'GET'])
 @nodeview.route("/nodes/towns/", methods=['POST', 'GET'])
 def towns():
     netloc = request.args.get('area_netloc')    # 区域过滤条件
@@ -124,13 +124,13 @@ def towns():
     hiddens = u','.join([category.name+'_count' for category in Category.query.filter(Category.obj=='node').filter(Category.is_valid!=1)])
     profile = {"table.areas.hiddens":hiddens}
     table = make_table(query, TownTable,profile)
-    if request.base_url.endswith(".csv/"):
-        csv = CsvExport('towns',columns=export_columns)
-        return send_file(csv.export(query),as_attachment=True,attachment_filename='towns.csv')
+    if request.base_url.endswith(".xls/"):
+        csv = XlsExport('towns',columns=export_columns)
+        return send_file(csv.export(query),as_attachment=True,attachment_filename='towns.xls')
     else:
         return render_template('nodes/areas/towns.html', table = table)
 
-@nodeview.route('/nodes/branches.csv/', methods=['POST', 'GET'])
+@nodeview.route('/nodes/branches.xls/', methods=['POST', 'GET'])
 @nodeview.route("/nodes/branches/", methods=['POST', 'GET'])
 def branches():
     netloc = request.args.get('area_netloc')    # 区域过滤条件
@@ -179,13 +179,13 @@ def branches():
     hiddens = u','.join([category.name+'_count' for category in Category.query.filter(Category.obj=='node').filter(Category.is_valid!=1)])
     profile = {"table.areas.hiddens":hiddens}
     table = make_table(query, BranchTable,profile)
-    if request.base_url.endswith(".csv/"):
-        csv = CsvExport('branches',columns=export_columns)
-        return send_file(csv.export(query),as_attachment=True,attachment_filename='branches.csv')
+    if request.base_url.endswith(".xls/"):
+        csv = XlsExport('branches',columns=export_columns)
+        return send_file(csv.export(query),as_attachment=True,attachment_filename='branches.xls')
     else:
         return render_template('nodes/areas/branches.html', table = table)
 
-@nodeview.route('/nodes/entrances.csv/', methods=['POST', 'GET'])
+@nodeview.route('/nodes/entrances.xls/', methods=['POST', 'GET'])
 @nodeview.route("/nodes/entrances/", methods=['POST', 'GET'])
 def entrances():
     netloc = request.args.get('area_netloc')    # 区域过滤条件
@@ -225,9 +225,9 @@ def entrances():
     hiddens = u','.join([category.name+'_count' for category in Category.query.filter(Category.obj=='node').filter(Category.is_valid!=1)])
     profile = {"table.areas.hiddens":hiddens}
     table = make_table(query, EntranceTable,profile)
-    if request.base_url.endswith(".csv/"):
-        csv = CsvExport('entrances',columns=export_columns)
-        return send_file(csv.export(query),as_attachment=True,attachment_filename='entrances.csv')
+    if request.base_url.endswith(".xls/"):
+        csv = XlsExport('entrances',columns=export_columns)
+        return send_file(csv.export(query),as_attachment=True,attachment_filename='entrances.xls')
     else:
         return render_template('nodes/areas/entrances.html', table = table)
 
@@ -474,11 +474,11 @@ from werkzeug import secure_filename
 def cities_import():
     if request.method == 'POST':
         file = request.files['file']
-        if file and file.filename.endswith('csv'):
+        if file and file.filename.endswith('xls'):
             filename = secure_filename(file.filename)
             root_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','static','file','upload')
             if not os.path.isdir(root_path): os.mkdir(root_path)
-            file_path = os.path.join(root_path, filename.split('.')[0]+datetime.now().strftime('(%Y-%m-%d %H-%M-%S %f)')+'.csv')
+            file_path = os.path.join(root_path, filename.split('.')[0]+datetime.now().strftime('(%Y-%m-%d %H-%M-%S %f)')+'.xls')
             file.save(file_path)
             from tango.excel import CityImport
             reader = CityImport(engine=db.session.bind)
@@ -492,11 +492,11 @@ def cities_import():
 def towns_import():
     if request.method == 'POST':
         file = request.files['file']
-        if file and file.filename.endswith('csv'):
+        if file and file.filename.endswith('xls'):
             filename = secure_filename(file.filename)
             root_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','static','file','upload')
             if not os.path.isdir(root_path): os.mkdir(root_path)
-            file_path = os.path.join(root_path, filename.split('.')[0]+datetime.now().strftime('(%Y-%m-%d %H-%M-%S %f)')+'.csv')
+            file_path = os.path.join(root_path, filename.split('.')[0]+datetime.now().strftime('(%Y-%m-%d %H-%M-%S %f)')+'.xls')
             file.save(file_path)
             from tango.excel import TownImport
             reader = TownImport(engine=db.session.bind)
@@ -510,11 +510,11 @@ def towns_import():
 def branches_import():
     if request.method == 'POST':
         file = request.files['file']
-        if file and file.filename.endswith('csv'):
+        if file and file.filename.endswith('xls'):
             filename = secure_filename(file.filename)
             root_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','static','file','upload')
             if not os.path.isdir(root_path): os.mkdir(root_path)
-            file_path = os.path.join(root_path, filename.split('.')[0]+datetime.now().strftime('(%Y-%m-%d %H-%M-%S %f)')+'.csv')
+            file_path = os.path.join(root_path, filename.split('.')[0]+datetime.now().strftime('(%Y-%m-%d %H-%M-%S %f)')+'.xls')
             file.save(file_path)
             from tango.excel import BranchImport
             reader = BranchImport(engine=db.session.bind)
@@ -528,11 +528,11 @@ def branches_import():
 def entrances_import():
     if request.method == 'POST':
         file = request.files['file']
-        if file and file.filename.endswith('csv'):
+        if file and file.filename.endswith('xls'):
             filename = secure_filename(file.filename)
             root_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','static','file','upload')
             if not os.path.isdir(root_path): os.mkdir(root_path)
-            file_path = os.path.join(root_path, filename.split('.')[0]+datetime.now().strftime('(%Y-%m-%d %H-%M-%S %f)')+'.csv')
+            file_path = os.path.join(root_path, filename.split('.')[0]+datetime.now().strftime('(%Y-%m-%d %H-%M-%S %f)')+'.xls')
             file.save(file_path)
             from tango.excel import EntranceImport
             reader = EntranceImport(engine=db.session.bind)

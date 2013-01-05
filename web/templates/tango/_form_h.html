@@ -255,7 +255,7 @@
                 var file = this.files[0];
                 var size = file.size / 1000;
                 var type = file.name.substring(file.name.lastIndexOf('.') + 1).toLowerCase();
-                if(type == "csv") {
+                if(type == "csv" || type == "xls") {
                     $("#import_form .btn-submit").removeAttr("disabled");
                 } else {
                     $("#import_form .btn-submit").attr({"disabled":"disabled"});
