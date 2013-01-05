@@ -17,3 +17,6 @@ uwsgi
 supervisor
 pyDes
 # py2cairo --> install by source code
+xlrd
+xlwt
+xlutils
